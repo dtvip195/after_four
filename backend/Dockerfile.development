@@ -1,0 +1,22 @@
+FROM ruby:3.4.12-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    BUNDLE_PATH=/usr/local/bundle \
+    HOME=/tmp/after-four-home \
+    XDG_CACHE_HOME=/tmp/after-four-cache
+
+RUN apt-get update -qq \
+    && apt-get install --no-install-recommends -y ca-certificates postgresql-common \
+    && /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
+    && apt-get update -qq \
+    && apt-get install --no-install-recommends -y postgresql-client-18 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN install -d -m 1777 "$HOME" "$XDG_CACHE_HOME"
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle _2.6.9_ install
+
+CMD [ "bin/rails", "server", "-b", "0.0.0.0" ]

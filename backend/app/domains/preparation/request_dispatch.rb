@@ -1,0 +1,69 @@
+module Preparation
+  class RequestDispatch
+    Result = Data.define(:preparation_dispatch, :replayed)
+
+    def self.call(order_id:, actor_id:, idempotency_key:, clock: -> { Time.current })
+      TrustedActor.require_id!(actor_id)
+      raise DomainError.new("idempotency_key_required", "Idempotency key is required") if idempotency_key.to_s.empty?
+
+      result = nil
+      ApplicationRecord.transaction do
+        order = Order.lock.find(order_id)
+        payment = order.payment.lock!
+        decision_time = clock.call
+        existing = order.preparation_dispatch
+        if existing
+          result = Result.new(preparation_dispatch: existing, replayed: true)
+          next
+        end
+
+        unless order.status == "confirmed" &&
+            order.payment_expires_at &&
+            decision_time < order.payment_expires_at
+          raise DomainError.new("order_not_dispatchable", "Order is expired, held, or otherwise not dispatchable")
+        end
+        unless payment.funding_status == "fully_paid" &&
+            payment.attempt_activity == "idle" &&
+            payment.successful_amount == payment.target_amount
+          raise DomainError.new("payment_not_fully_settled", "Full verified payment is required before preparation")
+        end
+
+        dispatch = PreparationDispatch.create!(
+          order: order,
+          payment: payment,
+          branch_id: order.branch_id,
+          status: "pending",
+          idempotency_key: "dispatch-request:#{idempotency_key}",
+          requested_at: decision_time,
+          created_at: decision_time,
+          updated_at: decision_time
+        )
+        OutboxEvent.create!(
+          event_key: "preparation.dispatch_requested:#{dispatch.id}",
+          event_type: "preparation.dispatch_requested",
+          aggregate_type: "PreparationDispatch",
+          aggregate_id: dispatch.id,
+          payload: { order_id: order.id, payment_id: payment.id, branch_id: order.branch_id },
+          occurred_at: decision_time,
+          available_at: decision_time,
+          created_at: decision_time,
+          updated_at: decision_time
+        )
+        AuditEvent.create!(
+          branch_id: order.branch_id,
+          actor_type: "user",
+          actor_id: actor_id,
+          event_type: "preparation.dispatch_requested",
+          subject_type: "PreparationDispatch",
+          subject_id: dispatch.id,
+          idempotency_key: "preparation.dispatch_requested:#{idempotency_key}",
+          metadata: { order_id: order.id },
+          occurred_at: decision_time,
+          created_at: decision_time
+        )
+        result = Result.new(preparation_dispatch: dispatch, replayed: false)
+      end
+      result
+    end
+  end
+end

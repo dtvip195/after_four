@@ -1,0 +1,72 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:18.7
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      RAILS_ENV: test
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.12
+          bundler: 2.6.9
+          bundler-cache: true
+          working-directory: backend
+      - name: Install PostgreSQL 18 client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --no-install-recommends -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get update -qq
+          sudo apt-get install --no-install-recommends -y postgresql-client-18
+      - run: bin/rails db:prepare
+      - name: Verify SQL schema dump is current
+        run: |
+          bin/rails db:schema:dump
+          git diff --exit-code -- db/structure.sql
+      - run: bundle exec rspec
+      - run: bin/rubocop
+      - run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+      - run: bin/bundler-audit check --update
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build

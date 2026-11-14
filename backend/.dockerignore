@@ -1,0 +1,8 @@
+.bundle
+.env*
+.git
+.ruby-lsp
+config/master.key
+log/*
+tmp/*
+vendor/bundle
