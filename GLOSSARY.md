@@ -19,7 +19,7 @@ _Avoid_: User, account
 A temporary automated restriction applied by authentication defenses and released only under an approved security policy. It does not suspend employment or deactivate the User.  
 _Avoid_: suspension, deactivation
 
-**Deactivation**:  
+**User Deactivation**:
 An Owner-controlled end to User access with no automatic return. Historical Employee, audit, and business records are preserved; later re-employment requires explicit Owner rehire/reactivation.  
 _Avoid_: deletion, temporary lock
 
@@ -28,11 +28,41 @@ Time-limited Owner-granted authority for an active Branch Manager to invite Staf
 _Avoid_: role, Role Assignment, Branch Assignment
 
 **Organization**:  
-The chain-level enterprise that owns Brands, Branches, Users, and Employees.
+The chain-level enterprise that owns Brands, Users, and Employees. Initial deployment has one Organization, but the domain permits more than one.
+
+**Brand**: A customer-facing business identity belonging to an Organization. Initial deployment has one Brand, but the domain permits more than one.
+
+**Branch**: A physical cafe location belonging to a Brand.
 
 **Operating Day**:  
 The business reporting and limit period used for daily cash, Expense, and reporting rules. Its exact cutoff and timezone are not yet defined.  
 _Avoid_: assuming calendar day, shift
+
+**Product**: A Brand-global menu identity whose Branch availability and pricing may vary. An Active Product has at least one Variant and exactly one Default Variant; an Archived Product restores to Inactive before any separate reactivation.
+
+**Category**: A flat Brand-owned catalog grouping to which every Product belongs. Deactivation is temporary and reversible; Archive is long-term retirement with validated restoration.
+
+**Variant**: A persisted sellable selection of a Product. Deactivation is temporary and reversible; Archive is long-term retirement with validated restoration, while a Draft Product may temporarily have no Variant.
+
+_Avoid_: treating the Product itself as an unrecorded sellable option
+
+**Catalog Deactivation**: A temporary, reversible suspension of a Category or Variant.
+
+**Catalog Archive**: Long-term retirement of a Category or Variant, with restoration possible only after validation.
+
+**Default Variant**: The one Variant designated as default for an Active Product. It may be customer-selectable; default designation and customer visibility are independent.
+
+**Catalog Code**: A stable Category, Product, or Variant identifier unique within its Brand and retained after archival. Input permits ASCII Latin letters, digits, hyphen, and underscore; it is trimmed and canonicalized to uppercase.
+
+**SKU**: An optional Variant identifier. When present it is unique within its Brand and retained after archival; it does not automatically inherit Catalog Code normalization.
+
+**Modifier Group**: A set of selectable Modifiers whose minimum and maximum selections express optional/required and single/multiple choice rules.
+
+**Price Version**: An immutable, effective-dated Price at chain-default or explicit Branch-override scope. Corrections create another version rather than rewrite effective history.
+
+**Sold Price**: The authoritative Price locked into an Order Item when its Order is confirmed. Later Catalog or Price changes do not rewrite it.
+
+**Signature Product**: A Product selected by the Owner to represent the AFTER FOUR menu and brand. The designation does not itself approve its Variants, Recipe, presentation, availability, or Price.
 
 **Order**:  
 The commercial record of requested products for one service interaction. It does not represent Payment, Preparation, printing, or delivery state.

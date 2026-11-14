@@ -23,7 +23,7 @@ Unless explicitly labeled otherwise, the enforcement mechanism is `TECHNICAL_PRO
 | Branch Assignment links same-Organization Employee and Branch | FKs; optional composite scope FK | Validate ancestry and effective authorization | `WORKSHOP_AGREED` |
 | Operational root has immutable Branch | Non-null `branch_id` FK | Reject Branch reassignment after creation/confirmation | `WORKSHOP_AGREED` |
 | Child belongs to its aggregate | Non-null parent FK; restrict parent deletion | Aggregate commands are the only write path | `TECHNICAL_PROPOSAL` |
-| Order source catalog FKs may coexist with snapshots | Nullable Product/Variant/Modifier FKs; snapshot columns non-null | Historical rendering uses snapshots, never current joins | `WORKSHOP_AGREED` |
+| Order source catalog FKs may coexist with snapshots | Nullable Product/Variant/Modifier FKs; sold-price snapshot non-null; other approved snapshot columns non-null | Historical sold Price uses the confirmation snapshot (`ODB-CAT-10`), never current joins; other snapshot components retain their recorded provenance | `OWNER_CONFIRMED` for sold Price; other snapshots `WORKSHOP_AGREED` |
 | Preparation Item references Order Item and exact RecipeVersion | FKs | Validate same Order/Branch and effective recipe at preparation | `WORKSHOP_AGREED` |
 | Refund references original successful Payment Attempt and Order | Non-null FKs | Validate success, currency, refundable balance, and authority under lock | `WORKSHOP_AGREED`; policy `OPEN_DECISION` |
 | Stock Movement belongs to Inventory Position and optional Lot | Non-null/nullable FKs | Validate Lot belongs to Position and source is legitimate | `WORKSHOP_AGREED` |
@@ -42,8 +42,9 @@ Database cascades are limited to unconfirmed, purely dependent configuration row
 | Branch code | UQ `(brand_id, code)` | Brand scope. |
 | Employee code | UQ `(organization_id, employee_code)` | Never recycled while retained. |
 | Role key | UQ `(organization_id, key)` | Stable capability template. |
-| Category/Product/Modifier codes | UQ within documented Brand/parent scope | Product move/rename does not alter Order snapshots. |
-| Variant SKU | UQ in Brand scope | May require denormalized Brand FK or indexed ancestry strategy. |
+| Category/Product/Variant codes | UQ canonical uppercase code in Brand scope, including archived rows | Trim input; permit only ASCII Latin letters/digits/hyphen/underscore; canonicalize uppercase (`ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-22`). Storage and ancestry enforcement remain technical design. |
+| Variant SKU | Partial UQ in Brand scope when present, including archived rows | SKU is optional, Brand-unique when present, and never reused (`ODB-CAT-17`, `ODB-CAT-18`). SKU normalization/case/whitespace/Unicode/character policy remains `UNRESOLVED`; code rules do not apply automatically. |
+| Modifier code | UQ in its Group | Modifier identifier policy is not changed by the Catalog Core decisions. |
 | Order number | UQ `(branch_id, order_number)` | Exact numbering is `OPEN_DECISION`. |
 | Preparation dispatch | UQ `order_id` | One paid-order dispatch identity (`OWNER_CONFIRMED`). |
 | Ticket/delivery number | UQ `(branch_id, number)` | Operational display identity. |
@@ -56,7 +57,7 @@ Database cascades are limited to unconfirmed, purely dependent configuration row
 | Loyalty account | UQ `customer_id` | Organization-shared Customer. |
 | Idempotency | UQ `(organization_id, scope, key)` plus request fingerprint | Same key/different payload is conflict. |
 
-`TECHNICAL_PROPOSAL` Prefer named constraints with stable error mapping. Uniqueness involving archived master data should normally retain old codes; allowing reuse is an explicit policy, not a default partial index.
+`TECHNICAL_PROPOSAL` Prefer named constraints with stable error mapping. `OWNER_CONFIRMED` Category/Product/Variant canonical codes and present SKUs retain their Brand-scoped uniqueness after archive and are never reused (`ODB-CAT-18`, `ODB-CAT-22`). Exact constraint names, code-normalization storage, SKU normalization, and ancestry mechanics remain proposed/unresolved as stated above.
 
 ## 4. Organization and Branch isolation
 
@@ -93,11 +94,30 @@ Collections are pre-scoped before serialization. UUID unpredictability, a select
 
 ## 5. Historical snapshots and effective dates
 
+### 5.0 Catalog/Pricing MVP rules
+
+| Owner-confirmed rule | Required integrity outcome | Implementation boundary |
+|---|---|---|
+| Flat Categories (`ODB-CAT-02`) | MVP Category records have no parent hierarchy. | Later hierarchy migration is not approved here. |
+| Product lifecycle (`ODB-CAT-03`, `ODB-CAT-24`) | Product status is Draft, Active, Inactive, or Archived. Archived restores to Inactive and requires separate activation; restoration never makes it sellable. | Product transition/restoration authority and exact commands remain unresolved/technical. |
+| Organization/Brand multiplicity (`ODB-CAT-14`) | Initial deployment has one Organization and one Brand; schema-level single-row constraints are prohibited. | Maximum Brands per Organization and additional Branch cardinality are not approved here. |
+| Required Category (`ODB-CAT-15`) | Every Product, including Draft, references exactly one Category of the same Brand. | Repeated Brand keys and composite FK shape remain technical design. |
+| Catalog identifiers (`ODB-CAT-16`–`ODB-CAT-18`, `ODB-CAT-22`) | Category/Product/Variant codes trim, validate ASCII letters/digits/hyphen/underscore, canonicalize uppercase, remain Brand-unique, and include archived rows. SKU remains optional, Brand-unique, and non-reusable. | SKU normalization and identifier reservation after Draft deletion remain `UNRESOLVED`; storage/composite enforcement/error mapping remain proposed. |
+| Persisted Variant and Product completeness (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`) | Draft Product may have zero Variants/Defaults; Active Product has at least one Variant and exactly one Default. | Cross-row enforcement, activation/Default switching transaction, and concurrency remain `TECHNICAL_PROPOSAL`. |
+| Default/visibility independence (`ODB-CAT-20`) | Default designation does not imply hidden, and customer visibility does not imply default. | Exact fields and at-most-one-default index remain proposed. |
+| Category/Variant lifecycle (`ODB-CAT-21`, `ODB-CAT-25`) | Deactivate is temporary/reversible; Archive is long-term retirement with validated restoration. Owner or explicit delegate performs validated/audited state changes. Category Archive requires no assigned Active Products; Variant Archive must preserve the Active Product's required valid Default. | Restoration targets, detailed transition matrix, delegated-authority enforcement, additional metadata, and exact commands remain unresolved/proposed. |
+| Draft physical deletion (`ODB-CAT-26`) | Only Draft records with no references, business history, audit dependencies, or other relevant dependencies may be physically deleted. Active, Inactive, and Archived records may not. | Identifier reservation after Draft deletion and database/application safety proof remain unresolved/proposed; FK absence alone never proves safety. |
+| Modifier cardinality (`ODB-CAT-05`) | Enforce `0 <= minimum_selections <= maximum_selections`; validate selected count and membership. | Modifier price effect remains unresolved. |
+| Branch availability override (`ODB-CAT-06`) | At most one effective explicit Branch/Variant override at an instant; otherwise inherit chain default. | Time-based menu policy and publishing authority remain unresolved. |
+| Price scope/history (`ODB-CAT-07`, `ODB-CAT-08`) | At most one effective Price per Variant/scope at an instant; effective Branch version overrides chain default; published versions are immutable. | Tax, service charge, rounding, zero/free pricing, and manual override policy remain unresolved. |
+| Draft price review (`ODB-CAT-09`) | If the authoritative Price version/value differs from the Draft quote, confirmation fails closed until a revised quote is reviewed and accepted. | Quote/version token and acceptance protocol require technical design. |
+| Sold-price lock (`ODB-CAT-10`) | Confirmation atomically stores immutable sold-price evidence; later Price changes never update it. | Exact snapshot components depend on unresolved Price composition policies. |
+
 ### 5.1 Required snapshots
 
 | Historical record | Required immutable snapshot |
 |---|---|
-| Order Item | Product/Variant codes and labels, Modifier labels, quantity, unit price, price components, currency |
+| Order Item | Product/Variant codes and labels, Modifier labels, quantity, sold unit price, approved price components, currency, and source Price Version identity where retained |
 | Promotion Usage | Rule/benefit snapshot and applied discount |
 | Preparation Item | Display name, requested quantity, exact RecipeVersion |
 | Reservation | Guest/contact details allowed by consent/retention policy |
@@ -120,7 +140,7 @@ Price, RecipeVersion, Branch Assignment, Role Assignment, Compensation Agreement
 | No overlapping RecipeVersion for Recipe | Exclusion constraint | Validate publication/effective status |
 | At most one primary Branch Assignment | Partial/exclusion constraint | Validate temporary/primary business policy |
 | Compensation history does not overlap | Exclusion constraint | Legal/payroll validation before activation |
-| Change does not rewrite past transaction | Permissions/triggers optional | Commands create new version and end prior interval |
+| Change does not rewrite past transaction | Permissions/triggers optional | Price commands create a new non-overlapping version without editing a published Price version (`ODB-CAT-08`); other versioned records follow their separately approved supersession rules |
 
 ## 6. Immutable confirmed transactions
 
@@ -315,6 +335,10 @@ Never keep a database transaction open while waiting for a payment provider, pri
 | Record delegated Expense | Operating Day/approved policy scope, then Expense identity; serialize cumulative delegated total before commit |
 | Close Payroll Period | Period, Payroll rows sorted by Employee ID |
 | Claim Delivery | Delivery row/version and assignment transition |
+| Activate Product / change Default Variant | Product first, then relevant Variants in stable ID order; atomically preserve at least one Variant and exactly one Default for Active Product |
+| Archive/restore Category or Variant | Lifecycle subject first, then dependent Product/Variant rows in stable ID order; revalidate authority, dependencies, identifier uniqueness, and lifecycle preconditions before commit |
+
+The two Catalog lock orders above are `TECHNICAL_PROPOSAL`; `ODB-CAT-23` and `ODB-CAT-25` confirm the invariants, not the implementation mechanism. Exact lock acquisition, retry behavior, and database enforcement remain unresolved.
 
 Deadlock/serialization failure retries restart the whole transaction with bounded retry. A statement error is not rescued and continued inside the same PostgreSQL transaction.
 
@@ -322,10 +346,10 @@ Deadlock/serialization failure retries restart the whole transaction with bounde
 
 | Data class | Lifecycle treatment |
 |---|---|
-| Organization/Brand/Branch, User, Employee, Catalog, Supplier, Warehouse, Device/Printer | status plus archive/deactivation date; no deletion when referenced |
+| Organization/Brand/Branch, User, Employee, Catalog, Supplier, Warehouse, Device/Printer | status plus archive/deactivation date; no deletion when referenced. Catalog Deactivate/Archive/restore distinctions follow `ODB-CAT-24`–`ODB-CAT-25`; exact mechanics remain domain-specific. |
 | Effective policy/version rows | end effective interval or supersede; retain old version |
 | Orders, Payments, Refunds, Payroll, Stock, Cash, Loyalty, Approval/Audit | never soft-delete as correction; use lifecycle/reversal/adjustment |
-| Draft records with no external effect | May be cancellable; physical deletion only under explicit retention policy and no references |
+| Draft records | Physical deletion only when there are no references, business history, audit dependencies, or other relevant dependencies (`ODB-CAT-26`). Identifier reservation afterward remains unresolved; FK absence alone is insufficient. |
 | Personal/contact data | Minimize and protect; anonymization/retention must preserve legally required transaction evidence (`LEGAL_VALIDATION`) |
 
 No global `deleted_at` concern is recommended. It hides domain-specific integrity and can break uniqueness unexpectedly.

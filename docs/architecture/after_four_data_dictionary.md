@@ -36,15 +36,15 @@ Branch timezone is `branches.timezone_name varchar(100)` using an IANA identifie
 
 ## 3. Organization, identity, and configuration
 
-### `organizations` — enterprise root (`WORKSHOP_AGREED`)
+### `organizations` — enterprise root (`OWNER_CONFIRMED`, `ODB-CAT-14`)
 
 Fields: `code varchar(50) R`; `name varchar(200) R`; `legal_name varchar(250) O`; `status varchar(40) R default 'active'`; `default_currency char(3) R`; `archived_at timestamptz O`; mutable common fields.  
-Keys/indexes: UQ `code`; index `status`. History: archive/deactivate, never delete after references exist.
+Keys/indexes: UQ `code`; index `status`. History: archive/deactivate, never delete after references exist. Initial deployment has one Organization, but the schema permits multiple Organization rows and has no permanent single-row constraint.
 
-### `brands` — customer-facing brand (`WORKSHOP_AGREED`)
+### `brands` — customer-facing brand (`OWNER_CONFIRMED`, `ODB-CAT-14`)
 
 Fields: `organization_id uuid R FK`; `code varchar(50) R`; `name varchar(200) R`; `status varchar(40) R default 'active'`; `archived_at timestamptz O`; mutable common fields.  
-Keys/indexes: UQ `(organization_id, code)`; index `organization_id`. Organization is immutable after use.
+Keys/indexes: UQ `(organization_id, code)`; index `organization_id`. Organization is immutable after use. Initial deployment has one Brand, but the schema permits multiple Brand rows; maximum Brands per Organization remains unresolved.
 
 ### `branches` — physical cafe (`WORKSHOP_AGREED`)
 
@@ -170,26 +170,28 @@ Keys/indexes: UQ `(payroll_id, idempotency_key)`; index `(payroll_id, status)`; 
 
 | Table / purpose | Specific fields | Constraints, indexes, history |
 |---|---|---|
-| `categories` — Brand grouping | `brand_id uuid R FK`; `code varchar(50) R`; `name varchar(150) R`; `position integer R default 0`; `archived_at timestamptz O`; mutable common | UQ `(brand_id, code)`; index display order; archive, do not delete. |
-| `products` — stable product identity | `category_id uuid R FK`; `code varchar(50) R`; `name varchar(200) R`; `description text O`; `archived_at timestamptz O`; mutable common | UQ `(category_id, code)`; index category; category move does not alter Order snapshots. |
-| `product_variants` — sellable configuration | `product_id uuid R FK`; `sku varchar(100) R`; `name varchar(150) R`; `is_active boolean R default true`; `archived_at timestamptz O`; mutable common | UQ `sku` in Brand scope via application/composite strategy; index `(product_id, is_active)`. |
+| `categories` — flat Brand grouping (`ODB-CAT-02`, `ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-21`, `ODB-CAT-22`, `ODB-CAT-25`) | `brand_id uuid R FK`; proposed raw/canonical `code` representation; `name varchar(150) R`; `position integer R default 0`; proposed lifecycle fields; mutable common | Code input is trimmed ASCII letters/digits/hyphen/underscore and canonicalized uppercase; Brand uniqueness includes archived rows. Deactivate and Archive are distinct; Owner/explicit delegate changes are validated/audited; Archive is blocked while Active Products remain assigned. Restoration target, fields, command, and authority enforcement are unresolved/technical. |
+| `products` — Brand-global stable identity (`ODB-CAT-01`, `ODB-CAT-03`, `ODB-CAT-15`, `ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-22`–`ODB-CAT-24`) | `category_id uuid R FK`; proposed raw/canonical `code` representation; `name varchar(200) R`; `description text O`; `status varchar(40) R`; mutable common | Every Product belongs to one Category. Status is `draft`, `active`, `inactive`, or `archived`. Active requires at least one Variant and exactly one Default. Archived restores to Inactive; activation is separate. Repeated `brand_id`, composite FK, normalization storage, cross-row Default enforcement, locks, and commands remain `TECHNICAL_PROPOSAL`. |
+| `product_variants` — persisted sellable selection (`ODB-CAT-04`, `ODB-CAT-16`–`ODB-CAT-23`, `ODB-CAT-25`) | `product_id uuid R FK`; proposed raw/canonical `code` representation; proposed `sku varchar(100) O`; `name varchar(150) R`; proposed default, visibility, and lifecycle fields; mutable common | Draft Product may have zero Variants/Defaults; Active has at least one Variant and exactly one Default. Default and visibility are independent. Variant Deactivate/Archive are distinct; Archive cannot invalidate an Active Product's Default. Code uses `ODB-CAT-22`; SKU normalization remains unresolved. Exact fields/indexes, restoration target, commands, and concurrency remain proposed. |
 
-### `branch_product_availabilities` — effective Branch sellability (`WORKSHOP_AGREED`)
+`OWNER_CONFIRMED` Physical deletion applies only to a Draft record with no references, history, audit dependencies, or other relevant dependencies (`ODB-CAT-26`). It never applies to Active, Inactive, or Archived records. Identifier reservation after Draft deletion and exact safety enforcement remain unresolved/technical; FK absence alone is insufficient.
+
+### `branch_product_availabilities` — effective Branch override (`OWNER_CONFIRMED`, `ODB-CAT-06`)
 
 Fields: `branch_id uuid R FK`; `product_variant_id uuid R FK`; `is_available boolean R`; `effective_from timestamptz R`; `effective_to timestamptz O`; `reason text O`; `changed_by_user_id uuid R FK`; immutable versions.  
-Keys/indexes: index `(branch_id, product_variant_id, effective_from)`; non-overlap per Branch/Variant.
+Keys/indexes: index `(branch_id, product_variant_id, effective_from)`; non-overlap per Branch/Variant. An effective row is an explicit available/unavailable override; no effective row means inherit the chain default. Time-based menu policy and publishing authority remain unresolved.
 
-### `product_prices` — chain default/Branch override history (`WORKSHOP_AGREED`)
+### `product_prices` — immutable chain default/Branch override versions (`OWNER_CONFIRMED`, `ODB-CAT-07`, `ODB-CAT-08`)
 
 Fields: `product_variant_id uuid R FK`; `branch_id uuid O FK`; `amount bigint R`; `currency_code char(3) R`; `effective_from timestamptz R`; `effective_to timestamptz O`; `created_by_user_id uuid R FK`; `approval_request_id uuid O FK`; immutable.  
-Keys/indexes: index `(product_variant_id, branch_id, effective_from)`; non-overlap per nullable Branch scope; check amount non-negative. Null Branch means Brand default.
+Keys/indexes: index `(product_variant_id, branch_id, effective_from)`; non-overlap per nullable Branch scope; check amount non-negative. Null Branch means chain default; an effective Branch row explicitly overrides it. Price versions are immutable. Zero/free pricing, Price composition, publication authority, and manual sold-price overrides remain unresolved, so `amount >= 0` is a structural proposal rather than an approved free-item policy.
 
 ### `modifier_groups`, `modifiers`, `product_modifier_groups`
 
 | Table / purpose | Specific fields | Constraints, indexes, history |
 |---|---|---|
-| `modifier_groups` — choice group | `brand_id uuid R FK`; `code varchar(50) R`; `name varchar(150) R`; `minimum_selections integer R default 0`; `maximum_selections integer R`; `archived_at timestamptz O`; mutable common | UQ `(brand_id, code)`; checks `0 <= min <= max`. |
-| `modifiers` — selectable option | `modifier_group_id uuid R FK`; `code varchar(50) R`; `name varchar(150) R`; `price_delta_amount bigint R default 0`; `currency_code char(3) R`; `archived_at timestamptz O`; mutable common | UQ `(modifier_group_id, code)`; signed price delta allowed by policy. |
+| `modifier_groups` — choice group (`ODB-CAT-05`) | `brand_id uuid R FK`; `code varchar(50) R`; `name varchar(150) R`; `minimum_selections integer R default 0`; `maximum_selections integer R`; `archived_at timestamptz O`; mutable common | UQ `(brand_id, code)`; checks `0 <= min <= max`; minimum zero means optional, positive means required; maximum one means single choice, greater than one means multiple choice. |
+| `modifiers` — selectable option | `modifier_group_id uuid R FK`; `code varchar(50) R`; `name varchar(150) R`; `price_delta_amount bigint O`; `currency_code char(3) O`; `archived_at timestamptz O`; mutable common | UQ `(modifier_group_id, code)`; Modifier pricing fields are conditional proposals because whether/how selections affect Price remains unresolved. |
 | `product_modifier_groups` — Variant allowance | `product_variant_id uuid R FK`; `modifier_group_id uuid R FK`; `position integer R default 0`; `minimum_override integer O`; `maximum_override integer O`; timestamps | UQ pair; index Variant/position; validate override bounds. |
 
 ### `units`, `ingredients`, `recipes`, `recipe_versions`, `recipe_items`

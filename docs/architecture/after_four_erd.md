@@ -30,7 +30,7 @@ The requested entity list is expanded only where a canonical invariant needs an 
 | `role_assignments` | Effective role and Branch scope cannot live safely on `users`. | `WORKSHOP_AGREED` |
 | `employee_availabilities`, `shift_swap_requests`, `compensation_agreements` | Weekly planning, swaps, and effective-dated pay require history. | `WORKSHOP_AGREED` |
 | `shift_duties`, `payroll_payments` | Operational duties differ from authorization roles; payroll payment history differs from calculation/closure. | `WORKSHOP_AGREED` |
-| `modifier_groups`, `product_modifier_groups`, `branch_product_availabilities` | Modifier cardinality and Branch sellability are first-class rules. | `WORKSHOP_AGREED` |
+| `modifier_groups`, `product_modifier_groups`, `branch_product_availabilities` | Modifier cardinality and explicit Branch sellability overrides are first-class rules. | `OWNER_CONFIRMED` `ODB-CAT-05`, `ODB-CAT-06`; exact table shape proposed |
 | `preparation_dispatches`, `preparation_dispatch_attempts` | Dispatch proves the paid-order handoff. Attempt history is reserved for a future delivery worker and remains separate from business dispatch state. The physical attempt table/model exist, but no Phase 1 command writes them; current Retry Dispatch only requeues Outbox and appends Audit evidence. | Business rule `OWNER_CONFIRMED`; attempt record `TECHNICAL_PROPOSAL` |
 | `preparation_deviations` | Remake, waste, and post-dispatch cancellation cannot overwrite ticket items. | `WORKSHOP_AGREED` |
 | `deliveries`, `delivery_items`, `delivery_events` | Internal delivery has an independent lifecycle and history. | `WORKSHOP_AGREED` |
@@ -77,7 +77,7 @@ The requested entity list is expanded only where a canonical invariant needs an 
 - `WORKSHOP_AGREED` Root operational records carry immutable `branch_id`: Order, Preparation Dispatch/Ticket, Delivery, Shift, Attendance, Cash Session, Expense, Reservation/Table Session, Asset, Checklist Run, Customer Feedback, Device, Printer.
 - `TECHNICAL_PROPOSAL` High-risk cross-context records may repeat a scope key only when it enables a composite FK or constraint proving same-scope membership. Such denormalization must be documented, not incidental.
 - `WORKSHOP_AGREED` Branch movement or Employee transfer never rewrites historical `branch_id`.
-- `WORKSHOP_AGREED` Orders retain snapshot values even when Product/Price/Recipe/Employee records later change.
+- `OWNER_CONFIRMED` Confirmed Orders retain sold Price even when Product/Price records later change (`ODB-CAT-10`). `WORKSHOP_AGREED` Other Recipe/Employee and descriptive snapshots are likewise historical.
 
 ## 4. Organization and identity ERD
 
@@ -104,6 +104,7 @@ erDiagram
 
 ### Key relationship decisions
 
+- `OWNER_CONFIRMED` Initial deployment has one Organization and one Brand, while the schema permits multiple rows of each and has no permanent single-row constraint (`ODB-CAT-14`). The depicted Organization-to-Brand and Brand-to-Branch relationship shapes remain the current logical design; `ODB-CAT-14` does not approve a maximum Brands-per-Organization or additional Branch cardinality.
 - `WORKSHOP_AGREED` User and Employee are optional one-to-one: an Employee may not need system access; a User must not automatically become an Employee.
 - `WORKSHOP_AGREED` Branch Assignment records employment/work assignment. Role Assignment records authorization. Neither substitutes for the other.
 - `OWNER_CONFIRMED` Invitation Delegation is a separate domain concept from both assignments. It permits only an active Branch Manager to invite Staff within assigned Branches, for at most 90 days; it grants no role, work eligibility, assignment approval, onward delegation, or self-renewal. This decision does not add a table or field to this ERD.
@@ -152,7 +153,7 @@ erDiagram
 erDiagram
   BRANDS ||--o{ CATEGORIES : catalogs
   CATEGORIES ||--o{ PRODUCTS : groups
-  PRODUCTS ||--|{ PRODUCT_VARIANTS : offers
+  PRODUCTS ||--o{ PRODUCT_VARIANTS : offers
   BRANCHES ||--o{ BRANCH_PRODUCT_AVAILABILITIES : configures
   PRODUCT_VARIANTS ||--o{ BRANCH_PRODUCT_AVAILABILITIES : available_as
   PRODUCT_VARIANTS ||--o{ PRODUCT_PRICES : priced
@@ -170,11 +171,21 @@ erDiagram
 
 ### Key relationship decisions
 
-- `WORKSHOP_AGREED` Chain default and Branch override prices share `product_prices`; a nullable `branch_id` distinguishes default from override. Effective periods may not overlap for the same Variant/Branch scope.
-- `WORKSHOP_AGREED` Branch availability is effective-dated separately from price.
+- `OWNER_CONFIRMED` Products are Brand-global, MVP Categories are flat, and every Product belongs to exactly one Category in every lifecycle state. Product lifecycle values are Draft, Active, Inactive, and Archived (`ODB-CAT-01`–`ODB-CAT-03`, `ODB-CAT-15`). The Category relationship never creates a separate Branch Product identity.
+- `OWNER_CONFIRMED` Every sellable selection is a persisted Variant. Draft Product may temporarily have none; Active Product requires at least one Variant and exactly one Default (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`). Cross-row enforcement and activation locking remain `TECHNICAL_PROPOSAL`.
+- `OWNER_CONFIRMED` Default designation and customer visibility are independent; a Default Variant may be customer-selectable (`ODB-CAT-20`, `ODB-CAT-23`). Exact fields, partial unique indexes, and transactional Default switching remain `TECHNICAL_PROPOSAL`.
+- `OWNER_CONFIRMED` Category/Product/Variant codes are trimmed, use only ASCII Latin letters/digits/hyphen/underscore, canonicalize to uppercase, remain Brand-unique across archived rows, and are never reused after archive (`ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-22`). SKU is optional, Brand-unique, and non-reusable when present, but its normalization remains `UNRESOLVED` (`ODB-CAT-17`, `ODB-CAT-18`).
+- `OWNER_CONFIRMED` Archived Product restores to Inactive and requires separate reactivation (`ODB-CAT-24`). Category/Variant Deactivate and Archive are distinct, reversible actions controlled by Owner or explicit delegate, validated/audited, and subject to the Active Product/Default dependency guards (`ODB-CAT-21`, `ODB-CAT-25`). Restoration targets and detailed transitions remain `UNRESOLVED`; physical representation remains `TECHNICAL_PROPOSAL`.
+- `OWNER_CONFIRMED` Only a dependency-free Draft record may be physically deleted; Active, Inactive, Archived, referenced, historical, or audit-dependent records may not (`ODB-CAT-26`). Identifier reservation after Draft deletion and safe-deletion proof remain unresolved/technical.
+- `OWNER_CONFIRMED` Modifier Group minimum/maximum limits express required/optional and single/multiple choice (`ODB-CAT-05`). Modifier price effects remain unresolved.
+- `OWNER_CONFIRMED` Chain default and explicit Branch override Prices share `product_prices`; a nullable `branch_id` distinguishes default from override. Price versions are immutable, effective-dated, and may not overlap for the same Variant/Branch scope (`ODB-CAT-07`, `ODB-CAT-08`).
+- `OWNER_CONFIRMED` Branch availability is an effective-dated explicit override separate from Price; absence of an effective Branch row inherits the chain default (`ODB-CAT-06`).
+- `OWNER_CONFIRMED` A changed authoritative Price requires Draft quote review before confirmation, and confirmation locks the sold Price into the Order Item snapshot (`ODB-CAT-09`, `ODB-CAT-10`).
 - `WORKSHOP_AGREED` RecipeVersion effective intervals may not overlap for one Recipe.
-- `WORKSHOP_AGREED` Historical Orders copy sold labels/prices; historical Preparation Items retain the RecipeVersion used.
+- `WORKSHOP_AGREED` Historical Preparation Items retain the RecipeVersion used.
 - `TECHNICAL_PROPOSAL` Modifier assignment is at Variant scope for v1. Product-wide assignment can be expressed by assigning all current Variants; adding polymorphic scope now would weaken FKs.
+
+The table/column shapes remain logical proposals rather than implementation authorization. Tax/service charge, rounding, zero/free pricing, Modifier price effects, time-based availability, manual price overrides, inventory, and media storage remain unresolved.
 
 ## 7. Customer and loyalty ERD
 
@@ -377,11 +388,15 @@ erDiagram
 | Rule | Constraint direction | Provenance |
 |---|---|---|
 | One Brand code per Organization; one Branch code per Brand | Unique `(organization_id, code)` and `(brand_id, code)` | `TECHNICAL_PROPOSAL` |
+| Canonical Category/Product/Variant code within Brand | Unique `(brand_id, canonical_code)` including archived rows | `OWNER_CONFIRMED` trim/ASCII/uppercase/scope/non-reuse (`ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-22`); storage/index mechanism `TECHNICAL_PROPOSAL` |
+| Optional Variant SKU within Brand | Partial unique `(brand_id, sku)` where SKU is present, including archived rows | `OWNER_CONFIRMED` scope/non-reuse (`ODB-CAT-17`, `ODB-CAT-18`); mechanism `TECHNICAL_PROPOSAL` |
+| Exactly one valid Default Variant per Active Product | Partial unique index for at-most-one plus transactional or database cross-row enforcement for at-least-one | Requirement `OWNER_CONFIRMED` (`ODB-CAT-23`); mechanism and concurrency `TECHNICAL_PROPOSAL` |
 | At most one User per Employee and Employee per User | Unique nullable `employees.user_id` | `WORKSHOP_AGREED` |
 | At most one active primary Branch Assignment per Employee | Effective-range exclusion/transaction validation | `WORKSHOP_AGREED` |
 | One role key per Organization | Unique `(organization_id, key)` | `TECHNICAL_PROPOSAL` |
 | One Payroll per Employee/Period | Unique `(payroll_period_id, employee_id)` | `OWNER_CONFIRMED` |
-| Non-overlapping effective Price and RecipeVersion scopes | Exclusion constraints or serialized validation | `WORKSHOP_AGREED` |
+| Non-overlapping effective Price scopes | Exclusion constraints or serialized validation | `OWNER_CONFIRMED` consequence of immutable effective-dated versions (`ODB-CAT-08`) |
+| Non-overlapping effective RecipeVersion scopes | Exclusion constraints or serialized validation | `WORKSHOP_AGREED` |
 | One Order number per Branch/business namespace | Unique `(branch_id, order_number)` | `TECHNICAL_PROPOSAL`; namespace `OPEN_DECISION` |
 | One Preparation Dispatch per Order | Unique `order_id`; unique `(scope, idempotency_key)` | `OWNER_CONFIRMED` |
 | Provider event/reference applied once | Unique provider/event and successful provider reference | `TECHNICAL_PROPOSAL` |

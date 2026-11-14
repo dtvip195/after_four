@@ -168,18 +168,22 @@ Invitation-only policy, individual 6–8 digit enrolled-POS-only PIN scope, requ
 
 ## 5. Product and menu contracts
 
+This section is a future contract, not an active route or implementation authorization. Product identity is Brand-global; Categories are flat; every Product belongs to one Category; and every sellable selection resolves to a Variant (`ODB-CAT-01`–`ODB-CAT-04`, `ODB-CAT-15`). Draft may have zero Variants/Defaults; Active has at least one Variant and exactly one Default, independent of customer visibility (`ODB-CAT-19`, `ODB-CAT-20`, `ODB-CAT-23`). Catalog code input is trimmed/ASCII-constrained and canonicalized uppercase while remaining Brand-unique/non-reusable; SKU remains optional and Brand-unique/non-reusable but its normalization is unresolved (`ODB-CAT-16`–`ODB-CAT-18`, `ODB-CAT-22`). Product restore, Category/Variant lifecycle, and Draft deletion follow `ODB-CAT-24`–`ODB-CAT-26`; exact commands and technical guards remain unresolved/proposed.
+
 | Method/path | Contract | Authorization / controls | Main errors |
 |---|---|---|---|
 | `GET /branches/{branch_id}/menu` | Effective categories/products/variants, availability, current price, modifiers; filters `category_id`, `available`; search `q` | Any assigned operational role; Branch scope | `branch_scope_violation` |
 | `GET /branches/{branch_id}/products/{variant_id}` | Effective detail and modifier cardinality | Assigned Branch | `resource_not_found` |
 | `GET /categories` | Brand catalog administration list | Owner/Branch Manager read | `forbidden` |
 | `GET /products` / `GET /products/{id}` | Chain catalog/admin detail with variants | Owner/Branch Manager | `resource_not_found` |
-| `POST /products` | Product plus initial Variant(s); stable codes | Owner/authorized Branch Manager; idempotent/audited | `duplicate_resource`, `validation_failed` |
-| `PATCH /products/{id}` | Editable master fields; `If-Match` | Authorized catalog manager; audit | `concurrent_modification` |
-| `POST /product-variants/{id}/prices` | Effective price: optional `branch_id`, money, interval, approval reference | Authority unresolved; idempotent/audited | `effective_period_overlap`, `approval_required` |
-| `POST /branches/{branch_id}/product-availabilities` | Variant, availability, interval, reason | Branch Manager assigned Branch; idempotent/audited | `effective_period_overlap` |
+| `POST /products` | Proposed Brand-global Product creation with required Category and stable Brand-scoped code; initial Variants are optional while Draft | Authority and exact transaction shape unresolved; idempotent/audited | `duplicate_resource`, `validation_failed` |
+| `PATCH /products/{id}` | Editable master fields or proposed lifecycle command seam; `If-Match` | Authority unresolved; audit | `concurrent_modification`, `invalid_state_transition` |
+| `POST /product-variants/{id}/prices` | New immutable effective Price version: optional `branch_id`, money, interval, approval reference | Publication authority unresolved; idempotent/audited; never overwrite a published version | `effective_period_overlap`, `approval_required` |
+| `POST /branches/{branch_id}/product-availabilities` | Explicit Variant availability override, interval, reason; absence means inherit chain default | Publication authority unresolved; idempotent/audited | `effective_period_overlap` |
 
-Money displayed by POS is advisory until the server confirms the Order. Order creation/confirmation resolves price again and snapshots it. Recipe details/costs require inventory/catalog capabilities and are not included in ordinary menu responses.
+The effective Price is the explicit Branch version when one exists, otherwise the chain default (`ODB-CAT-07`). Price versions are immutable/effective-dated (`ODB-CAT-08`). Money displayed for a Draft is a provisional authoritative quote: if the effective Price changes, the API must return a revised quote that requires review before confirmation (`ODB-CAT-09`). Confirmation locks the sold Price snapshot (`ODB-CAT-10`). The quote/version-token and acceptance protocol remains technical design. Recipe details/costs require inventory/catalog capabilities and are not included in ordinary menu responses.
+
+No route in this table authorizes physical deletion. Any future Draft-deletion command must prove absence of references, history, audit dependencies, and other relevant dependencies; FK absence alone is insufficient (`ODB-CAT-26`). Category/Variant state commands require Owner or explicit delegated authority plus validation and audit (`ODB-CAT-25`), but representation of that delegation remains unresolved.
 
 ## 6. POS and sales contracts
 
@@ -199,7 +203,7 @@ The normal POS flow keeps the Order in Draft while staff add, update, and remove
 | `POST /orders/{id}/pricing` | Recalculate/revalidate Draft without confirmation; optional promotion/customer inputs | Branch-scoped; `If-Match`; no client totals | `price_version_conflict`, `promotion_not_eligible` |
 | `POST /orders/{id}/customer-associations` | `customer_id` or consented phone-profile command; returns Order | Branch scope; `If-Match`; audit privacy access | `customer_consent_required`, `customer_merge_required` |
 | `POST /orders/{id}/promotion-applications` | `promotion_code`; server determines eligibility/stacking | Draft; `Idempotency-Key`, `If-Match` | `promotion_not_eligible`, `promotion_policy_unresolved` |
-| `POST /orders/{id}/confirmations` | No totals; server snapshots prices/options and confirms Order | Branch operator; `Idempotency-Key`, `If-Match`; audit | `empty_order`, `price_version_conflict`, `product_unavailable` |
+| `POST /orders/{id}/confirmations` | No client totals; server snapshots sold prices/options and confirms Order only after any revised quote was reviewed | Branch operator; `Idempotency-Key`, `If-Match`; audit | `empty_order`, `price_version_conflict`, `product_unavailable` |
 | `POST /orders/{id}/cancellation-requests` | `reason`, affected scope and observed preparation state | Before preparation starts: Staff may request and complete with reason/audit. After preparation starts: Owner approval is required. Completed Orders use a separate unresolved exception process. Idempotent/audited; implementation needs an atomic preparation-state fence. | `approval_required`, `invalid_state_transition`, `cancellation_policy_unresolved` |
 
 ### 6.2 Payment commands

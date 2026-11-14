@@ -155,11 +155,14 @@ RSpec covers absent/default, a valid configured value, zero, negative, blank/whi
 ## 7. Deferred dependencies and exclusions
 
 - Identity authentication, server-side capabilities, Branch assignment enforcement, and session context (Milestone 2B remains separately governed).
-- Catalog items, server-authoritative pricing, amendments, cancellation, refund, partial/split payment, and review-case resolution.
+- Catalog items and server-authoritative pricing remain unimplemented. The later Owner-confirmed Catalog/Pricing MVP decisions are recorded in [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp); they do not retroactively change this Phase 1 implementation.
+- Amendments, cancellation, refund, partial/split payment, and review-case resolution.
 - Provider/bank API matching, outbox publisher, Preparation Ticket/KDS, table sessions, inventory, shifts, reports, and frontend integration.
 - Production separation of runtime, migration/schema-owner, and administrative database roles; the Phase 1 trigger is implemented, but least-privilege grants and proof that the runtime role cannot change enforcement remain deployment prerequisites.
 
 No new Owner business decision is inferred here. The five-minute duration remains a configurable MVP default. Review-case resolution authority and outcomes require a later explicit policy/implementation phase.
+
+Phase 1 continues to create the Payment atomically with Draft creation. Whether Payment should instead be created at Order confirmation is a separate, unresolved design question; the Catalog/Pricing decision closure neither approves nor implements that change.
 
 ## 8. Canonical references
 

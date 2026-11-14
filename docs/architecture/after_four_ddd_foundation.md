@@ -71,14 +71,21 @@ The arrows express allowed information/dependency direction, not unrestricted mo
 ### 3.2 Catalog/Pricing
 
 - **Responsibility:** Product, Variant, Modifier, Branch availability, effective Price, and pricing inputs.
-- **Authoritative state:** catalog identity and effective sellability/pricing policy.
+- **Authoritative state:** Brand-global catalog identity and effective chain/Branch sellability and pricing policy (`ODB-CAT-01`, `ODB-CAT-06`, `ODB-CAT-07`).
 - **Candidate roots:** Product/Variant and effective Price policy; exact aggregate shape is deferred.
-- **Invariants:** effective periods do not overlap for the same scope; unavailable products cannot be confirmed; later catalog changes never rewrite sold snapshots.
-- **Future contract:** client supplies identifiers/choices; server resolves Branch availability and effective terms, calculates the authoritative total, and gives Ordering immutable snapshots at confirmation.
+- **Owner-confirmed MVP shape:** initial deployment has one Organization/Brand while the schema permits multiples; Categories are flat; every Product belongs to exactly one Category; Product lifecycle is Draft/Active/Inactive/Archived; every sellable selection is a persisted Variant; Modifier Groups express optional/required and single/multiple cardinality through minimum/maximum limits (`ODB-CAT-02`–`ODB-CAT-05`, `ODB-CAT-14`, `ODB-CAT-15`).
+- **Owner-confirmed identifiers and completeness:** Category/Product/Variant codes are trimmed, accept only ASCII Latin letters/digits/hyphen/underscore, canonicalize to uppercase, are unique within Brand, and are never reused after archive. SKU remains optional and Brand-unique when present, but its normalization is unresolved. Draft Product may temporarily have no Variant or Default; Active Product has at least one Variant and exactly one Default. Default and visibility are independent (`ODB-CAT-16`–`ODB-CAT-23`).
+- **Owner-confirmed lifecycle:** Archived Product restores to Inactive and requires a separate activation. Category/Variant Deactivate is temporary/reversible, while Archive is long-term retirement with validated restoration. Owner or explicitly delegated personnel may perform Category/Variant state changes; Category/Variant archive dependency guards apply. Physical deletion is limited to dependency-free Draft records and never applies to Active, Inactive, or Archived records (`ODB-CAT-24`–`ODB-CAT-26`).
+- **Invariants:** effective Price versions are immutable and do not overlap for the same scope; an explicit Branch availability/Price override takes precedence over the chain default; unavailable products cannot be confirmed; later catalog changes never rewrite sold snapshots (`ODB-CAT-06`–`ODB-CAT-08`, `ODB-CAT-10`).
+- **Future contract:** client supplies identifiers/choices; server resolves Branch availability and effective terms and calculates the authoritative quote. If authoritative Price changes while an Order is Draft, the revised quote requires review before confirmation. Confirmation gives Ordering immutable sold-price snapshots (`ODB-CAT-09`, `ODB-CAT-10`).
 - **Allowed dependencies:** Organization/Branch scope.
 - **Forbidden dependencies:** Order/Payment mutation; accepting a client-calculated total as truth.
-- **Unresolved:** tax, service charge, rounding, modifier pricing, override authority, and Branch-price policy.
+- **Unresolved:** tax inclusion/treatment, service charge, rounding, zero/free pricing, Modifier price effects, time-based availability, manual sold-price overrides/approval, Catalog publication authority, Product activation/restoration authority, exact SKU normalization, Category/Variant restoration target states, detailed lifecycle transitions, delegated-authority enforcement, identifier reservation after Draft deletion, inventory, and media storage/vendor selection.
 - **Current state:** canonical logical design only; implementation is not authorized by this milestone.
+
+The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_discovery.md) traces these constraints to the canonical [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp). They do not approve the proposed aggregate shape, API, schema, or a change to Phase 1 Payment creation timing.
+
+`TECHNICAL_PROPOSAL`: repeated `brand_id`, composite foreign keys, normalization storage, partial unique indexes, cross-row Default enforcement, row locking, restrictive foreign keys, safe-deletion proof, delegated-authority representation, and exact Rails use cases are candidate enforcement mechanisms only. `ODB-CAT-14`–`ODB-CAT-26` do not approve those mechanisms or authorize implementation.
 
 ### 3.3 Payment
 
