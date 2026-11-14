@@ -66,6 +66,19 @@ Only Active may create or use an authenticated session. Authentication lock is a
 
 `OWNER_CONFIRMED` Back-office sessions expire after 30 minutes idle or 12 hours absolute. POS sessions lock after 2 minutes idle and require individual reauthentication. Multiple device sessions are allowed with no numeric MVP cap; visibility, appropriate new-device notification, anomaly detection/revocation, and Owner all-session revocation are required. A cap is reconsidered only with operational or incident evidence. These are Session guards, not Employee lifecycle transitions.
 
+### 2.3 Product lifecycle and Price history
+
+The Product lifecycle values are `Draft`, `Active`, `Inactive`, and `Archived` (`OWNER_CONFIRMED`, `ODB-CAT-03`). Archived Product restoration to Inactive and separate reactivation are Owner-confirmed (`ODB-CAT-24`). Other Product transition authority and exact command guards remain unresolved/technical. Category/Variant Deactivate and Archive are distinct Owner-confirmed actions, but restoration targets and their detailed state machines remain unresolved (`ODB-CAT-21`, `ODB-CAT-25`).
+
+```text
+Draft -> Active <-> Inactive -> Archived
+Draft -----------------------> Archived -> Inactive
+```
+
+Only policy-eligible Active Products and persisted Variants can be selected for a sale. Draft may have zero Variants/Defaults; Active must have at least one Variant and exactly one Default (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`). Default and visibility remain independent (`ODB-CAT-20`, `ODB-CAT-23`). Restoration to Inactive does not make a Product sellable. Default concurrency enforcement remains `TECHNICAL_PROPOSAL`. Price does not use an editable “current” lifecycle: each published Price Version is immutable and effective-dated, and a correction creates another version (`ODB-CAT-08`).
+
+For Category and Variant, Deactivate is temporary and reversible, while Archive is long-term retirement with restoration subject to validation. Only Owner or explicitly delegated personnel may perform validated/audited changes. Category Archive is blocked while Active Products remain assigned; Variant Archive is blocked when it would leave an Active Product without its required valid Default (`ODB-CAT-25`). Exact restoration targets, detailed transitions, and delegated-authority enforcement remain unresolved.
+
 ## 3. Mandatory payment-to-preparation flow
 
 ```mermaid
@@ -125,8 +138,8 @@ stateDiagram-v2
 | From → To | Command | Guards | Side effects / audit | Idempotency |
 |---|---|---|---|---|
 | — → Draft | Create Order | Active Branch; authorized channel/table/customer | OrderCreated | Required; Branch/create scope |
-| Draft → Draft | Add/update/remove item; pricing; customer/promotion | Expected version; available Variant; server pricing; policy | New totals/version; snapshots not final | Required for creates/removals/applications; version for patch |
-| Draft → Confirmed | Confirm | Nonempty; price/availability revalidated; valid modifiers | Freeze sold snapshots; OrderConfirmed | Required; one confirmation intent |
+| Draft → Draft | Add/update/remove item; pricing; customer/promotion | Expected version; persisted available Variant; server pricing; Modifier cardinality/policy | New quote/totals/version; snapshots not final; if authoritative Price changed, mark revised quote as requiring review (`ODB-CAT-09`) | Required for creates/removals/applications; version for patch |
+| Draft → Confirmed | Confirm | Nonempty; price/availability revalidated; valid modifiers; any revised authoritative quote reviewed | Atomically freeze sold Price and other approved snapshots; OrderConfirmed (`ODB-CAT-10`) | Required; one confirmation intent |
 | Confirmed → Held | Hold | Authorized trusted actor; reason; unpaid | Hold timestamp/reason/audit; block automatic dispatch | Required |
 | Confirmed → Expired | Expire pending payment | Payment remains unpaid at or after configured deadline | Expiration timestamp/system audit; block automatic dispatch | Deterministic boundary; repeated scans no-op |
 | Draft → Cancelled | Cancel draft | Authorized; no successful Payment | Reason/audit | Required |

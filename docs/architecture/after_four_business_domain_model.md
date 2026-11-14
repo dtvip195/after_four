@@ -34,8 +34,8 @@ Rules explicitly called Owner-confirmed in the supplied workshop outcomes use `O
 ### 1.2 Product boundary
 
 - `WORKSHOP_AGREED` AFTER FOUR is an internal cafe-chain management system.
-- `WORKSHOP_AGREED` MVP supports one Brand and multiple Branches.
-- `WORKSHOP_AGREED` The future logical hierarchy is Organization → Brand → Branch. The MVP may have exactly one Organization and one Brand without removing these meanings from the domain.
+- `WORKSHOP_AGREED` The operational model supports Branches under a Brand.
+- `OWNER_CONFIRMED` Initial deployment has one Organization and one Brand. The Organization → Brand → Branch hierarchy remains explicit, the schema permits multiple Organizations and Brands, and no permanent single-row constraint is allowed (`ODB-CAT-14`). Maximum Brands per Organization and additional Branch cardinality remain unresolved.
 - `WORKSHOP_AGREED` The network has a Central Warehouse and Branch Warehouses.
 - `WORKSHOP_AGREED` Customer and loyalty identity is shared across branches, while purchase-history visibility is branch-scoped.
 - `OWNER_CONFIRMED` Active roles are Owner, Branch Manager, and Staff. Regional Manager is reserved and inactive.
@@ -150,8 +150,8 @@ flowchart LR
 
 | Entity | Definition and essential history | Provenance |
 |---|---|---|
-| Organization | Owns Brands and central operations. | `WORKSHOP_AGREED` |
-| Brand | Belongs to Organization; one Brand in MVP. | `WORKSHOP_AGREED` |
+| Organization | Owns Brands and central operations. Initial deployment has one; schema supports multiple. | `OWNER_CONFIRMED` `ODB-CAT-14` |
+| Brand | Belongs to Organization. Initial deployment has one; schema supports multiple. | `OWNER_CONFIRMED` `ODB-CAT-14`; maximum cardinality unresolved |
 | Branch | Belongs to Brand; immutable owner of operational records created there. | `WORKSHOP_AGREED` |
 | User | Sign-in identity; deactivated rather than deleted when referenced by history. | `WORKSHOP_AGREED` |
 | Employee | Employment profile and status, separate from User. | `WORKSHOP_AGREED` |
@@ -170,11 +170,11 @@ flowchart LR
 
 | Entity | Definition and essential history | Provenance |
 |---|---|---|
-| Category | Chain catalog grouping; archival preserves references. | `WORKSHOP_AGREED` |
-| Product / Variant | Product identity and sellable size/configuration. | `WORKSHOP_AGREED` |
-| Modifier Group / Modifier | Allowed choices, selection limits, and price effects. | `WORKSHOP_AGREED` |
-| Branch Availability | Effective availability of a Variant at a Branch. | `WORKSHOP_AGREED` |
-| Price | Effective-dated chain default or Branch override. | `WORKSHOP_AGREED` |
+| Category | Flat MVP Brand catalog grouping. Every Product belongs to exactly one Category. Deactivate is temporary; Archive is long-term retirement with validated restoration. Active-Product dependencies block Archive. | `OWNER_CONFIRMED` `ODB-CAT-02`, `ODB-CAT-15`, `ODB-CAT-21`, `ODB-CAT-25`; mechanics proposed |
+| Product / Variant | Brand-global Product and persisted sellable Variant identity. Draft may have none; Active requires at least one Variant and exactly one Default. Product restores Archived→Inactive. Variant Deactivate/Archive are distinct and reversible subject to guards. | `OWNER_CONFIRMED` `ODB-CAT-01`, `ODB-CAT-04`, `ODB-CAT-19`–`ODB-CAT-25`; mechanics proposed |
+| Modifier Group / Modifier | Allowed choices and required/optional, single/multiple, minimum/maximum selection limits. Price effects remain unresolved. | `OWNER_CONFIRMED` `ODB-CAT-05`; pricing `OPEN_DECISION` |
+| Branch Availability | Explicit effective Branch override of the chain availability default for a Variant. | `OWNER_CONFIRMED` `ODB-CAT-06` |
+| Price | Immutable effective-dated chain default or explicit Branch override. | `OWNER_CONFIRMED` `ODB-CAT-07`, `ODB-CAT-08` |
 | Recipe / RecipeVersion | Versioned preparation definition for a Variant with non-overlapping effective periods. | `WORKSHOP_AGREED` |
 | Recipe Item | Ingredient quantity and unit in a RecipeVersion. | `WORKSHOP_AGREED` |
 | Order / Order Item | Commercial record and immutable product/option/price snapshots. | `WORKSHOP_AGREED` |
@@ -303,14 +303,22 @@ erDiagram
 
 ## 7. Catalog, prices, recipes, and historical snapshots
 
-- `WORKSHOP_AGREED` A Category groups Products; Product Variants represent sizes or other sellable configurations; Modifier Groups constrain selectable Modifiers.
-- `WORKSHOP_AGREED` Branch Availability controls whether a Variant is sellable at a Branch without changing chain identity.
-- `WORKSHOP_AGREED` A chain-wide default Price may have an optional Branch-specific Price. Prices have effective periods and retained history.
-- `WORKSHOP_AGREED` An Order Item snapshots product/variant/modifier labels, quantities, unit prices, discounts/taxes when applicable, and currency. Later catalog or price changes cannot change an old Order.
+- `OWNER_CONFIRMED` Product identity is Brand-global. MVP Categories are flat, and a Product moves through Draft, Active, Inactive, and Archived lifecycle states (`ODB-CAT-01`–`ODB-CAT-03`).
+- `OWNER_CONFIRMED` Every Product, including Draft, belongs to exactly one Category (`ODB-CAT-15`).
+- `OWNER_CONFIRMED` Every sellable selection is a persisted Variant. A Draft Product may temporarily have zero Variants and no Default; an Active Product must have at least one Variant and exactly one Default (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`). Concurrency enforcement remains `TECHNICAL_PROPOSAL`.
+- `OWNER_CONFIRMED` Default designation and customer visibility are independent. A Default Variant may be visible/customer-selectable; neither designation implies the other (`ODB-CAT-20`).
+- `OWNER_CONFIRMED` Category/Product/Variant codes accept trimmed ASCII Latin letters, digits, hyphen, and underscore and canonicalize to uppercase. They are Brand-unique and non-reusable after archive (`ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-22`). SKU remains optional, Brand-unique, and non-reusable after archive; its separate normalization policy is `UNRESOLVED` (`ODB-CAT-17`, `ODB-CAT-18`).
+- `OWNER_CONFIRMED` Archived Product restores to Inactive and requires a separate activation; restoration never makes it sellable automatically (`ODB-CAT-24`). Product restoration authority and exact command remain unresolved.
+- `OWNER_CONFIRMED` Category/Variant Deactivate is a reversible temporary suspension; Archive is long-term retirement with validated restoration. Only Owner or explicitly delegated personnel may change these states, and each change requires validation and audit. Category Archive is blocked by assigned Active Products; Variant Archive is blocked if it would leave an Active Product without its required valid Default (`ODB-CAT-21`, `ODB-CAT-25`). Restoration targets, detailed transitions, delegated-authority enforcement, and additional metadata remain unresolved/technical.
+- `OWNER_CONFIRMED` Physical deletion is limited to Draft records with no references, business history, audit dependencies, or other relevant dependencies. Active, Inactive, and Archived records cannot be physically deleted (`ODB-CAT-26`). Identifier reservation after Draft deletion and safe-deletion enforcement remain unresolved/technical.
+- `OWNER_CONFIRMED` Modifier Groups support required/optional and single/multiple selection with minimum and maximum selection limits (`ODB-CAT-05`). Whether Modifier selections affect price is unresolved pending the actual menu and pricing requirements.
+- `OWNER_CONFIRMED` Branch Availability may explicitly override the chain default without changing Brand-global Product identity (`ODB-CAT-01`, `ODB-CAT-06`).
+- `OWNER_CONFIRMED` Chain-level default Prices support explicit Branch-level overrides. Price versions are immutable and effective-dated (`ODB-CAT-07`, `ODB-CAT-08`).
+- `OWNER_CONFIRMED` If authoritative Price changes while an Order is Draft, the revised quote requires review before confirmation. At confirmation, the sold price is locked into the Order Item snapshot; later Catalog or Price changes cannot rewrite it (`ODB-CAT-09`, `ODB-CAT-10`). Snapshot components whose policies remain unresolved are not invented here.
 - `WORKSHOP_AGREED` A Recipe has effective-dated RecipeVersions. Each version contains Ingredient quantities and units; effective periods for the same Variant cannot overlap.
 - `WORKSHOP_AGREED` Preparation uses the RecipeVersion effective for the sold/prepared item and retains that reference. Later RecipeVersion changes never rewrite historical consumption expectations.
 - `WORKSHOP_AGREED` Waste, remake, and preparation deviations are explicit records and create their own Stock Movements where stock is affected.
-- `OPEN_DECISION` Exact price components, tax/service charge, manual override policy, and who approves Branch-price overrides remain unresolved.
+- `OPEN_DECISION` Tax treatment/inclusion, service charge, rounding, zero/free pricing, Modifier price effects, time-based availability, manual sold-price overrides and approvals, authority to publish Branch Price versions, inventory, and media storage/vendor selection remain unresolved.
 
 ## 8. Sales, payment, preparation, printing, and delivery
 
@@ -538,8 +546,8 @@ No approver may be inferred solely from a job title where the matrix says open. 
 5. `WORKSHOP_AGREED` Payment, Order, Preparation, Printing, and Delivery states are independent.
 6. `WORKSHOP_AGREED` Retryable financial, dispatch, stock, loyalty, cash, payroll-close, and printing commands are idempotent within a defined scope.
 7. `WORKSHOP_AGREED` Confirmed financial and operational history is corrected by linked reversal/adjustment records, never deletion or silent overwrite.
-8. `WORKSHOP_AGREED` Order Items retain sold names, options, prices, promotion/tax components, and currency independently of the current catalog.
-9. `WORKSHOP_AGREED` Price, RecipeVersion, Branch Assignment, role grant, and Compensation Agreement history is effective-dated.
+8. `OWNER_CONFIRMED` Order Items retain sold Price independently of the current Catalog (`ODB-CAT-10`). `WORKSHOP_AGREED` They also retain sold names, options, approved promotion/tax components, and currency; exact unresolved Price components are not implied.
+9. `OWNER_CONFIRMED` Price history is immutable and effective-dated (`ODB-CAT-08`). `WORKSHOP_AGREED` RecipeVersion, Branch Assignment, role grant, and Compensation Agreement histories are effective-dated.
 10. `WORKSHOP_AGREED` Every operational record has an immutable owning Branch where Branch ownership applies.
 11. `WORKSHOP_AGREED` Server authorization uses effective assignments/capabilities and never trusts client-selected scope.
 12. `WORKSHOP_AGREED` Every stock balance change has exactly one traceable Stock Movement source; reversal links to the original.
@@ -625,7 +633,7 @@ Reusing an idempotency identity with a different business payload is a conflict,
 | Refund/void details outside confirmed boundaries | Controls fraud, service recovery, and reconciliation. | Decide Refund method/allocation, time windows, original-tender behavior, and any explicitly authorized mismatch-exception role. | `OPEN_DECISION` |
 | Completed Order exception and cancellation outcomes | Determines how completed/prepared/paid work is corrected. | Approve closure conditions, completed-order authority, remake/compensation, Refund, stock, and table-release effects. | `OPEN_DECISION` |
 | Remaining approval thresholds | Affects procurement, transfers, stock adjustments, price overrides, and promotions. | Approve configurable threshold matrix and segregation rules; delegated Expense thresholds are already confirmed. | `OPEN_DECISION` |
-| Price/tax/service-charge rules | Defines authoritative Order totals and reporting. | Approve components, rounding, overrides, and effective-date policy. | `OPEN_DECISION`, `LEGAL_VALIDATION` |
+| Price/tax/service-charge rules | Defines authoritative Order totals and reporting. | Approve tax treatment, service charge, rounding, zero/free policy, Modifier effects, and manual override authority. Price scope and immutable effective dating are already confirmed by `ODB-CAT-07` and `ODB-CAT-08`. | `OPEN_DECISION`, `LEGAL_VALIDATION` |
 | Loyalty and promotion values | Required before calculation can be deterministic. | Accrual/redemption/expiry rates; promotion types, limits, stacking, and refund allocation. | `OPEN_DECISION` |
 | Leave/overtime/payroll details | Required for correct and lawful payroll. | Leave categories/balances, rounding, breaks, overtime rates, deductions, reopening/correction policy. | `OPEN_DECISION`, `LEGAL_VALIDATION` |
 | Shift swap policy | Determines schedule accountability. | Eligibility, notice, employee acceptance, Branch Manager decision, and audit requirements. | `OPEN_DECISION` |
@@ -642,7 +650,7 @@ Reusing an idempotency identity with a different business payload is a conflict,
 ## 18. Conflicts with current repository material
 
 1. **Preparation sequencing:** Existing proposed workflows create kitchen tickets on order submission and schedule payment later. This conflicts with the `OWNER_CONFIRMED` full-payment-first rule. This v1.0 model supersedes that proposed sequence; the older documents must be revised before ERD/API work.
-2. **Organization scope:** Earlier proposals optimize for one cafe location and lack Organization/Brand/Branch ownership. MVP is now one Brand with multiple Branches.
+2. **Organization scope:** Earlier proposals optimize for one cafe location and lack Organization/Brand/Branch ownership. Initial deployment has one Organization, one Brand, and the planned Main Branch; the schema retains Organization → Brand → Branch meaning and supports multiple Organizations and Brands without singleton constraints (`ODB-CAT-14`).
 3. **Role vocabulary:** Earlier proposals use Owner/Manager, Cashier/Service, and Barista role templates. Canonical active authorization roles are Owner, Branch Manager, and Staff; Regional Manager is reserved/inactive, while cashier, barista, server, and cleaning are operational shift duties/capabilities rather than identity roles.
 4. **Prototype behavior:** Current POS and delivery state is local fixture/UI state. Payment “success,” table selection, delivery status, and client subtotal are not business records and do not satisfy any lifecycle or invariant here.
 5. **Domain breadth:** Payroll, attendance, cash sessions, weighted-average costing, staged transfers, procurement, customers/loyalty, promotions, expenses, and approvals are absent or only partially proposed in earlier material.

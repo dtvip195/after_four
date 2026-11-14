@@ -11,6 +11,8 @@ independent_verification: NOT_PERFORMED
 
 > **HISTORICAL AUDIT SNAPSHOT.** This read-only audit reports repository evidence available at audit time and remains preserved. Its gaps and status counts are not the current decision source. Use the later canonical [Owner Decision Baseline](after_four_owner_decision_baseline.md) for Owner-confirmed business decisions and the [DDD Foundation](after_four_ddd_foundation.md) for proposed architecture alignment. The late-success dispatch gap identified below was subsequently hardened and recorded in the [Phase 1 implementation record](after_four_order_payment_implementation_phase1.md); this notice does not rewrite the original finding.
 
+> **POST-AUDIT CATALOG/PRICING CLOSURE.** After this audit, the Owner explicitly confirmed ten Catalog/Pricing MVP decisions. They are now canonical as `ODB-CAT-01` through `ODB-CAT-10` in [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp) and traced in the [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_discovery.md). The original audit totals and findings below remain a historical snapshot; conversation-local discovery proposal labels are not canonical IDs.
+
 **Audit date:** 2026-11-14  
 **Audit type:** Repository documentation consistency audit; read-only except for this report  
 **Decision baseline:** Existing repository records plus the decision directions named in the audit brief  

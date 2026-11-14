@@ -103,7 +103,7 @@ Unknown internal errors use `internal_error` with a generic message and request 
 
 | HTTP | Code | Retryable | Safe message | Meaning |
 |---:|---|:---:|---|---|
-| 409 | `price_version_conflict` | No | Giá đã thay đổi. Vui lòng kiểm tra lại đơn. | Effective price differs from Draft/client expectation. |
+| 409 | `price_version_conflict` | No | Giá đã thay đổi. Vui lòng kiểm tra lại đơn. | Authoritative Price differs from the Draft quote; return safe revised-quote/version information and require review before confirmation (`ODB-CAT-09`). Exact acceptance protocol remains technical design. |
 | 409 | `recipe_version_conflict` | No | Công thức hiệu lực đã thay đổi. | Preparation/config publication conflict. |
 | 422 | `product_unavailable` | No | Sản phẩm hiện không khả dụng tại chi nhánh. | Variant/Branch availability. |
 | 422 | `modifier_selection_invalid` | No | Lựa chọn tùy chọn sản phẩm chưa hợp lệ. | Min/max/allowed modifier field errors. |
