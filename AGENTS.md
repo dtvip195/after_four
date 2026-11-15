@@ -14,7 +14,8 @@ Repository presence is not implementation authorization. Modify backend, databas
 Canonical decision and architecture sources:
 
 - [Owner Decision Baseline](docs/architecture/after_four_owner_decision_baseline.md) for Owner-confirmed business decisions;
-- [DDD Foundation](docs/architecture/after_four_ddd_foundation.md) for proposed context ownership and dependency direction;
+- [ADR-0011](docs/architecture/adr/0011-project-wide-layered-ddd.md) for the Owner-confirmed project-wide Layered DDD rules;
+- [DDD Foundation](docs/architecture/after_four_ddd_foundation.md) for Layered DDD application guidance and proposed context ownership;
 - [Business Domain Model](docs/architecture/after_four_business_domain_model.md) and synchronized data/API documents for canonical domain detail; and
 - ADRs under `docs/architecture/adr/` for accepted/proposed architecture decisions.
 
@@ -41,6 +42,23 @@ Historical workshop, workflow, design, and roadmap documents are evidence of ear
 Keep feature-specific components, hooks, types, and logic inside their feature. Promote code to shared folders only after it has a genuine cross-feature consumer.
 
 Backend structure follows the accepted Rails modular-monolith ADRs and current Phase 1 implementation. Logical DDD context names do not authorize namespace/folder renames; the Sales/Billing versus Orders/Payments vocabulary amendment remains a proposal pending Owner approval.
+
+## Project-wide Layered DDD
+
+All source code created or modified from 2026-11-15 follows [ADR-0011](docs/architecture/adr/0011-project-wide-layered-ddd.md) within the task's authorized scope. Existing code is not implicitly authorized for wholesale migration. Apply only the layers whose responsibilities genuinely exist; empty directories and speculative classes are not required.
+
+Before implementing a source change:
+
+1. Read the canonical architecture baseline and relevant ADRs.
+2. Identify the owning Bounded Context from the Business Domain Model.
+3. Identify which Domain, Application, Infrastructure and Presentation responsibilities are affected.
+4. Place each responsibility in its owning layer and preserve the dependency direction in ADR-0011.
+5. Keep business rules in Domain and use-case/transaction orchestration in Application.
+6. Keep Active Record, PostgreSQL enforcement, persistence mapping and external adapters in Infrastructure where those mechanisms apply.
+7. Keep HTTP/request/response adaptation in Presentation and route business workflows through Application.
+8. Use explicit integration contracts for real cross-context interactions; do not directly manipulate another context's Infrastructure records.
+9. Add ports, repositories, mappers or other abstractions only for a demonstrated seam; do not create empty layers or speculative classes.
+10. Report relevant legacy violations and unresolved architecture decisions without expanding the authorized task into unrelated refactoring.
 
 ## TypeScript and naming
 

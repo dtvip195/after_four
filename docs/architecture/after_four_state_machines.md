@@ -68,16 +68,23 @@ Only Active may create or use an authenticated session. Authentication lock is a
 
 ### 2.3 Product lifecycle and Price history
 
-The Product lifecycle values are `Draft`, `Active`, `Inactive`, and `Archived` (`OWNER_CONFIRMED`, `ODB-CAT-03`). Archived Product restoration to Inactive and separate reactivation are Owner-confirmed (`ODB-CAT-24`). Other Product transition authority and exact command guards remain unresolved/technical. Category/Variant Deactivate and Archive are distinct Owner-confirmed actions, but restoration targets and their detailed state machines remain unresolved (`ODB-CAT-21`, `ODB-CAT-25`).
+The Product lifecycle values are `Draft`, `Active`, `Inactive`, and `Archived` (`OWNER_CONFIRMED`, `ODB-CAT-03`). Archived Product restoration to Inactive and separate reactivation remain confirmed future policy (`ODB-CAT-24`, `ODB-CAT-33`), and Product activation requires an Active assigned Category (`ODB-CAT-29`). The initial Catalog Core MVP excludes every Product Activate, Deactivate, Archive, and Restore command/API (`ODB-CAT-39`); the transition sketch below is therefore policy context, not an implemented or authorized command matrix. Other Product transitions and authorization rules remain unresolved for a future separately approved scope.
 
 ```text
 Draft -> Active <-> Inactive -> Archived
 Draft -----------------------> Archived -> Inactive
 ```
 
-Only policy-eligible Active Products and persisted Variants can be selected for a sale. Draft may have zero Variants/Defaults; Active must have at least one Variant and exactly one Default (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`). Default and visibility remain independent (`ODB-CAT-20`, `ODB-CAT-23`). Restoration to Inactive does not make a Product sellable. Default concurrency enforcement remains `TECHNICAL_PROPOSAL`. Price does not use an editable “current” lifecycle: each published Price Version is immutable and effective-dated, and a correction creates another version (`ODB-CAT-08`).
+Only policy-eligible Active Products and persisted Variants can be selected for a sale. Every Product has at most one Variant with `is_default = true`; Draft, Inactive, and Archived Products may have zero or one, while an Active Product must have exactly one and that Variant must be Active (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`, `ODB-CAT-28`, `ODB-CAT-38`). Default designation, lifecycle status, and visibility remain independent; hidden Active is valid while Inactive/Archived cannot satisfy the Active Product requirement (`ODB-CAT-20`, `ODB-CAT-28`, `ODB-CAT-31`, `ODB-CAT-38`). Restoration to Inactive does not make a Product sellable. Default uniqueness and concurrency enforcement remain `TECHNICAL_PROPOSAL`. Price does not use an editable “current” lifecycle: each published Price Version is immutable and effective-dated, and a correction creates another version (`ODB-CAT-08`).
 
-For Category and Variant, Deactivate is temporary and reversible, while Archive is long-term retirement with restoration subject to validation. Only Owner or explicitly delegated personnel may perform validated/audited changes. Category Archive is blocked while Active Products remain assigned; Variant Archive is blocked when it would leave an Active Product without its required valid Default (`ODB-CAT-25`). Exact restoration targets, detailed transitions, and delegated-authority enforcement remain unresolved.
+Category and Variant are created Draft and share this `OWNER_CONFIRMED` matrix (`ODB-CAT-30`–`ODB-CAT-32`):
+
+```text
+Draft -> Active <-> Inactive -> Archived
+Draft -----------------------> Archived -> Inactive
+```
+
+Draft→Inactive and Archived→Active are prohibited directly. Draft/Active/Inactive→Archived are allowed subject only to applicable existing guards; Archived→Inactive occurs through validated Restore, followed by separate activation if desired. Variant Archive and Restore change lifecycle status only: both preserve `is_default` and `customer_visible`, Restore returns Archived→Inactive, and reactivation is separate; Default designation is never silently transferred or modified (`ODB-CAT-40`). Category Deactivation is blocked while Active Products remain assigned (`ODB-CAT-29`); Category Archive has its separate Active-Product guard (`ODB-CAT-25`); Variant lifecycle cannot invalidate the Active Product Default requirement (`ODB-CAT-25`, `ODB-CAT-28`, `ODB-CAT-38`). A Product remains in its original Category in the initial MVP and no reassignment command/API exists (`ODB-CAT-41`). Branch availability remains independent, while command, audit, authorization, locking, and concurrency mechanics remain technical.
 
 ## 3. Mandatory payment-to-preparation flow
 

@@ -2,22 +2,35 @@
 
 **Status:** Canonical source of truth for Owner-confirmed business decisions  
 **Date recorded:** 2026-11-14  
-**Scope:** Business and planning decisions that constrain later architecture and implementation
+**Latest decision update:** 2026-11-15
+**Scope:** Owner-confirmed business, planning and project-wide architecture decisions that constrain later implementation
 
 This baseline records Owner decisions supplied after the earlier repository consistency audit. It does not claim that these decisions were already present in the repository before this document was created.
 
 **Provenance for decisions with an `ODB-` identifier:** Owner-confirmed project discussion supplied in the Owner Decision Baseline Reconciliation task, except where a later section records a more specific Owner approval source.
 
-**Classification for every `ODB-` row in §§1–5:** `OWNER_CONFIRMED`. The separate Implementation column records implementation state and must not be read as the approval classification.
+**Classification for every `ODB-` row:** `OWNER_CONFIRMED`. The separate Implementation column records implementation state and must not be read as the approval classification.
 
 Owner approval and implementation are separate dimensions:
 
 - `OWNER_CONFIRMED`: the stated business direction is approved within its explicit boundary.
 - `IMPLEMENTED`: executable behavior exists. This does not approve unstated policy or production use.
+- `NOT_YET_MIGRATED`: existing source predates a later architecture rule and has no authorized/evidenced migration.
+- `UNVERIFIED`: conformance or implementation evidence has not been assessed.
 - `DOCUMENTED_PROPOSAL`: an architecture or technical recommendation, not an Owner decision.
+- `TECHNICAL_PROPOSAL`: a proposed implementation mechanism, not an approved business rule or implemented control.
+- `UNRESOLVED_OWNER_DECISION`: an Owner choice is still required; no technical recommendation may silently decide it.
 - `UNRESOLVED`: a decision remains genuinely open.
 - `CONTRADICTORY`: current repository sources disagree with the baseline or implementation evidence.
 - `HISTORICAL`: a preserved earlier proposal or question that is no longer implementation authority.
+
+## Project-wide architecture
+
+**Source for `ODB-ARCH-01`:** Owner's explicit project-wide Layered DDD adoption decision on 2026-11-15.
+
+| ID | Owner-confirmed decision | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|
+| `ODB-ARCH-01` | Layered DDD is mandatory for all AFTER FOUR source code created or modified from 2026-11-15 onward. Domain, Application, Infrastructure and Presentation responsibilities and dependencies follow [ADR-0011](adr/0011-project-wide-layered-ddd.md). Existing code is not automatically authorized for wholesale refactoring; relevant migration requires an explicitly authorized scope. | `IMPLEMENTED` for the A1 Organization/Brand/Branch reference foundation only. Other existing contexts are `NOT_YET_MIGRATED` or `UNVERIFIED`. | This is a forward-compliance architecture decision, not proof of repository-wide conformance, production readiness, a cross-context interface, or authorization to refactor unrelated code. |
 
 ## 1. Product and launch planning
 
@@ -125,33 +138,88 @@ The following reporting details are explicitly `UNRESOLVED`: exact delivery time
 | ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
 |---|---|---|---|---|
 | `ODB-CAT-14` | Initial deployment starts with one Organization and one Brand. The schema must support multiple Organizations and multiple Brands and must not impose permanent single-row constraints. | `OWNER_CONFIRMED` | Not implemented. | This establishes initial row counts and future multiplicity, not a maximum Brands-per-Organization rule or additional Branch cardinality. |
-| `ODB-CAT-15` | Every Product must belong to exactly one Category. | `OWNER_CONFIRMED` | Not implemented. | Applies while Draft and in every later Product lifecycle state. Exact same-Brand database enforcement remains technical design. |
-| `ODB-CAT-16` | Category, Product, and Variant codes must be unique within their respective Brand. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-22` confirms Catalog Code input/canonical normalization. Code generation, database column sizes, and exact constraint names remain technical design. |
-| `ODB-CAT-17` | SKU is optional. When present, SKU must be unique within its Brand. | `OWNER_CONFIRMED` | Not implemented. | Exact SKU normalization remains unresolved; generation and physical nullable uniqueness enforcement remain technical design. |
-| `ODB-CAT-18` | Category, Product, and Variant codes and Variant SKUs must not be reused after archival. Archived records retain their identifiers. | `OWNER_CONFIRMED` | Not implemented. | Restoration must retain and revalidate the same identifier. `ODB-CAT-26` separately limits physical deletion to eligible Draft records; identifier reservation after such deletion remains unresolved. |
+| `ODB-CAT-15` | Every Product must belong to exactly one Category. | `OWNER_CONFIRMED` | Not implemented. | Applies while Draft and in every later Product lifecycle state. `ODB-CAT-29` adds the Active-Category activation prerequisite without defining Product reassignment. Exact same-Brand database enforcement remains technical design. |
+| `ODB-CAT-16` | Category, Product, and Variant codes must be unique within their respective Brand. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-27` resolves the namespace: uniqueness is enforced separately within each entity type and Brand. `ODB-CAT-22` confirms input/canonical normalization. Code generation, database column sizes, and exact constraint names remain technical design. |
+| `ODB-CAT-17` | SKU is optional. When present, SKU must be unique within its Brand. | `OWNER_CONFIRMED` | Not implemented; SKU is deferred from Catalog Core MVP by `ODB-CAT-34`. | Exact SKU normalization remains unresolved for a future scope; generation and physical nullable uniqueness enforcement remain future technical design. |
+| `ODB-CAT-18` | Category, Product, and Variant codes and Variant SKUs must not be reused after archival. Archived records retain their identifiers. | `OWNER_CONFIRMED` | Not implemented. | Restoration must retain and revalidate the same identifier. `ODB-CAT-36` extends reservation to any future Soft Delete without authorizing Soft Delete; reuse after a hypothetical physical deletion remains unresolved. |
 | `ODB-CAT-19` | A Draft Product may temporarily exist without any Variant or Default Variant. | `OWNER_CONFIRMED` | Not implemented. | This exception is limited to Draft. `ODB-CAT-23` separately requires an Active Product to have at least one Variant and exactly one Default Variant. |
-| `ODB-CAT-20` | A Default Variant may also be customer-selectable. Default designation and customer visibility are independent concepts. | `OWNER_CONFIRMED` | Not implemented. | Neither default implies hidden nor hidden implies default. Exact fields and constraints remain technical design. |
-| `ODB-CAT-21` | Category and Variant may be archived or deactivated and later restored. Physical deletion is prohibited while referenced by other records. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-25` distinguishes Deactivate from Archive and confirms authority/dependency safeguards. Restoration target states and detailed transitions remain unresolved. |
+| `ODB-CAT-20` | A Default Variant may also be customer-selectable. Default designation and customer visibility are independent concepts. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-28` additionally confirms that visibility is not an eligibility predicate: a hidden Active Variant may be Default. Exact fields and constraints remain technical design. |
+| `ODB-CAT-21` | Category and Variant may be archived or deactivated and later restored. Physical deletion is prohibited while referenced by other records. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-25` distinguishes Deactivate from Archive; `ODB-CAT-29` supplies the Category Deactivation guard; `ODB-CAT-32` defines the allowed transition matrix and Inactive restore target. |
 
 **Source for `ODB-CAT-22` through `ODB-CAT-26`:** Owner's explicit confirmation in the Catalog Core Owner Decisions (ODB-CAT-22–26) task.
 
 | ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
 |---|---|---|---|---|
-| `ODB-CAT-22` | Category, Product, and Variant code input is trimmed and limited to ASCII Latin letters, digits, hyphen, and underscore; the canonical representation is uppercase. Code uniqueness remains Brand-scoped, includes archived records, and codes are not reusable after archive. | `OWNER_CONFIRMED` | Not implemented. | This rule does not apply automatically to SKU. Exact SKU normalization, case, whitespace, Unicode, and allowed-character policy remain `UNRESOLVED`. Exact database/application normalization mechanisms remain `TECHNICAL_PROPOSAL`. |
-| `ODB-CAT-23` | An Active Product must have at least one Variant and exactly one Default Variant. A Draft Product may have zero Variants and zero Defaults. Default designation remains independent of customer visibility, and a Default Variant may be customer-selectable. | `OWNER_CONFIRMED` | Not implemented. | Default does not mean hidden. At-most/at-least-one database enforcement, lock order, Default switching, and activation transaction remain `TECHNICAL_PROPOSAL`. |
-| `ODB-CAT-24` | An Archived Product may be restored only to Inactive. Reactivation is a separate action; restoration does not make the Product sellable automatically. Identifier uniqueness and historical integrity remain enforced. | `OWNER_CONFIRMED` | Not implemented. | Product restoration authority, approval workflow, exact command, and technical validation remain unresolved unless separately confirmed. |
-| `ODB-CAT-25` | Deactivate and Archive are separate Category/Variant actions: Deactivate is a reversible temporary suspension; Archive is long-term retirement with restoration subject to validation. State changes require validation and audit and may be performed only by the Owner or personnel explicitly delegated by the Owner. A Category cannot be archived while Active Products remain assigned; a Variant cannot be archived if that would leave an Active Product without its required valid Default Variant. | `OWNER_CONFIRMED` | Not implemented. | Category/Variant restoration target states, detailed transition matrix and validation behavior, delegated-authority representation/enforcement, and additional approval/audit metadata remain `UNRESOLVED` or `TECHNICAL_PROPOSAL` as applicable. |
-| `ODB-CAT-26` | Physical deletion is permitted only for a Draft record with no references, business history, audit dependencies, or other relevant dependencies. Otherwise deletion is prohibited and Archive is used where permitted. Active, Inactive, and Archived records cannot be physically deleted. | `OWNER_CONFIRMED` | Not implemented. | FK absence alone is insufficient proof of safety. Identifier reservation after physical deletion of a Draft remains `UNRESOLVED`; database/application deletion-safety enforcement remains `TECHNICAL_PROPOSAL`. |
+| `ODB-CAT-22` | Category, Product, and Variant code input is trimmed and limited to ASCII Latin letters, digits, hyphen, and underscore; the canonical representation is uppercase. Code uniqueness remains Brand-scoped, includes archived records, and codes are not reusable after archive. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-27` confirms that Brand scope is evaluated separately for Category, Product, and Variant. This rule does not apply automatically to SKU. Exact SKU normalization, case, whitespace, Unicode, and allowed-character policy remain `UNRESOLVED`. Exact database/application normalization mechanisms remain `TECHNICAL_PROPOSAL`. |
+| `ODB-CAT-23` | An Active Product must have at least one Variant and exactly one Default Variant. A Draft Product may have zero Variants and zero Defaults. Default designation remains independent of customer visibility, and a Default Variant may be customer-selectable. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-28` defines a valid Default for an Active Product as `is_default = true` and Variant status Active. `ODB-CAT-38` adds at-most-one Default designation for every Product lifecycle state without weakening this Active exactly-one rule. Database enforcement, lock order, Default switching, and activation transaction remain `TECHNICAL_PROPOSAL`. |
+| `ODB-CAT-24` | An Archived Product may be restored only to Inactive. Reactivation is a separate action; restoration does not make the Product sellable automatically. Identifier uniqueness and historical integrity remain enforced. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-33` confirms Restore authority as Owner or explicit Owner delegate. Delegation representation, exact command, and technical validation remain unresolved/proposed. |
+| `ODB-CAT-25` | Deactivate and Archive are separate Category/Variant actions: Deactivate is a reversible temporary suspension; Archive is long-term retirement with restoration subject to validation. State changes require validation and audit and may be performed only by the Owner or personnel explicitly delegated by the Owner. A Category cannot be archived while Active Products remain assigned; a Variant cannot be archived if that would leave an Active Product without its required valid Default Variant. | `OWNER_CONFIRMED` | Not implemented. | `ODB-CAT-28` defines “valid Default,” `ODB-CAT-29` supplies the separate Category Deactivation guard, and `ODB-CAT-32` defines the transition matrix. No additional archive guard, Product reassignment behavior, authorization mechanism, or audit mechanism is inferred. |
+| `ODB-CAT-26` | The former Draft-deletion rule remains a necessary safety boundary only: Active, Inactive, Archived, referenced, historical, audit-dependent, or otherwise dependent Catalog records cannot be physically deleted. A dependency-free Draft is not thereby approved for physical deletion; `ODB-DATA-01` additionally requires entity-specific retention classification and an approved deletion mechanism before any Purge may be permitted. | `OWNER_CONFIRMED`, narrowed by `ODB-DATA-01` and `ODB-CAT-37` | Not implemented. | Historical wording permitted physical deletion only for a dependency-free Draft. Catalog Core MVP now prohibits Purge for every Catalog lifecycle state, including Draft. Future policy changes require a separate Owner Decision. |
+
+**Source for `ODB-CAT-27`:** Owner's explicit selection of Option A in the Record Owner Decision CAT-CLAR-01 task.
+
+| ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|---|
+| `ODB-CAT-27` | Within each Brand, Category Codes, Product Codes, and Variant Codes use separate uniqueness namespaces. A Code is unique among records of the same entity type in that Brand. The same Code may be used once by a Category, once by a Product, and once by a Variant in the same Brand; a second record of the same entity type with that Code in that Brand is rejected. | `OWNER_CONFIRMED` | Not implemented. | This resolves `CAT-CLAR-01`. It does not approve indexes or implementation, does not change archived-Code reservation, and does not define SKU or Organization/Brand/Branch Code rules. Three Brand-scoped per-entity unique constraints are the resulting `TECHNICAL_PROPOSAL`. |
+
+**Source for `ODB-CAT-28`:** Owner's explicit selection of the Active-status eligibility policy in the Record Owner Decision CAT-CLAR-02 task.
+
+| ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|---|
+| `ODB-CAT-28` | For an Active Product, exactly one Variant must satisfy both `is_default = true` and lifecycle status Active. `customer_visible` is independent and is not an eligibility predicate: an Active Variant with `customer_visible = false` may be the valid Default. An Inactive or Archived Variant cannot satisfy the Default requirement. Default designation, Variant lifecycle status, and customer visibility remain three independent concepts. | `OWNER_CONFIRMED` | Not implemented. | Resolves the Active-eligibility portion of `CAT-CLAR-02`; `ODB-CAT-38` later closes Default designation cardinality across every Product lifecycle state. Neither decision approves an index, trigger, lock protocol, lifecycle command, or implementation. Race-safe cross-row enforcement and concurrency proof remain `TECHNICAL_PROPOSAL`. |
+
+**Source for `ODB-CAT-29`:** Owner's explicit selection of Option A for both Category/Product lifecycle questions in the Record CAT-CLAR-03 task.
+
+| ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|---|
+| `ODB-CAT-29` | **Product activation:** a Product may transition to Active only when its assigned Category is Active. **Category deactivation:** a Category may not transition to Inactive while any Active Products remain assigned to it. These are separate lifecycle policies. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-03`. Category Deactivation remains distinct from Category Archive under `ODB-CAT-25` and from Branch availability under `ODB-CAT-06`. This does not approve commands, triggers, locks, indexes, concurrency handling, Product reassignment, Category archive behavior with Inactive Products, authorization details, or implementation. |
+
+**Source for `ODB-CAT-30` through `ODB-CAT-37`:** Owner's explicit confirmation of CAT-CLAR-04 through CAT-CLAR-09 in the Complete Catalog Core Owner Clarifications task.
+
+| ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|---|
+| `ODB-CAT-30` | New Categories are created in Draft. Activation is a separate lifecycle action and must satisfy applicable validation and authorization rules. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-04`. It does not approve a database default, create/activate command, validation implementation, authorization mechanism, or implementation milestone. |
+| `ODB-CAT-31` | New Variants are created in Draft. Activation is a separate lifecycle action subject to applicable validation and authorization. Default designation, lifecycle status, and customer visibility remain independent; `ODB-CAT-28` remains unchanged. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-05`. Creation does not make a Variant Active, Default, visible, or sellable. `ODB-CAT-38` limits every Product to at most one designated Default without deriving designation from lifecycle or visibility. No field default, command, constraint, or implementation is approved. |
+| `ODB-CAT-32` | Category and Variant share this lifecycle matrix: Draft→Active is allowed after validation; Draft→Inactive is prohibited; Draft→Archived is allowed subject to applicable archive guards; Active→Inactive is allowed subject to applicable business guards; Inactive→Active is allowed after validation; Active→Archived and Inactive→Archived are allowed subject to applicable archive guards; Archived→Inactive is allowed only through Restore and validation; Archived→Active is prohibited directly. Archived Category and Archived Variant both restore to Inactive, and later activation is separate. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-06`. Existing guards in `ODB-CAT-25`, `ODB-CAT-28`, and `ODB-CAT-29` remain; no additional guard, transition, command, generic status mutation, or implementation is approved. |
+| `ODB-CAT-33` | Product Restore authority belongs to the Owner or personnel explicitly delegated by the Owner. Archived Product still restores only to Inactive, and activation remains separate. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-07` while preserving `ODB-CAT-24`. Delegation representation, permission schema, Identity implementation, command, and audit mechanics remain unresolved/proposed. |
+| `ODB-CAT-34` | Catalog Core MVP defers SKU support. It accepts no SKU input and implements no SKU normalization, canonicalization, or validation. SKU remains optional and Brand-unique when present under earlier decisions, but exact normalization remains unresolved for a future scope and does not inherit Catalog Code rules. | `OWNER_CONFIRMED` | Not implemented. | Resolves the MVP boundary in `CAT-CLAR-08`; it does not remove or rewrite `ODB-CAT-17` or `ODB-CAT-18`, select future SKU semantics, or authorize schema/application work. |
+| `ODB-CAT-35` | Catalog Core MVP retains Category, Product, and Variant through lifecycle states, including Archive, for business retirement. Soft Delete is not the MVP retention mechanism; no `deleted_at` or universal Soft Delete behavior is introduced. Business, financial, historical, and audit records remain preserved. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-09A` only for Catalog Core MVP. It does not impose a retention mechanism on unrelated entities or prevent a separately authorized future Catalog policy change. |
+| `ODB-CAT-36` | Catalog Codes and SKUs are not reused after Archive or after any future Soft Delete. This reservation rule does not authorize Soft Delete in Catalog Core MVP and does not define identifier reuse after physical deletion of a Draft record. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-09B`. Existing Code namespace/normalization and SKU scope decisions remain; future Soft Delete uniqueness mechanics and reuse after hypothetical physical deletion remain future-scope questions. |
+| `ODB-CAT-37` | Physical Purge of Category, Product, and Variant records is prohibited in Catalog Core MVP for Draft, Active, Inactive, and Archived states. A Draft record with no known dependencies does not authorize deletion. Any future Catalog retention or Purge policy change requires a separate Owner Decision. | `OWNER_CONFIRMED` | Not implemented. | Resolves `CAT-CLAR-09C`, narrows historical `ODB-CAT-26` with `ODB-DATA-01`, and authorizes no purge/cleanup job, deletion command, or implementation. |
+
+**Source for `ODB-CAT-38`:** Owner's explicit confirmation in the Default Variant Uniqueness Across Product Lifecycle task.
+
+| ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|---|
+| `ODB-CAT-38` | Every Product may have at most one Variant with `is_default = true`, regardless of Product lifecycle state. Draft, Inactive, and Archived Products may have zero or one designated Default. An Active Product must have exactly one designated Default, and that Variant must have lifecycle status Active. `is_default`, Variant lifecycle status, and `customer_visible` remain independent; visibility does not affect eligibility, and a hidden Active Variant may be the valid Default. Multiple designated Defaults are prohibited in every Product lifecycle state. | `OWNER_CONFIRMED` | Not implemented. | Completes the all-lifecycle cardinality portion of `CAT-CLAR-02` while preserving `ODB-CAT-23`, `ODB-CAT-28`, and `ODB-CAT-31`. It approves no unique index, constraint trigger, lock protocol, lifecycle command, migration, test, or implementation. Race-safe enforcement and direct-SQL/concurrency proof remain `TECHNICAL_PROPOSAL`. |
+
+**Source for `ODB-CAT-39` through `ODB-CAT-41`:** Owner's explicit Catalog Core scope confirmation on 2026-11-15.
+
+| ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|---|
+| `ODB-CAT-39` | Product lifecycle transition and Restore commands are excluded from the initial Catalog Core MVP. This scope provides no Product Activate, Deactivate, Archive, or Restore command or API. Missing Product lifecycle transitions and authorization rules remain unresolved for a future separately approved scope. | `OWNER_CONFIRMED` | Not implemented. | This is a scope exclusion, not a replacement for `ODB-CAT-03`, `ODB-CAT-24`, `ODB-CAT-29`, or `ODB-CAT-33`. It does not describe Product lifecycle as implemented or complete and grants no implementation authorization. |
+| `ODB-CAT-40` | Variant Archive and Restore change only Variant lifecycle status. They preserve `is_default` and `customer_visible`; Archive/Restore never silently transfers or modifies Default designation. Restore transitions Archived→Inactive, and reactivation is a separate validated action. | `OWNER_CONFIRMED` | Not implemented. | Preserves `ODB-CAT-28`, `ODB-CAT-31`, `ODB-CAT-32`, and `ODB-CAT-38`. Commands, authorization, audit, locking, constraints, and concurrency enforcement remain `TECHNICAL_PROPOSAL`; no implementation is authorized. |
+| `ODB-CAT-41` | Product Category reassignment is unsupported in the initial Catalog Core MVP. A Product remains assigned to its original Category after creation, and no Product Category reassignment command or API is provided. Any future reassignment capability requires a separate Owner Decision and scope approval. | `OWNER_CONFIRMED` | Not implemented. | This closes MVP reassignment scope without defining future reassignment behavior, creation/edit permissions, or Category/Variant authorization. Proposed database immutability enforcement remains technical and unimplemented. |
 
 See the [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_discovery.md) for the discovery-to-canonical trace and [Proposed Launch Menu v3](after_four_proposed_launch_menu_v3.md) for the later launch-menu input and its approval boundary.
 
 The following Catalog/Pricing matters remain explicitly `UNRESOLVED`: tax treatment and tax-inclusive/exclusive pricing; service charge policy; monetary rounding; zero-price/free-product policy; Modifier price effects pending actual menu requirements; time-based menu availability; manual price overrides and approval rules; inventory tracking; and media storage/vendor selection.
 
-Catalog Core also retains these explicit unresolved items: exact SKU normalization; Category and Variant restoration target states; identifier reservation after physical deletion of a Draft record; detailed lifecycle transition matrices; technical enforcement of delegated authority; safe physical-deletion enforcement; and Default Variant concurrency mechanisms.
+Catalog Core also retains these explicit unresolved or future-scope items: future SKU normalization and support; identifier reuse after a hypothetical physical deletion of a Draft record; uniqueness mechanics for any separately authorized future Soft Delete; future Product lifecycle transitions/authority; any future Product reassignment capability; technical representation/enforcement of delegated authority; exact command/validation/audit/locking/constraint mechanisms; and lifecycle/Default concurrency proof. Initial MVP excludes Product lifecycle/Restore commands and Product Category reassignment under `ODB-CAT-39` and `ODB-CAT-41`; Catalog Core MVP itself has no Soft Delete and no Purge.
 
 The timing of Payment creation—Draft creation versus Order confirmation—is a separate design question. Nothing in `ODB-CAT-01` through `ODB-CAT-10` approves a change to the implemented Phase 1 timing or guarantees.
 
-## 6. Identity and Authorization
+## 6. Global data retention and deletion
+
+**Source for `ODB-DATA-01`:** Owner's explicit selection of the importance-based retention principle in the Record Owner Data Retention Decision task.
+
+| ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
+|---|---|---|---|---|
+| `ODB-DATA-01` | Data affecting business operations, finance, historical records, or audit must be retained and must not be casually physically deleted. Temporary or transient data may be physically deleted when no longer needed under an appropriate, separately defined cleanup policy. Soft Delete is one possible retention mechanism, not a universal requirement; immutable retention and lifecycle/status-based retention are valid alternatives where appropriate. | `OWNER_CONFIRMED` | Not implemented as a global mechanism. | Entity-by-entity importance classification and mechanism remain unresolved. Retention periods, purge eligibility, purge authority, cleanup schedules, restoration, uniqueness participation, FK behavior, and legal/regulatory obligations are not decided here. |
+
+The Owner's earlier broad statement that all data should use Soft Delete only is `HISTORICAL_SUPERSEDED`. It is not an active policy and must not be implemented alongside `ODB-DATA-01`. This decision does not require a global `deleted_at` column and does not itself permit any specific record to be purged.
+
+## 7. Identity and Authorization
 
 Identity decisions `ID-01` through `ID-34` remain exactly as recorded in the [Identity Decision Register](after_four_identity_decision_register.md#owner-decisions-confirmed). This baseline references them rather than duplicating their complete security boundaries.
 
@@ -160,7 +228,7 @@ Identity decisions `ID-01` through `ID-34` remain exactly as recorded in the [Id
 - [ADR-0006](adr/0006-authentication-session-topology.md) remains **Proposed**.
 - Milestone 2B remains **not authorized**.
 
-## 7. Deployment proposals
+## 8. Deployment proposals
 
 Proposal placeholders `ID-35` through `ID-39` remain `DOCUMENTED_PROPOSAL` and `NOT_APPROVED`, as recorded in [AF-OWNER-001G](security-reviews/owner-led/af-owner-001g-deployment-direction-proposals.md). They do not become Owner decisions through this baseline.
 
@@ -172,9 +240,9 @@ Proposal placeholders `ID-35` through `ID-39` remain `DOCUMENTED_PROPOSAL` and `
 
 [ADR-0008](adr/0008-deployment-environments.md) remains **Proposed**.
 
-## 8. Use and precedence
+## 9. Use and precedence
 
-1. Use this baseline for Owner-confirmed business direction.
+1. Use this baseline for Owner-confirmed business, planning and project-wide architecture direction.
 2. Use the Business Domain Model, Payment Model, State Machines, Data Dictionary, Integrity Rules, and API Contract for synchronized domain/technical detail.
 3. Use the implementation record and executable evidence for implemented behavior; implementation does not silently create a new Owner decision.
 4. Treat older workshop, workflow, domain, database, and roadmap documents as historical where their banners say so.

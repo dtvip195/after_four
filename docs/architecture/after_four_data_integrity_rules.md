@@ -42,8 +42,8 @@ Database cascades are limited to unconfirmed, purely dependent configuration row
 | Branch code | UQ `(brand_id, code)` | Brand scope. |
 | Employee code | UQ `(organization_id, employee_code)` | Never recycled while retained. |
 | Role key | UQ `(organization_id, key)` | Stable capability template. |
-| Category/Product/Variant codes | UQ canonical uppercase code in Brand scope, including archived rows | Trim input; permit only ASCII Latin letters/digits/hyphen/underscore; canonicalize uppercase (`ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-22`). Storage and ancestry enforcement remain technical design. |
-| Variant SKU | Partial UQ in Brand scope when present, including archived rows | SKU is optional, Brand-unique when present, and never reused (`ODB-CAT-17`, `ODB-CAT-18`). SKU normalization/case/whitespace/Unicode/character policy remains `UNRESOLVED`; code rules do not apply automatically. |
+| Category/Product/Variant codes | Separate UQ `(brand_id, canonical_code)` for each entity table, including archived rows | Same Code may occur once in each entity type in one Brand; same-type/same-Brand duplicates are rejected. Trim input; permit only ASCII Latin letters/digits/hyphen/underscore; canonicalize uppercase (`ODB-CAT-16`, `ODB-CAT-18`, `ODB-CAT-22`, `ODB-CAT-27`). Constraint names, storage, and ancestry enforcement remain technical design. |
+| Variant SKU | No SKU input or normalization in Catalog Core MVP | SKU remains optional/Brand-unique when future support is authorized and remains reserved after Archive or any future Soft Delete (`ODB-CAT-17`, `ODB-CAT-18`, `ODB-CAT-34`, `ODB-CAT-36`). Future equality remains unresolved; Code rules do not apply. |
 | Modifier code | UQ in its Group | Modifier identifier policy is not changed by the Catalog Core decisions. |
 | Order number | UQ `(branch_id, order_number)` | Exact numbering is `OPEN_DECISION`. |
 | Preparation dispatch | UQ `order_id` | One paid-order dispatch identity (`OWNER_CONFIRMED`). |
@@ -57,7 +57,7 @@ Database cascades are limited to unconfirmed, purely dependent configuration row
 | Loyalty account | UQ `customer_id` | Organization-shared Customer. |
 | Idempotency | UQ `(organization_id, scope, key)` plus request fingerprint | Same key/different payload is conflict. |
 
-`TECHNICAL_PROPOSAL` Prefer named constraints with stable error mapping. `OWNER_CONFIRMED` Category/Product/Variant canonical codes and present SKUs retain their Brand-scoped uniqueness after archive and are never reused (`ODB-CAT-18`, `ODB-CAT-22`). Exact constraint names, code-normalization storage, SKU normalization, and ancestry mechanics remain proposed/unresolved as stated above.
+`TECHNICAL_PROPOSAL` Prefer named constraints with stable error mapping. `OWNER_CONFIRMED` Category/Product/Variant canonical Codes use separate entity-type namespaces within each Brand and remain reserved after Archive/future Soft Delete (`ODB-CAT-18`, `ODB-CAT-22`, `ODB-CAT-27`, `ODB-CAT-36`). SKU support is deferred from MVP (`ODB-CAT-34`); exact Code constraint names/storage and ancestry mechanics remain proposed.
 
 ## 4. Organization and Branch isolation
 
@@ -99,14 +99,15 @@ Collections are pre-scoped before serialization. UUID unpredictability, a select
 | Owner-confirmed rule | Required integrity outcome | Implementation boundary |
 |---|---|---|
 | Flat Categories (`ODB-CAT-02`) | MVP Category records have no parent hierarchy. | Later hierarchy migration is not approved here. |
-| Product lifecycle (`ODB-CAT-03`, `ODB-CAT-24`) | Product status is Draft, Active, Inactive, or Archived. Archived restores to Inactive and requires separate activation; restoration never makes it sellable. | Product transition/restoration authority and exact commands remain unresolved/technical. |
+| Product lifecycle (`ODB-CAT-03`, `ODB-CAT-24`, `ODB-CAT-33`, `ODB-CAT-39`) | Product status is Draft, Active, Inactive, or Archived. Restore-to-Inactive remains future policy, but the initial Catalog Core MVP excludes Product Activate, Deactivate, Archive, and Restore commands/APIs. | No full Product lifecycle is implemented or complete. Remaining transitions, authorization, commands, and enforcement require future Owner scope approval. |
 | Organization/Brand multiplicity (`ODB-CAT-14`) | Initial deployment has one Organization and one Brand; schema-level single-row constraints are prohibited. | Maximum Brands per Organization and additional Branch cardinality are not approved here. |
 | Required Category (`ODB-CAT-15`) | Every Product, including Draft, references exactly one Category of the same Brand. | Repeated Brand keys and composite FK shape remain technical design. |
-| Catalog identifiers (`ODB-CAT-16`–`ODB-CAT-18`, `ODB-CAT-22`) | Category/Product/Variant codes trim, validate ASCII letters/digits/hyphen/underscore, canonicalize uppercase, remain Brand-unique, and include archived rows. SKU remains optional, Brand-unique, and non-reusable. | SKU normalization and identifier reservation after Draft deletion remain `UNRESOLVED`; storage/composite enforcement/error mapping remain proposed. |
-| Persisted Variant and Product completeness (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`) | Draft Product may have zero Variants/Defaults; Active Product has at least one Variant and exactly one Default. | Cross-row enforcement, activation/Default switching transaction, and concurrency remain `TECHNICAL_PROPOSAL`. |
-| Default/visibility independence (`ODB-CAT-20`) | Default designation does not imply hidden, and customer visibility does not imply default. | Exact fields and at-most-one-default index remain proposed. |
-| Category/Variant lifecycle (`ODB-CAT-21`, `ODB-CAT-25`) | Deactivate is temporary/reversible; Archive is long-term retirement with validated restoration. Owner or explicit delegate performs validated/audited state changes. Category Archive requires no assigned Active Products; Variant Archive must preserve the Active Product's required valid Default. | Restoration targets, detailed transition matrix, delegated-authority enforcement, additional metadata, and exact commands remain unresolved/proposed. |
-| Draft physical deletion (`ODB-CAT-26`) | Only Draft records with no references, business history, audit dependencies, or other relevant dependencies may be physically deleted. Active, Inactive, and Archived records may not. | Identifier reservation after Draft deletion and database/application safety proof remain unresolved/proposed; FK absence alone never proves safety. |
+| Catalog identifiers (`ODB-CAT-16`–`ODB-CAT-18`, `ODB-CAT-22`, `ODB-CAT-27`, `ODB-CAT-34`, `ODB-CAT-36`) | Codes are canonical uppercase ASCII in separate Brand/type namespaces and stay reserved after Archive/future Soft Delete. SKU is deferred from MVP; its prior optional/Brand-unique rule is preserved. | Three Code constraints remain proposed. No SKU input/index semantics are invented; future SKU normalization and Soft Delete uniqueness mechanics require separate design. |
+| Persisted Variant and Product completeness (`ODB-CAT-04`, `ODB-CAT-19`, `ODB-CAT-23`, `ODB-CAT-28`, `ODB-CAT-38`) | Every Product has at most one Variant with `is_default = true`. Draft, Inactive, and Archived Products may have zero or one; an Active Product has exactly one and that Variant is Active. Hidden Active is eligible; visibility does not affect the rule. | Cross-row enforcement, activation/Default switching transaction, and concurrency remain `TECHNICAL_PROPOSAL`. |
+| Default/status/visibility independence (`ODB-CAT-20`, `ODB-CAT-28`, `ODB-CAT-31`, `ODB-CAT-38`) | `is_default`, lifecycle status, and `customer_visible` are independent. All-state designation cardinality does not derive status or visibility, and visibility is not part of Active eligibility. | Exact fields and at-most-one-designation index remain proposed and unimplemented. |
+| Category/Product lifecycle dependency and assignment (`ODB-CAT-29`, `ODB-CAT-41`) | Product may enter Active only when its assigned Category is Active. Category may not enter Inactive while any Active Products remain assigned. A Product remains assigned to its original Category in the initial MVP; reassignment commands/APIs are unsupported. | Cross-row enforcement and proposed Category-assignment immutability remain unimplemented. Any future reassignment requires a separate Owner Decision and scope approval. |
+| Category/Variant lifecycle (`ODB-CAT-21`, `ODB-CAT-25`, `ODB-CAT-28`–`ODB-CAT-32`, `ODB-CAT-40`) | Created Draft; exact allowed/prohibited matrix; Restore Archived→Inactive; activation separate. Variant Archive/Restore changes status only and preserves `is_default` and `customer_visible`; no Default transfer or mutation occurs. | Delegated-authority enforcement, fields, named commands, audit, locks, error mapping, and concurrency remain proposed. |
+| Catalog retention boundary (`ODB-CAT-26`, `ODB-CAT-35`–`ODB-CAT-37`, `ODB-DATA-01`) | Lifecycle/Archive retention; no MVP Soft Delete; identifiers reserved after Archive/future Soft Delete; Purge prohibited for every Catalog MVP state. | No `deleted_at`, default deletion scope, physical delete command, or cleanup job. Future policy changes require separate Owner Decision. |
 | Modifier cardinality (`ODB-CAT-05`) | Enforce `0 <= minimum_selections <= maximum_selections`; validate selected count and membership. | Modifier price effect remains unresolved. |
 | Branch availability override (`ODB-CAT-06`) | At most one effective explicit Branch/Variant override at an instant; otherwise inherit chain default. | Time-based menu policy and publishing authority remain unresolved. |
 | Price scope/history (`ODB-CAT-07`, `ODB-CAT-08`) | At most one effective Price per Variant/scope at an instant; effective Branch version overrides chain default; published versions are immutable. | Tax, service charge, rounding, zero/free pricing, and manual override policy remain unresolved. |
@@ -335,26 +336,36 @@ Never keep a database transaction open while waiting for a payment provider, pri
 | Record delegated Expense | Operating Day/approved policy scope, then Expense identity; serialize cumulative delegated total before commit |
 | Close Payroll Period | Period, Payroll rows sorted by Employee ID |
 | Claim Delivery | Delivery row/version and assignment transition |
-| Activate Product / change Default Variant | Product first, then relevant Variants in stable ID order; atomically preserve at least one Variant and exactly one Default for Active Product |
-| Archive/restore Category or Variant | Lifecycle subject first, then dependent Product/Variant rows in stable ID order; revalidate authority, dependencies, identifier uniqueness, and lifecycle preconditions before commit |
+| Activate Product / change Default Variant | For activation, proposed Category first, then Product, then relevant Variants in stable ID order; atomically require Active Category and exactly one Active Variant with `is_default = true`, independent of visibility. Default-only changes do not invent a Category lock requirement. |
+| Deactivate/Archive/restore Category or Variant | Lifecycle subject first, then dependent Product/Variant rows in stable ID order; Category Deactivation must find no Active Products; separately revalidate Archive/restore authority, dependencies, identifier uniqueness, and lifecycle preconditions before commit |
 
-The two Catalog lock orders above are `TECHNICAL_PROPOSAL`; `ODB-CAT-23` and `ODB-CAT-25` confirm the invariants, not the implementation mechanism. Exact lock acquisition, retry behavior, and database enforcement remain unresolved.
+The two Catalog lock orders above are `TECHNICAL_PROPOSAL`; `ODB-CAT-23`, `ODB-CAT-25`, and `ODB-CAT-28`–`ODB-CAT-32` confirm the invariants/matrix, not the implementation mechanism. Exact lock acquisition, retry behavior, and database enforcement remain unresolved.
 
 Deadlock/serialization failure retries restart the whole transaction with bounded retry. A statement error is not rescued and continued inside the same PostgreSQL transaction.
 
 ## 13. Soft deletion, deactivation, and retention
 
+`OWNER_CONFIRMED` `ODB-DATA-01` requires retention of data affecting business operations, finance, historical records, or audit and prohibits casual physical deletion. Temporary/transient data may be purged only when no longer needed under a separately defined cleanup policy. This principle selects no universal storage mechanism.
+
+- **Soft Delete:** mark a record as deleted while retaining the database row.
+- **Deactivate:** temporarily suspend use; this is not deletion.
+- **Archive:** retire a business record while preserving its history; this is not deletion.
+- **Immutable retention:** retain a record without ordinary modification or deletion.
+- **Physical Delete / Purge:** permanently remove a record from storage.
+
 | Data class | Lifecycle treatment |
 |---|---|
-| Organization/Brand/Branch, User, Employee, Catalog, Supplier, Warehouse, Device/Printer | status plus archive/deactivation date; no deletion when referenced. Catalog Deactivate/Archive/restore distinctions follow `ODB-CAT-24`–`ODB-CAT-25`; exact mechanics remain domain-specific. |
+| Organization/Brand/Branch, User, Employee, Supplier, Warehouse, Device/Printer | Candidate handling remains domain-specific; no referenced or important record may be casually deleted. Catalog-specific decisions are not generalized to these entities. |
+| Category/Product/Variant | Lifecycle/Archive retention only in MVP; no Soft Delete; no Purge in Draft/Active/Inactive/Archived; identifiers remain reserved (`ODB-CAT-35`–`ODB-CAT-37`). |
 | Effective policy/version rows | end effective interval or supersede; retain old version |
 | Orders, Payments, Refunds, Payroll, Stock, Cash, Loyalty, Approval/Audit | never soft-delete as correction; use lifecycle/reversal/adjustment |
-| Draft records | Physical deletion only when there are no references, business history, audit dependencies, or other relevant dependencies (`ODB-CAT-26`). Identifier reservation afterward remains unresolved; FK absence alone is insufficient. |
+| Draft records | Draft status alone does not authorize Purge. Catalog Draft Purge is explicitly prohibited by `ODB-CAT-37`; unrelated Draft entities follow their own policy. |
+| Temporary/transient technical data | May be purged when no longer needed only after its purpose, dependency/replay window, eligibility, authority, and cleanup schedule are separately defined. |
 | Personal/contact data | Minimize and protect; anonymization/retention must preserve legally required transaction evidence (`LEGAL_VALIDATION`) |
 
-No global `deleted_at` concern is recommended. It hides domain-specific integrity and can break uniqueness unexpectedly.
+The earlier broad “Soft Delete all data” direction is superseded. No global `deleted_at` concern is approved: Soft Delete, immutable retention, lifecycle/status handling, and Purge are distinct entity-specific choices. Soft Delete does not itself define restoration, uniqueness participation, FK behavior, retention period, or eventual purge permission.
 
-Retention periods for payment metadata, payroll/payslips, audit, customer consent/contact, feedback, food safety, tax invoice, and supplier evidence are `LEGAL_VALIDATION`. Outbox/idempotency technical retention must exceed the maximum retry/replay window and must never remove the underlying business ledger.
+Entity classification, retention periods, purge eligibility/authority, cleanup schedules, and exact mechanisms remain unresolved. Legal/regulatory retention for payment metadata, payroll/payslips, audit, customer consent/contact, feedback, food safety, tax invoice, and supplier evidence remains `LEGAL_VALIDATION`. Outbox/idempotency technical retention must exceed the approved retry/replay window and must never remove the underlying business ledger.
 
 ## 14. Database versus application rule matrix
 
@@ -366,6 +377,7 @@ Retention periods for payment metadata, payroll/payslips, audit, customer consen
 | Same Organization/Branch ancestry | Composite FK where practical | Yes | Authorization/isolation tests |
 | Effective-date non-overlap | Exclusion where practical | Yes under lock | Concurrent publish tests |
 | Lifecycle transition | Allowed stored values only | Yes; named state machine | Transition tests |
+| Category/Product Active dependency | Cross-row trigger/constraint shape proposed only | Yes, atomically under proposed Category-first lock | Product activation versus Category Deactivation race and direct-SQL tests |
 | Full payment before dispatch | Unique/FK support only | Yes, atomic service | Failure/rollback/concurrency tests |
 | Refund cumulative limit | Local positive checks | Yes under lock | Competing-refund test |
 | Overpayment evidence/excess Refund | Phase 1 exact-target checks remain | Future evidence/allocation and Refund transaction | Mismatch/excess/replay/reporting tests after design |
