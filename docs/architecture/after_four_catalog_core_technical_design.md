@@ -30,6 +30,7 @@ Classification meanings:
 | Label | Meaning in this document |
 |---|---|
 | `OWNER_CONFIRMED` | Business or project direction explicitly recorded in the Owner Decision Baseline. |
+| `DEFERRED` | Owner intentionally postponed the decision; no option or replacement policy is approved. |
 | `TECHNICAL_PROPOSAL` | Reviewable mechanism selected by this design; not implemented or approved merely by appearing here. |
 | `UNRESOLVED_OWNER_DECISION` | A business/authority choice still requires explicit Owner confirmation. |
 | `EXTERNAL_PREREQUISITE` | Evidence or another authorized capability must be supplied outside Package B. |
@@ -48,9 +49,12 @@ Writing a proposed constraint, trigger, role, or test does not close a CAT-TRR f
 | `ODB-CAT-19`–`ODB-CAT-25` | Draft incompleteness, independent Default/visibility, lifecycle vocabulary, Active completeness, Restore boundaries, and Category/Variant guards shape Domain and database invariants. |
 | `ODB-CAT-26`–`ODB-CAT-38` | Canonical Code, lifecycle matrices, Category/Product dependency, Draft creation for Category/Variant, SKU deferral, Archive retention, no Soft Delete/Purge, and all-lifecycle Default cardinality are preserved. |
 | `ODB-CAT-39`–`ODB-CAT-41` | Product lifecycle commands and Category reassignment are excluded; Variant Archive/Restore preserves flags. |
+| `C0-CAT-01`–`C0-CAT-08` | Separate Category/Variant lifecycle authority, Brand/capability-scoped delegation, reason, step-up, cross-Brand denial, audit-failure rollback, and Default-switch exclusion are confirmed. They do not authorize implementation. |
+| `C0-R01`–`C0-R04`, `C0-R06`, `C0-R07`, `C0-R09`, `C0-R10` | Role/capability assignment, delegation administration/lifecycle, reason validation, Brand-scoped append-only atomic audit, fail-closed trusted AuthorizationContext, and runtime database security/boundary constrain Package C. |
+| `C0-R05`, `C0-R08`, `C0-R11` | MFA detail, audit retention/read/export governance, and advanced retry/idempotency policy are `DEFERRED`, not approved. |
 | `ODB-DATA-01` | Important Catalog records are retained; no physical deletion mechanism is introduced. |
 
-No conflict was found among these decisions. Product creation state, runtime authority, editable fields, non-lifecycle audit, and future pricing/availability matters remain explicit rather than inferred.
+No conflict was found among these decisions. Category/Variant lifecycle authority is now confirmed within the C0 boundary; Product creation state, create/read/edit authority, editable fields, non-lifecycle audit, and future pricing/availability matters remain explicit rather than inferred.
 
 ## 2. Package boundary
 
@@ -565,10 +569,10 @@ For a Product activation racing Category Deactivate/Archive, two materially diff
 
 ### 7.6 Timeouts and retries
 
-- SQLSTATE `40P01` (deadlock) and `40001` (serialization failure) may be retried only as a whole future Application command under a bounded, deployment-validated policy.
-- `55P03` (lock unavailable) and `57014` (statement/lock timeout cancellation) produce stable busy/timeout outcomes; they are not silently retried forever.
+- SQLSTATE `40P01` identifies a deadlock and `40001` identifies a serialization failure. Whether a future Package C Application command retries either outcome is deliberately `DEFERRED` under `C0-R11`; no automatic retry, count, backoff, or idempotency contract is approved. Any later approved retry design must restart the whole command and transaction rather than continue a failed transaction.
+- `55P03` identifies lock unavailability and `57014` identifies statement/lock-timeout cancellation. Their future Package C response and retry behavior are likewise not selected by this document.
 - A statement failure aborts the PostgreSQL transaction; code never rescues and continues inside it.
-- Package B selects no retry count or timeout value. Those are technical deployment settings requiring capacity evidence.
+- Package B selects no retry count, timeout value, or Package C idempotency policy. Existing database rollback/integrity behavior remains unchanged by the deferral.
 
 ### 7.7 Constraint timing
 
@@ -619,6 +623,8 @@ Down migration first refuses rollback if any Catalog table contains rows. When e
 After data exists, destructive rollback is unsafe and prohibited by the no-Purge policy. Operational recovery is roll-forward: disable unavailable entry points, correct functions/constraints through a reviewed migration, preserve data, and revalidate. Release plans set bounded lock/statement timeouts and monitor migration locks.
 
 ## 10. Database roles and operational safety
+
+`C0-R10` confirms separation of runtime authority from migration ownership, prohibits unrestricted destructive/schema privileges, and requires an operation-specific database boundary while deliberately leaving its implementation unselected. The table below remains a technical capability design, not evidence that roles, grants, or a stored-procedure boundary exist.
 
 Exact role names are environment configuration; required capabilities are:
 
@@ -761,13 +767,16 @@ The report-only `CAT-ARCH-001` gap is addressed at design level by §§3–4: th
 | Create/read/edit authority and editable fields | `UNRESOLVED_OWNER_DECISION` | Blocks runtime operations, not empty schema. |
 | Default designation authority | `UNRESOLVED_OWNER_DECISION` | Blocks switching operation, not integrity index/trigger. |
 | Non-lifecycle mutation audit requirements | `UNRESOLVED_OWNER_DECISION` | Blocks create/edit/Default operations. |
-| Trusted Identity/delegation | `EXTERNAL_PREREQUISITE` | Blocks runtime operations and C; Identity Milestone 2B remains unauthorized. |
-| Brand-scoped append-only AuditEvent | `EXTERNAL_PREREQUISITE` | Blocks audited runtime operations and C; excluded from B. |
+| Trusted Identity/delegation | `OWNER_CONFIRMED` policy plus `EXTERNAL_PREREQUISITE` implementation | `C0-CAT-01`–`C0-CAT-03`, `C0-R01`–`C0-R04`, and `C0-R09` define the authority, delegation, and trusted-context boundary; implementation still blocks runtime operations and C, and Identity Milestone 2B remains unauthorized. |
+| Brand-scoped append-only AuditEvent | `OWNER_CONFIRMED` policy plus `EXTERNAL_PREREQUISITE` implementation | `C0-R07` requires the append-only atomic contract and `C0-CAT-07` requires rollback on audit failure; representation, migration, roles, and evidence remain excluded from B and block C. |
 | Cross-context Brand Application contract | `EXTERNAL_PREREQUISITE` when a real operation requires it | Database FK is sufficient for empty schema; A1 is not an Application contract. |
 | Isolation levels other than `READ COMMITTED` | `TECHNICAL_PROPOSAL` limitation | Final-state triggers fail closed with `catalog_integrity_requires_read_committed`; broader support requires a new PostgreSQL-specific proof. |
 | Multi-statement privileged Archive/Restore flag changes | `TECHNICAL_PROPOSAL` limitation | Database statement guard cannot infer semantic grouping; runtime DML denial is required until an authorized Application operation exists. |
 | Executed deferred-trigger snapshot/concurrency proof | `EXTERNAL_PREREQUISITE` after implementation authorization | Design remains reviewable, but CAT-TRR-006 stays open until deterministic PostgreSQL evidence exists. |
-| Exact deployment role names/grants and break-glass operator process | `EXTERNAL_PREREQUISITE` | Role capabilities are designed; production-like evidence remains required. |
+| Exact deployment role names/grants, operation-specific database boundary, and break-glass operator process | `EXTERNAL_PREREQUISITE` | `C0-R10` sets the runtime database security boundary without selecting stored procedures or another mechanism; production-like evidence remains required. |
+| MFA freshness/assurance/session binding/invalidation | `DEFERRED` under `C0-R05` | Step-up remains mandatory for Archive and Restore, but no exact freshness or assurance policy may be inferred. |
+| Audit retention/legal hold/read/export governance | `DEFERRED` under `C0-R08` | No duration, entitlement, hold/export procedure, or legal conclusion is approved. |
+| Advanced concurrency retry/idempotency | `DEFERRED` under `C0-R11` | Existing database invariants and CAT-TRR evidence remain; no automatic retry or idempotency policy is approved for Package C. |
 | A2 target mapping | `EXTERNAL_PREREQUISITE` | Blocks production integration, not empty schema. |
 | SKU semantics/support | `UNRESOLVED_OWNER_DECISION` for future scope | No SKU column in B. |
 | Price tax, service charge, rounding, free items, Modifier effects, publication authority | `UNRESOLVED_OWNER_DECISION` | Entirely outside B. |
