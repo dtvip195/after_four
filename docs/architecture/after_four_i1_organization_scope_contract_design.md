@@ -4,11 +4,21 @@
 
 **Readiness:** `GATE_A_DESIGN_BASELINE_APPROVED`
 
-**Implementation authorization:** `NOT GRANTED`
+**Implementation authorization:** `GRANTED — I1 BOUNDED SCOPE ONLY`
 
 **Gate A approval:** `APPROVED`
 
-**Evidence baseline:** `main` at `626b872b99a5c2aee4a4e7c84981afd1b5bbd859` on 2026-11-15
+**Gate B approval:** `APPROVED`
+
+**Gate C Control Acceptance:** `NOT GRANTED`
+
+**Final Operational Acceptance:** `NOT GRANTED`
+
+**Production authorization:** `NOT GRANTED`
+
+**Implementation checkpoint:** `dd5b3804a1db55fbc05b3f5f33142462ad29de5e`
+
+**Gate A design evidence baseline:** `main` at `626b872b99a5c2aee4a4e7c84981afd1b5bbd859` on 2026-11-15
 
 ## Gate A Owner decision record
 
@@ -26,6 +36,56 @@
 This approval accepts only the reviewed I1 semantic design baseline. It does not authorize I1 implementation, Identity Milestone 2B, production, deployment, database, schema, data, configuration, authentication, authorization, ownership, delegation, Session, MFA, or Catalog capabilities. A separate bounded Gate B authorization remains mandatory before implementation.
 
 ADR-0006 remains `Proposed`; Identity Security Review Checklist statuses remain unchanged; P1-OD-01 through P1-OD-05 remain unresolved; and C0-R05, C0-R08, and C0-R11 remain `DEFERRED`. This decision accepts no security control or residual risk and grants no additional authorization to I2, P1, P2, P3, Package C, C1, C2, or C3.
+
+## Gate B Owner decision record
+
+| Field | Recorded decision |
+|---|---|
+| Decision | `APPROVE` |
+| Gate | Gate B — Bounded Implementation Authorization |
+| Decision date | 2026-11-15 |
+| Authority | Organization Owner (role-based; personal name not recorded) |
+| Approved design baseline | `docs/architecture/after_four_i1_organization_scope_contract_design.md` at `5ca7796fa3ea272fd71dd66891f89f69257db029` |
+| Authorized implementation scope | Exact manifest of 17 production files and 4 spec files below; no existing production file modification. |
+| Implementation checkpoint | `dd5b3804a1db55fbc05b3f5f33142462ad29de5e` (`feat: implement I1 organization scope contract`) |
+| Gate C Control Acceptance | `NOT GRANTED` |
+| Final Operational Acceptance | `NOT GRANTED` |
+| Production authorization | `NOT GRANTED` |
+
+The authorized production manifest was exactly:
+
+1. `backend/app/domains/identity/application/contracts/identity_brand_reference.rb`
+2. `backend/app/domains/identity/application/contracts/identity_organization_reference.rb`
+3. `backend/app/domains/identity/application/contracts/organization_scope_evidence.rb`
+4. `backend/app/domains/identity/application/contracts/organization_scope_result.rb`
+5. `backend/app/domains/identity/application/contracts/safe_failure_reference.rb`
+6. `backend/app/domains/identity/application/errors/unexpected_failure.rb`
+7. `backend/app/domains/identity/application/ports/organization_scope.rb`
+8. `backend/app/domains/identity/infrastructure/adapters/organization_scope_adapter.rb`
+9. `backend/app/domains/organization/application/contracts/brand_ancestry.rb`
+10. `backend/app/domains/organization/application/contracts/brand_reference.rb`
+11. `backend/app/domains/organization/application/contracts/organization_reference.rb`
+12. `backend/app/domains/organization/application/contracts/resolve_brand_ancestry_result.rb`
+13. `backend/app/domains/organization/application/contracts/safe_failure_reference.rb`
+14. `backend/app/domains/organization/application/errors/unexpected_failure.rb`
+15. `backend/app/domains/organization/application/ports/brand_ancestry_reader.rb`
+16. `backend/app/domains/organization/application/queries/resolve_brand_ancestry.rb`
+17. `backend/app/domains/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb`
+
+The authorized spec manifest was exactly:
+
+1. `backend/spec/architecture/i1_dependency_spec.rb`
+2. `backend/spec/domains/identity/infrastructure/adapters/organization_scope_adapter_spec.rb`
+3. `backend/spec/domains/organization/application/queries/resolve_brand_ancestry_spec.rb`
+4. `backend/spec/domains/organization/infrastructure/persistence/active_record_brand_ancestry_reader_spec.rb`
+
+Gate B authorized only Brand ID → authoritative Brand lookup → Organization ancestry resolution, the five normal outcomes and approved exceptional-termination behavior, the narrow Active Record availability-exception allowlist, one PostgreSQL `LEFT OUTER JOIN` statement, and the reviewed Identity adapter mapping and containment behavior. I1 performs no diagnostic recording. The permitted local/test verification was limited to the four manifest specs, `bin/rails zeitwerk:check`, the reviewed scoped RuboCop command, and `git diff --check`, after confirming the test database and environment.
+
+Gate B did not authorize Composition Root wiring, a runtime consumer, authentication, login, registration, credentials, Session, `AuthorizationContext`, ownership, roles, capabilities, delegation, MFA, Catalog lifecycle, AuditEvent, runtime database security, schema or data changes, development or production database mutation, deployment, release, production configuration, or expansion of the exception allowlist or diagnostic responsibilities. It grants no additional authorization to Identity Milestone 2B, I2, P1, P2, P3, Package C, C1, C2, or C3.
+
+Gate A accepted only the semantic design baseline and did not itself authorize implementation. Gate B was a separate, explicit, bounded authorization. Commit `dd5b3804a1db55fbc05b3f5f33142462ad29de5e` records the completed bounded implementation checkpoint; it does not constitute Gate C acceptance, Final Operational Acceptance, production readiness, or production authorization. Gate C requires separately executed control evidence and explicit Owner acceptance. Final Operational Acceptance remains a separate decision.
+
+Forward-looking Gate B wording retained later in this document records the reviewed Gate A baseline as it existed before the separate Gate B decision. This Gate B decision record is authoritative for current I1 authorization status and supersedes that wording only as to whether the bounded implementation was authorized; it does not rewrite the approved semantic design or accept any control.
 
 ## 1. Context, purpose, and decision discipline
 
@@ -717,12 +777,12 @@ Any demonstrated need to touch an excluded file stops the bounded slice and requ
 
 - [ADR-0011](adr/0011-project-wide-layered-ddd.md) is Accepted and controls layer ownership and dependency direction.
 - [ADR-0006](adr/0006-authentication-session-topology.md) remains Proposed. I1 contains no Session or authentication implementation and neither accepts nor depends on accepting ADR-0006.
-- [Foundation Decisions §5](after_four_foundation_decisions.md#5-milestone-2--identity-branch-scope-and-authorization) defines four separate gates. The Owner decision record above approves this exact design baseline at Gate A only.
-- Recorded Gate A approval does not change ADR/checklist status, prove a control, accept residual risk, or authorize implementation or production.
-- Gate B would require a later separate Owner decision naming exact files, tests, environment, evidence owner/reviewer, exclusions, and prohibited actions.
-- Gate C would require executed evidence; this document and its planned tests are not evidence.
+- [Foundation Decisions §5](after_four_foundation_decisions.md#5-milestone-2--identity-branch-scope-and-authorization) defines four separate gates. The Gate A decision record above approves this exact semantic design baseline; the Gate B decision record separately authorizes only its exact bounded manifest.
+- Recorded Gate A approval does not itself change ADR/checklist status, prove a control, accept residual risk, or authorize implementation or production.
+- Gate B was separately approved by the Owner with exact files, tests, environment, constraints, exclusions, and prohibited actions. Its implementation checkpoint is `dd5b3804a1db55fbc05b3f5f33142462ad29de5e`.
+- Gate C requires separately executed control evidence and explicit Owner acceptance; the implementation checkpoint does not grant it.
 - Final Operational Acceptance remains separate and is not implied.
-- No I1, I2, P1, P2, P3, C1, C2, C3, Package C, Identity Milestone 2B, public API, or production implementation is authorized here.
+- No implementation beyond the exact bounded I1 Gate B manifest is authorized. I2, P1, P2, P3, C1, C2, C3, Package C, Identity Milestone 2B, public API, and production implementation remain unauthorized.
 
 ## 16. Gate A review checklist
 
@@ -749,4 +809,4 @@ The Owner approved this Gate A review checklist without amendments on 2026-11-15
 - [x] test responsibilities and evidence ownership are sufficient for a later Gate B request;
 - [x] ADR-0006, checklist, P1-OD, C0 deferred, CAT-TRR, and implementation-authorization statuses remain unchanged.
 
-Gate A is recorded as `APPROVED`. Implementation remains prohibited until a separate Bounded Implementation Authorization—Gate B—is explicitly recorded.
+Gate A and the separate bounded Gate B are recorded as `APPROVED`. Gate C Control Acceptance, Final Operational Acceptance, and production authorization remain `NOT GRANTED`.
