@@ -496,8 +496,8 @@ SET default_table_access_method = heap;
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -820,7 +820,7 @@ CREATE TABLE public.solid_queue_batch_executions (
     id bigint NOT NULL,
     job_id bigint NOT NULL,
     batch_id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -858,11 +858,11 @@ CREATE TABLE public.solid_queue_batches (
     total_jobs integer DEFAULT 0 NOT NULL,
     completed_jobs integer DEFAULT 0 NOT NULL,
     failed_jobs integer DEFAULT 0 NOT NULL,
-    enqueued_at timestamp(6) without time zone,
-    finished_at timestamp(6) without time zone,
-    failed_at timestamp(6) without time zone,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    enqueued_at timestamp(6) with time zone,
+    finished_at timestamp(6) with time zone,
+    failed_at timestamp(6) with time zone,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -895,8 +895,8 @@ CREATE TABLE public.solid_queue_blocked_executions (
     queue_name character varying NOT NULL,
     priority integer DEFAULT 0 NOT NULL,
     concurrency_key character varying NOT NULL,
-    expires_at timestamp(6) without time zone NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    expires_at timestamp(6) with time zone NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -927,7 +927,7 @@ CREATE TABLE public.solid_queue_claimed_executions (
     id bigint NOT NULL,
     job_id bigint NOT NULL,
     process_id bigint,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -958,7 +958,7 @@ CREATE TABLE public.solid_queue_failed_executions (
     id bigint NOT NULL,
     job_id bigint NOT NULL,
     error text,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -992,11 +992,11 @@ CREATE TABLE public.solid_queue_jobs (
     arguments text,
     priority integer DEFAULT 0 NOT NULL,
     active_job_id character varying,
-    scheduled_at timestamp(6) without time zone,
-    finished_at timestamp(6) without time zone,
+    scheduled_at timestamp(6) with time zone,
+    finished_at timestamp(6) with time zone,
     concurrency_key character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
     batch_id bigint
 );
 
@@ -1027,7 +1027,7 @@ ALTER SEQUENCE public.solid_queue_jobs_id_seq OWNED BY public.solid_queue_jobs.i
 CREATE TABLE public.solid_queue_pauses (
     id bigint NOT NULL,
     queue_name character varying NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -1057,12 +1057,12 @@ ALTER SEQUENCE public.solid_queue_pauses_id_seq OWNED BY public.solid_queue_paus
 CREATE TABLE public.solid_queue_processes (
     id bigint NOT NULL,
     kind character varying NOT NULL,
-    last_heartbeat_at timestamp(6) without time zone NOT NULL,
+    last_heartbeat_at timestamp(6) with time zone NOT NULL,
     supervisor_id bigint,
     pid integer NOT NULL,
     hostname character varying,
     metadata text,
-    created_at timestamp(6) without time zone NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
     name character varying NOT NULL
 );
 
@@ -1095,7 +1095,7 @@ CREATE TABLE public.solid_queue_ready_executions (
     job_id bigint NOT NULL,
     queue_name character varying NOT NULL,
     priority integer DEFAULT 0 NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -1126,8 +1126,8 @@ CREATE TABLE public.solid_queue_recurring_executions (
     id bigint NOT NULL,
     job_id bigint NOT NULL,
     task_key character varying NOT NULL,
-    run_at timestamp(6) without time zone NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    run_at timestamp(6) with time zone NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -1165,8 +1165,8 @@ CREATE TABLE public.solid_queue_recurring_tasks (
     priority integer DEFAULT 0,
     static boolean DEFAULT true NOT NULL,
     description text,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -1198,8 +1198,8 @@ CREATE TABLE public.solid_queue_scheduled_executions (
     job_id bigint NOT NULL,
     queue_name character varying NOT NULL,
     priority integer DEFAULT 0 NOT NULL,
-    scheduled_at timestamp(6) without time zone NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    scheduled_at timestamp(6) with time zone NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL
 );
 
 
@@ -1230,9 +1230,9 @@ CREATE TABLE public.solid_queue_semaphores (
     id bigint NOT NULL,
     key character varying NOT NULL,
     value integer DEFAULT 1 NOT NULL,
-    expires_at timestamp(6) without time zone NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    expires_at timestamp(6) with time zone NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL
 );
 
 
