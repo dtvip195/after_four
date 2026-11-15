@@ -54,6 +54,358 @@ $$;
 
 
 --
+-- Name: catalog_enforce_category_initial_status(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_enforce_category_initial_status() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+BEGIN
+  IF NEW.lifecycle_status <> 'draft' THEN
+    RAISE EXCEPTION 'Category must be created in Draft'
+      USING ERRCODE = '23514', CONSTRAINT = 'categories_initial_lifecycle_draft';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_enforce_category_transition(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_enforce_category_transition() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+BEGIN
+  IF NEW.lifecycle_status IS NOT DISTINCT FROM OLD.lifecycle_status THEN
+    RETURN NEW;
+  END IF;
+
+  IF NOT (
+    (OLD.lifecycle_status = 'draft' AND NEW.lifecycle_status IN ('active', 'archived'))
+    OR (OLD.lifecycle_status = 'active' AND NEW.lifecycle_status IN ('inactive', 'archived'))
+    OR (OLD.lifecycle_status = 'inactive' AND NEW.lifecycle_status IN ('active', 'archived'))
+    OR (OLD.lifecycle_status = 'archived' AND NEW.lifecycle_status = 'inactive')
+  ) THEN
+    RAISE EXCEPTION 'Category lifecycle transition is prohibited'
+      USING ERRCODE = '23514', CONSTRAINT = 'categories_lifecycle_transition_allowed';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_enforce_variant_initial_status(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_enforce_variant_initial_status() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+BEGIN
+  IF NEW.lifecycle_status <> 'draft' THEN
+    RAISE EXCEPTION 'Variant must be created in Draft'
+      USING ERRCODE = '23514', CONSTRAINT = 'product_variants_initial_lifecycle_draft';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_enforce_variant_transition(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_enforce_variant_transition() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+BEGIN
+  IF NEW.lifecycle_status IS NOT DISTINCT FROM OLD.lifecycle_status THEN
+    RETURN NEW;
+  END IF;
+
+  IF NOT (
+    (OLD.lifecycle_status = 'draft' AND NEW.lifecycle_status IN ('active', 'archived'))
+    OR (OLD.lifecycle_status = 'active' AND NEW.lifecycle_status IN ('inactive', 'archived'))
+    OR (OLD.lifecycle_status = 'inactive' AND NEW.lifecycle_status IN ('active', 'archived'))
+    OR (OLD.lifecycle_status = 'archived' AND NEW.lifecycle_status = 'inactive')
+  ) THEN
+    RAISE EXCEPTION 'Variant lifecycle transition is prohibited'
+      USING ERRCODE = '23514', CONSTRAINT = 'product_variants_lifecycle_transition_allowed';
+  END IF;
+
+  IF (NEW.lifecycle_status = 'archived' OR
+      (OLD.lifecycle_status = 'archived' AND NEW.lifecycle_status = 'inactive'))
+    AND (NEW.is_default IS DISTINCT FROM OLD.is_default
+      OR NEW.customer_visible IS DISTINCT FROM OLD.customer_visible) THEN
+    RAISE EXCEPTION 'Variant Archive or Restore must preserve flags'
+      USING ERRCODE = '23514', CONSTRAINT = 'product_variants_lifecycle_transition_allowed';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_reject_category_scope_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_reject_category_scope_change() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+BEGIN
+  IF NEW.brand_id IS DISTINCT FROM OLD.brand_id THEN
+    RAISE EXCEPTION 'Category Brand is immutable'
+      USING ERRCODE = '23514', CONSTRAINT = 'categories_scope_immutable';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_reject_product_scope_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_reject_product_scope_change() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+BEGIN
+  IF NEW.brand_id IS DISTINCT FROM OLD.brand_id
+    OR NEW.category_id IS DISTINCT FROM OLD.category_id THEN
+    RAISE EXCEPTION 'Product Brand and Category are immutable'
+      USING ERRCODE = '23514', CONSTRAINT = 'products_scope_immutable';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_reject_purge(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_reject_purge() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+DECLARE
+  failure_identity text;
+BEGIN
+  failure_identity := CASE TG_TABLE_NAME
+    WHEN 'categories' THEN 'categories_purge_forbidden'
+    WHEN 'products' THEN 'products_purge_forbidden'
+    WHEN 'product_variants' THEN 'product_variants_purge_forbidden'
+  END;
+
+  RAISE EXCEPTION 'Catalog Purge is prohibited'
+    USING ERRCODE = '23514', CONSTRAINT = failure_identity;
+END;
+$$;
+
+
+--
+-- Name: catalog_reject_variant_scope_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_reject_variant_scope_change() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+BEGIN
+  IF NEW.brand_id IS DISTINCT FROM OLD.brand_id
+    OR NEW.product_id IS DISTINCT FROM OLD.product_id THEN
+    RAISE EXCEPTION 'Variant Brand and Product are immutable'
+      USING ERRCODE = '23514', CONSTRAINT = 'product_variants_scope_immutable';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_validate_active_product_category(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_validate_active_product_category() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+DECLARE
+  affected_category_ids uuid[];
+  affected_product_ids uuid[];
+BEGIN
+  IF TG_OP = 'UPDATE' THEN
+    IF TG_TABLE_NAME = 'products' THEN
+      IF NEW.category_id IS NOT DISTINCT FROM OLD.category_id
+        AND NEW.brand_id IS NOT DISTINCT FROM OLD.brand_id
+        AND NEW.lifecycle_status IS NOT DISTINCT FROM OLD.lifecycle_status THEN
+        RETURN NEW;
+      END IF;
+    ELSIF TG_TABLE_NAME = 'categories' THEN
+      IF NEW.lifecycle_status IS NOT DISTINCT FROM OLD.lifecycle_status THEN
+        RETURN NEW;
+      END IF;
+    END IF;
+  END IF;
+
+  IF current_setting('transaction_isolation') <> 'read committed' THEN
+    RAISE EXCEPTION 'Catalog final-state validation requires READ COMMITTED'
+      USING ERRCODE = '23514', CONSTRAINT = 'catalog_integrity_requires_read_committed';
+  END IF;
+
+  IF TG_TABLE_NAME = 'products' THEN
+    IF TG_OP = 'INSERT' THEN
+      affected_category_ids := ARRAY[NEW.category_id];
+      affected_product_ids := ARRAY[NEW.id];
+    ELSE
+      affected_category_ids := ARRAY[OLD.category_id, NEW.category_id];
+      affected_product_ids := ARRAY[OLD.id, NEW.id];
+    END IF;
+  ELSIF TG_OP = 'INSERT' THEN
+    affected_category_ids := ARRAY[NEW.id];
+  ELSE
+    affected_category_ids := ARRAY[OLD.id, NEW.id];
+  END IF;
+
+  SELECT array_agg(DISTINCT category_id ORDER BY category_id)
+  INTO affected_category_ids
+  FROM unnest(affected_category_ids) AS ids(category_id)
+  WHERE category_id IS NOT NULL;
+
+  PERFORM categories.id
+  FROM public.categories AS categories
+  WHERE categories.id = ANY(affected_category_ids)
+  ORDER BY categories.id
+  FOR UPDATE;
+
+  IF TG_TABLE_NAME = 'products' THEN
+    SELECT array_agg(DISTINCT product_id ORDER BY product_id)
+    INTO affected_product_ids
+    FROM unnest(affected_product_ids) AS ids(product_id)
+    WHERE product_id IS NOT NULL;
+
+    PERFORM products.id
+    FROM public.products AS products
+    WHERE products.id = ANY(affected_product_ids)
+    ORDER BY products.id
+    FOR UPDATE;
+  ELSE
+    PERFORM products.id
+    FROM public.products AS products
+    WHERE products.category_id = ANY(affected_category_ids)
+    ORDER BY products.id
+    FOR UPDATE;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.products AS products
+    JOIN public.categories AS categories ON categories.id = products.category_id
+    WHERE products.category_id = ANY(affected_category_ids)
+      AND products.lifecycle_status = 'active'
+      AND categories.lifecycle_status <> 'active'
+  ) THEN
+    RAISE EXCEPTION 'Active Product requires an Active Category'
+      USING ERRCODE = '23514', CONSTRAINT = 'catalog_active_product_category_valid';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: catalog_validate_active_product_default(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.catalog_validate_active_product_default() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'pg_catalog', 'public'
+    AS $$
+DECLARE
+  affected_product_ids uuid[];
+BEGIN
+  IF TG_OP = 'UPDATE' THEN
+    IF TG_TABLE_NAME = 'products' THEN
+      IF NEW.lifecycle_status IS NOT DISTINCT FROM OLD.lifecycle_status THEN
+        RETURN NEW;
+      END IF;
+    ELSIF TG_TABLE_NAME = 'product_variants' THEN
+      IF NEW.product_id IS NOT DISTINCT FROM OLD.product_id
+        AND NEW.brand_id IS NOT DISTINCT FROM OLD.brand_id
+        AND NEW.lifecycle_status IS NOT DISTINCT FROM OLD.lifecycle_status
+        AND NEW.is_default IS NOT DISTINCT FROM OLD.is_default THEN
+        RETURN NEW;
+      END IF;
+    END IF;
+  END IF;
+
+  IF current_setting('transaction_isolation') <> 'read committed' THEN
+    RAISE EXCEPTION 'Catalog final-state validation requires READ COMMITTED'
+      USING ERRCODE = '23514', CONSTRAINT = 'catalog_integrity_requires_read_committed';
+  END IF;
+
+  IF TG_TABLE_NAME = 'products' THEN
+    IF TG_OP = 'INSERT' THEN
+      affected_product_ids := ARRAY[NEW.id];
+    ELSE
+      affected_product_ids := ARRAY[OLD.id, NEW.id];
+    END IF;
+  ELSIF TG_OP = 'INSERT' THEN
+    affected_product_ids := ARRAY[NEW.product_id];
+  ELSIF TG_OP = 'DELETE' THEN
+    affected_product_ids := ARRAY[OLD.product_id];
+  ELSE
+    affected_product_ids := ARRAY[OLD.product_id, NEW.product_id];
+  END IF;
+
+  SELECT array_agg(DISTINCT product_id ORDER BY product_id)
+  INTO affected_product_ids
+  FROM unnest(affected_product_ids) AS ids(product_id)
+  WHERE product_id IS NOT NULL;
+
+  PERFORM products.id
+  FROM public.products AS products
+  WHERE products.id = ANY(affected_product_ids)
+  ORDER BY products.id
+  FOR UPDATE;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.products AS products
+    WHERE products.id = ANY(affected_product_ids)
+      AND products.lifecycle_status = 'active'
+      AND (
+        SELECT COUNT(*)
+        FROM public.product_variants AS variants
+        WHERE variants.product_id = products.id
+          AND variants.is_default
+          AND variants.lifecycle_status = 'active'
+      ) <> 1
+  ) THEN
+    RAISE EXCEPTION 'Active Product requires exactly one Active Default Variant'
+      USING ERRCODE = '23514', CONSTRAINT = 'catalog_active_product_default_valid';
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: enforce_payment_successful_total_from_attempt(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -199,6 +551,28 @@ CREATE TABLE public.brands (
     created_at timestamp(6) with time zone NOT NULL,
     updated_at timestamp(6) with time zone NOT NULL,
     CONSTRAINT brands_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0))
+);
+
+
+--
+-- Name: categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.categories (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    brand_id uuid NOT NULL,
+    code character varying(64) NOT NULL,
+    name character varying(150) NOT NULL,
+    "position" integer DEFAULT 0 NOT NULL,
+    lifecycle_status character varying(16) DEFAULT 'draft'::character varying NOT NULL,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT categories_code_canonical CHECK (((code)::text ~ '^[A-Z0-9_-]+$'::text)),
+    CONSTRAINT categories_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('inactive'::character varying)::text, ('archived'::character varying)::text]))),
+    CONSTRAINT categories_lock_version_nonnegative CHECK ((lock_version >= 0)),
+    CONSTRAINT categories_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0)),
+    CONSTRAINT categories_position_nonnegative CHECK (("position" >= 0))
 );
 
 
@@ -379,6 +753,53 @@ CREATE TABLE public.preparation_dispatches (
     created_at timestamp(6) with time zone NOT NULL,
     updated_at timestamp(6) with time zone NOT NULL,
     CONSTRAINT preparation_dispatches_status_allowed CHECK (((status)::text = ANY (ARRAY[('pending'::character varying)::text, ('dispatched'::character varying)::text])))
+);
+
+
+--
+-- Name: product_variants; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.product_variants (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    brand_id uuid NOT NULL,
+    product_id uuid NOT NULL,
+    code character varying(64) NOT NULL,
+    name character varying(150) NOT NULL,
+    "position" integer DEFAULT 0 NOT NULL,
+    lifecycle_status character varying(16) DEFAULT 'draft'::character varying NOT NULL,
+    is_default boolean DEFAULT false NOT NULL,
+    customer_visible boolean DEFAULT false NOT NULL,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT product_variants_code_canonical CHECK (((code)::text ~ '^[A-Z0-9_-]+$'::text)),
+    CONSTRAINT product_variants_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('inactive'::character varying)::text, ('archived'::character varying)::text]))),
+    CONSTRAINT product_variants_lock_version_nonnegative CHECK ((lock_version >= 0)),
+    CONSTRAINT product_variants_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0)),
+    CONSTRAINT product_variants_position_nonnegative CHECK (("position" >= 0))
+);
+
+
+--
+-- Name: products; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.products (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    brand_id uuid NOT NULL,
+    category_id uuid NOT NULL,
+    code character varying(64) NOT NULL,
+    name character varying(200) NOT NULL,
+    description text,
+    lifecycle_status character varying(16) NOT NULL,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT products_code_canonical CHECK (((code)::text ~ '^[A-Z0-9_-]+$'::text)),
+    CONSTRAINT products_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('inactive'::character varying)::text, ('archived'::character varying)::text]))),
+    CONSTRAINT products_lock_version_nonnegative CHECK ((lock_version >= 0)),
+    CONSTRAINT products_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0))
 );
 
 
@@ -958,6 +1379,14 @@ ALTER TABLE ONLY public.brands
 
 
 --
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1019,6 +1448,22 @@ ALTER TABLE ONLY public.preparation_dispatch_attempts
 
 ALTER TABLE ONLY public.preparation_dispatches
     ADD CONSTRAINT preparation_dispatches_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: product_variants product_variants_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_variants
+    ADD CONSTRAINT product_variants_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_pkey PRIMARY KEY (id);
 
 
 --
@@ -1159,6 +1604,13 @@ CREATE INDEX index_branches_on_brand_id ON public.branches USING btree (brand_id
 --
 
 CREATE INDEX index_brands_on_organization_id ON public.brands USING btree (organization_id);
+
+
+--
+-- Name: index_categories_on_brand_status_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_categories_on_brand_status_position ON public.categories USING btree (brand_id, lifecycle_status, "position", id);
 
 
 --
@@ -1327,6 +1779,20 @@ CREATE INDEX index_preparation_dispatches_on_payment_id ON public.preparation_di
 --
 
 CREATE INDEX index_preparation_dispatches_on_status_and_requested_at ON public.preparation_dispatches USING btree (status, requested_at);
+
+
+--
+-- Name: index_product_variants_on_product_status_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_product_variants_on_product_status_id ON public.product_variants USING btree (product_id, lifecycle_status, id);
+
+
+--
+-- Name: index_products_on_category_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_products_on_category_status ON public.products USING btree (category_id, lifecycle_status, id);
 
 
 --
@@ -1554,10 +2020,108 @@ CREATE INDEX index_solid_queue_semaphores_on_key_and_value ON public.solid_queue
 
 
 --
+-- Name: uq_categories_brand_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_categories_brand_code ON public.categories USING btree (brand_id, code);
+
+
+--
+-- Name: uq_categories_id_brand; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_categories_id_brand ON public.categories USING btree (id, brand_id);
+
+
+--
+-- Name: uq_product_variants_brand_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_product_variants_brand_code ON public.product_variants USING btree (brand_id, code);
+
+
+--
+-- Name: uq_product_variants_one_default; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_product_variants_one_default ON public.product_variants USING btree (product_id) WHERE is_default;
+
+
+--
+-- Name: uq_products_brand_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_products_brand_code ON public.products USING btree (brand_id, code);
+
+
+--
+-- Name: uq_products_id_brand; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_products_id_brand ON public.products USING btree (id, brand_id);
+
+
+--
 -- Name: audit_events audit_events_append_only; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER audit_events_append_only BEFORE DELETE OR UPDATE ON public.audit_events FOR EACH ROW EXECUTE FUNCTION public.prevent_audit_event_mutation();
+
+
+--
+-- Name: categories catalog_categories_product_final_state; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER catalog_categories_product_final_state AFTER INSERT OR UPDATE ON public.categories DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.catalog_validate_active_product_category();
+
+
+--
+-- Name: product_variants catalog_product_variants_default_final_state; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER catalog_product_variants_default_final_state AFTER INSERT OR DELETE OR UPDATE ON public.product_variants DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.catalog_validate_active_product_default();
+
+
+--
+-- Name: products catalog_products_category_final_state; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER catalog_products_category_final_state AFTER INSERT OR UPDATE ON public.products DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.catalog_validate_active_product_category();
+
+
+--
+-- Name: products catalog_products_default_final_state; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER catalog_products_default_final_state AFTER INSERT OR UPDATE ON public.products DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.catalog_validate_active_product_default();
+
+
+--
+-- Name: categories categories_initial_lifecycle_draft; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER categories_initial_lifecycle_draft BEFORE INSERT ON public.categories FOR EACH ROW EXECUTE FUNCTION public.catalog_enforce_category_initial_status();
+
+
+--
+-- Name: categories categories_lifecycle_transition_allowed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER categories_lifecycle_transition_allowed BEFORE UPDATE OF lifecycle_status ON public.categories FOR EACH ROW EXECUTE FUNCTION public.catalog_enforce_category_transition();
+
+
+--
+-- Name: categories categories_purge_forbidden; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER categories_purge_forbidden BEFORE DELETE ON public.categories FOR EACH ROW EXECUTE FUNCTION public.catalog_reject_purge();
+
+
+--
+-- Name: categories categories_scope_immutable; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER categories_scope_immutable BEFORE UPDATE OF brand_id ON public.categories FOR EACH ROW EXECUTE FUNCTION public.catalog_reject_category_scope_change();
 
 
 --
@@ -1582,6 +2146,48 @@ CREATE CONSTRAINT TRIGGER payments_successful_total_consistent AFTER INSERT OR U
 
 
 --
+-- Name: product_variants product_variants_initial_lifecycle_draft; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER product_variants_initial_lifecycle_draft BEFORE INSERT ON public.product_variants FOR EACH ROW EXECUTE FUNCTION public.catalog_enforce_variant_initial_status();
+
+
+--
+-- Name: product_variants product_variants_lifecycle_transition_allowed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER product_variants_lifecycle_transition_allowed BEFORE UPDATE OF lifecycle_status ON public.product_variants FOR EACH ROW EXECUTE FUNCTION public.catalog_enforce_variant_transition();
+
+
+--
+-- Name: product_variants product_variants_purge_forbidden; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER product_variants_purge_forbidden BEFORE DELETE ON public.product_variants FOR EACH ROW EXECUTE FUNCTION public.catalog_reject_purge();
+
+
+--
+-- Name: product_variants product_variants_scope_immutable; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER product_variants_scope_immutable BEFORE UPDATE OF brand_id, product_id ON public.product_variants FOR EACH ROW EXECUTE FUNCTION public.catalog_reject_variant_scope_change();
+
+
+--
+-- Name: products products_purge_forbidden; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER products_purge_forbidden BEFORE DELETE ON public.products FOR EACH ROW EXECUTE FUNCTION public.catalog_reject_purge();
+
+
+--
+-- Name: products products_scope_immutable; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER products_scope_immutable BEFORE UPDATE OF brand_id, category_id ON public.products FOR EACH ROW EXECUTE FUNCTION public.catalog_reject_product_scope_change();
+
+
+--
 -- Name: branches fk_branches_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1598,6 +2204,14 @@ ALTER TABLE ONLY public.brands
 
 
 --
+-- Name: categories fk_categories_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT fk_categories_brand FOREIGN KEY (brand_id) REFERENCES public.brands(id) ON DELETE RESTRICT;
+
+
+--
 -- Name: preparation_dispatches fk_dispatches_order_branch; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1611,6 +2225,38 @@ ALTER TABLE ONLY public.preparation_dispatches
 
 ALTER TABLE ONLY public.preparation_dispatches
     ADD CONSTRAINT fk_dispatches_payment_order FOREIGN KEY (payment_id, order_id) REFERENCES public.payments(id, order_id);
+
+
+--
+-- Name: product_variants fk_product_variants_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_variants
+    ADD CONSTRAINT fk_product_variants_brand FOREIGN KEY (brand_id) REFERENCES public.brands(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: product_variants fk_product_variants_product_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_variants
+    ADD CONSTRAINT fk_product_variants_product_brand FOREIGN KEY (product_id, brand_id) REFERENCES public.products(id, brand_id) ON DELETE RESTRICT;
+
+
+--
+-- Name: products fk_products_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES public.brands(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: products fk_products_category_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT fk_products_category_brand FOREIGN KEY (category_id, brand_id) REFERENCES public.categories(id, brand_id) ON DELETE RESTRICT;
 
 
 --
@@ -1764,6 +2410,7 @@ ALTER TABLE ONLY public.payment_review_cases
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261115210000'),
 ('20261115200000'),
 ('20261114203000'),
 ('20261114202000'),
