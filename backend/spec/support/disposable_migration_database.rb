@@ -68,6 +68,10 @@ class DisposableMigrationDatabase
     indexes: %w[index_branches_on_brand_id index_brands_on_organization_id]
   }.transform_values { |values| values.sort.freeze }.freeze
 
+  EMPTY_PACKAGE_B_RESIDUE = {
+    tables: [], constraints: [], indexes: [], functions: [], triggers: []
+  }.freeze
+
   CommandResult = Data.define(:command, :stdout, :stderr, :status) do
     def success?
       status.success?
@@ -101,10 +105,14 @@ class DisposableMigrationDatabase
     end
   end
 
-  def migrate!(target: nil)
+  def migrate!(target: nil, allow_failure: false)
     command = [ "bin/rails", "db:migrate" ]
     command << "VERSION=#{target}" if target
-    run_rails!(*command)
+    result = run_rails(*command)
+    return result if allow_failure
+
+    raise_command_failure(result) unless result.success?
+    result
   end
 
   def migrate_down!(version: PACKAGE_B_MIGRATION_VERSION, allow_failure: false)
@@ -119,12 +127,231 @@ class DisposableMigrationDatabase
     run_rails!("bin/rails", "db:migrate:up", "VERSION=#{version}")
   end
 
+  def load_structure!
+    result = run_rails(
+      "bin/rails", "db:schema:load",
+      schema_path: Rails.root.join("db/structure.sql").to_s
+    )
+    raise_command_failure(result) unless result.success?
+    result
+  end
+
   def migration_versions
     query_values("SELECT version FROM schema_migrations ORDER BY version")
   end
 
+  def install_package_b_failure_injection!
+    execute <<~SQL
+      CREATE FUNCTION public.cat_trr_008_inject_package_b_failure()
+      RETURNS event_trigger
+      LANGUAGE plpgsql
+      AS $function$
+      DECLARE
+        command record;
+      BEGIN
+        FOR command IN SELECT * FROM pg_event_trigger_ddl_commands()
+        LOOP
+          IF command.object_identity = 'public.catalog_reject_purge()' THEN
+            RAISE EXCEPTION
+              'CAT-TRR-008 injected failure [SQLSTATE P0001] after catalog_reject_purge'
+              USING ERRCODE = 'P0001';
+          END IF;
+        END LOOP;
+      END;
+      $function$;
+
+      CREATE EVENT TRIGGER cat_trr_008_package_b_failure
+      ON ddl_command_end
+      WHEN TAG IN ('CREATE FUNCTION')
+      EXECUTE FUNCTION public.cat_trr_008_inject_package_b_failure();
+    SQL
+  end
+
+  def remove_package_b_failure_injection!
+    execute <<~SQL
+      DROP EVENT TRIGGER IF EXISTS cat_trr_008_package_b_failure;
+      DROP FUNCTION IF EXISTS public.cat_trr_008_inject_package_b_failure();
+    SQL
+  end
+
+  def package_b_residue
+    tables = %w[categories products product_variants]
+    table_names = tables.map { |table| sql_literal(table) }.join(", ")
+    {
+      tables: query_values(<<~SQL),
+        SELECT relname
+        FROM pg_class
+        WHERE relnamespace = 'public'::regnamespace
+          AND relkind IN ('r', 'p')
+          AND relname IN (#{table_names})
+        ORDER BY relname
+      SQL
+      constraints: query_values(<<~SQL),
+        SELECT constraints.conname
+        FROM pg_constraint AS constraints
+        JOIN pg_class AS tables ON tables.oid = constraints.conrelid
+        WHERE tables.relnamespace = 'public'::regnamespace
+          AND tables.relname IN (#{table_names})
+        ORDER BY constraints.conname
+      SQL
+      indexes: query_values(<<~SQL),
+        SELECT indexname
+        FROM pg_indexes
+        WHERE schemaname = 'public'
+          AND tablename IN (#{table_names})
+        ORDER BY indexname
+      SQL
+      functions: query_values("SELECT proname FROM pg_proc WHERE proname LIKE 'catalog_%' ORDER BY proname"),
+      triggers: query_values(<<~SQL)
+        SELECT triggers.tgname
+        FROM pg_trigger AS triggers
+        JOIN pg_class AS tables ON tables.oid = triggers.tgrelid
+        WHERE NOT triggers.tgisinternal
+          AND tables.relnamespace = 'public'::regnamespace
+          AND tables.relname IN (#{table_names})
+        ORDER BY triggers.tgname
+      SQL
+    }
+  end
+
   def server_version
     query_value("SHOW server_version")
+  end
+
+  def semantic_schema
+    {
+      settings: query_rows(<<~SQL),
+        SELECT current_setting('server_version'), pg_encoding_to_char(encoding),
+               datlocprovider::text, datcollate, datctype,
+               COALESCE(datlocale, ''), COALESCE(daticurules, ''),
+               COALESCE(datcollversion, ''),
+               current_setting('default_transaction_isolation')
+        FROM pg_database
+        WHERE datname = current_database()
+      SQL
+      namespaces: query_rows(<<~SQL),
+        SELECT nspname
+        FROM pg_namespace
+        WHERE nspname = 'public'
+        ORDER BY nspname
+      SQL
+      extensions: query_rows(<<~SQL),
+        SELECT extensions.extname, extensions.extversion, namespaces.nspname
+        FROM pg_extension AS extensions
+        JOIN pg_namespace AS namespaces ON namespaces.oid = extensions.extnamespace
+        ORDER BY extensions.extname
+      SQL
+      tables: query_rows(<<~SQL),
+        SELECT classes.relname, classes.relkind::text, classes.relpersistence::text,
+               classes.relrowsecurity::text, classes.relforcerowsecurity::text,
+               classes.relreplident::text, COALESCE(access_methods.amname, ''),
+               COALESCE(array_to_string(classes.reloptions, ','), '')
+        FROM pg_class AS classes
+        JOIN pg_namespace AS namespaces ON namespaces.oid = classes.relnamespace
+        LEFT JOIN pg_am AS access_methods ON access_methods.oid = classes.relam
+        WHERE namespaces.nspname = 'public'
+          AND classes.relkind IN ('r', 'p', 'v', 'm', 'f')
+        ORDER BY classes.relname
+      SQL
+      columns: query_rows(<<~SQL),
+        SELECT classes.relname, attributes.attnum::text, attributes.attname,
+               pg_catalog.format_type(attributes.atttypid, attributes.atttypmod),
+               attributes.attnotnull::text,
+               COALESCE(pg_get_expr(defaults.adbin, defaults.adrelid), ''),
+               attributes.attidentity::text, attributes.attgenerated::text,
+               COALESCE(collations.collname, ''), attributes.attstorage::text,
+               attributes.attcompression::text
+        FROM pg_attribute AS attributes
+        JOIN pg_class AS classes ON classes.oid = attributes.attrelid
+        JOIN pg_namespace AS namespaces ON namespaces.oid = classes.relnamespace
+        LEFT JOIN pg_attrdef AS defaults
+          ON defaults.adrelid = attributes.attrelid AND defaults.adnum = attributes.attnum
+        LEFT JOIN pg_collation AS collations ON collations.oid = attributes.attcollation
+        WHERE namespaces.nspname = 'public'
+          AND classes.relkind IN ('r', 'p', 'v', 'm', 'f')
+          AND attributes.attnum > 0
+          AND NOT attributes.attisdropped
+        ORDER BY classes.relname, attributes.attnum
+      SQL
+      constraints: normalize_constraint_rows(query_rows(<<~SQL)),
+        SELECT classes.relname, constraints.conname, constraints.contype::text,
+               constraints.condeferrable::text, constraints.condeferred::text,
+               constraints.convalidated::text, pg_get_constraintdef(constraints.oid, true)
+        FROM pg_constraint AS constraints
+        JOIN pg_namespace AS namespaces ON namespaces.oid = constraints.connamespace
+        LEFT JOIN pg_class AS classes ON classes.oid = constraints.conrelid
+        WHERE namespaces.nspname = 'public'
+        ORDER BY classes.relname NULLS FIRST, constraints.conname
+      SQL
+      indexes: query_rows(<<~SQL),
+        SELECT tables.relname, indexes.relname, index_data.indisunique::text,
+               index_data.indisprimary::text, index_data.indisvalid::text,
+               index_data.indisready::text, index_data.indnullsnotdistinct::text,
+               index_data.indnkeyatts::text, pg_get_indexdef(indexes.oid)
+        FROM pg_index AS index_data
+        JOIN pg_class AS indexes ON indexes.oid = index_data.indexrelid
+        JOIN pg_class AS tables ON tables.oid = index_data.indrelid
+        JOIN pg_namespace AS namespaces ON namespaces.oid = tables.relnamespace
+        WHERE namespaces.nspname = 'public'
+        ORDER BY tables.relname, indexes.relname
+      SQL
+      sequences: query_rows(<<~SQL),
+        SELECT sequences.relname, pg_catalog.format_type(sequence_data.seqtypid, NULL),
+               sequence_data.seqstart::text, sequence_data.seqincrement::text,
+               sequence_data.seqmax::text, sequence_data.seqmin::text,
+               sequence_data.seqcache::text, sequence_data.seqcycle::text,
+               COALESCE(owned_table.relname, ''), COALESCE(owned_attribute.attname, '')
+        FROM pg_sequence AS sequence_data
+        JOIN pg_class AS sequences ON sequences.oid = sequence_data.seqrelid
+        JOIN pg_namespace AS namespaces ON namespaces.oid = sequences.relnamespace
+        LEFT JOIN pg_depend AS ownership
+          ON ownership.classid = 'pg_class'::regclass
+          AND ownership.objid = sequences.oid
+          AND ownership.deptype = 'a'
+        LEFT JOIN pg_class AS owned_table ON owned_table.oid = ownership.refobjid
+        LEFT JOIN pg_attribute AS owned_attribute
+          ON owned_attribute.attrelid = ownership.refobjid
+          AND owned_attribute.attnum = ownership.refobjsubid
+        WHERE namespaces.nspname = 'public'
+        ORDER BY sequences.relname
+      SQL
+      functions: query_rows(<<~SQL),
+        SELECT procedures.proname,
+               pg_get_function_identity_arguments(procedures.oid),
+               pg_get_function_result(procedures.oid), languages.lanname,
+               procedures.provolatile::text, procedures.proisstrict::text,
+               procedures.prosecdef::text, procedures.proleakproof::text,
+               procedures.proparallel::text,
+               COALESCE(array_to_string(procedures.proconfig, ','), ''),
+               pg_get_functiondef(procedures.oid)
+        FROM pg_proc AS procedures
+        JOIN pg_namespace AS namespaces ON namespaces.oid = procedures.pronamespace
+        JOIN pg_language AS languages ON languages.oid = procedures.prolang
+        WHERE namespaces.nspname = 'public'
+        ORDER BY procedures.proname, pg_get_function_identity_arguments(procedures.oid)
+      SQL
+      triggers: query_rows(<<~SQL),
+        SELECT tables.relname, triggers.tgname, triggers.tgenabled::text,
+               triggers.tgdeferrable::text, triggers.tginitdeferred::text,
+               pg_get_triggerdef(triggers.oid, true)
+        FROM pg_trigger AS triggers
+        JOIN pg_class AS tables ON tables.oid = triggers.tgrelid
+        JOIN pg_namespace AS namespaces ON namespaces.oid = tables.relnamespace
+        WHERE namespaces.nspname = 'public'
+          AND NOT triggers.tgisinternal
+        ORDER BY tables.relname, triggers.tgname
+      SQL
+      types: query_rows(<<~SQL)
+        SELECT types.typname, types.typtype::text,
+               COALESCE(pg_catalog.format_type(types.typbasetype, types.typtypmod), ''),
+               types.typnotnull::text, COALESCE(types.typdefault, '')
+        FROM pg_type AS types
+        JOIN pg_namespace AS namespaces ON namespaces.oid = types.typnamespace
+        WHERE namespaces.nspname = 'public'
+          AND types.typtype IN ('d', 'e', 'm', 'r')
+        ORDER BY types.typname
+      SQL
+    }
   end
 
   def catalog_objects
@@ -163,7 +390,9 @@ class DisposableMigrationDatabase
   end
 
   def execute(sql, params = [])
-    with_connection { |connection| connection.exec_params(sql, params) }
+    with_connection do |connection|
+      params.empty? ? connection.exec(sql) : connection.exec_params(sql, params)
+    end
   end
 
   def query_rows(sql)
@@ -199,6 +428,7 @@ class DisposableMigrationDatabase
         FROM pg_proc
         WHERE pronamespace = 'public'::regnamespace
           AND proname NOT LIKE 'catalog_%'
+          AND proname NOT LIKE 'cat_trr_008_%'
         ORDER BY proname, oid
       SQL
       triggers: query_rows(<<~SQL)
@@ -282,14 +512,27 @@ class DisposableMigrationDatabase
 
   private
 
+  def normalize_constraint_rows(rows)
+    # PostgreSQL 18 rewrites the same varchar ANY-array check differently after
+    # pg_dump/load. Keep every literal and operator while normalizing only the
+    # redundant element and array casts introduced by that round trip.
+    rows.map do |row|
+      definition = row.fetch(6)
+        .gsub("::character varying::text", "::character varying")
+        .gsub("]::text[]", "]")
+      row[0...6] + [ definition ]
+    end
+  end
+
   def run_rails!(*command)
     result = run_rails(*command)
     raise_command_failure(result) unless result.success?
     result
   end
 
-  def run_rails(*command)
-    schema_dump_path = File.join(Dir.tmpdir, "#{name}_structure.sql")
+  def run_rails(*command, schema_path: nil)
+    temporary_schema_path = schema_path.nil?
+    schema_dump_path = schema_path || File.join(Dir.tmpdir, "#{name}_structure.sql")
     environment = {
       "RAILS_ENV" => "test",
       "POSTGRES_TEST_DATABASE" => name,
@@ -320,7 +563,9 @@ class DisposableMigrationDatabase
 
     CommandResult.new(command: command.freeze, stdout: stdout, stderr: stderr, status: status)
   ensure
-    File.delete(schema_dump_path) if schema_dump_path && File.exist?(schema_dump_path)
+    if temporary_schema_path && schema_dump_path && File.exist?(schema_dump_path)
+      File.delete(schema_dump_path)
+    end
   end
 
   def terminate_process_group(pid)
