@@ -2,7 +2,7 @@
 
 **Status:** Not completed; every item is Open or Blocked  
 **Date:** 2026-11-14  
-**Purpose:** Evidence gate for accepting [ADR-0006](adr/0006-authentication-session-topology.md). This checklist does not authorize implementation.  
+**Purpose:** Control Acceptance evidence gate for eventual acceptance of [ADR-0006](adr/0006-authentication-session-topology.md). This checklist does not provide ADR Design Baseline Approval, Bounded Implementation Authorization, or Final Operational Acceptance.
 **Related:** [Owner Decision Register](after_four_identity_decision_register.md) · [Owner-Led Review Protocol](after_four_identity_owner_led_review_protocol.md) · [Identity & Branch Authorization](after_four_identity_authorization.md) · [Threat Model](after_four_security_threat_model.md)
 
 ## Status meanings
@@ -47,4 +47,8 @@ For every item moved from `OPEN`/`BLOCKED`, record:
 
 ## ADR acceptance gate
 
+This checklist governs Gate C — Control Acceptance. ADR Design Baseline Approval and Bounded Implementation Authorization are separate upstream gates. They do not change checklist status, constitute executed evidence, accept residual risk, or prove that a control operates correctly.
+
 ADR-0006 may move from Proposed to Accepted only when every applicable row is evidence-backed, every `BLOCKED` prerequisite is resolved, cross-document terminology is consistent, and each record identifies the assessor and executed verification. Owner-led completion must remain explicitly non-independent. Legal/privacy prerequisites cannot be satisfied by Owner technical-risk acceptance. As of 2026-11-14, the checklist has no completed security-review evidence.
+
+Completion of applicable Control Acceptance does not by itself authorize production deployment. Final Operational Acceptance separately requires the applicable deployment, monitoring, incident-response, production-condition, and legal/privacy prerequisites.
