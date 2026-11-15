@@ -72,6 +72,8 @@ This ADR remains **Proposed**. The Owner has confirmed all twenty-eight policies
 
 The Owner must execute and record the [Owner-Led Review Protocol](../after_four_identity_owner_led_review_protocol.md) against the [Identity Security Review Checklist](../after_four_identity_security_review_checklist.md), including password/PIN controls, MFA/recovery, cookie/session/CSRF behavior, rate limiting, trusted proxies/HTTPS, audit protection, offboarding, and test evidence. Every result must state that independent verification was not performed. Owner technical-risk acceptance cannot resolve legal/privacy obligations; relevant production processing remains blocked where those obligations are unverified. The ADR cannot become Accepted until required evidence, findings/remediation or explicit permissible residual-risk decisions, production conditions, and unresolved legal blockers are truthfully recorded.
 
+A separately recorded ADR Design Baseline Approval may support consideration of a bounded implementation while this ADR remains **Proposed**. A separate Bounded Implementation Authorization is still required before implementation begins. Neither approval changes checklist status, proves a control, accepts residual risk, authorizes production, or changes this ADR's status. Only executed Control Acceptance evidence satisfying the checklist and the conditions above can support a later ADR status review. Final Operational Acceptance remains separate.
+
 Milestone 2B is not authorized by this ADR. The proposed model and sequencing are detailed in [Identity & Branch Authorization](../after_four_identity_authorization.md) and the [Security Threat Model](../after_four_security_threat_model.md).
 
 ## References

@@ -104,7 +104,14 @@ ADR-0002 is accepted with revalidated patch versions. ADRs 0001, 0003, 0004, 000
 
 ### Entry gate
 
-ADR-0006 remains Proposed. Milestone 2B does not begin until remaining policy clarifications are resolved and the [Identity Security Review Checklist](after_four_identity_security_review_checklist.md) contains sufficient named-reviewer evidence to accept the ADR. Owner confirmation recorded in Milestone 2A.1 does not itself authorize implementation.
+ADR-0006 remains **Proposed**. Entry into Identity implementation is governed by four separate gates:
+
+1. **ADR Design Baseline Approval:** the Owner reviews an exact proposed scope for design completeness, exclusions, risks, test strategy, and evidence ownership. This approval does not change ADR-0006 or checklist status, prove any control, authorize implementation, or authorize production.
+2. **Bounded Implementation Authorization:** a separate explicit Owner decision must identify the exact milestone and approved design baseline; allowed files and bounded contexts; migrations, dependencies, endpoints, and configuration in scope; required tests and environments; evidence owner and reviewer; and explicit exclusions and prohibited actions. This authorization does not imply Control Acceptance or ADR acceptance.
+3. **Control Acceptance:** executed implementation and environment-specific evidence is evaluated against every applicable Identity Security Review Checklist requirement. Design documents and planned tests are not executed evidence. Findings require remediation or an explicitly authorized permissible residual-risk decision. Control Acceptance can support a later ADR-0006 status review only when the canonical acceptance conditions are satisfied.
+4. **Final Operational Acceptance:** production deployment, operational readiness, and applicable legal/privacy approval remain separate and are not implied by any preceding gate.
+
+Milestone 2B remains unauthorized until the Owner separately records the applicable ADR Design Baseline Approval and Bounded Implementation Authorization. Owner policy confirmation alone authorizes neither implementation nor production use.
 
 ### Exact implementation steps
 
