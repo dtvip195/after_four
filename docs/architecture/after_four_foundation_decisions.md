@@ -44,6 +44,12 @@ All evidence requirements and current `OPEN`/`BLOCKED` states are in the [Identi
 
 The Owner/operations reviewer must approve ADR-0008 choices for hosting, TLS/routing, secrets storage, release/migration ownership, worker topology, monitoring and alerts, backup retention, restore testing, RTO/RPO, maintenance windows, and incident escalation.
 
+### Before Package C implementation
+
+The canonical [Package C0 decisions](after_four_owner_decision_baseline.md#package-c0-lifecycle-authority-and-prerequisite-decisions) confirm lifecycle authority, Brand/capability-scoped delegation, self-approval prohibitions, effective/expiry behavior, reason and step-up requirements, cross-Brand default denial, trusted AuthorizationContext, atomic append-only audit, runtime/migration role separation, and a required operation-specific database boundary. `C0-CAT-08` explicitly keeps Default Variant switching out of Package C. These decisions do not authorize implementation.
+
+`C0-R05`, `C0-R08`, and `C0-R11` remain `DEFERRED`. Before Package C may be implemented, separately authorized prerequisite work must provide trusted Identity/delegation integration, a Brand-scoped Catalog AuditEvent design, non-superuser role/privilege evidence, and an approved operation-specific database boundary. ADR-0006 remains Proposed, Identity Milestone 2B remains unauthorized, and CAT-TRR-005 through CAT-TRR-008 retain their current statuses unless separately reviewed and explicitly changed.
+
 ### Outside Milestones 1–2
 
 Production electronic payment still requires a provider, signed-event/idempotency/reconciliation contract, credential owner, and operator recovery process. Production cash requires drawer/register topology. Split/partial payment, refunds/cancellations, offline behavior, and tax/accounting obligations remain separately blocked and must not be inferred by foundation code.
