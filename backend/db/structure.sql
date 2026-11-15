@@ -171,6 +171,38 @@ CREATE TABLE public.audit_events (
 
 
 --
+-- Name: branches; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.branches (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    brand_id uuid NOT NULL,
+    name character varying(200) NOT NULL,
+    timezone_name character varying(100) NOT NULL,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT branches_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0)),
+    CONSTRAINT branches_timezone_name_nonblank CHECK ((length(translate((timezone_name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0))
+);
+
+
+--
+-- Name: brands; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.brands (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    organization_id uuid NOT NULL,
+    name character varying(200) NOT NULL,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT brands_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0))
+);
+
+
+--
 -- Name: orders; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -200,6 +232,20 @@ CREATE TABLE public.orders (
     CONSTRAINT orders_currency_code_format CHECK ((((currency_code)::text = upper((currency_code)::text)) AND (char_length((currency_code)::text) = 3))),
     CONSTRAINT orders_status_allowed CHECK (((status)::text = ANY (ARRAY[('draft'::character varying)::text, ('confirmed'::character varying)::text, ('held'::character varying)::text, ('expired'::character varying)::text, ('cancelled'::character varying)::text, ('closed'::character varying)::text]))),
     CONSTRAINT orders_total_positive CHECK ((total_amount > 0))
+);
+
+
+--
+-- Name: organizations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.organizations (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    name character varying(200) NOT NULL,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT organizations_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0))
 );
 
 
@@ -896,11 +942,35 @@ ALTER TABLE ONLY public.audit_events
 
 
 --
+-- Name: branches branches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT branches_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: brands brands_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.brands
+    ADD CONSTRAINT brands_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.orders
     ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: organizations organizations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.organizations
+    ADD CONSTRAINT organizations_pkey PRIMARY KEY (id);
 
 
 --
@@ -1075,6 +1145,20 @@ CREATE INDEX idx_on_subject_type_subject_id_occurred_at_92d4f006a6 ON public.aud
 --
 
 CREATE UNIQUE INDEX index_audit_events_on_branch_and_key ON public.audit_events USING btree (branch_id, idempotency_key);
+
+
+--
+-- Name: index_branches_on_brand_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_branches_on_brand_id ON public.branches USING btree (brand_id);
+
+
+--
+-- Name: index_brands_on_organization_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_brands_on_organization_id ON public.brands USING btree (organization_id);
 
 
 --
@@ -1498,6 +1582,22 @@ CREATE CONSTRAINT TRIGGER payments_successful_total_consistent AFTER INSERT OR U
 
 
 --
+-- Name: branches fk_branches_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT fk_branches_brand FOREIGN KEY (brand_id) REFERENCES public.brands(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: brands fk_brands_organization; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.brands
+    ADD CONSTRAINT fk_brands_organization FOREIGN KEY (organization_id) REFERENCES public.organizations(id) ON DELETE RESTRICT;
+
+
+--
 -- Name: preparation_dispatches fk_dispatches_order_branch; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1664,6 +1764,7 @@ ALTER TABLE ONLY public.payment_review_cases
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261115200000'),
 ('20261114203000'),
 ('20261114202000'),
 ('20261114201000'),
