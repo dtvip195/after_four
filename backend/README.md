@@ -1,6 +1,6 @@
 # AFTER FOUR Backend
 
-API-only Rails modular-monolith backend for AFTER FOUR. It includes the Milestone 1 infrastructure and the Implementation Phase 1 internal Order/Payment safety command foundation. Authentication, public business mutation endpoints, and frontend integration remain deferred.
+API-only Rails modular-monolith backend for AFTER FOUR. It includes the Milestone 1 infrastructure, the Implementation Phase 1 internal Order/Payment safety command foundation, the A1 Organization reference foundation, and the empty Package B Catalog integrity foundation. Authentication, public business mutation endpoints, and frontend integration remain deferred.
 
 ## Runtime baseline
 
@@ -78,7 +78,7 @@ docker compose run --rm backend bin/rails db:schema:dump
 docker compose run --rm backend bin/rails db:schema:load
 ```
 
-`config.active_record.schema_format = :sql`, so the reviewable dump is `db/structure.sql`. Application-owned Phase 1 tables cover Order, Payment, Payment Attempt, late-success review, Preparation Dispatch, outbox, and audit evidence; no catalog, identity, refund, inventory, or KDS tables are included.
+`config.active_record.schema_format = :sql`, so the reviewable dump is `db/structure.sql`. Application-owned tables cover the Phase 1 Order/Payment safety foundation, the A1 Organization references, and the empty Package B Category/Product/Variant integrity schema. Identity, refund, inventory, pricing, availability, menu data, and KDS tables remain excluded.
 
 To reset only the development database, stop the backend and workers, verify `RAILS_ENV` is not `production`, then run:
 
