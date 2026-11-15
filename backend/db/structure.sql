@@ -569,7 +569,7 @@ CREATE TABLE public.categories (
     created_at timestamp(6) with time zone NOT NULL,
     updated_at timestamp(6) with time zone NOT NULL,
     CONSTRAINT categories_code_canonical CHECK (((code)::text ~ '^[A-Z0-9_-]+$'::text)),
-    CONSTRAINT categories_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'inactive'::character varying, 'archived'::character varying])::text[]))),
+    CONSTRAINT categories_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('inactive'::character varying)::text, ('archived'::character varying)::text]))),
     CONSTRAINT categories_lock_version_nonnegative CHECK ((lock_version >= 0)),
     CONSTRAINT categories_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0)),
     CONSTRAINT categories_position_nonnegative CHECK (("position" >= 0))
@@ -774,7 +774,7 @@ CREATE TABLE public.product_variants (
     created_at timestamp(6) with time zone NOT NULL,
     updated_at timestamp(6) with time zone NOT NULL,
     CONSTRAINT product_variants_code_canonical CHECK (((code)::text ~ '^[A-Z0-9_-]+$'::text)),
-    CONSTRAINT product_variants_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'inactive'::character varying, 'archived'::character varying])::text[]))),
+    CONSTRAINT product_variants_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('inactive'::character varying)::text, ('archived'::character varying)::text]))),
     CONSTRAINT product_variants_lock_version_nonnegative CHECK ((lock_version >= 0)),
     CONSTRAINT product_variants_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0)),
     CONSTRAINT product_variants_position_nonnegative CHECK (("position" >= 0))
@@ -797,7 +797,7 @@ CREATE TABLE public.products (
     created_at timestamp(6) with time zone NOT NULL,
     updated_at timestamp(6) with time zone NOT NULL,
     CONSTRAINT products_code_canonical CHECK (((code)::text ~ '^[A-Z0-9_-]+$'::text)),
-    CONSTRAINT products_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'inactive'::character varying, 'archived'::character varying])::text[]))),
+    CONSTRAINT products_lifecycle_allowed CHECK (((lifecycle_status)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('inactive'::character varying)::text, ('archived'::character varying)::text]))),
     CONSTRAINT products_lock_version_nonnegative CHECK ((lock_version >= 0)),
     CONSTRAINT products_name_nonblank CHECK ((length(translate((name)::text, (((((chr(32) || chr(9)) || chr(10)) || chr(13)) || chr(12)) || chr(11)), ''::text)) > 0))
 );
