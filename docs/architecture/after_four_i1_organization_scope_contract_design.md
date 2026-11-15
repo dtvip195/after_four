@@ -2,13 +2,30 @@
 
 **Document status:** `TECHNICAL_PROPOSAL`
 
-**Readiness:** `DESIGN_REVIEW_REQUIRED`
+**Readiness:** `GATE_A_DESIGN_BASELINE_APPROVED`
 
-**Implementation authorization:** Not granted
+**Implementation authorization:** `NOT GRANTED`
 
-**Gate A approval:** Not granted
+**Gate A approval:** `APPROVED`
 
 **Evidence baseline:** `main` at `626b872b99a5c2aee4a4e7c84981afd1b5bbd859` on 2026-11-15
+
+## Gate A Owner decision record
+
+| Field | Recorded decision |
+|---|---|
+| Decision | `APPROVE` |
+| Gate | ADR Design Baseline Approval — Gate A |
+| Reviewed document | `docs/architecture/after_four_i1_organization_scope_contract_design.md` |
+| Reviewed design commit | `5ca7796fa3ea272fd71dd66891f89f69257db029` |
+| Decision date | 2026-11-15 |
+| Owner identity | Organization Owner (role-based; personal name not recorded) |
+| Approved scope | I1 ancestry-only semantic design, limited to resolving `Brand ID -> authoritative Organization ID`. |
+| Required amendments | None |
+
+This approval accepts only the reviewed I1 semantic design baseline. It does not authorize I1 implementation, Identity Milestone 2B, production, deployment, database, schema, data, configuration, authentication, authorization, ownership, delegation, Session, MFA, or Catalog capabilities. A separate bounded Gate B authorization remains mandatory before implementation.
+
+ADR-0006 remains `Proposed`; Identity Security Review Checklist statuses remain unchanged; P1-OD-01 through P1-OD-05 remain unresolved; and C0-R05, C0-R08, and C0-R11 remain `DEFERRED`. This decision accepts no security control or residual risk and grants no additional authorization to I2, P1, P2, P3, Package C, C1, C2, or C3.
 
 ## 1. Context, purpose, and decision discipline
 
@@ -20,7 +37,7 @@ Brand ID -> authoritative Organization ID
 
 The contract supplies current persisted ancestry evidence to an internal caller. It does not authenticate a person, establish ownership, grant a capability, authorize an operation, or create an `AuthorizationContext`.
 
-This design follows the G1 readiness conclusion that an ancestry-only slice can be reviewed independently from unresolved P1 ownership and delegation decisions. It prepares a candidate design baseline for later ADR Design Baseline Approval (Gate A). It is not Gate A approval, Bounded Implementation Authorization, Control Acceptance, or Final Operational Acceptance.
+This design follows the G1 readiness conclusion that an ancestry-only slice can be reviewed independently from unresolved P1 ownership and delegation decisions. The Organization Owner approved this exact semantic design baseline at Gate A without amendments, as recorded above. That approval is not Bounded Implementation Authorization, Control Acceptance, or Final Operational Acceptance.
 
 The classifications used here are:
 
@@ -178,7 +195,7 @@ The Composition Root owns no lookup, validation, mapping, or authorization behav
 
 ## 6. Exact proposed contracts
 
-Names below are exact proposed Ruby constants for the bounded I1 implementation plan in §14. They remain `TECHNICAL_PROPOSAL`: recording them here makes the review baseline concrete but does not grant Gate A or Gate B approval. A later bounded implementation authorization may approve these names or explicitly amend them without changing the ownership and semantics defined here.
+Names below are exact proposed Ruby constants within the Gate A-approved design baseline and remain `TECHNICAL_PROPOSAL`: Gate A approval does not make them implemented or grant Gate B authorization. A later bounded Gate B decision must name the authorized implementation files and may not silently amend the approved ownership or semantics.
 
 ### 6.1 Identifier type
 
@@ -564,7 +581,7 @@ P1-OD-01 through P1-OD-05 remain `OWNER_DECISION_REQUIRED`. `C0-R05`, `C0-R08`, 
 
 | Item | Classification | Current boundary |
 |---|---|---|
-| Exact Ruby constant and file names listed in §14 | `TECHNICAL_PROPOSAL` | They are the concrete bounded scope proposed for Gate A and a later Gate B authorization; no file exists or is authorized yet. |
+| Exact Ruby constant and file names listed in §14 | `TECHNICAL_PROPOSAL` | They are part of the Gate A-approved design baseline and the proposed bounded scope for a later Gate B authorization; no implementation file exists or is authorized yet. |
 | Sanitized exceptional-termination implementation mechanism | `UNRESOLVED` mandatory Gate B implementation constraint | The semantic contract is fixed in §9.1: unexpected defects terminate exceptionally outside the five outcomes with no partial ancestry or leaked detail. Gate B must name the concrete sanitized Ruby signal and the containment boundary that prevents underlying defect details from crossing an Application contract. |
 | Unexpected-defect diagnostic boundary | `UNRESOLVED` mandatory Gate B implementation constraint | No logger, telemetry service, outer error boundary, correlation mechanism, storage technology, or exception class is assumed. Gate B must either authorize and name a sanitized internal diagnostic boundary or explicitly record that I1 provides no diagnostic recording; neither choice may convert a defect into a normal result. |
 | Typed-reference constructor API | `UNRESOLVED` implementation constraint | I1 types represent valid canonical UUID values and are immutable. Gate B must select the framework-independent constructor/value mechanism; the future consumer separately owns any raw-input parser and its tests. |
@@ -641,7 +658,7 @@ The existing `backend/spec/factories/reference_foundation.rb` factories are suff
 
 ### 14.4 Ordered implementation steps for a later Gate B authorization
 
-1. Record Gate A approval for this exact contract or its explicit amendments.
+1. Use the recorded Gate A approval above as the immutable semantic baseline for a separate bounded implementation request.
 2. Record Gate B only after it names the sanitized exceptional-termination signal and containment point, states whether an authorized diagnostic boundary exists, and fixes the exact files above, typed-reference constructor/value mechanism, availability-failure reporting/reference mechanism, implementer/reviewer, environment, exclusions, and evidence destination. Raw-input parsing remains outside I1.
 3. Add Organization and Identity immutable contract values and their focused unit examples.
 4. Add the Organization persistence port and query, then its unit examples.
@@ -700,8 +717,8 @@ Any demonstrated need to touch an excluded file stops the bounded slice and requ
 
 - [ADR-0011](adr/0011-project-wide-layered-ddd.md) is Accepted and controls layer ownership and dependency direction.
 - [ADR-0006](adr/0006-authentication-session-topology.md) remains Proposed. I1 contains no Session or authentication implementation and neither accepts nor depends on accepting ADR-0006.
-- [Foundation Decisions §5](after_four_foundation_decisions.md#5-milestone-2--identity-branch-scope-and-authorization) defines four separate gates. This document is a candidate input to Gate A only.
-- Gate A approval would review this exact design baseline but would not change ADR/checklist status or authorize implementation.
+- [Foundation Decisions §5](after_four_foundation_decisions.md#5-milestone-2--identity-branch-scope-and-authorization) defines four separate gates. The Owner decision record above approves this exact design baseline at Gate A only.
+- Recorded Gate A approval does not change ADR/checklist status, prove a control, accept residual risk, or authorize implementation or production.
 - Gate B would require a later separate Owner decision naming exact files, tests, environment, evidence owner/reviewer, exclusions, and prohibited actions.
 - Gate C would require executed evidence; this document and its planned tests are not evidence.
 - Final Operational Acceptance remains separate and is not implied.
@@ -709,27 +726,27 @@ Any demonstrated need to touch an excluded file stops the bounded slice and requ
 
 ## 16. Gate A review checklist
 
-If this proposal is later submitted for Gate A review, the reviewer must confirm:
+The Owner approved this Gate A review checklist without amendments on 2026-11-15:
 
-- [ ] ancestry-only scope is exact and sufficiently narrow;
-- [ ] Organization Application owns the published query and persistence port;
-- [ ] Organization Infrastructure implements only the Organization-owned persistence port;
-- [ ] Identity Application owns `OrganizationScope`;
-- [ ] Identity Infrastructure, not Organization Infrastructure, implements the Identity-owned cross-context adapter;
-- [ ] Composition Root performs wiring only;
-- [ ] request and all five outcome semantics are accepted for design purposes;
-- [ ] typed-reference construction boundary and proposed external UUID textual convention are accepted or explicitly amended;
-- [ ] raw-input parsing and its tests remain owned by a future consumer rather than the I1 implementation slice;
-- [ ] immutable success values contain only Brand and Organization references;
-- [ ] `not_found`, `invalid`, `inconsistent`, and `unavailable` remain distinct;
-- [ ] persisted-state and adapter/result inconsistency both map to public `inconsistent` without partial ancestry;
-- [ ] `SafeFailureReference` ownership and unchanged propagation are accepted without selecting telemetry technology;
-- [ ] the §9.1 exceptional-termination semantics are accepted, and Gate B remains blocked until its concrete sanitized signal, containment point, and diagnostic-boundary decision are named;
-- [ ] database exceptions and persistence records cannot cross Application contracts;
-- [ ] Brand ancestry is explicitly non-authorizing;
-- [ ] all ownership, delegation, Session, Catalog, P2, P3, API, schema, mutation, and production behavior remains excluded;
-- [ ] unresolved questions remain visible rather than silently defaulted;
-- [ ] test responsibilities and evidence ownership are sufficient for a later Gate B request;
-- [ ] ADR-0006, checklist, P1-OD, C0 deferred, CAT-TRR, and implementation-authorization statuses remain unchanged.
+- [x] ancestry-only scope is exact and sufficiently narrow;
+- [x] Organization Application owns the published query and persistence port;
+- [x] Organization Infrastructure implements only the Organization-owned persistence port;
+- [x] Identity Application owns `OrganizationScope`;
+- [x] Identity Infrastructure, not Organization Infrastructure, implements the Identity-owned cross-context adapter;
+- [x] Composition Root performs wiring only;
+- [x] request and all five outcome semantics are accepted for design purposes;
+- [x] typed-reference construction boundary and proposed external UUID textual convention are accepted without amendment;
+- [x] raw-input parsing and its tests remain owned by a future consumer rather than the I1 implementation slice;
+- [x] immutable success values contain only Brand and Organization references;
+- [x] `not_found`, `invalid`, `inconsistent`, and `unavailable` remain distinct;
+- [x] persisted-state and adapter/result inconsistency both map to public `inconsistent` without partial ancestry;
+- [x] `SafeFailureReference` ownership and unchanged propagation are accepted without selecting telemetry technology;
+- [x] the §9.1 exceptional-termination semantics are accepted, and Gate B remains blocked until its concrete sanitized signal, containment point, and diagnostic-boundary decision are named;
+- [x] database exceptions and persistence records cannot cross Application contracts;
+- [x] Brand ancestry is explicitly non-authorizing;
+- [x] all ownership, delegation, Session, Catalog, P2, P3, API, schema, mutation, and production behavior remains excluded;
+- [x] unresolved questions remain visible rather than silently defaulted;
+- [x] test responsibilities and evidence ownership are sufficient for a later Gate B request;
+- [x] ADR-0006, checklist, P1-OD, C0 deferred, CAT-TRR, and implementation-authorization statuses remain unchanged.
 
-Until Gate A is explicitly recorded, this document remains `DESIGN_REVIEW_REQUIRED`. Even after Gate A, implementation remains prohibited until a separate Bounded Implementation Authorization is recorded.
+Gate A is recorded as `APPROVED`. Implementation remains prohibited until a separate Bounded Implementation Authorization—Gate B—is explicitly recorded.
