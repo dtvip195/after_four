@@ -111,8 +111,8 @@ The following rules apply from the existing Owner-confirmed Catalog/Pricing base
 
 - Mỗi lựa chọn bán được phải có persisted Variant (`ODB-CAT-04`).
 - Sử dụng implicit/default hidden Variant nếu không cần lựa chọn hiển thị cho khách (`ODB-CAT-04`).
-- Draft Product có thể tạm thời chưa có Variant hoặc Default Variant (`ODB-CAT-19`). Default designation và customer visibility độc lập; Default Variant không mặc nhiên bị ẩn (`ODB-CAT-20`).
-- Category/Product/Variant codes là Brand-unique; SKU là optional và Brand-unique khi có; các identifier này không được tái sử dụng sau archive (`ODB-CAT-16`–`ODB-CAT-18`). Các code trong bảng đề xuất vẫn chưa được duyệt thành dữ liệu thực tế.
+- Draft Product có thể tạm thời chưa có Variant hoặc Default Variant (`ODB-CAT-19`). Với Active Product, Default hợp lệ phải có `is_default = true` và status Active; `customer_visible` độc lập nên hidden Active vẫn hợp lệ, còn Inactive/Archived thì không (`ODB-CAT-20`, `ODB-CAT-28`).
+- Category/Product/Variant dùng ba Brand-scoped Code namespace riêng; cùng một Code có thể xuất hiện một lần ở mỗi entity type nhưng không được trùng trong cùng type/Brand (`ODB-CAT-16`, `ODB-CAT-27`). SKU là optional và Brand-unique khi có; các identifier này không được tái sử dụng sau archive (`ODB-CAT-17`, `ODB-CAT-18`). Các code trong bảng đề xuất vẫn chưa được duyệt thành dữ liệu thực tế.
 - S/M/L chỉ áp dụng cho Product phù hợp (`ODB-CAT-12`).
 - Nóng/Đá là proposed Variant choice khi cần phân biệt cấu hình bán hàng; applicability per Product remains unapproved.
 - Không tạo Modifier trùng nghĩa với Variant choice.

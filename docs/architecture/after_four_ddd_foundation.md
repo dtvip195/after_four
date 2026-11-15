@@ -1,10 +1,67 @@
 # AFTER FOUR — DDD Foundation
 
-**Status:** `DOCUMENTED_PROPOSAL` for architecture alignment  
-**Date:** 2026-11-14  
-**Scope:** Bounded-context vocabulary, ownership, dependencies, transactions, events, idempotency, and recovery
+**Status:** Layered DDD is `OWNER_CONFIRMED`; context topology and detailed patterns remain `DOCUMENTED_PROPOSAL`
+**Date:** 2026-11-14; Layered DDD decision recorded 2026-11-15
+**Scope:** Layered DDD, Bounded Context vocabulary, ownership, dependencies, transactions, events, idempotency, and recovery
 
-This document proposes pragmatic Domain-Driven Design boundaries for the existing Rails modular monolith. It does not create Owner business decisions, require a Rails engine per context, authorize implementation, or alter Accepted ADRs. Owner-confirmed policy comes from the [Owner Decision Baseline](after_four_owner_decision_baseline.md).
+The Owner-confirmed project-wide Layered DDD decision is recorded as `ODB-ARCH-01` in the [Owner Decision Baseline](after_four_owner_decision_baseline.md#project-wide-architecture) and accepted in [ADR-0011](adr/0011-project-wide-layered-ddd.md). The Bounded Context names, candidate aggregates and detailed coordination patterns below retain their stated proposal status unless another canonical decision approves them. This document does not require a Rails engine per context or authorize implementation.
+
+## Owner-confirmed Layered DDD baseline
+
+All AFTER FOUR source code created or modified from 2026-11-15 onward follows four logical layers within its owning Bounded Context:
+
+| Layer | Responsibility | Dependency rule |
+|---|---|---|
+| Domain | Entities, Value Objects, Aggregates, invariants, business behavior and genuinely needed Domain Services | Framework-independent; depends on no outer layer. |
+| Application | Use Cases, Commands, Queries, orchestration and transaction coordination | Depends on Domain and only the contracts required by real use cases; it does not own core domain rules. |
+| Infrastructure | Active Record persistence records, PostgreSQL enforcement, persistence projection/mapping and external adapters | May depend on Domain and contracts it implements; framework dependencies do not enter Domain. |
+| Presentation | HTTP/request adaptation, presentation validation, controllers, serializers and response DTOs | Depends on Application for business workflows and never exposes or directly manipulates persistence records as public contracts. |
+
+```text
+Presentation ──> Application ──> Domain
+                       │
+                       └──> required contracts
+Infrastructure ──> Domain and implemented contracts
+Domain ──> no outer layer
+```
+
+Each Bounded Context owns its behavior and data responsibilities as catalogued in the [Business Domain Model §3](after_four_business_domain_model.md#3-bounded-context-overview). Cross-context work uses an explicitly approved integration contract when a real interaction requires one; it does not directly manipulate another context's Infrastructure records. This decision does not mandate Clean Architecture, generic repositories, speculative ports/mappers, empty layer classes, Rails engines or separate services.
+
+For example, Organization owns Organization/Brand/Branch behavior, Catalog owns Catalog behavior, Ordering owns Order behavior, and Payment owns Payment/settlement behavior. The Business Domain Model remains authoritative for the complete context list; this summary neither invents nor renames contexts.
+
+### Forward adoption and maturity
+
+- New code follows Layered DDD.
+- Modified code follows it within the authorized scope.
+- Existing code is assessed when relevant but is refactored only under explicit authorization.
+- Architecture compliance does not enlarge a feature, fix or integration task into repository-wide cleanup.
+
+| Scope | Status | Evidence and boundary |
+|---|---|---|
+| A1 Organization/Brand/Branch reference foundation | `IMPLEMENTED` | Pure entities and namespaced persistence records are verified at the paths below. This status is limited to A1. |
+| Existing Ordering, Payment and Preparation Phase 1 code | `NOT_YET_MIGRATED` | It predates `ODB-ARCH-01`; this decision grants no refactor authority and makes no functional-conformance claim. |
+| Platform and all other existing or future contexts | `UNVERIFIED` | No project-wide Layered DDD conformance assessment is recorded. Absent implementation is not conformance evidence. |
+| Existing frontend source | `UNVERIFIED` | The forward rule applies when frontend source is changed, but no retrospective frontend Layered DDD assessment or refactor is authorized. |
+
+### A1 first applied example
+
+Verified Domain paths:
+
+- `backend/app/domains/organization/domain/entities/organization.rb`
+- `backend/app/domains/organization/domain/entities/brand.rb`
+- `backend/app/domains/organization/domain/entities/branch.rb`
+
+These classes are framework-independent, do not inherit from Active Record, and represent only the approved A1 identity, names, parent identifiers, relationships and Branch timezone value. They do not claim lifecycle or other unimplemented behavior.
+
+Verified Infrastructure paths:
+
+- `backend/app/domains/organization/infrastructure/persistence/organization_record.rb`
+- `backend/app/domains/organization/infrastructure/persistence/brand_record.rb`
+- `backend/app/domains/organization/infrastructure/persistence/branch_record.rb`
+
+The records own table mapping, persistence associations, database-aligned validations, optimistic locking, restrictive dependent deletion and the implemented `to_domain` projection. A1 has no domain-to-persistence write mapping because no provisioning or administration use case is authorized. It has no Application or Presentation implementation because it exposes no authorized workflow or HTTP surface; empty classes would not improve conformance.
+
+The completed A1 implementation report records: 2 pure Domain examples and 50 focused persistence/database examples with no failures; 143 full-suite examples with no failures; 99 RuboCop files with no offenses; zero Brakeman warnings; no Bundler Audit vulnerabilities; passing Zeitwerk eager load and `bin/ci`; passing `git diff --check`; and unchanged A1 migration and `structure.sql` hashes. These figures are recorded implementation evidence, not a verification rerun in this documentation-only task and not production-readiness evidence.
 
 ## 1. Vocabulary and ADR boundary
 
@@ -22,7 +79,7 @@ Proposed canonical context vocabulary:
 
 [ADR-0001](adr/0001-rails-modular-monolith.md) and [ADR-0005](adr/0005-backend-repository-structure.md) use `Sales` and `Billing`, while implemented Phase 1 namespaces use `Orders`, `Payments`, and `Preparation`. The discrepancy is real; this document does not silently resolve or rename it. The separate [ADR amendment proposal](adr/proposals/0001-0005-context-vocabulary-amendment-proposal.md) awaits explicit Owner approval. Until then, the Accepted ADR text and current namespaces remain unchanged.
 
-These are logical ownership boundaries inside one Rails application and one PostgreSQL database. Active Record remains the persistence mechanism. Do not add a generic repository, command bus, microservice, or engine without demonstrated need.
+These are logical ownership boundaries inside one Rails application and one PostgreSQL database. Active Record remains the Infrastructure persistence mechanism. Do not add a generic repository, command bus, microservice, or engine without demonstrated need.
 
 ## 2. Context map
 
@@ -74,18 +131,18 @@ The arrows express allowed information/dependency direction, not unrestricted mo
 - **Authoritative state:** Brand-global catalog identity and effective chain/Branch sellability and pricing policy (`ODB-CAT-01`, `ODB-CAT-06`, `ODB-CAT-07`).
 - **Candidate roots:** Product/Variant and effective Price policy; exact aggregate shape is deferred.
 - **Owner-confirmed MVP shape:** initial deployment has one Organization/Brand while the schema permits multiples; Categories are flat; every Product belongs to exactly one Category; Product lifecycle is Draft/Active/Inactive/Archived; every sellable selection is a persisted Variant; Modifier Groups express optional/required and single/multiple cardinality through minimum/maximum limits (`ODB-CAT-02`–`ODB-CAT-05`, `ODB-CAT-14`, `ODB-CAT-15`).
-- **Owner-confirmed identifiers and completeness:** Category/Product/Variant codes are trimmed, accept only ASCII Latin letters/digits/hyphen/underscore, canonicalize to uppercase, are unique within Brand, and are never reused after archive. SKU remains optional and Brand-unique when present, but its normalization is unresolved. Draft Product may temporarily have no Variant or Default; Active Product has at least one Variant and exactly one Default. Default and visibility are independent (`ODB-CAT-16`–`ODB-CAT-23`).
-- **Owner-confirmed lifecycle:** Archived Product restores to Inactive and requires a separate activation. Category/Variant Deactivate is temporary/reversible, while Archive is long-term retirement with validated restoration. Owner or explicitly delegated personnel may perform Category/Variant state changes; Category/Variant archive dependency guards apply. Physical deletion is limited to dependency-free Draft records and never applies to Active, Inactive, or Archived records (`ODB-CAT-24`–`ODB-CAT-26`).
+- **Owner-confirmed identifiers and completeness:** Category/Product/Variant codes are canonical uppercase ASCII and use separate Brand-scoped namespaces. Codes/SKUs remain reserved after Archive and any future Soft Delete. SKU is optional/Brand-unique when supported but deferred from Catalog Core MVP; future normalization is unresolved (`ODB-CAT-16`–`ODB-CAT-18`, `ODB-CAT-22`, `ODB-CAT-27`, `ODB-CAT-34`, `ODB-CAT-36`). Every Product has at most one Variant with `is_default = true`; Draft, Inactive, and Archived permit zero or one, while Active requires exactly one and it must be Active. Visibility remains independent (`ODB-CAT-20`, `ODB-CAT-23`, `ODB-CAT-28`, `ODB-CAT-31`, `ODB-CAT-38`).
+- **Owner-confirmed lifecycle and retention:** Category and Variant are created Draft and share the explicit matrix in `ODB-CAT-32`; both restore Archived→Inactive and require separate activation. Variant Archive/Restore changes status only and preserves `is_default` and `customer_visible` (`ODB-CAT-40`). Product lifecycle commands, including Restore, are excluded from initial Catalog Core MVP (`ODB-CAT-39`), and Product Category reassignment is unsupported (`ODB-CAT-41`). Catalog Core MVP uses lifecycle/Archive retention, no Soft Delete, and no physical Purge in any lifecycle state (`ODB-CAT-21`, `ODB-CAT-24`, `ODB-CAT-25`, `ODB-CAT-29`–`ODB-CAT-33`, `ODB-CAT-35`–`ODB-CAT-41`). Branch availability remains independent.
 - **Invariants:** effective Price versions are immutable and do not overlap for the same scope; an explicit Branch availability/Price override takes precedence over the chain default; unavailable products cannot be confirmed; later catalog changes never rewrite sold snapshots (`ODB-CAT-06`–`ODB-CAT-08`, `ODB-CAT-10`).
 - **Future contract:** client supplies identifiers/choices; server resolves Branch availability and effective terms and calculates the authoritative quote. If authoritative Price changes while an Order is Draft, the revised quote requires review before confirmation. Confirmation gives Ordering immutable sold-price snapshots (`ODB-CAT-09`, `ODB-CAT-10`).
 - **Allowed dependencies:** Organization/Branch scope.
 - **Forbidden dependencies:** Order/Payment mutation; accepting a client-calculated total as truth.
-- **Unresolved:** tax inclusion/treatment, service charge, rounding, zero/free pricing, Modifier price effects, time-based availability, manual sold-price overrides/approval, Catalog publication authority, Product activation/restoration authority, exact SKU normalization, Category/Variant restoration target states, detailed lifecycle transitions, delegated-authority enforcement, identifier reservation after Draft deletion, inventory, and media storage/vendor selection.
+- **Unresolved/future scope:** tax inclusion/treatment, service charge, rounding, zero/free pricing, Modifier price effects, time-based availability, manual sold-price overrides/approval, Catalog publication authority, Product lifecycle policy and commands beyond the initial exclusion, any future Product reassignment capability, future SKU normalization/support, future Soft Delete mechanics if separately authorized, identifier reuse after hypothetical physical Draft deletion, delegated-authority enforcement, inventory, and media storage/vendor selection.
 - **Current state:** canonical logical design only; implementation is not authorized by this milestone.
 
 The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_discovery.md) traces these constraints to the canonical [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp). They do not approve the proposed aggregate shape, API, schema, or a change to Phase 1 Payment creation timing.
 
-`TECHNICAL_PROPOSAL`: repeated `brand_id`, composite foreign keys, normalization storage, partial unique indexes, cross-row Default enforcement, row locking, restrictive foreign keys, safe-deletion proof, delegated-authority representation, and exact Rails use cases are candidate enforcement mechanisms only. `ODB-CAT-14`–`ODB-CAT-26` do not approve those mechanisms or authorize implementation.
+`TECHNICAL_PROPOSAL`: repeated `brand_id`, composite foreign keys, Product Category immutability, normalization storage, partial unique indexes, lifecycle checks, cross-row Default and Category/Product enforcement, row locking, restrictive foreign keys, delegated-authority representation, and exact Rails use cases are candidate mechanisms only. `ODB-CAT-14`–`ODB-CAT-41` do not authorize implementation.
 
 ### 3.3 Payment
 

@@ -38,23 +38,35 @@ The chain-level enterprise that owns Brands, Users, and Employees. Initial deplo
 The business reporting and limit period used for daily cash, Expense, and reporting rules. Its exact cutoff and timezone are not yet defined.  
 _Avoid_: assuming calendar day, shift
 
-**Product**: A Brand-global menu identity whose Branch availability and pricing may vary. An Active Product has at least one Variant and exactly one Default Variant; an Archived Product restores to Inactive before any separate reactivation.
+**Product**: A Brand-global menu identity assigned to its original Category for the initial MVP, while Branch availability and pricing may vary. An Active Product belongs to an Active Category and has exactly one Active Default Variant.
 
-**Category**: A flat Brand-owned catalog grouping to which every Product belongs. Deactivation is temporary and reversible; Archive is long-term retirement with validated restoration.
+**Category**: A flat Brand-owned catalog grouping created in Draft, to which every Product belongs. It follows an explicit lifecycle; Restore returns Archived Category to Inactive, while an Active Product requires an Active Category.
 
-**Variant**: A persisted sellable selection of a Product. Deactivation is temporary and reversible; Archive is long-term retirement with validated restoration, while a Draft Product may temporarily have no Variant.
+**Variant**: A persisted Product selection created in Draft. Archive and Restore change only lifecycle status, preserving Default designation and customer visibility; Restore returns Archived Variant to Inactive before separate reactivation.
 
 _Avoid_: treating the Product itself as an unrecorded sellable option
 
-**Catalog Deactivation**: A temporary, reversible suspension of a Category or Variant.
+**Catalog Deactivation**: A temporary, reversible suspension of a Category or Variant. Category Deactivation is blocked while Active Products remain assigned and is distinct from Category Archive and Branch-level availability.
 
-**Catalog Archive**: Long-term retirement of a Category or Variant, with restoration possible only after validation.
+**Catalog Archive**: Long-term retirement of a Category or Variant, with validated restoration to Inactive. Catalog Core MVP uses Archive/lifecycle retention rather than Soft Delete.
 
-**Default Variant**: The one Variant designated as default for an Active Product. It may be customer-selectable; default designation and customer visibility are independent.
+**Soft Delete**: Retention of a database record while marking it as deleted. It is a possible entity-specific mechanism, not the default for all AFTER FOUR data.
 
-**Catalog Code**: A stable Category, Product, or Variant identifier unique within its Brand and retained after archival. Input permits ASCII Latin letters, digits, hyphen, and underscore; it is trimmed and canonicalized to uppercase.
+_Avoid_: Archive, Deactivate, Purge
 
-**SKU**: An optional Variant identifier. When present it is unique within its Brand and retained after archival; it does not automatically inherit Catalog Code normalization.
+**Immutable Retention**: Preservation of an important business, financial, historical, or audit record without ordinary modification or deletion.
+
+_Avoid_: Soft Delete, Archive
+
+**Physical Delete / Purge**: Permanent removal of a record from storage. It is prohibited for Category, Product, and Variant in Catalog Core MVP, regardless of lifecycle state.
+
+_Avoid_: Soft Delete, Archive, Deactivate
+
+**Default Variant**: A Variant designated as its Product's default; every Product has at most one, while an Active Product has exactly one and that Variant is Active. Default designation, Variant lifecycle status, and customer visibility are independent, so a hidden Active Variant may be the Default.
+
+**Catalog Code**: A stable Category, Product, or Variant identifier unique among the same entity type within its Brand and retained after archival. Category, Product, and Variant use separate namespaces, so the same Code may occur once in each type within one Brand; input permits ASCII Latin letters, digits, hyphen, and underscore and is trimmed/canonicalized to uppercase.
+
+**SKU**: An optional Variant identifier that is unique within its Brand when supported and remains reserved after Archive or any future Soft Delete. SKU support and normalization are deferred beyond Catalog Core MVP and do not inherit Catalog Code rules.
 
 **Modifier Group**: A set of selectable Modifiers whose minimum and maximum selections express optional/required and single/multiple choice rules.
 
