@@ -29,6 +29,62 @@ Owner approval and implementation are separate dimensions:
 - `EXISTING_DECISION_PRESERVED`: an earlier Owner-confirmed decision that remains authoritative and is not reopened by later scope confirmation.
 - `NOT_AUTHORIZED`: implementation, approval, or production authority has not been granted.
 
+## ODB category and identifier governance
+
+**Source:** Owner's explicit approval of the ODB Category and Identifier Principles on 2026-11-16.
+
+The Owner Decision Baseline is the canonical register for `ODB-*` decisions and category tokens. An ODB category is a governance decision-ownership area only. It does not establish a Bounded Context, module, service, database, runtime dependency, or implementation boundary, and it does not alter the current approval status of the DDD topology.
+
+### Category registry
+
+Category tokens are unique within the ODB namespace. The registry is:
+
+| Category | Decision-ownership scope |
+|---|---|
+| `ARCH` | Project-wide architecture decisions. |
+| `PLN` | Product identity and launch-planning decisions. |
+| `OP` | Ordering, Payment, Preparation-dispatch, cancellation, and related operating-policy decisions. |
+| `CASH` | Cash handling, float, Cash Session, and handover decisions. |
+| `EXP` | Expense authority, limits, approval, and evidence decisions. |
+| `RPT` | Reporting direction and accountability decisions. |
+| `CAT` | Catalog and Pricing decisions. |
+| `DATA` | Global data-retention and deletion principles. |
+| `CUST` | Customer Management decisions, including Customer identity, privacy, consent, Profile, and Customer-history policy. |
+| `LOY` | Basic Loyalty decisions, including Loyalty ledger, qualification, earning, redemption, adjustment, reversal, and reconciliation policy. |
+| `PROMO` | Advanced Promotions & Discount Engine decisions, including Promotion eligibility, rule evaluation, Voucher, stacking, priority, limits, discount application, and Promotion lifecycle policy. |
+
+The `CUST`, `LOY`, and `PROMO` category approvals do not allocate an ID to any current provisional reference or approve any unresolved Customer, Loyalty, or Promotion policy. Customer identity and privacy remain distinct from Loyalty ledger behavior; Loyalty qualification and reward policy remain distinct from Promotion eligibility and discount rules. Catalog/Pricing retains ownership of authoritative base Product/Variant pricing, and Ordering retains responsibility for confirmed Order snapshots.
+
+### Primary Owner classification
+
+A cross-domain decision is recorded once under the category owning its principal business policy, behavior, or data. Other affected domains are recorded through explicit cross-references; those references do not create duplicate canonical decisions. A cross-domain decision is not automatically split. Separate linked decisions are appropriate only when each expresses an independently meaningful policy or business decision. If the Primary Owner cannot be established from approved decision boundaries, ownership remains unresolved until the Owner explicitly determines it.
+
+This is a governance classification rule, not a runtime authorization, DDD topology decision, or implementation design. It does not move or redefine existing Catalog, Pricing, Customer, Loyalty, Promotion, Ordering, Payment, or other domain responsibilities.
+
+### Identifier format and allocation
+
+Canonical IDs use `ODB-<CATEGORY>-<SUFFIX>`. The suffix is a positive decimal integer rendered with a minimum width of two digits: `01` through `99`, followed by `100`, `101`, and so forth. Allocation and comparison are numeric, not lexical. The convention applies consistently across ODB categories, and every existing canonical ID retains its current spelling.
+
+The Owner retains authority to approve category tokens and each canonical ODB ID allocation. A proposal, draft, cross-reference, or documentation edit does not create or reserve a canonical ID. Allocation requires this controlled procedure:
+
+1. Obtain an explicit Owner decision approving the allocation.
+2. Confirm that the target category is present in the canonical category registry.
+3. Search the complete repository for the proposed full ID and possible collisions.
+4. Select the numeric suffix within the approved category according to the approved minimum-width convention.
+5. Verify that the proposed full ID has never previously been allocated or published in that category, including in historical governance records.
+6. Record the decision, scope, status, Owner approval provenance, and allocation date in this baseline.
+7. Review every affected canonical and historical reference before completing the documentation change.
+
+No automated allocator, reservation, or implicit next-ID rule is established by this procedure.
+
+### Identity, history, and cross-document integrity
+
+A published canonical ID is immutable and must never be renumbered, reassigned, or reused. Amendment, narrowing, withdrawal, rejection, or supersession preserves the original ID and provenance. A later decision must identify its relationship to the earlier decision; documentation must not silently change the meaning of an approved decision. Historical records are retained and clearly classified rather than deleted or rewritten as if the earlier state never existed.
+
+Before a provisional reference can become canonical, its crosswalk must record the existing provisional reference, approved canonical ID, Owner approval provenance, allocation date, affected canonical documents, and treatment of historical references. Historical documents may retain the provisional reference where provenance requires it, while current canonical documents use the approved ID and preserve a traceable mapping. A blank or proposed canonical field is not an allocation.
+
+Every future allocation or amendment review must verify full-ID uniqueness, category validity, crosswalk consistency, affected canonical references, required historical-reference preservation, and absence of a duplicate canonical decision. The review must report unresolved ownership or reference conflicts rather than choosing a convenient classification.
+
 ## Project-wide architecture
 
 **Source for `ODB-ARCH-01`:** Owner's explicit project-wide Layered DDD adoption decision on 2026-11-15.
@@ -244,7 +300,7 @@ The timing of Payment creation—Draft creation versus Order confirmation—is a
 
 **Source:** Owner confirmation in conversation on 2026-11-16.
 
-The references in this section are provisional governance references, not canonical `ODB-*` identifiers. The existing baseline has no Customer/Loyalty/Promotion identifier namespace or approved ID-allocation convention. Creating a new prefix would invent governance metadata, so canonical IDs remain `ID_PENDING_OWNER_GOVERNANCE`. The absence of a numbered ID does not downgrade the explicit Owner confirmation recorded here.
+The references in this section are provisional governance references, not canonical `ODB-*` identifiers. The approved category registry now includes `CUST`, `LOY`, and `PROMO`, but category approval does not allocate a canonical ID. No explicit Owner allocation decision or completed provisional-to-canonical crosswalk exists for these references, so they remain `ID_PENDING_OWNER_GOVERNANCE`. The absence of a numbered ID does not downgrade the explicit Owner confirmation recorded here.
 
 These decisions confirm Production MVP business scope only. They approve no architecture, schema, migration, API, dependency, source code, test, database operation, P1/P2/P3/Package C work, Identity Milestone 2B work, Gate A/B/C decision, Final Operational Acceptance, Production Authorization, or production use.
 
