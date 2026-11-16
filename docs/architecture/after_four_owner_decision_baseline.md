@@ -325,6 +325,16 @@ The decision preserves Customer Management ownership of Customer Profile and ano
 
 `SDP-CUST-02` preserves `SDP-CUST-01`: the balance and ledger remain preserved, redemption remains frozen, no new Customer-specific Loyalty benefit is issued, and a pseudonymous reference does not restore redemption eligibility. It selects no identifier/mapping mechanism, re-identification authority, retention/legal treatment, integration semantics, or context topology; pseudonymization is not represented as irreversible anonymization or as automatically outside privacy-law scope. No canonical `ODB-*` ID, implementation authority, Control Acceptance, legal/privacy approval, Final Operational Acceptance, or Production Authorization is granted.
 
+### Customer identity scope direction
+
+| Local decision reference | Decision date | Authority | Business-policy status | Business policy | Technical direction | Canonical ODB ID | Implementation |
+|---|---|---|---|---|---|---|---|
+| [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md) | 2026-11-16 | Owner | `OWNER_DECIDED` (`OWNER_CONFIRMED`) | `OPTION_D_DELIBERATE_DEFERRAL` | `PRESERVE_OPTION_C_EVOLUTION` | `ID_PENDING_OWNER_GOVERNANCE` | `NOT_AUTHORIZED` |
+
+`SDP-SCOPE-01` deliberately defers Organization-wide versus Brand-scoped Customer identity policy for current operations, retains the initial one-Organization/one-Brand assumption, and approves no complex multi-Brand Customer UI/UX or implicit cross-Brand discovery, visibility, Loyalty sharing, Promotion applicability, or benefits. The assumption selects neither Organization-wide nor Brand-scoped identity semantics.
+
+The separate technical direction preserves structural evolvability toward an Organization-wide canonical Customer identity with Brand-specific participation. It keeps canonical identity conceptually separate from Brand-scoped business and transaction context and avoids irreversible single-Brand binding. This is not Option C business-policy or context-topology approval and selects no schema, relationship, identifier, mapping, API, authorization, transaction, or failure-handling design. Phone uniqueness/normalization, pseudonymous-reference scope, multi-Brand participation/consent/visibility/benefits, legal/privacy treatment, context topology, and implementation remain unresolved or unapproved. `SDP-CUST-01` and `SDP-CUST-02` remain unchanged.
+
 ### Proposed Promotion capability areas
 
 The following areas are required inputs to later design assessment because the confirmed MVP scope calls for an advanced engine. Their listing does not approve a rule vocabulary, calculation, default, workflow, or implementation:
