@@ -25,9 +25,11 @@ Infrastructure ──> Domain and implemented contracts
 Domain ──> no outer layer
 ```
 
-Each Bounded Context owns its behavior and data responsibilities as catalogued in the [Business Domain Model §3](after_four_business_domain_model.md#3-bounded-context-overview). Cross-context work uses an explicitly approved integration contract when a real interaction requires one; it does not directly manipulate another context's Infrastructure records. This decision does not mandate Clean Architecture, generic repositories, speculative ports/mappers, empty layer classes, Rails engines or separate services.
+The [Owner Decision Baseline](after_four_owner_decision_baseline.md) is authoritative for Owner-confirmed decisions and governance rules. The [Business Domain Model](after_four_business_domain_model.md) is canonical for business concepts, business rules, lifecycles, and the complete proposed logical context inventory. [ADR-0011](adr/0011-project-wide-layered-ddd.md) accepts the project-wide four-layer architecture and inward dependency direction. This foundation provides the accepted Layered DDD guidance and selected, non-exhaustive proposed context and dependency analysis; it does not replace the Business Domain Model's complete proposed inventory or approve final context topology.
 
-For example, Organization owns Organization/Brand/Branch behavior, Catalog owns Catalog behavior, Ordering owns Order behavior, and Payment owns Payment/settlement behavior. The Business Domain Model remains authoritative for the complete context list; this summary neither invents nor renames contexts.
+Each Bounded Context owns its behavior and data responsibilities according to the applicable approved policy and proposed boundaries in those sources. Cross-context work uses an explicitly approved integration contract when a real interaction requires one; it does not directly manipulate another context's Infrastructure records. This decision does not mandate Clean Architecture, generic repositories, speculative ports/mappers, empty layer classes, Rails engines or separate services.
+
+For example, Organization owns Organization/Brand/Branch behavior, Catalog owns Catalog behavior, Ordering owns Order behavior, and Payment owns Payment/settlement behavior within the selected analysis below. These examples neither enumerate every proposed context nor rename or approve a context.
 
 ### Forward adoption and maturity
 
@@ -65,7 +67,7 @@ The completed A1 implementation report records: 2 pure Domain examples and 50 fo
 
 ## 1. Vocabulary and ADR boundary
 
-Proposed canonical context vocabulary:
+The following proposed context vocabulary is non-exhaustive and limited to contexts selected for analysis in this foundation. It is not the complete proposed context inventory or an Owner-approved final Bounded Context list. The [Business Domain Model §3](after_four_business_domain_model.md#3-bounded-context-overview) remains the canonical source for the complete proposed logical context inventory.
 
 - Ordering
 - Payment
@@ -82,6 +84,8 @@ Proposed canonical context vocabulary:
 These are logical ownership boundaries inside one Rails application and one PostgreSQL database. Active Record remains the Infrastructure persistence mechanism. Do not add a generic repository, command bus, microservice, or engine without demonstrated need.
 
 ## 2. Context map
+
+This context map is a scoped architectural analysis of the selected contexts and relationships below, not an exhaustive map of every proposed context. It does not supersede the Business Domain Model's complete proposed context inventory and does not approve final context boundaries or topology.
 
 ```mermaid
 flowchart LR
