@@ -54,7 +54,7 @@ The requested entity list is expanded only where a canonical invariant needs an 
 | Generic “configuration history” | `configurations` + immutable/effective `configuration_versions`. | Separates stable key/scope from versioned values. |
 | Generic status-event table for every aggregate | Not proposed globally. | Important aggregates have domain-specific history or immutable ledgers; a universal event table would weaken semantics. |
 | Soft-delete concern on every table | Excluded. | Master data deactivates/archives; confirmed transactions remain and are reversed/adjusted. |
-| Customer-authentication account | Excluded from MVP. | Guest checkout and phone/consent profile do not imply customer login. |
+| Customer-authentication account | Excluded from this logical ERD. | Customer Profile and phone/consent handling do not imply customer login; anonymous-Order permission remains `UNDECIDED`. |
 | SaaS tenant/subscription/marketplace tables | Excluded. | Explicitly outside MVP. |
 
 ## 3. Ownership and data isolation
@@ -207,7 +207,7 @@ erDiagram
 
 ### Key relationship decisions
 
-- `WORKSHOP_AGREED` Customer identity and Loyalty Account are Organization-shared; Orders retain Branch and control purchase-history visibility.
+- `OWNER_CONFIRMED` Customer Profile and Loyalty are shared across Branches; Orders retain their originating Branch and purchase-history visibility remains role/Branch scoped (`MVP-CUST-SCOPE`, `MVP-LOY-SCOPE`; provisional references pending canonical ID governance).
 - `LEGAL_VALIDATION` Phone lookup requires consent and privacy/retention controls. Normalized phone uniqueness scope requires validation.
 - `WORKSHOP_AGREED` Loyalty Transactions are append-only signed point entries; the account balance is derived or safely cached.
 - `WORKSHOP_AGREED` Promotion Usage snapshots the applied rule/benefit so later Promotion changes do not change an Order.

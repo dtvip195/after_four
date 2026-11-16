@@ -2,7 +2,7 @@
 
 **Status:** Canonical source of truth for Owner-confirmed business decisions  
 **Date recorded:** 2026-11-14  
-**Latest decision update:** 2026-11-15
+**Latest decision update:** 2026-11-16
 **Scope:** Owner-confirmed business, planning and project-wide architecture decisions that constrain later implementation
 
 This baseline records Owner decisions supplied after the earlier repository consistency audit. It does not claim that these decisions were already present in the repository before this document was created.
@@ -24,6 +24,10 @@ Owner approval and implementation are separate dimensions:
 - `UNRESOLVED`: a decision remains genuinely open.
 - `CONTRADICTORY`: current repository sources disagree with the baseline or implementation evidence.
 - `HISTORICAL`: a preserved earlier proposal or question that is no longer implementation authority.
+- `PROPOSED_CAPABILITY`: a candidate capability or mechanism for satisfying confirmed scope; its detailed behavior is not Owner-approved merely because it is listed.
+- `UNDECIDED`: a business rule requiring a future explicit Owner decision.
+- `EXISTING_DECISION_PRESERVED`: an earlier Owner-confirmed decision that remains authoritative and is not reopened by later scope confirmation.
+- `NOT_AUTHORIZED`: implementation, approval, or production authority has not been granted.
 
 ## Project-wide architecture
 
@@ -235,6 +239,54 @@ The following Catalog/Pricing matters remain explicitly `UNRESOLVED`: tax treatm
 Catalog Core also retains these explicit unresolved or future-scope items: future SKU normalization and support; identifier reuse after a hypothetical physical deletion of a Draft record; uniqueness mechanics for any separately authorized future Soft Delete; future Product lifecycle transitions/authority; any future Product reassignment capability; technical representation/enforcement of the confirmed Package C delegation policy; exact command/validation/audit/locking/constraint mechanisms; and the deferred details in `C0-R05`, `C0-R08`, and `C0-R11`. Initial MVP excludes Product lifecycle/Restore commands and Product Category reassignment under `ODB-CAT-39` and `ODB-CAT-41`; Package C excludes Default switching under `C0-CAT-08`; Catalog Core MVP itself has no Soft Delete and no Purge.
 
 The timing of Payment creation—Draft creation versus Order confirmation—is a separate design question. Nothing in `ODB-CAT-01` through `ODB-CAT-10` approves a change to the implemented Phase 1 timing or guarantees.
+
+## 5A. Production MVP Customer, Loyalty, and Promotions scope
+
+**Source:** Owner confirmation in conversation on 2026-11-16.
+
+The references in this section are provisional governance references, not canonical `ODB-*` identifiers. The existing baseline has no Customer/Loyalty/Promotion identifier namespace or approved ID-allocation convention. Creating a new prefix would invent governance metadata, so canonical IDs remain `ID_PENDING_OWNER_GOVERNANCE`. The absence of a numbered ID does not downgrade the explicit Owner confirmation recorded here.
+
+These decisions confirm Production MVP business scope only. They approve no architecture, schema, migration, API, dependency, source code, test, database operation, P1/P2/P3/Package C work, Identity Milestone 2B work, Gate A/B/C decision, Final Operational Acceptance, Production Authorization, or production use.
+
+| Provisional reference | MVP classification | Owner-confirmed decision | Classification | Implementation | Preserved boundary / unresolved detail |
+|---|---|---|---|---|---|
+| `MVP-CUST-SCOPE` | `MUST` | Production MVP includes Customer Profile, phone-based Customer lookup, duplicate prevention through a unique phone constraint, Customer Purchase History, Customer privacy, and anonymization. Customer Profile is shared across Branches; each transaction retains its originating Branch. The Owner has permitted system-wide Customer visibility, Manager visibility is restricted to managed Branches, and Staff visibility requires an explicit approved capability. A phone change requires Customer verification and Manager or Owner confirmation, and the new phone must pass the uniqueness check. Automatic Customer Profile merging is prohibited. Anonymization preserves transaction history required by applicable legal and operational rules while making the Profile nonidentifying and ineligible for Customer-specific benefits. | `OWNER_CONFIRMED` | `NOT_AUTHORIZED`; no executing Customer implementation or production data operation is approved. | Phone normalization/country rules, uniqueness namespace, shared/family phones, verification mechanism, anonymous Orders, export, anonymization trigger/field treatment, retention, and legal/privacy conclusions remain `UNDECIDED`. Existing Owner-confirmed Identity authorization boundaries and previously confirmed data-retention decisions remain `EXISTING_DECISION_PRESERVED`; unresolved authorization, privacy, and retention matters remain subject to their existing governance status. |
+| `MVP-LOY-SCOPE` | `MUST` | Basic Loyalty is required in Production MVP. It includes a persistent points ledger; accrual, redemption, and adjustment history; Customer and relevant transaction linkage; authorized manual adjustment; auditability; reconciliation and reversal evidence; and the shared-across-Branches Customer/Loyalty direction. | `OWNER_CONFIRMED` | `NOT_AUTHORIZED`; no Loyalty schema, calculation, workflow, or production use is approved. | Earning/redemption formulas, minimums, expiration, tiers, birthday benefits, negative-balance behavior, refund allocation, cross-Branch redemption details, and manual-adjustment requester/approver policy remain `UNDECIDED`. |
+| `MVP-PROMO-SCOPE` | `MUST` | Advanced Promotions & Discount Engine is required in Production MVP. The capability may not be downgraded to `SHOULD`, deferred in its entirety, or classified `OUT_OF_SCOPE`. | `OWNER_CONFIRMED` | `NOT_AUTHORIZED`; no Promotion architecture, rule engine, schema, workflow, or production use is approved. | The candidate areas below are `PROPOSED_CAPABILITY`, not individually approved Promotion policies. Ownership/applicability scope, formulas, eligibility, stacking/exclusion, priority, Voucher issuance/reuse, usage limits, effective-period timezone, allocation, tax/service-charge/rounding interaction, refund/cancellation treatment, administration authority, approval, and audit detail remain `UNDECIDED`. |
+
+### Proposed Promotion capability areas
+
+The following areas are required inputs to later design assessment because the confirmed MVP scope calls for an advanced engine. Their listing does not approve a rule vocabulary, calculation, default, workflow, or implementation:
+
+- `PROPOSED_CAPABILITY`: percentage and fixed-amount discounts;
+- `PROPOSED_CAPABILITY`: Product-, Variant-, Category-, and Order-level Promotions;
+- `PROPOSED_CAPABILITY`: conditional and time-based Promotions;
+- `PROPOSED_CAPABILITY`: Voucher/Coupon support;
+- `PROPOSED_CAPABILITY`: stacking, exclusion, priority, eligibility, and usage-limit evaluation;
+- `PROPOSED_CAPABILITY`: Promotion administration and lifecycle;
+- `PROPOSED_CAPABILITY`: server-authoritative evaluation integrated with authoritative Pricing;
+- `PROPOSED_CAPABILITY`: immutable Promotion/discount evidence in confirmed Order snapshots;
+- `PROPOSED_CAPABILITY`: sensitive Promotion administration authorization and audit; and
+- `PROPOSED_CAPABILITY`: basic Promotion performance and discount reporting.
+
+### Unresolved Production MVP rules
+
+| Area | `UNDECIDED` rules requiring Owner decision |
+|---|---|
+| Customer | Phone normalization and country-code rules; uniqueness namespace; shared/family phone handling; verification mechanism; anonymous Order permission; export policy; anonymization trigger and retained fields; legal retention/deletion obligations. |
+| Loyalty | Earning and redemption formulas; minimums; expiration; negative balance; partial-refund reversal; detailed cross-Branch redemption; manual-adjustment requester/approver policy. |
+| Promotions | Ownership and applicability scope; enabled rule semantics and formulas; stacking, exclusion, priority, tie-breaking, eligibility, Voucher issuance/reuse, usage limits, effective-period timezone, allocation, tax/service-charge/rounding interaction, refund/cancellation treatment, administration and approval authority. |
+| Pricing and Payment | Tax treatment, service charge, monetary rounding, zero/free items, Modifier pricing, manual Price override, Refund method/authority, partial Refunds, and detailed overpayment/late-payment resolution remain unresolved except where an earlier `ODB-*` row already fixes a boundary. |
+
+`EXISTING_DECISION_PRESERVED`: `ODB-OP-02` and `ODB-OP-03` continue to require persisted full verified Payment before Preparation Dispatch and prohibit pending, unknown, failed, or unverified Payment from dispatching. `ODB-OP-04`, `ODB-OP-10`, `ODB-OP-11`, and `ODB-OP-16` continue to govern late success, mismatch, overpayment, and unknown attempts within their recorded limits. The unresolved timing question is when the Payment aggregate is created relative to Draft/confirmation, not whether unpaid work may dispatch.
+
+Customer/Loyalty and Promotions remain distinct capabilities even if a later approved design retains them within the existing logical Customers, Loyalty & Promotions context. Loyalty rewards are not Promotion definitions, and neither may rewrite authoritative base Prices or confirmed historical Order snapshots. Exact integration remains design work subject to Layered DDD and separate authorization.
+
+**Final Operational Acceptance:** `NOT_GRANTED`.
+
+**Production Authorization:** `NOT_GRANTED`.
+
+**Customer/Loyalty/Promotion implementation authorization:** `NOT_GRANTED`.
 
 ## 6. Global data retention and deletion
 
