@@ -17,6 +17,8 @@ applied: false
 
 Use the logical context vocabulary defined in [DDD Foundation](../../after_four_ddd_foundation.md): Ordering, Payment, Preparation, Catalog/Pricing, Table/Service, Cash Management, Workforce/Shift, Reporting, and Identity/Authorization. A later implementation plan would map these logical names to Rails namespaces deliberately; approval would not itself rename a folder or authorize code changes.
 
+This list is non-exhaustive and does not replace or supersede the complete proposed logical context inventory in the [Business Domain Model](../../after_four_business_domain_model.md#3-bounded-context-overview). Inclusion here does not approve a Bounded Context or its topology. This proposal remains subject to its existing review and approval process.
+
 Retain one Rails API modular monolith, one PostgreSQL database, Active Record persistence, explicit application transaction boundaries, and no generic repository or command bus by default.
 
 ## Alternatives
