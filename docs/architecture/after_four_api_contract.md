@@ -340,7 +340,7 @@ Delegated expenses are limited to 200,000 VND per expense and 500,000 VND cumula
 |---|---|---|
 | Approvals | `GET /approval-requests`, `POST /approval-requests/{id}/decisions` | Contract stable; threshold/self-approval policies `OPEN_DECISION` |
 | Reservations/tables | `POST /branches/{id}/reservations`, `POST /reservations/{id}/confirmations`, `/arrivals`, `/cancellations`; `POST /table-sessions`, `/table-assignments` | Resource shape stable; deposits/move/merge/split `OPEN_DECISION` |
-| Customer/loyalty | `POST /customers`, `POST /customers/{id}/consents`, `GET /customers/{id}/loyalty`, `POST /loyalty-adjustment-requests` | Consent/merge and rates `OPEN_DECISION`/`LEGAL_VALIDATION` |
+| Customer/loyalty | `POST /customers`, `POST /customers/{id}/consents`, `GET /customers/{id}/loyalty`, `POST /loyalty-adjustment-requests` | Production MVP scope `OWNER_CONFIRMED`; representative endpoints remain proposed and `NOT_AUTHORIZED`; detailed consent, anonymous-Order permission, and Loyalty rules remain `UNDECIDED`/`LEGAL_VALIDATION` |
 | Feedback | `POST /branches/{id}/customer-feedback`, `POST /customer-feedback/{id}/triage`, `/resolutions`, `/reopenings` | State machine stable; retention `LEGAL_VALIDATION` |
 | Printing | `POST /print-jobs`, `GET /print-jobs/{id}`, `POST /print-jobs/{id}/retries` | Stable and independent from Payment/Preparation; hardware `OPEN_DECISION` |
 | Reporting | Owner Dashboard read models for daily/weekly/monthly/custom ranges and comparisons; daily Telegram delivery history/retries | Direction `OWNER_CONFIRMED`; exact metrics, cutoff, Branch scope, schedule, recipients, privacy, and failure escalation `UNRESOLVED`; no endpoint or Telegram implementation authorized |
@@ -395,7 +395,7 @@ External adapters are injected behind internal ports only where production and t
 | Operating-day definition and cash representation | Cash Session, daily float, delegated-expense accumulation, reports | Cutoff/timezone boundary and physical/API representation | Documentation/model design only; implementation blocked |
 | Reporting details | Owner Dashboard and daily Telegram report | Schedule, recipients, cutoff, formulas, Branch scope, privacy, and failure escalation | Read-model design can proceed; production delivery blocked |
 | Transfer cost timing | Transfer receipt valuation | Cost snapshot at dispatch or receipt and rounding | Quantity flow yes; production valuation blocked |
-| Customer consent/merge | Customer association/search/create | Consent evidence, phone uniqueness, merge authority | Guest checkout yes; profile merge blocked |
+| Customer consent/profile identity | Customer association/search/create | Consent evidence, phone normalization and uniqueness namespace, anonymous-Order permission | Anonymous-Order permission `UNDECIDED`; automatic Profile merge prohibited |
 | Payment provider | Attempt fields, webhook/reconciliation adapter | Provider/methods and authoritative result contract | Cash slice yes; electronic integration blocked |
 | Offline operations | Idempotency lifetime, device auth, queued commands | Which commands may work offline | Online-authoritative API yes; offline queue blocked |
 | Tax/accounting | Totals, invoices, payroll, payable/expense/report contracts | Current legal/accounting/provider obligations | Non-tax prototype/foundation only; production finance acceptance blocked |

@@ -37,7 +37,7 @@ Rules explicitly called Owner-confirmed in the supplied workshop outcomes use `O
 - `WORKSHOP_AGREED` The operational model supports Branches under a Brand.
 - `OWNER_CONFIRMED` Initial deployment has one Organization and one Brand. The Organization → Brand → Branch hierarchy remains explicit, the schema permits multiple Organizations and Brands, and no permanent single-row constraint is allowed (`ODB-CAT-14`). Maximum Brands per Organization and additional Branch cardinality remain unresolved.
 - `WORKSHOP_AGREED` The network has a Central Warehouse and Branch Warehouses.
-- `WORKSHOP_AGREED` Customer and loyalty identity is shared across branches, while purchase-history visibility is branch-scoped.
+- `OWNER_CONFIRMED` Customer Profile and Loyalty are shared across Branches, while each transaction retains its originating Branch and purchase-history visibility remains role/Branch scoped (`MVP-CUST-SCOPE`, `MVP-LOY-SCOPE`; provisional references pending canonical ID governance).
 - `OWNER_CONFIRMED` Active roles are Owner, Branch Manager, and Staff. Regional Manager is reserved and inactive.
 - `WORKSHOP_AGREED` SaaS tenant onboarding, subscriptions, and a marketplace are outside MVP scope.
 - `OWNER_CONFIRMED` Launch planning assumes one main Branch, four Employees, one POS Device, two to three rotating shifts per Operating Day, a peak of 40–60 Orders/hour, approximately 80% dine-in/20% takeaway, and approximately 70% bank transfer/30% cash. These are planning assumptions, not capacity guarantees, concurrency limits, service objectives, or fixed schema limits (`ODB-PLN-03`–`ODB-PLN-09`).
@@ -490,16 +490,15 @@ Expenses have category, Branch/organization scope, amount, date, purpose, recipi
 
 ## 11. Customers, loyalty, and promotions
 
-- `WORKSHOP_AGREED` Guest checkout is supported without a Customer profile.
-- `WORKSHOP_AGREED`, `LEGAL_VALIDATION` A Customer profile may be identified by phone only with recorded consent and appropriate privacy handling.
-- `WORKSHOP_AGREED` Customer identity and loyalty balance are shared across Branches; purchase-history visibility is limited to authorized Branch scope.
-- `WORKSHOP_AGREED` Loyalty uses an immutable point ledger. Points accrue only after successful Payment.
-- `WORKSHOP_AGREED` Cancellation/refund creates reversal entries; it never edits earned entries.
-- `WORKSHOP_AGREED` The portion paid using points earns no new points.
-- `WORKSHOP_AGREED` The Owner configures accrual, redemption, and expiration rules with effective dates so policy changes do not rewrite history.
-- `WORKSHOP_AGREED` A Branch Manager requests a manual point adjustment and the Owner approves it.
-- `WORKSHOP_AGREED` Promotions define type, eligibility, valid period, usage limits, benefit, stacking policy, and approval. Applied promotions are snapshotted on the Order.
-- `OPEN_DECISION` Exact loyalty rates, expiration behavior, promotion types, stacking priority, and cancellation/refund allocation remain unresolved.
+- `OWNER_CONFIRMED` Production MVP includes Customer Profile, phone-based lookup, duplicate prevention through a unique phone constraint, Purchase History, privacy, and anonymization (`MVP-CUST-SCOPE`; provisional reference pending canonical ID governance).
+- `OWNER_CONFIRMED` Customer Profile is shared across Branches, while each transaction retains its originating Branch. The Owner has permitted system-wide Customer visibility; Manager visibility is restricted to managed Branches; Staff visibility requires an explicit approved capability.
+- `OWNER_CONFIRMED`, `LEGAL_VALIDATION` Phone changes require Customer verification and Manager or Owner confirmation, and the replacement phone must pass the uniqueness check. Automatic Profile merging is prohibited. Anonymization preserves legally/operationally required transaction history but leaves the Profile nonidentifying and ineligible for Customer-specific benefits.
+- `OWNER_CONFIRMED` Basic Loyalty is required in Production MVP with a persistent points ledger; accrual, redemption, and adjustment history; Customer and relevant transaction linkage; authorized manual adjustment; auditability; reconciliation and reversal evidence; and shared-across-Branches Customer/Loyalty scope (`MVP-LOY-SCOPE`; provisional reference pending canonical ID governance).
+- `OWNER_CONFIRMED` Advanced Promotions & Discount Engine is required in Production MVP (`MVP-PROMO-SCOPE`; provisional reference pending canonical ID governance). This scope confirmation does not approve individual rule types, formulas, eligibility, stacking, priority, Voucher, limit, allocation, authority, or UI policy.
+- `PROPOSED_CAPABILITY` Later design assessment covers percentage/fixed discounts; Product/Variant/Category/Order scope; conditional/time-based rules; Voucher/Coupon; stacking/exclusion/priority; eligibility/usage limits; administration/lifecycle; authoritative evaluation; confirmed-Order snapshots; administration audit; and basic Promotion reporting.
+- `WORKSHOP_AGREED` Existing logical design proposes that points accrue after successful Payment, cancellation/refund creates linked reversal entries rather than editing earned entries, point-paid value earns no new points, and applied Promotions are snapshotted on the Order. These details are not upgraded to `OWNER_CONFIRMED` by the Production MVP scope decision.
+- `UNDECIDED` Guest/anonymous Order permission; phone normalization/country and uniqueness scope; shared/family phones; verification mechanism; export; anonymization fields/trigger/retention; Loyalty formulas, expiry, negative balance, refund allocation, cross-Branch redemption, and manual-adjustment authority; Promotion ownership/applicability, rule semantics, stacking, priority, eligibility, Voucher behavior, usage limits, time boundaries, allocation, tax/service-charge/rounding interaction, refund/cancellation treatment, and administration/approval authority require future Owner decisions.
+- `NOT_AUTHORIZED` No Customer, Loyalty, Promotion, Pricing, Order, P1/P2/P3, Package C, Identity Milestone 2B, database, API, or production implementation is authorized by these scope decisions. Final Operational Acceptance and Production Authorization remain `NOT_GRANTED`.
 
 ## 12. Other operational domains
 

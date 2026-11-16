@@ -206,10 +206,10 @@ Keys/indexes: index `(product_variant_id, branch_id, effective_from)`; non-overl
 
 ## 6. Customers, loyalty, and promotions
 
-### `customers` — Organization-shared profile (`WORKSHOP_AGREED`, privacy `LEGAL_VALIDATION`)
+### `customers` — Organization-shared profile (scope `OWNER_CONFIRMED`; physical design `TECHNICAL_PROPOSAL`; privacy `LEGAL_VALIDATION`)
 
 Fields: `organization_id uuid R FK`; `display_name varchar(200) O`; `phone_normalized varchar(50) O`; `phone_lookup_hash varchar(128) O`; `status varchar(40) R default 'active'`; `merged_into_customer_id uuid O FK`; `archived_at timestamptz O`; mutable common.  
-Keys/indexes: partial UQ `(organization_id, phone_lookup_hash)` after merge policy approval; index status. Guest Orders have null customer.
+Keys/indexes: partial UQ `(organization_id, phone_lookup_hash)` after uniqueness design approval; index status. Anonymous-Order permission remains `UNDECIDED`; if later approved, its physical representation requires separate design.
 
 ### `customer_consents`
 
