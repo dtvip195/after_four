@@ -30,7 +30,7 @@ For current operations, the Owner deliberately defers the Organization-wide vers
 
 1. retain the initial operating assumption of one Organization and one Brand;
 2. do not introduce complex multi-Brand Customer UI/UX now;
-3. do not interpret that initial assumption as approval of either Organization-wide or Brand-scoped Customer identity semantics;
+3. do not interpret that initial assumption as approval of either Organization-wide or Brand-scoped Customer identity semantics; `SDP-CUST-04` separately establishes an Organization-wide phone admission-control namespace without deciding broader Customer identity semantics;
 4. do not implicitly authorize cross-Brand Customer discovery, visibility, Loyalty sharing, Promotion applicability, or benefits; and
 5. keep unresolved multi-Brand business semantics explicitly unresolved.
 
@@ -54,7 +54,8 @@ The direction requires future design work to:
 This decision does not modify or reinterpret:
 
 - [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md) — existing Loyalty balance and ledger remain preserved, redemption remains frozen after anonymization becomes effective, no new Customer-specific Loyalty benefits are issued, and exceptional treatment requires separately approved policy and appropriate authority; or
-- [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md) — pseudonymous references do not restore redemption eligibility, and downstream domains receive no automatic access to original identity or identity mapping.
+- [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md) — pseudonymous references do not restore redemption eligibility, and downstream domains receive no automatic access to original identity or identity mapping; or
+- [`SDP-CUST-03` through `SDP-CUST-14` and `SDP-CUST-A2`](after_four_customer_management_owner_decisions.md), including `SDP-CUST-04` Option A — one Organization-wide phone admission-control namespace that grants no cross-Brand visibility, participation, or authority.
 
 No cross-Brand Loyalty or Promotion sharing is inferred.
 
@@ -75,7 +76,7 @@ The following remain unresolved:
 - Brand participation and consent;
 - cross-Brand discovery, visibility, and authorization;
 - cross-Brand Loyalty and Promotion applicability or benefits;
-- phone uniqueness scope and normalization; and
+- broader Customer identity semantics beyond the Organization-wide phone admission-control invariant established by `SDP-CUST-04`; and
 - pseudonymous-reference scope and mapping governance.
 
 ## 6. Open technical decisions
@@ -114,6 +115,7 @@ The scenario-based decision register that introduced local reference `SDP-SCOPE-
 - [ERD §7](after_four_erd.md#7-customer-and-loyalty-erd)
 - [SDP-CUST-01 Owner Decision](after_four_sdp_cust_01_owner_decision.md)
 - [SDP-CUST-02 Owner Decision](after_four_sdp_cust_02_owner_decision.md)
+- [Customer Management Owner Decisions](after_four_customer_management_owner_decisions.md)
 
 **Final Operational Acceptance:** `NOT_GRANTED`
 

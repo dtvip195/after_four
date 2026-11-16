@@ -69,7 +69,7 @@ The requested entity list is expanded only where a canonical invariant needs an 
 | Brand-owned | `brands`, categories, products, variants, modifiers, recipes, promotions, brand configuration | Order catalog sources derive Brand, but Order retains Branch directly |
 | Branch-owned | Branch assignments, shifts, attendance, orders, preparation, delivery, cash, expenses, reservations, tables, assets, checklists/runs, feedback, devices/printers | Order Items derive Branch from Order; Cash Transactions from Cash Session |
 | Warehouse-owned | Inventory positions/lots, stock movements, stocktake, transfer endpoints, goods receipts | Warehouse has exactly one Organization and may have one Branch |
-| Shared chain-wide | Customer identity, loyalty account/ledger, Supplier identity, central configuration | Access to shared data is still filtered by authorized Branch and purpose |
+| Organization-/policy-shared | Customer phone admission namespace, scoped Customer Profile, loyalty account/ledger, Supplier identity, central configuration | Organization-wide phone admission grants no Organization-wide Profile visibility; access remains filtered by authorized Brand/Branch, capability, and purpose |
 
 ### 3.2 Direct scope-reference policy
 
@@ -207,9 +207,10 @@ erDiagram
 
 ### Key relationship decisions
 
-- `OWNER_CONFIRMED` Customer Profile and Loyalty are shared across Branches; Orders retain their originating Branch and purchase-history visibility remains role/Branch scoped (`MVP-CUST-SCOPE`, `MVP-LOY-SCOPE`; provisional references pending explicit canonical ID allocation and crosswalk).
-- `OWNER_CONFIRMED` [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md) deliberately defers Organization-wide versus Brand-scoped Customer identity semantics. The Organization-to-Customer relationship shown above remains a logical `TECHNICAL_PROPOSAL`; the separate direction to preserve evolution toward Organization-wide canonical identity with Brand-specific participation approves no Option C policy, schema, relationship, context topology, cross-Brand access, Loyalty sharing, Promotion applicability, or implementation.
-- `LEGAL_VALIDATION` Phone lookup requires consent and privacy/retention controls. Normalized phone uniqueness scope requires validation.
+- `OWNER_CONFIRMED` Customer Profile may be shared across Branches within authorized Brand/Branch scope; Orders retain their originating Branch and purchase-history visibility remains Branch-scoped. Basic Profile visibility grants no additional capability or cross-Brand access (`MVP-CUST-SCOPE`, [`SDP-CUST-06`](after_four_customer_management_owner_decisions.md#sdp-cust-06)).
+- `OWNER_CONFIRMED` [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md) deliberately defers broader Organization-wide versus Brand-scoped Customer identity semantics. [`SDP-CUST-04`](after_four_customer_management_owner_decisions.md#sdp-cust-04) resolves only the phone admission-control namespace as Organization-wide. The Organization-to-Customer relationship shown above remains a logical `TECHNICAL_PROPOSAL`; neither decision approves an Option C policy, schema, relationship, context topology, cross-Brand access, Loyalty sharing, Promotion applicability, or implementation.
+- `OWNER_CONFIRMED`, `PHYSICAL_DESIGN_PENDING` A new Profile requires a valid phone, and one canonical phone may have at most one current Profile association or unreleased former-phone restriction per Organization. The ERD intentionally adds no phone-claim, former-phone, or Restricted Identity Evidence entity: their representation remains pending technical design. Former-phone restriction is distinct from optional, purpose-dependent Restricted Identity Evidence, and controlled anonymization does not itself release the former phone.
+- `LEGAL_VALIDATION` Customer-data use requires a defined purpose; purchase does not imply marketing consent. Exact lawful basis, consent evidence, retention periods, legal holds, and disposal rules remain unapproved.
 - `WORKSHOP_AGREED` Loyalty Transactions are append-only signed point entries; the account balance is derived or safely cached.
 - `WORKSHOP_AGREED` Promotion Usage snapshots the applied rule/benefit so later Promotion changes do not change an Order.
 - `OPEN_DECISION` Promotion stacking, usage limits, and loyalty/refund allocation require accepted policy before constraints can be finalized.
@@ -434,7 +435,7 @@ The logical model covers all canonical entities, including items omitted from th
 | Operating Day boundary is open | Daily float, Expense accumulation, and reports can disagree at cutoff. | Confirm timezone/cutoff without changing approved amounts. |
 | Transfer cost snapshot timing needs validation | Central and Branch valuation can disagree. | Accounting review plus one stable snapshot rule. |
 | Generic approval/audit targets lack hard FKs | Orphaned evidence is possible if domain deletion were allowed. | Prohibit transaction deletion; application validation; retention tests. |
-| Customer phone uniqueness/consent rules need validation | Duplicate identity or privacy breach. | Legal/privacy validation and merge policy. |
+| Customer phone enforcement and privacy mechanisms are not designed | The Owner-confirmed Organization-wide admission invariant, manual conflict resolution, non-disclosure, purpose limitation, and controlled anonymization could be implemented incorrectly. | Preserve [`SDP-CUST-03` through `SDP-CUST-14` and `SDP-CUST-A2`](after_four_customer_management_owner_decisions.md); obtain legal/privacy review and separately approve physical design without automatic merge. |
 | Configuration JSON can hide unstable schema | Critical policy could bypass typed constraints. | Keep core business facts in typed tables; allow configuration only for approved policy values. |
 | Downstream loyalty/printing/dispatch can fail | Committed money could lack downstream effects. | Durable outbox, idempotent consumers, operator recovery views. |
 
