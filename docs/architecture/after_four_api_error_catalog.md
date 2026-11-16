@@ -109,8 +109,8 @@ Unknown internal errors use `internal_error` with a generic message and request 
 | 422 | `modifier_selection_invalid` | No | Lựa chọn tùy chọn sản phẩm chưa hợp lệ. | Min/max/allowed modifier field errors. |
 | 422 | `promotion_not_eligible` | No | Đơn hàng không đủ điều kiện áp dụng ưu đãi. | Safe failed rule code, not internal expression. |
 | 409 | `promotion_policy_unresolved` | No | Chính sách kết hợp ưu đãi chưa được xác nhận. | Blocks ambiguous stacking. |
-| 422 | `customer_consent_required` | No | Cần sự đồng ý của khách hàng trước khi lưu thông tin. | Consent type/policy version. |
-| 409 | `customer_merge_required` | No | Hồ sơ khách hàng cần được đối chiếu. | No other customer's private details. |
+| 422 | `customer_consent_required` | No | Cần sự đồng ý của khách hàng trước khi lưu thông tin. | `SUPERSEDED_PROPOSAL`: purchase does not imply marketing consent, and consent is purpose-specific where required. This code is not approved for implementation; replacement error semantics await Customer API and legal/privacy design. |
+| 409 | `customer_merge_required` | No | Hồ sơ khách hàng cần được đối chiếu. | `SUPERSEDED_PROPOSAL`: automatic Profile merge is prohibited. This code is not approved for implementation; a non-disclosing manual conflict/dispute contract and replacement code await technical design. |
 
 ## 6. Order and preparation
 

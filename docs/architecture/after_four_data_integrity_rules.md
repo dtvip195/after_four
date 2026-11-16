@@ -55,6 +55,7 @@ Database cascades are limited to unconfirmed, purely dependent configuration row
 | Cash session number | UQ `(branch_id, session_number)` | Drawer scope additionally controls open session. |
 | Payroll | UQ `(payroll_period_id, employee_id)` | One frozen calculation per Employee/Period. |
 | Loyalty account | UQ `customer_id` | Organization-shared Customer. |
+| Customer phone admission | Organization-wide uniqueness across one current Profile association or one unreleased former-phone restriction | `OWNER_CONFIRMED` conceptual invariant under `SDP-CUST-04`; grants no cross-Brand visibility or authority. The physical constraint, index, lock, verifier, and transaction design are not approved. |
 | Idempotency | UQ `(organization_id, scope, key)` plus request fingerprint | Same key/different payload is conflict. |
 
 `TECHNICAL_PROPOSAL` Prefer named constraints with stable error mapping. `OWNER_CONFIRMED` Category/Product/Variant canonical Codes use separate entity-type namespaces within each Brand and remain reserved after Archive/future Soft Delete (`ODB-CAT-18`, `ODB-CAT-22`, `ODB-CAT-27`, `ODB-CAT-36`). SKU support is deferred from MVP (`ODB-CAT-34`); exact Code constraint names/storage and ancestry mechanics remain proposed.
@@ -413,7 +414,7 @@ For the implemented Phase 1 `audit_events` table, Rails callbacks reject ordinar
 | Transfer valuation timing | Central/Branch cost agreement | Accounting validation and stable snapshot event |
 | Remaining approval thresholds/self-approval | Generic approval cardinality and authorization | Preserve confirmed Expense limits/no-self-approval; approve only other policy areas |
 | Operating Day/reporting cutoff | Daily float, Expense accumulation, and report totals may disagree | Approve timezone/cutoff and formula versions |
-| Phone identity/merge/consent | Customer uniqueness and privacy | Legal/privacy validation and merge workflow |
+| Customer phone conflict, purpose, and privacy | Organization-wide admission control must not disclose cross-Brand data; automatic merge/value transfer is prohibited; purchase is not marketing consent | Apply the manual investigation/hold/Owner-approval boundaries in `SDP-CUST-05`, `SDP-CUST-08`, and `SDP-CUST-13`; obtain legal/privacy review and separately approve technical enforcement |
 | Payroll/leave/overtime details | Calculation and closed-period correction | Owner decision plus legal validation |
 | Tax invoice/provider | Required entities, numbering, retention, correction | Legal/provider validation |
 | Offline commands | Idempotency lifetime, ordering, device security | Approve beyond safe online-authoritative default |
