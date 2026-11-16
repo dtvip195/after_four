@@ -2,7 +2,7 @@
 
 **Document status:** `TECHNICAL_PROPOSAL`
 
-**Readiness:** `GATE_A_DESIGN_BASELINE_APPROVED`
+**Readiness:** `GATE_C_CONTROL_ACCEPTANCE_APPROVED`
 
 **Implementation authorization:** `GRANTED — I1 BOUNDED SCOPE ONLY`
 
@@ -10,7 +10,9 @@
 
 **Gate B approval:** `APPROVED`
 
-**Gate C Control Acceptance:** `NOT GRANTED`
+**Gate C Control Acceptance:** `APPROVED` under `AF-OWNER-002`
+
+**Independent verification:** `NOT_PERFORMED`
 
 **Final Operational Acceptance:** `NOT GRANTED`
 
@@ -48,7 +50,7 @@ ADR-0006 remains `Proposed`; Identity Security Review Checklist statuses remain 
 | Approved design baseline | `docs/architecture/after_four_i1_organization_scope_contract_design.md` at `5ca7796fa3ea272fd71dd66891f89f69257db029` |
 | Authorized implementation scope | Exact manifest of 17 production files and 4 spec files below; no existing production file modification. |
 | Implementation checkpoint | `dd5b3804a1db55fbc05b3f5f33142462ad29de5e` (`feat: implement I1 organization scope contract`) |
-| Gate C Control Acceptance | `NOT GRANTED` |
+| Gate C Control Acceptance at the Gate B decision date | `NOT GRANTED`; subsequently `APPROVED` under `AF-OWNER-002` on 2026-11-16. |
 | Final Operational Acceptance | `NOT GRANTED` |
 | Production authorization | `NOT GRANTED` |
 
@@ -83,9 +85,27 @@ Gate B authorized only Brand ID → authoritative Brand lookup → Organization 
 
 Gate B did not authorize Composition Root wiring, a runtime consumer, authentication, login, registration, credentials, Session, `AuthorizationContext`, ownership, roles, capabilities, delegation, MFA, Catalog lifecycle, AuditEvent, runtime database security, schema or data changes, development or production database mutation, deployment, release, production configuration, or expansion of the exception allowlist or diagnostic responsibilities. It grants no additional authorization to Identity Milestone 2B, I2, P1, P2, P3, Package C, C1, C2, or C3.
 
-Gate A accepted only the semantic design baseline and did not itself authorize implementation. Gate B was a separate, explicit, bounded authorization. Commit `dd5b3804a1db55fbc05b3f5f33142462ad29de5e` records the completed bounded implementation checkpoint; it does not constitute Gate C acceptance, Final Operational Acceptance, production readiness, or production authorization. Gate C requires separately executed control evidence and explicit Owner acceptance. Final Operational Acceptance remains a separate decision.
+Gate A accepted only the semantic design baseline and did not itself authorize implementation. Gate B was a separate, explicit, bounded authorization. Commit `dd5b3804a1db55fbc05b3f5f33142462ad29de5e` records the completed bounded implementation checkpoint; the checkpoint alone did not constitute Gate C acceptance, Final Operational Acceptance, production readiness, or production authorization. Gate C was subsequently approved under `AF-OWNER-002` after the separately recorded evidence capture and explicit Owner decision. Final Operational Acceptance remains a separate, ungranted decision.
 
-Forward-looking Gate B wording retained later in this document records the reviewed Gate A baseline as it existed before the separate Gate B decision. This Gate B decision record is authoritative for current I1 authorization status and supersedes that wording only as to whether the bounded implementation was authorized; it does not rewrite the approved semantic design or accept any control.
+Forward-looking Gate B wording retained later in this document records the reviewed Gate A baseline as it existed before the separate Gate B decision. This Gate B decision record is authoritative for the bounded implementation authorization, while the Gate C record below is authoritative for current I1 Control Acceptance. Neither record rewrites the approved semantic design or grants broader implementation or production authority.
+
+## Gate C Owner decision record
+
+| Field | Recorded decision |
+|---|---|
+| Assessment | `AF-OWNER-002` |
+| Decision | `APPROVE` |
+| Gate | I1 Gate C — Control Acceptance |
+| Decision date | 2026-11-16 |
+| Review type | Owner-led, non-independent |
+| Independent verification | `NOT_PERFORMED` |
+| Evidence | [AF-OWNER-002 I1 Organization Scope Gate C Evidence](security-reviews/owner-led/af-owner-002-i1-organization-scope-gate-c-evidence.md) |
+| Owner decision | [AF-OWNER-002 I1 Organization Scope Gate C Owner Decision](security-reviews/owner-led/af-owner-002-i1-organization-scope-gate-c-decision.md) |
+| Conditions | None |
+
+The Owner approved only the bounded I1 controls implemented at checkpoint `dd5b3804a1db55fbc05b3f5f33142462ad29de5e` and evaluated at the repository baseline recorded in the evidence and decision records. The approval does not expand the implementation manifest, add a runtime consumer, establish independent verification, or authorize production use.
+
+Final Operational Acceptance and Production Authorization remain `NOT GRANTED`. ADR-0006 remains `Proposed`; Identity Security Review Checklist statuses remain unchanged; C0-R05, C0-R08, and C0-R11 remain `DEFERRED`; and Identity Milestone 2B, I2, P1, P2, P3, Package C, C1, C2, C3, and all other previously unauthorized work remain unauthorized. No broader system-wide security, operational, legal, or production-readiness conclusion follows from this bounded Gate C approval.
 
 ## 1. Context, purpose, and decision discipline
 
@@ -602,7 +622,7 @@ Tests must not disable constraints or mutate production data merely to manufactu
 
 ### 11.5 Contract acceptance criteria
 
-I1 implementation evidence would be acceptable for later Control Acceptance only when:
+The Gate A design baseline originally defined the following evidence expectations for a later Control Acceptance. `AF-OWNER-002` subsequently evaluated the bounded evidence recorded in the linked evidence record and approved Gate C with the explicit limitations recorded in the Owner decision; this historical checklist does not imply that Gate C remains pending or broaden that approval:
 
 - every outcome above is deterministic and tested;
 - real PostgreSQL proves the existing Brand→Organization relationship is used;
@@ -612,14 +632,16 @@ I1 implementation evidence would be acceptable for later Control Acceptance only
 - database failures remain distinguishable from absence without leaking details;
 - recognized persistence availability failures obtain one safe correlation reference and every downstream mapping preserves it unchanged;
 - completed invalid adapter results produce `inconsistent`, while adapter execution defects produce sanitized exceptional termination with no normal result, partial ancestry, protected diagnostic detail, or fabricated availability failure;
-- Gate B remains blocked until the concrete sanitized termination/containment mechanism and any diagnostic boundary are explicitly approved;
+- Gate B had to remain blocked until the concrete sanitized termination/containment mechanism and any diagnostic boundary were explicitly approved within its bounded scope;
 - both internal inconsistency classifications produce the same fail-closed public `inconsistent` outcome without partial ancestry;
 - multiple Organization/Brand fixtures prove there is no single-tenant fallback;
 - architecture tests prove port ownership and dependency direction;
 - full relevant RSpec, lint, security, and eager-load checks actually pass under the later authorized milestone;
 - evidence records the commit, environment, command, result, reviewer, findings, and residual limitations.
 
-Planned tests and this design are not executed evidence.
+This checklist, the planned-test descriptions, and the design text are not themselves executed evidence; only the retained results in the linked evidence record establish what was executed.
+
+The authoritative `AF-OWNER-002` decision records that focused I1 and selected A1 specs, Zeitwerk, scoped RuboCop, database safeguards, and final Git checks passed within the approved evidence scope. It also records that full RSpec, Brakeman, and `bin/ci` were not run and that independent verification was not performed. Gate C approval therefore must not be represented as broader evidence than the linked records establish.
 
 ## 12. Explicit exclusions
 
@@ -780,7 +802,7 @@ Any demonstrated need to touch an excluded file stops the bounded slice and requ
 - [Foundation Decisions §5](after_four_foundation_decisions.md#5-milestone-2--identity-branch-scope-and-authorization) defines four separate gates. The Gate A decision record above approves this exact semantic design baseline; the Gate B decision record separately authorizes only its exact bounded manifest.
 - Recorded Gate A approval does not itself change ADR/checklist status, prove a control, accept residual risk, or authorize implementation or production.
 - Gate B was separately approved by the Owner with exact files, tests, environment, constraints, exclusions, and prohibited actions. Its implementation checkpoint is `dd5b3804a1db55fbc05b3f5f33142462ad29de5e`.
-- Gate C requires separately executed control evidence and explicit Owner acceptance; the implementation checkpoint does not grant it.
+- Gate C was approved under `AF-OWNER-002` on 2026-11-16 based on the separately recorded [evidence](security-reviews/owner-led/af-owner-002-i1-organization-scope-gate-c-evidence.md) and [Owner decision](security-reviews/owner-led/af-owner-002-i1-organization-scope-gate-c-decision.md); the implementation checkpoint alone did not grant it.
 - Final Operational Acceptance remains separate and is not implied.
 - No implementation beyond the exact bounded I1 Gate B manifest is authorized. I2, P1, P2, P3, C1, C2, C3, Package C, Identity Milestone 2B, public API, and production implementation remain unauthorized.
 
@@ -809,4 +831,4 @@ The Owner approved this Gate A review checklist without amendments on 2026-11-15
 - [x] test responsibilities and evidence ownership are sufficient for a later Gate B request;
 - [x] ADR-0006, checklist, P1-OD, C0 deferred, CAT-TRR, and implementation-authorization statuses remain unchanged.
 
-Gate A and the separate bounded Gate B are recorded as `APPROVED`. Gate C Control Acceptance, Final Operational Acceptance, and production authorization remain `NOT GRANTED`.
+Gate A, the separate bounded Gate B, and Gate C Control Acceptance under `AF-OWNER-002` are recorded as `APPROVED`. Independent verification remains `NOT_PERFORMED`; Final Operational Acceptance and production authorization remain `NOT GRANTED`.
