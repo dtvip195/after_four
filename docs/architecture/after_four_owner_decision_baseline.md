@@ -310,6 +310,16 @@ These decisions confirm Production MVP business scope only. They approve no arch
 | `MVP-LOY-SCOPE` | `MUST` | Basic Loyalty is required in Production MVP. It includes a persistent points ledger; accrual, redemption, and adjustment history; Customer and relevant transaction linkage; authorized manual adjustment; auditability; reconciliation and reversal evidence; and the shared-across-Branches Customer/Loyalty direction. | `OWNER_CONFIRMED` | `NOT_AUTHORIZED`; no Loyalty schema, calculation, workflow, or production use is approved. | Earning/redemption formulas, minimums, expiration, tiers, birthday benefits, negative-balance behavior, refund allocation, cross-Branch redemption details, and manual-adjustment requester/approver policy remain `UNDECIDED`. |
 | `MVP-PROMO-SCOPE` | `MUST` | Advanced Promotions & Discount Engine is required in Production MVP. The capability may not be downgraded to `SHOULD`, deferred in its entirety, or classified `OUT_OF_SCOPE`. | `OWNER_CONFIRMED` | `NOT_AUTHORIZED`; no Promotion architecture, rule engine, schema, workflow, or production use is approved. | The candidate areas below are `PROPOSED_CAPABILITY`, not individually approved Promotion policies. Ownership/applicability scope, formulas, eligibility, stacking/exclusion, priority, Voucher issuance/reuse, usage limits, effective-period timezone, allocation, tax/service-charge/rounding interaction, refund/cancellation treatment, administration authority, approval, and audit detail remain `UNDECIDED`. |
 
+### Customer anonymization and existing Loyalty balance
+
+| Local review reference | Decision date | Authority | Decision status | Selected option | Canonical ODB ID | Implementation |
+|---|---|---|---|---|---|---|
+| [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md) | 2026-11-16 | Owner | `OWNER_DECIDED` (`OWNER_CONFIRMED` business policy) | `A — Preserve & Freeze` | `ID_PENDING_OWNER_GOVERNANCE` | `NOT_AUTHORIZED` |
+
+`SDP-CUST-01` requires preserving the existing Loyalty balance, ledger, and necessary transaction/audit history when Customer anonymization becomes effective, while freezing redemption and issuing no new Customer-specific Loyalty benefits. The balance is not automatically deleted, transferred, extinguished, reassigned, or made redeemable again through a later phone number or Customer Profile. Exceptional adjustment or other treatment requires separately approved policy and appropriate authority.
+
+The decision preserves Customer Management ownership of Customer Profile and anonymization state; Loyalty ownership of Loyalty Account, balance, ledger, and redemption eligibility; Ordering ownership of Order and historical commercial records; and Promotions ownership of Promotion eligibility and usage policy. It selects no integration mechanism or context topology, allocates no canonical `ODB-*` ID, grants no implementation or legal/privacy approval, and resolves no other `SDP-*` decision.
+
 ### Proposed Promotion capability areas
 
 The following areas are required inputs to later design assessment because the confirmed MVP scope calls for an advanced engine. Their listing does not approve a rule vocabulary, calculation, default, workflow, or implementation:
