@@ -208,6 +208,7 @@ erDiagram
 ### Key relationship decisions
 
 - `OWNER_CONFIRMED` Customer Profile and Loyalty are shared across Branches; Orders retain their originating Branch and purchase-history visibility remains role/Branch scoped (`MVP-CUST-SCOPE`, `MVP-LOY-SCOPE`; provisional references pending explicit canonical ID allocation and crosswalk).
+- `OWNER_CONFIRMED` [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md) deliberately defers Organization-wide versus Brand-scoped Customer identity semantics. The Organization-to-Customer relationship shown above remains a logical `TECHNICAL_PROPOSAL`; the separate direction to preserve evolution toward Organization-wide canonical identity with Brand-specific participation approves no Option C policy, schema, relationship, context topology, cross-Brand access, Loyalty sharing, Promotion applicability, or implementation.
 - `LEGAL_VALIDATION` Phone lookup requires consent and privacy/retention controls. Normalized phone uniqueness scope requires validation.
 - `WORKSHOP_AGREED` Loyalty Transactions are append-only signed point entries; the account balance is derived or safely cached.
 - `WORKSHOP_AGREED` Promotion Usage snapshots the applied rule/benefit so later Promotion changes do not change an Order.

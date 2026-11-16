@@ -211,6 +211,8 @@ Keys/indexes: index `(product_variant_id, branch_id, effective_from)`; non-overl
 Fields: `organization_id uuid R FK`; `display_name varchar(200) O`; `phone_normalized varchar(50) O`; `phone_lookup_hash varchar(128) O`; `status varchar(40) R default 'active'`; `merged_into_customer_id uuid O FK`; `archived_at timestamptz O`; mutable common.  
 Keys/indexes: partial UQ `(organization_id, phone_lookup_hash)` after uniqueness design approval; index status. Anonymous-Order permission remains `UNDECIDED`; if later approved, its physical representation requires separate design.
 
+`OWNER_CONFIRMED` [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md) deliberately defers Organization-wide versus Brand-scoped Customer identity policy. The illustrative `organization_id` and Organization-scoped uniqueness shape above remain `TECHNICAL_PROPOSAL`, not approved business semantics or schema authorization. Future design must preserve evolution toward Organization-wide canonical identity with Brand-specific participation without irreversibly binding identity to one Brand, but no concrete relationship, identifier, mapping, API, topology, or implementation is approved.
+
 ### `customer_consents`
 
 Fields: `customer_id uuid R FK`; `consent_type varchar(50) R`; `status varchar(40) R`; `policy_version varchar(50) R`; `captured_at timestamptz R`; `withdrawn_at timestamptz O`; `capture_source varchar(50) R`; `evidence_reference text O`; immutable events.  
