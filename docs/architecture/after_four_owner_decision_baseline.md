@@ -65,14 +65,14 @@ This is a governance classification rule, not a runtime authorization, DDD topol
 
 Canonical IDs use `ODB-<CATEGORY>-<SUFFIX>`. The suffix is a positive decimal integer rendered with a minimum width of two digits: `01` through `99`, followed by `100`, `101`, and so forth. Allocation and comparison are numeric, not lexical. The convention applies consistently across ODB categories, and every existing canonical ID retains its current spelling.
 
-The Owner retains authority to approve category tokens and each canonical ODB ID allocation. A proposal, draft, cross-reference, or documentation edit does not create or reserve a canonical ID. Allocation requires this controlled procedure:
+The Owner retains authority to approve category tokens and each canonical ODB ID allocation. Proposing or collision-checking an ID, adding a draft or cross-reference, or editing documentation does not make the ID canonical and does not allocate or reserve it. Allocation requires this controlled procedure:
 
-1. Obtain an explicit Owner decision approving the allocation.
+1. Identify the decision requiring a canonical ID.
 2. Confirm that the target category is present in the canonical category registry.
-3. Search the complete repository for the proposed full ID and possible collisions.
-4. Select the numeric suffix within the approved category according to the approved minimum-width convention.
-5. Verify that the proposed full ID has never previously been allocated or published in that category, including in historical governance records.
-6. Record the decision, scope, status, Owner approval provenance, and allocation date in this baseline.
+3. Propose the exact full canonical ID, including its numeric suffix under the approved minimum-width convention.
+4. Search the complete repository for full-ID collisions and inspect historical governance records to verify that the proposed ID has never previously been allocated or published in that category.
+5. Obtain explicit Owner approval of that exact proposed full ID and its allocation to the identified decision.
+6. Only after approval, record the canonical decision, its scope and status, Owner approval provenance, allocation date, and required crosswalk information in this baseline.
 7. Review every affected canonical and historical reference before completing the documentation change.
 
 No automated allocator, reservation, or implicit next-ID rule is established by this procedure.
