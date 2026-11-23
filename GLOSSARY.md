@@ -76,6 +76,54 @@ _Avoid_: Soft Delete, Archive, Deactivate
 
 **Signature Product**: A Product selected by the Owner to represent the AFTER FOUR menu and brand. The designation does not itself approve its Variants, Recipe, presentation, availability, or Price.
 
+**Customer**: The person or business party about whom AFTER FOUR may maintain purpose-limited Customer records. It is not a User, phone number, Customer Profile identifier, Loyalty Account, or Order.
+
+**Customer Profile**: The ordinary business-managed Customer record containing allowed basic information and an Active, Inactive, or Anonymized lifecycle state. It is not permanent identity proof and does not own Order, Loyalty, or Promotion history.
+
+**Customer Lifecycle**: The controlled Active, Inactive, and Anonymized meanings and transitions of a Customer Profile. A lifecycle state does not itself grant authority or silently change another domain's records.
+
+**Customer Phone Association**: The current relationship between one Customer Profile and one canonical phone within an Organization. Phone remains mutable contact/lookup data rather than identity or authority.
+
+**Canonical Vietnamese Mobile**: A valid Vietnamese domestic mobile represented in the approved canonical form for Customer admission. It is not a landline, foreign number, guessed repair, or proof of identity.
+
+**Organization-wide Phone Admission Control**: The rule permitting at most one current Customer Profile phone association or one unreleased former-phone restriction for a canonical phone within an Organization. It does not grant Organization-wide visibility or Customer identity linkage.
+
+**Former-phone Restriction**: The admission-control restriction keeping a former phone unavailable until documented authorized manual release. It is distinct from Restricted Identity Evidence and does not identify the former Customer.
+
+**Restricted Identity Evidence**: Optional, purpose-dependent identifying evidence retained under controlled access, audit, and retention after anonymization. It is not an ordinary Profile, lookup source, marketing source, or identity-restoration facility.
+
+**Controlled Anonymization**: An explicit verified and authorized operation whose effective outcome makes ordinary Customer Profile operations nonidentifying. It is not inactivity automation, universal downstream deletion, automatic phone release, or an ordinary restoration path.
+
+**Pseudonymous Customer Reference**: A non-PII downstream reference retained for an approved business purpose such as audit, reconciliation, or historical continuity. It is not automatically irreversible or permission to re-identify a Customer.
+
+**Loyalty Benefit**: Customer-specific Loyalty value or eligibility governed by the Loyalty ledger and policy. It is distinct from a Promotion benefit and does not become transferable because Customer identity or phone changes.
+
+**Promotion Benefit**: A Customer-specific or public Promotion outcome governed by Promotion policy. It is distinct from Loyalty value; anonymization freezes unredeemed Customer-specific benefits without changing general public Promotion rules.
+
+**Shared / Family Phone Usage**: Multiple people using one phone without creating shared Customer identity or permitting more than one current Customer Profile association for that canonical phone within an Organization.
+
+_Avoid_: shared Customer, family Profile
+
+**Anonymous / Unregistered Order**: An Order created and completed without a Customer Profile association. Transaction phone data does not by itself identify a Customer or attach historical Orders.
+
+_Avoid_: guest Customer
+
+**Operation-Specific Authority**: An explicit, scope-bound authorization precondition for one Customer operation; a generic role title, phone, or Customer identifier does not supply it.
+
+_Avoid_: role-based blanket permission
+
+**Customer Review Case**: A durable, purpose-limited record of a material Customer conflict, held disputed association, or authorized manual decision. Routine validation and duplicate rejection do not automatically create one.
+
+_Avoid_: audit log, unrestricted identity record
+
+**Re-identification**: Restoration or reconstruction of an anonymized Customer identity. Ordinary Customer operations prohibit it.
+
+_Avoid_: reactivation, new Profile association
+
+**Exceptional Identity-Evidence Access**: Separately authorized access or export of restricted identifying evidence for an approved exceptional purpose subject to legal/privacy assessment. It is not an ordinary Customer operation or automatic re-identification path.
+
+_Avoid_: Customer lookup, Profile restore
+
 **Order**:  
 The commercial record of requested products for one service interaction. It does not represent Payment, Preparation, printing, or delivery state.
 

@@ -2,7 +2,7 @@
 
 **Decision status:** `OWNER_DECIDED` / `OWNER_CONFIRMED`
 
-**Decision dates:** 2026-11-16 (`SDP-CUST-03` through `SDP-CUST-14`, including `SDP-CUST-12A`, `SDP-CUST-12B`, and `SDP-CUST-A2`); 2026-11-23 (`SDP-CUST-15` through `SDP-CUST-17`)
+**Decision dates:** 2026-11-16 (`SDP-CUST-03` through `SDP-CUST-14`, including `SDP-CUST-12A`, `SDP-CUST-12B`, and `SDP-CUST-A2`); 2026-11-23 (`SDP-CUST-15` through `SDP-CUST-22`)
 
 **Authority:** Owner
 
@@ -20,9 +20,9 @@
 
 ## 1. Purpose and provenance
 
-This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-17`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
+This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-22`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
 
-The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids seventeen near-duplicate files while retaining a stable section anchor for every decision.
+The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation and completed crosswalk. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids near-duplicate files while retaining a stable section anchor for every decision. Recording `SDP-CUST-18` through `SDP-CUST-22` does not allocate an `ODB-CUST-*` identifier.
 
 ## SDP-CUST-03
 
@@ -50,7 +50,7 @@ This policy does not approve unrestricted or “system-wide” PII visibility. T
 
 ## SDP-CUST-07
 
-**Mandatory phone at Profile creation.** Every new Customer Profile requires a valid phone under [`SDP-CUST-03`](#sdp-cust-03). Display name is optional. No Profile may be created without a valid phone. This does not require every visitor to register or every Order to have a Customer association; anonymous or unregistered Order behavior remains unresolved.
+**Mandatory phone at Profile creation.** Every new Customer Profile requires a valid phone under [`SDP-CUST-03`](#sdp-cust-03). Display name is optional. No Profile may be created without a valid phone. This does not require every visitor to register or every Order to have a Customer association; `SDP-CUST-19` permits anonymous or unregistered Orders without an inferred Customer association.
 
 ## SDP-CUST-08
 
@@ -130,6 +130,36 @@ Customer-specific Promotion benefits that were granted but not redeemed at the e
 
 Retained Promotion data remains subject to purpose limitation, access control, and retention/disposal requirements under [`SDP-CUST-14`](#sdp-cust-14) and [`SDP-CUST-A2`](#sdp-cust-a2). Any legally required or contractually exceptional treatment requires separate assessment and is not an automatic exception to this policy. This decision does not approve general Promotion eligibility, cross-Brand applicability, storage, transaction, concurrency, recovery, or other implementation mechanisms; its canonical `ODB-*` ID remains `ID_PENDING_OWNER_GOVERNANCE`, and implementation authorization remains `NOT_GRANTED`.
 
+## SDP-CUST-18
+
+**Shared and Family Phone Usage — Option A: Preserve one current Profile association.** Within one Organization, one canonical phone remains limited to one current Customer Profile association under [`SDP-CUST-04`](#sdp-cust-04). Shared use or possession of a phone does not establish shared Customer identity and does not permit multiple Customer Profiles to claim that phone.
+
+Phone sharing causes no automatic Profile merge or link and no Order/history, Loyalty, Promotion, benefit, value, or entitlement transfer. Phone possession is not identity proof. Any future assisted shared-phone process requires separate design and Owner approval. This decision selects no assisted workflow, verification mechanism, schema, API, or implementation; its canonical `ODB-*` ID remains pending explicit allocation and crosswalk, and implementation authorization remains `NOT_GRANTED`.
+
+## SDP-CUST-19
+
+**Anonymous and Unregistered Orders — Option A: Permit purchase without a Customer Profile.** An Order may be created and completed without a Customer Profile; Customer registration is not mandatory for purchasing. Customer association is optional and must be explicitly established through an authorized and validated flow.
+
+A phone appearing in payment, delivery, receipt, or another transaction context does not automatically identify or associate a Customer. Phone equality must not cause retroactive identity inference or automatic historical Order association. Ordering preserves the Order's own provenance. This decision selects no later-association workflow, API, matching mechanism, schema, or implementation; its canonical `ODB-*` ID remains pending explicit allocation and crosswalk, and implementation authorization remains `NOT_GRANTED`.
+
+## SDP-CUST-20
+
+**Customer Operation Authority and Verification Matrix — Option A: Operation-specific, scope-bound authority principle.** Customer authority is operation-specific, scope-bound, and least-privilege. A generic role name, phone, or Customer identifier does not imply every Customer capability or grant authority. Requester verification and operator authorization are separate checks. Sensitive operations require evidence appropriate to the action and risk, and authorization fails closed when missing, invalid, unavailable, out of scope, or ambiguous. Cross-Brand or cross-Branch access must not be inferred.
+
+The existing ordinary phone-change and dispute boundaries in [`SDP-CUST-12A`](#sdp-cust-12a) and [`SDP-CUST-13`](#sdp-cust-13) remain authoritative. No new role-to-operation assignment is approved. Customer Profile creation, ordinary Deactivate, Reactivate, anonymization approval, and ordinary undisputed former-phone release remain deferred authority prerequisites and are excluded from Candidate E's Gate A approval boundary unless another existing approved decision supplies a sufficiently clear authority policy. Authentication, Session, MFA, verification-evidence storage, cryptography, capability representation, P1 implementation, and runtime enforcement remain technical design concerns. The canonical `ODB-*` ID remains pending explicit allocation and crosswalk, and implementation authorization remains `NOT_GRANTED`.
+
+## SDP-CUST-21
+
+**Customer Conflict and Review Records — Option A: Durable case for material review.** A durable Customer Review Case is required when a conflict needs investigation, a disputed association is held, or an authorized manual decision is required. The case records its purpose, scope, status, responsible reviewer, decision, and necessary provenance. Evidence is limited to what the decision requires and remains subject to purpose limitation and retention under [`SDP-CUST-13`](#sdp-cust-13), [`SDP-CUST-14`](#sdp-cust-14), and [`SDP-CUST-A2`](#sdp-cust-a2) where applicable.
+
+Routine validation failures and ordinary duplicate rejections do not automatically create durable Customer dispute cases. A Review Case must not disclose another Customer's identity or another Brand's information and must not become an unrestricted identity lookup or re-identification mechanism. This decision selects no persistence model, schema, workflow engine, API, or technical implementation; its canonical `ODB-*` ID remains pending explicit allocation and crosswalk, and implementation authorization remains `NOT_GRANTED`.
+
+## SDP-CUST-22
+
+**Re-identification and Export Boundary — Option A: No ordinary restoration or reconstruction.** Ordinary Customer operations must not restore or reconstruct an anonymized identity. A new Profile or phone must not restore a prior Customer identity. Former-phone restrictions are admission controls, not identity mappings. Ordinary audit, support, reporting, and export must not provide a route to reconstruct anonymized Customer identity. This does not categorically prohibit every ordinary Customer identity export; any export remains subject to its independently approved purpose, authority, scope, privacy, and audit boundaries.
+
+Any exceptional access to identifying evidence, disclosure, export, or legally required treatment requires separate authorization and qualified legal/privacy assessment. This decision does not approve an exceptional-access workflow, legal basis, recipient, data set, storage mechanism, retention period, or compliance conclusion. Restricted Identity Evidence remains governed by [`SDP-CUST-A2`](#sdp-cust-a2) and [`SDP-CUST-14`](#sdp-cust-14), not ordinary Customer lookup. The canonical `ODB-*` ID remains pending explicit allocation and crosswalk, and implementation authorization remains `NOT_GRANTED`.
+
 ## 2. Cross-domain ownership boundaries
 
 - Customer Management owns Customer Profile and controlled Customer anonymization.
@@ -139,8 +169,10 @@ Retained Promotion data remains subject to purpose limitation, access control, a
 
 The Customer decisions do not authorize one domain to rewrite another domain's history. [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md) governs Loyalty preserve/freeze semantics, while [`SDP-CUST-17`](#sdp-cust-17) separately governs Promotion treatment after anonymization; neither policy may be generalized into the other.
 
+[`SDP-CUST-19`](#sdp-cust-19) preserves Ordering ownership: an anonymous Order remains an Order with its own provenance, and Customer does not infer identity or rewrite history from a phone match. [`SDP-CUST-21`](#sdp-cust-21) establishes the business need for a material Customer Review Case without choosing its physical owner or allowing it to replace domain-owned Order, Loyalty, Promotion, audit, or identity-evidence records.
+
 ## 3. Continuing unresolved matters
 
-Anonymous or unregistered Orders; shared/family phone experience; exact requester-verification evidence; the exact Customer capability matrix; future multi-Brand participation and UX; cross-Brand Loyalty and Promotion benefits; general Promotion eligibility and applicability; re-identification workflow; lawful basis and purpose-specific consent detail; exact retention periods, legal holds, and disposal requirements; Restricted Identity Evidence storage; phone verifier/cryptography; official allocation-source refresh/failure behavior; and schema, index, API, transaction, outbox, retry, reconciliation, and production-security designs remain unresolved or unapproved.
+Exact requester-verification evidence; operation-specific authority for Profile creation, ordinary Deactivate, Reactivate, anonymization approval, and ordinary undisputed former-phone release; any future assisted shared-phone process; optional later Customer association for anonymous Orders; future multi-Brand participation and UX; cross-Brand Loyalty and Promotion benefits; general Promotion eligibility and applicability; exceptional identity-evidence access/export workflow; lawful basis and purpose-specific consent detail; exact retention periods, legal holds, and disposal requirements; Restricted Identity Evidence storage; Customer Review Case persistence/workflow; phone verifier/cryptography; official allocation-source refresh/failure behavior; and schema, index, API, transaction, outbox, retry, reconciliation, and production-security designs remain unresolved or unapproved.
 
 These Owner-confirmed policies approve no technical design, schema, API, physical topology, implementation, Gate A/B/C, Control Acceptance, Final Operational Acceptance, Production Authorization, or production use.

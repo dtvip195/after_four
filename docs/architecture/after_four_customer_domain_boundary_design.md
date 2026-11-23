@@ -4,7 +4,7 @@
 
 **Document status:** `DOMAIN DESIGN PROPOSAL`
 
-**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-14`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
+**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-22`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
 
 **Technical design approval:** `NOT_GRANTED`
 
@@ -60,6 +60,7 @@ The existing logical label “Customers, Loyalty & Promotions” is not treated 
 - [SDP-CUST-01 Owner Decision](after_four_sdp_cust_01_owner_decision.md)
 - [SDP-CUST-02 Owner Decision](after_four_sdp_cust_02_owner_decision.md)
 - [SDP-SCOPE-01 Owner Decision](after_four_sdp_scope_01_owner_decision.md)
+- [WP-G0 Candidate E Scope Charter](after_four_wp_g0_candidate_e_scope_charter.md)
 - [Business Domain Model §11](after_four_business_domain_model.md#11-customers-loyalty-and-promotions)
 
 ### 3.2 Architecture and governance sources
@@ -78,6 +79,8 @@ The existing logical label “Customers, Loyalty & Promotions” is not treated 
 ### 3.3 Current-state facts and qualifications
 
 - `OWNER-APPROVED BUSINESS POLICY`: Customer Profile, Customer phone handling, lifecycle, privacy coordination, anonymization, and the boundaries in the SDP decisions are confirmed.
+- `OWNER-APPROVED BUSINESS POLICY`: `SDP-CUST-18` through `SDP-CUST-22` additionally confirm one Profile association for shared phones, anonymous Orders, operation-specific authority principles, durable material Customer Review Cases, and no ordinary re-identification.
+- `OWNER-SELECTED PREPARATION SCOPE`: Candidate E is the next Gate A preparation target under the WP-G0 charter. It remains `NOT_READY` and not Gate A-approved. `SDP-CUST-18` and `SDP-CUST-19` are approved context only and remain outside Candidate E's design and approval scope.
 - `VERIFIED FACT`: I1 implements only `Brand ID -> authoritative Organization ID` ancestry resolution. It is explicitly non-authorizing and has no Customer runtime consumer.
 - `VERIFIED FACT`: ADR-0011 is Accepted and requires inward Layered DDD dependencies for new or modified source.
 - `VERIFIED FACT`: ADR-0006 and ADR-0008 remain Proposed; Identity Milestone 2B remains unauthorized.
@@ -113,7 +116,7 @@ The ownership below is a domain-responsibility proposal derived from Owner-appro
 | Responsibility | Classification and rationale | Limit |
 |---|---|---|
 | Customer Profile lifecycle | `OWNER-APPROVED BUSINESS POLICY`: Customer owns Active, Inactive, and terminal-for-ordinary-operations Anonymized semantics under `SDP-CUST-10` and `SDP-CUST-11`. | It does not alter Loyalty, Promotion, Order, or Payment state silently. |
-| Profile creation policy | `OWNER-APPROVED BUSINESS POLICY`: Customer requires a valid phone at creation; display name is optional under `SDP-CUST-07`. | It does not require every visitor or Order to have a Profile. Anonymous Order behavior remains unresolved. |
+| Profile creation policy | `OWNER-APPROVED BUSINESS POLICY`: Customer requires a valid phone at creation; display name is optional under `SDP-CUST-07`. | It does not require every visitor or Order to have a Profile; `SDP-CUST-19` separately permits anonymous Orders and remains outside Candidate E. |
 | Basic Profile information and correction | `DOMAIN DESIGN PROPOSAL`: Customer owns the meaning and controlled correction of basic Profile information because it owns the Profile and privacy coordination. | Exact editable fields, evidence, authority, and API remain unresolved. |
 | Phone association | `OWNER-APPROVED BUSINESS POLICY`: Customer owns the business meaning of a current Profile phone association and treats phone as mutable contact/lookup data. | Phone is not identity proof, authorization, or an ownership credential. |
 | Phone validation and controlled change policy | `OWNER-APPROVED BUSINESS POLICY`: Customer applies `SDP-CUST-03` validation and `SDP-CUST-12A` verification/authority/audit requirements to ordinary changes. | Official allocation integration, verification evidence, and capability enforcement remain later technical/security work. |
@@ -134,7 +137,7 @@ The ownership below is a domain-responsibility proposal derived from Owner-appro
 | Order lifecycle, Order Items, confirmed commercial history, originating Branch, Payment, Refund, Preparation, and fulfillment | Ordering, Payment, Preparation, and their established contexts | Customer may supply a controlled reference or context; it cannot rewrite transaction history through Profile changes or anonymization. |
 | Branch sales records and Purchase History | Ordering | Customer policy constrains Profile visibility; Ordering retains Branch provenance and enforces Purchase History scope. |
 | Loyalty balance, ledger entries, accrual, redemption, adjustment, reversal, and reconciliation | Loyalty | Customer supplies reference/anonymization facts; Loyalty preserves and freezes value under `SDP-CUST-01`. Customer never edits the ledger. |
-| Promotion definitions, eligibility, campaigns, benefit application, usage, or history | Promotions | Customer may supply allowed context/reference. Promotion behavior after anonymization remains unresolved and must not be inferred from Loyalty policy. |
+| Promotion definitions, eligibility, campaigns, benefit application, usage, or history | Promotions | Customer may supply allowed context/reference. `SDP-CUST-17` preserves redemption history and freezes unused Customer-specific benefits after effective anonymization; general Promotion eligibility and public Promotion rules remain independently governed. |
 | Employee/User credentials, authentication, Sessions, MFA, recovery, or account security | Identity / Authentication | Customer Profile is not a User. A future verified requester or actor may be represented through an approved Identity boundary. |
 | Organization, Brand, and Branch master data and ancestry | Organization | Customer consumes authoritative scope facts when a real use case is approved. I1 ancestry evidence is non-authorizing. |
 | System-wide authorization and capability enforcement | Identity / Authorization and consuming Application boundaries | Customer states operation-specific business requirements and resource facts; trusted server-side authorization evaluates the actor and scope. |
@@ -181,7 +184,7 @@ The ownership below is a domain-responsibility proposal derived from Owner-appro
 | Ordering owns | Orders, Order Items, transaction Customer context, originating Branch, Purchase History, and historical commercial snapshots. |
 | May cross | A controlled Customer or pseudonymous reference and only the minimum allowed transaction context. |
 | Must not cross or be inferred | Customer ownership of an Order, Profile mutation rewriting confirmed history, anonymization deleting Orders, or basic Profile access granting cross-Branch Purchase History. |
-| Unresolved | Anonymous Orders, exact association timing, historical access, snapshots, correction behavior, and integration contract. |
+| Unresolved | Exact optional association timing, historical access, snapshots, correction behavior, and integration contract. Anonymous Orders themselves are permitted by `SDP-CUST-19`, outside Candidate E. |
 
 ### 7.5 Loyalty
 
@@ -237,6 +240,10 @@ The mechanisms for all boundary interactions—direct Application contract, doma
 | Privacy request | Controlled request to view, correct, restrict/process, or anonymize Customer data. | Customer coordinates | Phone knowledge alone is not requester verification; fulfillment is subject to domain and legal boundaries. |
 | Controlled anonymization | Explicit verified and authorized operation that makes ordinary Profile operations nonidentifying. | Customer | Not inactivity automation, universal downstream deletion, phone release, or identity restoration path. |
 | Customer dispute | Held conflict concerning Profile ownership, phone association, or value relationship requiring evidence, scoped investigation, and consequential Owner approval. | Customer coordinates | Not automatic merge, overwrite, deletion, or transfer. |
+| Customer Review Case | Durable case for a material conflict, held disputed association, or authorized manual decision, containing purpose-limited decision provenance. | Customer policy; physical workflow ownership unresolved | Not created automatically for routine validation/duplicate rejection and not an unrestricted identity lookup. |
+| Anonymous Order | Order created and completed without a Customer Profile or inferred Customer identity. | Ordering | A transaction phone does not automatically create Customer association or rewrite historical Orders. |
+| Operation-specific authority | Requirement that each Customer operation has an explicit, scope-bound authorization precondition independent of generic role title or identifier possession. | Authorization policy consumed by Customer Application | Not authentication implementation, a complete role matrix, or permission inferred from Branch Manager/Owner labels. |
+| Re-identification | Reconstruction or restoration of an anonymized Customer identity. | Prohibited in ordinary Customer operations | Exceptional evidence access/export requires separate authority and legal/privacy assessment; it is not an ordinary restoration path. |
 
 These definitions are scoped to WP4.1. Updating the repository-wide `GLOSSARY.md` requires a separately reviewed canonical vocabulary synchronization after this domain proposal is accepted.
 
@@ -262,12 +269,13 @@ These definitions are scoped to WP4.1. Updating the repository-wide `GLOSSARY.md
 
 ### 9.3 Customer dispute / privacy-request candidates
 
-`PROVISIONAL`: A Customer dispute and a privacy request may each require a durable business case with status, evidence provenance, authority, and outcome.
+`OWNER-APPROVED BUSINESS POLICY` / `PROVISIONAL DESIGN`: `SDP-CUST-21` requires a durable Customer Review Case when a conflict needs investigation, a disputed association is held, or an authorized manual decision is required. A privacy request already requires its request and status to be recorded under `SDP-CUST-09`. The aggregate, workflow, persistence, and cross-context ownership remain provisional.
 
 - **Approved invariants they may protect:** disputed actions remain held; request status is recorded; consequential outcomes require proper authority; no automatic merge/deletion/value transfer.
 - **Why the boundary may matter:** investigation and legal/authority review can outlive one request and coordinate multiple domain-owned records.
 - **Competing interpretation:** these could be case records owned by a cross-cutting workflow rather than Customer aggregates.
-- **Unresolved:** states, ownership, evidence access, retention, legal escalation, atomicity, and domain integrations.
+- **Approved boundary:** routine validation failures and ordinary duplicate rejections do not automatically create durable Customer dispute cases; cases must not disclose another Customer/Brand or become unrestricted identity lookup/re-identification facilities.
+- **Unresolved:** exact states, physical ownership, evidence access, retention, legal escalation, atomicity, and domain integrations.
 
 ### 9.4 Restricted Identity Evidence candidate
 
@@ -323,12 +331,13 @@ For a cross-context query, the consuming Application owns its required outbound 
 
 | Open matter | Classification | Required next authority/evidence |
 |---|---|---|
-| Anonymous/unregistered Orders and historical transaction access | Requires separate Owner decision and later domain design | Ordering/Customer scenarios and privacy/access review. |
-| Shared/family phone experience | Requires separate Owner decision | Business scenarios covering admission, authority, value, and disputes. |
+| Optional later Customer association for an anonymous/unregistered Order | Owner permits anonymous Orders under `SDP-CUST-19`; later association remains unresolved | Ordering/Customer authority, validation, provenance, privacy, and non-retroactive-association design. |
+| Assisted shared/family phone process | Owner preserves one phone association under `SDP-CUST-18`; assisted access remains separately unapproved | Verification, accessibility, authority, non-linking, and dispute scenarios. |
 | Customer/requester verification evidence | Requires later domain design plus security/legal review | Approved evidence types, assurance, failure behavior, and retention. |
-| Exact Customer capability/authorization matrix | Requires separate Owner decision and P1/security design | Operation-by-role/capability/scope matrix with non-disclosure tests. |
-| Promotion behavior after anonymization | Requires separate Owner decision | Promotions-owned policy; do not derive from Loyalty freeze. |
-| Re-identification and exceptional legal conflicts | Requires legal/privacy review and separate Owner decision | Permitted purposes, authority, controls, audit, and prohibitions. |
+| Deferred Candidate E authority operations | `SDP-CUST-20` confirms operation-specific/fail-closed principles but no invented role assignments | Explicit authority for Profile creation, ordinary Deactivate, Reactivate, anonymization approval, and ordinary undisputed release before any is included in the Gate A boundary. |
+| Customer authority/verification technical contract | Requires later domain design plus P1/security review | External trusted decision, exact capability/evidence representation, non-disclosure, and fail-closed tests; no role-title inference. |
+| General Promotion behavior beyond anonymization | `SDP-CUST-17` resolves only the anonymization outcome | Promotions-owned eligibility/rule/refund policy; do not derive from Loyalty freeze. |
+| Exceptional identity-evidence access/export | Ordinary re-identification prohibited by `SDP-CUST-22`; exception remains separate | Qualified legal/privacy review, explicit authority, purpose, recipient, scope, controls, audit, and disposal. |
 | Legal basis, consent, retention periods, legal holds, and disposal | Requires qualified legal/privacy review | Data-class and purpose-specific advice; no universal period. |
 | Restricted Identity Evidence controls and physical ownership | Requires legal/privacy/security review and technical design | Purpose, need, access, audit, cryptography, retention, disposal, topology. |
 | Official phone allocation source, refresh, and validation failure | Requires technical design and operational review | Authoritative source, update ownership, outage/staleness/fail-closed policy. |
@@ -349,7 +358,7 @@ ADR-0006, Identity Security Review Checklist statuses, Identity Milestone 2B, P1
 ### 13.2 Prerequisites for WP4.2
 
 - Owner review of this responsibility boundary and vocabulary;
-- explicit preservation of unresolved shared/family phone and anonymous-Order policy rather than silently defaulting them;
+- preservation of `SDP-CUST-18` one-association shared-phone policy and `SDP-CUST-19` anonymous-Order/non-inference policy as approved context outside Candidate E, without designing assisted access, later association, or Order-domain behavior;
 - scenario coverage for concurrent creation/change/release/anonymization and non-disclosing cross-Brand conflicts;
 - clear separation of ordinary phone admission data from optional Restricted Identity Evidence;
 - continued treatment of exact capabilities, requester verification, legal duties, and physical mechanisms as prerequisites rather than assumptions; and
@@ -362,7 +371,7 @@ Later work packages may cover privacy/dispute case design, cross-domain contract
 ### 14.1 WP4.1 review checklist
 
 - [x] Customer Profile, broader identity, phone, admission control, Brand participation, visibility, and transaction context are distinct.
-- [x] `SDP-CUST-01` through `SDP-CUST-14`, `SDP-CUST-A2`, and `SDP-SCOPE-01` retain their approved meaning.
+- [x] `SDP-CUST-01` through `SDP-CUST-22`, `SDP-CUST-A2`, and `SDP-SCOPE-01` retain their approved meaning.
 - [x] Customer responsibilities and explicit non-responsibilities are documented.
 - [x] Organization, Identity, Authorization, Ordering, Loyalty, Promotions, Privacy, and Audit boundaries are addressed.
 - [x] Loyalty policy is not generalized to Promotions.
@@ -378,3 +387,4 @@ Later work packages may cover privacy/dispute case design, cross-domain contract
 | Date | Change | Classification |
 |---|---|---|
 | 2026-11-16 | Initial WP4.1 Customer Domain boundary and responsibility proposal. | `DOMAIN DESIGN PROPOSAL`; Owner review required. |
+| 2026-11-23 | Synchronized `SDP-CUST-15` through `SDP-CUST-22` and the Owner-selected WP-G0 Candidate E preparation boundary; no design/Gate approval. | Documentation synchronization; proposal status unchanged. |
