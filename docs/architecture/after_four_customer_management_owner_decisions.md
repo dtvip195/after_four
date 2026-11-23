@@ -2,7 +2,7 @@
 
 **Decision status:** `OWNER_DECIDED` / `OWNER_CONFIRMED`
 
-**Decision dates:** 2026-11-16 (`SDP-CUST-03` through `SDP-CUST-14`, including `SDP-CUST-12A`, `SDP-CUST-12B`, and `SDP-CUST-A2`); 2026-11-23 (`SDP-CUST-15` and `SDP-CUST-16`)
+**Decision dates:** 2026-11-16 (`SDP-CUST-03` through `SDP-CUST-14`, including `SDP-CUST-12A`, `SDP-CUST-12B`, and `SDP-CUST-A2`); 2026-11-23 (`SDP-CUST-15` through `SDP-CUST-17`)
 
 **Authority:** Owner
 
@@ -20,9 +20,9 @@
 
 ## 1. Purpose and provenance
 
-This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-16`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
+This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-17`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
 
-The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids sixteen near-duplicate files while retaining a stable section anchor for every decision.
+The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids seventeen near-duplicate files while retaining a stable section anchor for every decision.
 
 ## SDP-CUST-03
 
@@ -122,6 +122,14 @@ On successful completion, the new phone becomes the current phone association, t
 
 This operation does not merge Profiles, transfer Orders, Loyalty balances, Promotion entitlements, or expand Brand/Branch visibility. `Inactive` continues to restrict ordinary Profile operations under existing policy; this decision permits only the controlled phone-change operation. It selects no new verification or authorization mechanism, persistence representation, transaction, lock, index, concurrency/recovery mechanism, API, or implementation. Its canonical `ODB-*` ID remains `ID_PENDING_OWNER_GOVERNANCE`, and implementation authorization remains `NOT_GRANTED`.
 
+## SDP-CUST-17
+
+**Promotion Behavior After Customer Anonymization — Option A: Preserve History, Freeze Unused Benefits.** When Customer anonymization becomes effective, Promotions preserves successfully redeemed Promotion benefits as historical events and retains only the Promotion history and provenance necessary for legitimate audit, reconciliation, and historical purposes, subject to [`SDP-CUST-14`](#sdp-cust-14). Successful redemption history is not reversed or erased solely because of anonymization, and Promotion history is not automatically deleted.
+
+Customer-specific Promotion benefits that were granted but not redeemed at the effective anonymization point become frozen and cannot be redeemed afterward. Unused benefits must not be transferred to another Customer, Profile, phone number, or identity, and Customer identity must not be restored or reconstructed to enable redemption. Public or non-Customer-specific Promotions are not automatically affected; their general eligibility rules remain independently governed.
+
+Retained Promotion data remains subject to purpose limitation, access control, and retention/disposal requirements under [`SDP-CUST-14`](#sdp-cust-14) and [`SDP-CUST-A2`](#sdp-cust-a2). Any legally required or contractually exceptional treatment requires separate assessment and is not an automatic exception to this policy. This decision does not approve general Promotion eligibility, cross-Brand applicability, storage, transaction, concurrency, recovery, or other implementation mechanisms; its canonical `ODB-*` ID remains `ID_PENDING_OWNER_GOVERNANCE`, and implementation authorization remains `NOT_GRANTED`.
+
 ## 2. Cross-domain ownership boundaries
 
 - Customer Management owns Customer Profile and controlled Customer anonymization.
@@ -129,10 +137,10 @@ This operation does not merge Profiles, transfer Orders, Loyalty balances, Promo
 - Loyalty owns Loyalty balance, ledger, redemption eligibility, and Loyalty policy.
 - Promotions owns Promotion eligibility, usage, and Promotion policy.
 
-The Customer decisions do not authorize one domain to rewrite another domain's history. [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md) applies to Loyalty and must not be generalized into an unapproved Promotion policy.
+The Customer decisions do not authorize one domain to rewrite another domain's history. [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md) governs Loyalty preserve/freeze semantics, while [`SDP-CUST-17`](#sdp-cust-17) separately governs Promotion treatment after anonymization; neither policy may be generalized into the other.
 
 ## 3. Continuing unresolved matters
 
-Promotion behavior after anonymization; anonymous or unregistered Orders; shared/family phone experience; exact requester-verification evidence; the exact Customer capability matrix; future multi-Brand participation and UX; cross-Brand Loyalty and Promotion benefits; re-identification workflow; lawful basis and purpose-specific consent detail; exact retention periods, legal holds, and disposal requirements; Restricted Identity Evidence storage; phone verifier/cryptography; official allocation-source refresh/failure behavior; and schema, index, API, transaction, outbox, retry, reconciliation, and production-security designs remain unresolved or unapproved.
+Anonymous or unregistered Orders; shared/family phone experience; exact requester-verification evidence; the exact Customer capability matrix; future multi-Brand participation and UX; cross-Brand Loyalty and Promotion benefits; general Promotion eligibility and applicability; re-identification workflow; lawful basis and purpose-specific consent detail; exact retention periods, legal holds, and disposal requirements; Restricted Identity Evidence storage; phone verifier/cryptography; official allocation-source refresh/failure behavior; and schema, index, API, transaction, outbox, retry, reconciliation, and production-security designs remain unresolved or unapproved.
 
 These Owner-confirmed policies approve no technical design, schema, API, physical topology, implementation, Gate A/B/C, Control Acceptance, Final Operational Acceptance, Production Authorization, or production use.

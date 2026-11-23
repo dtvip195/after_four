@@ -4,7 +4,7 @@
 
 **Document status:** `DOMAIN DESIGN PROPOSAL`
 
-**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-16`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
+**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-17`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
 
 **Technical design approval:** `NOT_GRANTED`
 
@@ -95,7 +95,7 @@ No source conflict requiring a canonical correction was identified. Existing phy
 | Phone association lifecycle | Whether one canonical phone is a candidate, current association, unreleased former restriction, or released/eligible within one Organization. | Permanent identity, Profile visibility, Brand participation, or entitlement. |
 | Dispute hold | A control condition preventing a consequential disputed action while evidence and approval are pending. | Automatic Profile/phone state correction, merge, deletion, or transfer. |
 | Loyalty lifecycle | Balance, ledger, accrual, redemption, adjustment, and freeze. | Customer Profile lifecycle ownership. Anonymization only invokes the approved preserve/freeze boundary. |
-| Promotion lifecycle | Promotion eligibility, usage, benefits, and history. | Loyalty freeze semantics; behavior after anonymization remains unresolved. |
+| Promotion lifecycle | Promotion eligibility, usage, benefits, and history, including the approved post-anonymization preserve/freeze outcome under `SDP-CUST-17`. | Loyalty freeze semantics; general Promotion eligibility, public Promotion rules, or cross-Brand applicability. |
 | Order/history lifecycle | Orders, originating Branch, Purchase History, and commercial records. | Deletion or rewrite caused by Profile lifecycle changes. |
 
 `DOMAIN DESIGN PROPOSAL`: a dispute hold is best treated as an orthogonal control condition rather than a new Profile or phone lifecycle state. A phone can be currently associated or formerly restricted while a proposed change/release is held. Whether that condition is persisted is unresolved.
@@ -121,7 +121,7 @@ No source conflict requiring a canonical correction was identified. Existing phy
 | Active | Deactivate | Controlled request and authorization | Exact role/capability unresolved | Inactive | Preserve Profile/history; mark lifecycle outcome | Current phone remains associated; no release | No silent Loyalty/Promotion/Order transition | Purge, anonymize, release phone, freeze/transfer value by implication | Actor, authority, reason/evidence where later required, before/after | Reason rule, capability, effects on ordinary reads |
 | Inactive | Reactivate | Authorized review succeeds | Exact role/capability unresolved | Active | Restore ordinary active state without recreating identity | Existing association/restriction remains unchanged unless separately changed | No silent downstream state change | New Profile identity, phone reassignment, restoration of anonymized identity | Reviewer, evidence, decision, before/after | Review standard and authority |
 | Inactive | Controlled phone change | Customer verification succeeds; new phone is valid; Organization-wide admission succeeds; required authority is current | `SDP-CUST-12A` and `SDP-CUST-16`; disputed/exceptional cases also follow `SDP-CUST-13` | Inactive | Preserve Profile data and lifecycle state | New phone becomes current; old phone becomes formerly restricted under `SDP-CUST-12B` | No silent Loyalty/Promotion/Order transition or transfer | Automatic reactivation, merge, history/value transfer, expanded visibility, or partial accepted outcome | Actor, verifier, authority, scope, validation/admission, before/after association, outcome | Verification evidence, capability representation, atomicity, concurrency, recovery |
-| Active | Controlled anonymization | Verified request and authority; required legal/privacy conditions; coordinated completion | Exact authority/capability unresolved | Anonymized | Ordinary Profile becomes nonidentifying | Remove ordinary association; retain former-phone restriction until manual release | Preserve Orders/history; preserve/freeze Loyalty; Promotion behavior unresolved; pseudonymous references only for legitimate purpose | Automatic phone release, downstream deletion/transfer, identity restoration | Request, verification/authority, purpose, outcome, before/after, downstream coordination evidence | Atomicity, partial failure, exact field treatment, legal requirements |
+| Active | Controlled anonymization | Verified request and authority; required legal/privacy conditions; coordinated completion | Exact authority/capability unresolved | Anonymized | Ordinary Profile becomes nonidentifying | Remove ordinary association; retain former-phone restriction until manual release | Preserve Orders/history; preserve/freeze Loyalty; preserve redeemed Promotion history and freeze unredeemed Customer-specific Promotion benefits under `SDP-CUST-17`; pseudonymous references only for legitimate purpose | Automatic phone release, downstream deletion/transfer, identity restoration, Promotion redemption/transfer through the anonymized Customer | Request, verification/authority, purpose, outcome, before/after, downstream coordination evidence | Atomicity, partial failure, exact field treatment, Promotion coordination, legal requirements |
 | Inactive | Controlled anonymization | Same as above | Exact authority/capability unresolved | Anonymized | Same as above | Same as above | Same as above | Same as above | Same as above | Same as above |
 | Anonymized | Reactivate/restore ordinary Profile | Never permitted by ordinary operations | None | Anonymized | No ordinary restoration | New phone/Profile cannot restore old identity | No downstream restoration/value transfer | Re-identification or revival by convenience | Rejected attempt evidence subject to later policy | Exceptional legal conflict/re-identification remains separate review |
 | Any existing state | Physical delete/purge | No approved ordinary transition | None | Unchanged | Preserve according to purpose/retention policy | No implicit release | Preserve domain-owned histories | Status-driven purge | Rejection if an operation was attempted | Legal disposal rules remain unresolved |
@@ -258,7 +258,9 @@ Anonymization is an explicit controlled transition after request and authority v
 - the phone remains unavailable through an unreleased former-phone restriction until manual release;
 - Orders and Purchase History remain owned by Ordering and are not automatically deleted;
 - Loyalty balance/ledger are preserved and redemption/new Customer-specific benefits are frozen under `SDP-CUST-01`;
-- Promotion history is not automatically deleted, but future Promotion behavior remains unresolved;
+- successfully redeemed Promotion benefits remain historical events; necessary Promotion history/provenance is preserved, while unredeemed Customer-specific Promotion benefits are frozen and cannot be redeemed, transferred, or enabled through identity restoration under `SDP-CUST-17`;
+- public or non-Customer-specific Promotions are not automatically affected by anonymization, and their general eligibility rules remain independently governed;
+- legally required or contractually exceptional Promotion treatment requires separate assessment and is not an automatic exception;
 - downstream non-PII pseudonymous references may remain only for a documented legitimate audit, reconciliation, or historical purpose under `SDP-CUST-02`; and
 - Restricted Identity Evidence is retained only when a documented legitimate purpose requires it, under controlled authorization/audit/retention, and never for ordinary lookup, duplicate matching, marketing, restoration, or re-identification.
 
@@ -266,11 +268,23 @@ Audit/provenance requirements do not authorize retaining an unrestricted or reve
 
 ### 10.2 Consistency and failure boundary
 
-`DOMAIN DESIGN PROPOSAL`: the accepted business result must not claim completion while leaving the ordinary Profile identifying, the current ordinary phone association active, or required Loyalty freeze coordination absent. Conversely, failure must not silently erase identity data, release the phone, or partially rewrite downstream histories.
+`DOMAIN DESIGN PROPOSAL`: the accepted business result must not claim completion while leaving the ordinary Profile identifying, the current ordinary phone association active, required Loyalty freeze coordination absent, or unredeemed Customer-specific Promotion benefits redeemable. Conversely, failure must not silently erase identity data, release the phone, reverse a successful Promotion redemption, transfer a Promotion benefit, or partially rewrite downstream histories.
 
 Evidence of completion must preserve accountability without turning ordinary audit records into a Customer lookup, duplicate-matching, identity-restoration, or re-identification facility. Provenance does not override the Anonymized state or independently justify a reversible Profile-to-former-phone mapping.
 
 `REQUIRES TECHNICAL DESIGN`: whether the operation is one local atomic boundary, coordinated boundaries with durable pending/reconciliation states, or another mechanism. The design must define what “effective” means, the completion/linearization point, partial-failure detection, safe recovery, and truthful operator-visible status. WP4.2 selects no mechanism.
+
+### 10.3 Promotion outcome invariants
+
+The following `OWNER-APPROVED BUSINESS POLICY` invariants under `SDP-CUST-17` apply when anonymization becomes effective:
+
+1. Successful Promotion redemptions remain historical events and are not reversed or erased solely because of anonymization.
+2. Unredeemed Customer-specific Promotion benefits are frozen, cannot be redeemed afterward, and cannot be transferred to another Customer, Profile, phone, or identity.
+3. Customer identity is not restored or reconstructed to enable Promotion redemption.
+4. Public or non-Customer-specific Promotions are not automatically changed; their general eligibility rules remain independently governed.
+5. Retained Promotion history and provenance remain purpose-limited and subject to access control and retention/disposal governance under `SDP-CUST-14` and `SDP-CUST-A2`.
+
+These invariants approve no persistence representation, transaction boundary, concurrency, recovery, or cross-context coordination mechanism.
 
 ## 11. Organization-wide phone admission invariants
 
@@ -340,6 +354,8 @@ Exact fields, redaction, storage, append-only controls, readers, retention, and 
 
 These categories authorize neither a reversible mapping between an Anonymized Profile and former phone nor use of ordinary audit records for Customer lookup, duplicate matching, identity restoration, or re-identification. Retain only what a documented legitimate purpose requires. Any evidence capable of identifying or reconnecting the anonymized Customer must be separately justified and governed under `SDP-CUST-A2` and `SDP-CUST-14`; legitimate retention requires controlled authorization, purpose limitation, access audit, and retention/disposal governance. WP4.2 selects no period, legal basis, audit schema, storage mechanism, encryption requirement, or access-control implementation.
 
+Promotion redemption history and provenance retained under `SDP-CUST-17` must remain sufficient for the documented legitimate audit, reconciliation, or historical purpose without becoming an identity-restoration path. Evidence must distinguish historical successful redemption from frozen unredeemed Customer-specific benefits, but this policy does not approve a data model, identifier, mapping, storage boundary, or audit mechanism.
+
 ## 14. Layered DDD implications
 
 | Layer | Conceptual responsibility | Boundary |
@@ -374,6 +390,7 @@ I1 may supply authoritative Brand ancestry through its approved Application cont
 | Manual release requires documented authorization and never restores identity/transfers history or value. | `OWNER-APPROVED BUSINESS POLICY` |
 | A successful controlled phone change for an Inactive Profile makes the new phone current, makes the old phone formerly restricted, and leaves the Profile Inactive; failure preserves the previous current association with no partial accepted outcome. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-16`; atomicity, concurrency, and recovery mechanisms remain `REQUIRES TECHNICAL DESIGN` |
 | Every successfully created Customer Profile initially becomes Active; Active alone establishes no phone ownership/identity verification, marketing consent, authorization, or expanded Brand/Branch visibility. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-15`; technical representation and implementation remain unapproved |
+| Effective anonymization preserves successful Promotion redemption history, freezes unredeemed Customer-specific Promotion benefits, prohibits their later redemption or transfer, and does not restore identity to enable redemption. Public or non-Customer-specific Promotion rules remain independently governed. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-17`; Promotion representation, coordination, retention mechanisms, and implementation remain unapproved |
 | Candidate and held are persisted states. | `UNRESOLVED`; conceptual conditions only |
 | Phone admission is a separate Organization-scoped consistency concern. | `DOMAIN DESIGN PROPOSAL`; concrete model/mechanism unselected |
 | Former-phone restriction supplies admission blocking only; it supplies no Customer/Profile lookup, identity evidence, visibility, or authorization. | `OWNER-APPROVED BUSINESS POLICY` boundary from `SDP-CUST-04`, `12B`, and `A2`; concrete enforcement unselected |
@@ -398,7 +415,6 @@ I1 may supply authoritative Brand ancestry through its approved Application cont
 | Audit envelope, redaction, readers, atomicity, and retention | `REQUIRES SECURITY REVIEW`, `REQUIRES LEGAL/PRIVACY REVIEW`, `REQUIRES TECHNICAL DESIGN` |
 | Legal basis, purpose-specific consent, periods, holds, privacy, disposal | `REQUIRES LEGAL/PRIVACY REVIEW`; some outcomes require Owner decision |
 | Restricted Identity Evidence need, ownership, controls, and physical topology | `REQUIRES OWNER DECISION` where purpose is optional; `REQUIRES LEGAL/PRIVACY REVIEW`, `REQUIRES SECURITY REVIEW`, `REQUIRES TECHNICAL DESIGN` |
-| Promotion behavior after anonymization | `REQUIRES OWNER DECISION`; Promotions-owned; `OUT OF SCOPE` for WP4.2 |
 | Multi-Brand participation/visibility/Loyalty/Promotion semantics | Deferred by `SDP-SCOPE-01`; `REQUIRES OWNER DECISION`; `OUT OF SCOPE` |
 | Required consistency/atomicity guarantees and concurrency mechanism | Later domain refinement plus `REQUIRES TECHNICAL DESIGN` |
 | Partial-completion states, recovery, reconciliation, retry/idempotency | `REQUIRES TECHNICAL DESIGN`; business-policy choices may require Owner decision |
@@ -408,7 +424,7 @@ ADR-0006, ADR-0008, Identity Security Review Checklist statuses, Identity Milest
 
 ## 17. Impact and prerequisites for subsequent WP4 work
 
-`DOMAIN DESIGN PROPOSAL`: the next Owner decision before final aggregate design should address any shared/family-phone direction that is required. The initial Profile state and Inactive phone-change eligibility are resolved by `SDP-CUST-15` and `SDP-CUST-16` respectively.
+`DOMAIN DESIGN PROPOSAL`: the next Owner decision before final aggregate design should address any shared/family-phone direction that is required. The initial Profile state, Inactive phone-change eligibility, and Promotion treatment after anonymization are resolved by `SDP-CUST-15`, `SDP-CUST-16`, and `SDP-CUST-17` respectively. General Promotion eligibility, public Promotion rules, and multi-Brand applicability remain independently governed and unresolved where already recorded.
 
 After those decisions, a later bounded work package may compare aggregate/case boundaries and technical consistency mechanisms. Its prerequisites are:
 
@@ -428,7 +444,7 @@ WP4.2 does not name or authorize WP4.3, implementation, or any Gate.
 - [x] Former-phone restriction and Restricted Identity Evidence remain distinct.
 - [x] Inactive and Anonymized do not automatically release a phone.
 - [x] Anonymization does not delete/rewrite Orders, Loyalty, or Promotion history.
-- [x] Loyalty preserve/freeze is not generalized to Promotions.
+- [x] Loyalty preserve/freeze is not generalized to Promotions; Promotion treatment follows the separate `SDP-CUST-17` policy.
 - [x] Organization-wide admission does not grant cross-Brand visibility or authority.
 - [x] All ten required phone-admission invariants are explicit.
 - [x] All required concurrency scenarios identify forbidden and acceptable outcomes.
@@ -443,3 +459,4 @@ WP4.2 does not name or authorize WP4.3, implementation, or any Gate.
 | Date | Change | Classification |
 |---|---|---|
 | 2026-11-16 | Initial WP4.2 lifecycle and phone-admission consistency proposal. | `DOMAIN DESIGN PROPOSAL`; Owner review required. |
+| 2026-11-23 | Synchronized the Owner-confirmed post-anonymization Promotion preserve/freeze policy under `SDP-CUST-17`. | `OWNER-APPROVED BUSINESS POLICY`; technical design and implementation remain unapproved. |
