@@ -22,6 +22,15 @@ Sources were opened on 2026-11-24 and checked for URL, title, vendor identity, c
 - **Inference:** a narrow comparison drawn from documented facts and labeled as such.
 - **`NO_PUBLIC_EVIDENCE_FOUND`:** reviewed public sources do not establish the requested semantic detail.
 
+Candidate-matrix evidence relationships use these stricter meanings:
+
+- **`DIRECT`:** the source explicitly documents at least one specific policy subdimension named by the candidate.
+- **`INDIRECT`:** the source documents an adjacent operational fact that informs the candidate but does not answer a named policy subdimension.
+- **`CONTEXT_ONLY`:** the source supplies comparable product or domain context without evidence for the candidate's policy question.
+- **`NO_PUBLIC_EVIDENCE_FOUND`:** no reviewed public source establishes even a relevant candidate subdimension.
+
+A relationship label applies only to the exact subdimension stated in the same matrix row. `DIRECT` never means that the source establishes the entire candidate policy, and no relationship label changes the candidate's governance status.
+
 No claim is made about backend transactions, data model, accounting compliance, locking, concurrency, APIs, immutable storage, or production configuration unless the source explicitly says so. Page update dates are recorded only when displayed by the source.
 
 ## 3. Vendor/product inventory
@@ -40,7 +49,7 @@ No claim is made about backend transactions, data model, accounting compliance, 
 
 | ID | Vendor | Exact title and URL | Source type / explicit publication or update date | Supported claim and limitation |
 |---|---|---|---|---|
-| `SAPO-01` | Sapo | [Mở ca và kết ca thu tiền trên ứng dụng Sapo FnB](https://help.sapo.vn/mo-ca-va-ket-ca-thu-tien-tren-ung-dung-sapo-fnb) | Official help; no explicit update date found | Documents opening cash, expected/actual/difference, withdrawals, states `Mới`/`Chưa bàn giao`/`Đã bàn giao`, optional handover at close, and history. Does not establish Operating Day or correction authority. High confidence. |
+| `SAPO-01` | Sapo | [Mở ca và kết ca thu tiền trên ứng dụng Sapo FnB](https://help.sapo.vn/mo-ca-va-ket-ca-thu-tien-tren-ung-dung-sapo-fnb) | Official help; no explicit update date found | Documents opening cash, expected/actual/difference, withdrawals, states `Mới`/`Chưa bàn giao`/`Đã bàn giao`, optional or later handover, and history. A Cash Session belongs to the device that opened it; each cash-register device opens and reconciles separately; a cancellation performed on another device is not reflected in the current device's session. Does not establish Operating Day or correction authority. High confidence. |
 | `SAPO-02` | Sapo | [Quản lý ca bán hàng trên Sapo Thu Ngân](https://help.sapo.vn/quan-ly-ca-ban-hang-tren-sapo-thu-ngan) | Official help; undated | Documents opening float, closing/handover and a working-shift permission prerequisite. Does not prove operation-specific separation. High confidence. |
 | `SAPO-03` | Sapo | [Thêm mới vai trò nhân viên trên trang quản trị Sapo FnB](https://help.sapo.vn/them-moi-vai-tro-nhan-vien-tren-trang-quan-tri-sapo-fnb) | Official help; undated | Documents configurable roles and detailed permissions, including reports, orders and activity log access. Does not prove AFTER FOUR capability semantics. High confidence. |
 | `SAPO-04` | Sapo | [Tạo nguyên liệu trên trang quản trị Sapo FnB](https://help.sapo.vn/tao-nguyen-lieu-tren-trang-quan-tri-sapo-fnb) | Official help; undated | Documents ingredients, units, norms and inventory/cost use. Does not identify the stock-consumption recognition event. High confidence. |
@@ -48,8 +57,8 @@ No claim is made about backend transactions, data model, accounting compliance, 
 | `IPOS-01` | iPOS FABi | [Tính năng phần mềm FABi](https://huongdan.ipos.vn/docs/bang-tinh-nang-phan-mem-ipos-vn/tinh-nang-phan-mem-fabi/) | Official feature matrix; undated | Lists per-user shift login/close, cash-count close, e-voucher tender, multiple tenders, permissions/reasons for void/edit/discount, promotion conditions, time/channel pricing and reports. Matrix lacks edge semantics. Medium-high confidence. |
 | `IPOS-02` | iPOS | [iPOS Manager - Phần mềm Quản lý từ xa](https://ipos.vn/ipos-manager/) | Official marketing; undated | Confirms vendor product family/remote management positioning only. No detailed semantic claim is based on it. Low confidence. |
 | `POS-01` | POS365 | [Phân quyền nhân viên nhà hàng: Ai được xóa món, giảm giá?](https://www.pos365.vn/cach-phan-quyen-nhan-vien-nha-hang-8689.html) | Vendor educational article; date not relied upon | Recommends bounded cashier/server/manager actions, manager password override and configured discounts. Recommendation, not verified product contract. Medium-low confidence. |
-| `POS-02` | POS365 | [Hướng dẫn cách xây dựng định lượng món ăn (BOM) nhà hàng](https://www.pos365.vn/quan-ly-kho-nha-hang-8698.html) | Vendor educational/marketing; 2026-09-25 | Claims multi-layer BOM, unit conversion, stock deduction when payment is initiated, and stocktake comparison. Does not prove correctness or suitability for AFTER FOUR. Medium-low confidence. |
-| `POS-03` | POS365 | [Theo dõi lịch sử thao tác (audit log): Phát hiện ai sửa giá, hủy hóa đơn & xóa hàng](https://www.pos365.vn/theo-doi-lich-su-thao-tac-audit-log-9279.html) | Vendor educational/marketing; 2026-11-11 | Claims timestamp, account, device/shift, action and before/after values, plus non-editable log UI. It does not prove immutable database storage. Medium-low confidence. |
+| `POS-02` | POS365 | [Hướng dẫn cách xây dựng định lượng món ăn (BOM) nhà hàng chuẩn xác](https://www.pos365.vn/quan-ly-kho-nha-hang-8698.html) | Vendor educational/marketing; date not verified (conflicting first-party renderings during recheck) | Claims multi-layer BOM, unit conversion, stock deduction when payment is initiated, and stocktake comparison. Does not prove correctness or suitability for AFTER FOUR. Medium-low confidence. |
+| `POS-03` | POS365 | [Theo dõi lịch sử thao tác (audit log): Phát hiện ai sửa giá, hủy hóa đơn & xóa hàng](https://www.pos365.vn/theo-doi-lich-su-thao-tac-audit-log-9279.html) | Vendor educational/marketing; date not verified (conflicting first-party renderings during recheck) | Claims timestamp, account, device/shift, action and before/after values, plus non-editable log UI. It does not prove immutable database storage. Medium-low confidence. |
 | `KIOT-01` | KiotViet | [Khuyến mại](https://www.kiotviet.vn/huong-dan-su-dung-kiotviet/retail-khuyen-mai/khuyen-mai/) | Official help; retail scope; undated | Documents invoice/item discounts, free goods, points, voucher, time/branch/customer conditions, automatic application, return recalculation and create/edit/delete permissions. Retail behavior is context only for F&B. Medium confidence. |
 | `KIOT-02` | KiotViet | [Tổng quan các nhóm giải pháp KiotViet](https://www.kiotviet.vn/huong-dan-su-dung-kiotviet/fnb-he-thong-giai-phap-kiotviet/tong-quan-cac-nhom-giai-phap-kiotviet/) | Official F&B help; undated | Documents ingredient norms, automatic stock deduction when selling, stocktake, disposal, branch transfer and menu/combos. Does not specify exact order/preparation/payment event. Medium-high confidence. |
 | `KIOT-03` | KiotViet | [Trả hàng](https://www.kiotviet.vn/huong-dan-su-dung-kiotviet/retail-tra-hang/tra-hang/) | Official help; retail scope; undated | Documents return/refund records and inventory consequences in retail contexts. It does not establish F&B waste/quarantine or tender allocation. Medium confidence. |
@@ -68,8 +77,9 @@ The supplied POS365 partial-refund and wrong-promotion-price URLs returned fetch
 
 | Domain question | Sapo | KiotViet | CUKCUK | iPOS FABi | POS365 | Comparative conclusion |
 |---|---|---|---|---|---|---|
-| Cash open/close | Opening float, expected/actual/difference, withdrawals and handover states (`SAPO-01`) | `NO_PUBLIC_EVIDENCE_FOUND` in reviewed F&B help | Cash fund/count topics only (`CUK-08`) | Shift close, denomination count and per-user revenue (`IPOS-01`) | Audit article mentions shift attribution (`POS-03`) | Session concepts vary; none establishes AFTER FOUR Operating Day or zero-tolerance resolution. |
+| Cash open/close | Opening float, expected/actual/difference, withdrawals, device-scoped sessions and handover states (`SAPO-01`) | `NO_PUBLIC_EVIDENCE_FOUND` in reviewed F&B help | Cash fund/count topics only (`CUK-08`) | Shift close, denomination count and per-user revenue (`IPOS-01`) | Audit article mentions shift attribution (`POS-03`) | Session concepts vary; none establishes AFTER FOUR Operating Day or zero-tolerance resolution. |
 | Closed but unhanded-over | Explicit `Chưa bàn giao` state and optional handover at close (`SAPO-01`) | `NO_PUBLIC_EVIDENCE_FOUND` | `NO_PUBLIC_EVIDENCE_FOUND` | `NO_PUBLIC_EVIDENCE_FOUND` | `NO_PUBLIC_EVIDENCE_FOUND` | Supports considering close and handover as distinct, not adopting Sapo's transition. |
+| Device-scoped Cash Session | Session belongs to its opening device; each register opens/reconciles separately; another device's cancellation may be absent; later handover remains possible (`SAPO-01`) | `NO_PUBLIC_EVIDENCE_FOUND` | `NO_PUBLIC_EVIDENCE_FOUND` | `NO_PUBLIC_EVIDENCE_FOUND` | `NO_PUBLIC_EVIDENCE_FOUND` | Vendor-specific operational evidence only; it establishes no AFTER FOUR device, reconciliation, cancellation, handover or architecture policy. |
 | Promotion forms | Configured promotion and manual discount (`SAPO-05`) | Invoice/item discount, gifts, points, voucher (`KIOT-01`, retail) | Gift, invoice/item discount, buy-m-get-n, fixed price (`CUK-01`–`04`) | Item/group/invoice programs with conditions (`IPOS-01`) | Configured promotion examples only (`POS-01`) | Public evidence supports a finite explicit type surface; it does not select AFTER FOUR's catalogue. |
 | Stacking/exclusion | Some conditions visible; exact priority absent | Return recalculation documented; exact stacking priority incomplete | Exclude items/already-promoted items; one-promotion-per-item example (`CUK-02`, `CUK-03`) | Multiple conditions advertised, priority absent | Recommendation only | `NO_PUBLIC_EVIDENCE_FOUND` for a portable deterministic priority algorithm. |
 | Voucher semantics | `NO_PUBLIC_EVIDENCE_FOUND` in reviewed pages | Voucher listed as a promotion form in retail help (`KIOT-01`) | Voucher explicitly treated as payment, with limited per-code tracking (`CUK-05`) | E-voucher tender listed (`IPOS-01`) | Audit article mentions voucher application only | Vendors classify voucher differently; Promotion, entitlement, stored value and tender must remain separate choices. |
@@ -84,7 +94,7 @@ The supplied POS365 partial-refund and wrong-promotion-price URLs returned fetch
 
 ### 6.1 `P2B-CASH-OD-03` — discrepancy
 
-`SAPO-01` directly documents expected, actual and difference values, including closed-but-unhanded-over sessions; `IPOS-01` documents cash denomination count; `CUK-08` exposes cash count as a product area. These sources support explicit discrepancy evidence and distinct handover states as design options. They do **not** establish no-tolerance policy, notification, correction authority, linked correction, accounting treatment or Reporting release. AFTER FOUR's existing no-tolerance and immutable linked-correction decisions remain controlling. Status remains `CLARIFICATION_REQUIRED` / `REQUEST_SOURCE_OPTIONS`.
+`SAPO-01` directly documents expected, actual and difference values, including closed-but-unhanded-over sessions. It also documents a vendor-specific device boundary: a session belongs to its opening device, each cash register opens and reconciles separately, and cancellation on another device may not appear in the current device's session. `IPOS-01` documents cash denomination count; `CUK-08` exposes cash count as a product area. These sources support explicit discrepancy evidence and distinct handover states as design options. They do **not** establish no-tolerance policy, notification, correction authority, linked correction, accounting treatment, Reporting release, or an appropriate AFTER FOUR device architecture. AFTER FOUR's existing no-tolerance and immutable linked-correction decisions remain controlling. Status remains `CLARIFICATION_REQUIRED` / `REQUEST_SOURCE_OPTIONS`.
 
 ### 6.2 `P2A-PROMO-OD-01` — initial promotion types
 
@@ -140,14 +150,14 @@ Status abbreviations preserve the canonical baseline: `RECORDED` (16 prior recor
 
 | Candidate | Domain | Current canonical status | Evidence / relationship | Establishes / does not establish | External? |
 |---|---|---|---|---|---|
-| `P2B-CASH-OD-01` | Cash | `RECORDED` | `SAPO-01` `CONTEXT_ONLY` | Session time exists; not Operating Day timezone/cutoff. | Reporting/operations |
-| `P2B-CASH-OD-02` | Cash | `RECORDED` | `SAPO-02`,`SAPO-03`,`IPOS-01` `DIRECT` | Permissions exist; not AFTER FOUR assignees/delegation. | Identity/operations |
-| `P2B-CASH-OD-03` | Cash | `CLARIFICATION_REQUIRED` | `SAPO-01`,`IPOS-01` `DIRECT` | Count/difference evidence; not resolution/correction authority. | Accounting/Reporting |
+| `P2B-CASH-OD-01` | Cash | `RECORDED` | `SAPO-01` `CONTEXT_ONLY` | Device-scoped session time exists; not Operating Day timezone/cutoff. | Reporting/operations |
+| `P2B-CASH-OD-02` | Cash | `RECORDED` | `SAPO-02`,`SAPO-03`,`IPOS-01` `INDIRECT` | Generic shift/role and sensitive-action permissions exist; no source separates Open, Count, Handover and Close authority. | Identity/operations |
+| `P2B-CASH-OD-03` | Cash | `CLARIFICATION_REQUIRED` | `SAPO-01`,`IPOS-01` `DIRECT` | Count/difference and device-local cancellation evidence only; not resolution/correction authority. | Accounting/Reporting |
 | `P2B-CASH-OD-04` | Cash | `RECORDED` | `CUK-06`,`POS-03` `INDIRECT` | Post-close action/audit examples; not linked-fact mechanism. | Accounting/audit |
-| `P2B-CASH-OD-05` | Cash | `DEPENDENCY_BLOCKED` | `SAPO-01`,`KIOT-03` `INDIRECT` | Refund/cancel visibility; not tender/drawer rule. | Payment/provider/accounting |
-| `P2B-CASH-OD-06` | Cash | `RECORDED` | `SAPO-01` `DIRECT` | Handover state option; not approved evidence/transition. | Operations |
+| `P2B-CASH-OD-05` | Cash | `DEPENDENCY_BLOCKED` | `SAPO-01`,`KIOT-03` `INDIRECT` | Device-local cancellation and retail return visibility; not tender/drawer rule. | Payment/provider/accounting |
+| `P2B-CASH-OD-06` | Cash | `RECORDED` | `SAPO-01` `DIRECT` | Optional/later handover is a vendor-specific transition example; not approved evidence or AFTER FOUR transition. | Operations |
 | `P2B-CASH-OD-07` | Cash | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-01`,`CUK-08` `INDIRECT` | Withdrawal/cash-fund context; not source/authority policy. | Accounting |
-| `P2B-CASH-OD-08` | Cash | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-01`,`IPOS-01` `DIRECT` | Session closure/review evidence; not Operating Day Reporting release. | Accounting/Reporting |
+| `P2B-CASH-OD-08` | Cash | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-01`,`IPOS-01` `INDIRECT` | Device-local session reconciliation and shift-close context; not cadence, Operating Day completion or Reporting release. | Accounting/Reporting |
 | `P2B-WF-OD-01` | Workforce | `RECORDED` | `NO_PUBLIC_EVIDENCE_FOUND` | POS accounts do not establish Employee lifecycle/rehire. | Employment/Identity |
 | `P2B-WF-OD-02` | Workforce | `RECORDED` | `SAPO-03` `CONTEXT_ONLY` | Roles exist; not effective-dated Branch Assignment. | Organization/Identity |
 | `P2B-WF-OD-03` | Workforce | `RECORDED` | `NO_PUBLIC_EVIDENCE_FOUND` | No shift draft/publish/change authority contract found. | Operations/employment |
@@ -160,26 +170,26 @@ Status abbreviations preserve the canonical baseline: `RECORDED` (16 prior recor
 | `P2B-WF-OD-06E` | Workforce | `DEPENDENCY_BLOCKED` | `NO_PUBLIC_EVIDENCE_FOUND` | No absence/leave outcome. | Employment/Payroll |
 | `P2B-WF-OD-07A` | Workforce | `DEPENDENCY_BLOCKED` | `NO_PUBLIC_EVIDENCE_FOUND` | No leave entitlement/balance/workflow. | Employment/Payroll |
 | `P2B-WF-OD-07B` | Workforce | `DEPENDENCY_BLOCKED` | `NO_PUBLIC_EVIDENCE_FOUND` | No overtime eligibility/rate/correction. | Employment/Payroll/accounting |
-| `P2B-WF-OD-08A` | Workforce | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-03` `INDIRECT` | Permissions/report access context; not minimum lawful facts/purpose. | Privacy/retention |
+| `P2B-WF-OD-08A` | Workforce | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-03` `CONTEXT_ONLY` | Generic permissions/report access context; no Workforce fact-sharing or legitimate-purpose evidence. | Privacy/retention |
 | `P2B-INV-OD-01` | Inventory | `RECORDED` | `CUK-07`,`KIOT-02` `DIRECT` | Warehouses/branch transfers exist; not AFTER FOUR topology. | Organization/operations |
 | `P2B-INV-OD-02` | Inventory | `RECORDED` | `POS-02` `CONTEXT_ONLY` | Article discusses negative error risk; not exception policy. | Operations/accounting |
 | `P2B-INV-OD-03` | Inventory | `DIRECTION_CONFIRMED_CONDITIONAL` | `NO_PUBLIC_EVIDENCE_FOUND` | No verified class-specific lot/expiry/quarantine/FEFO policy. | Food safety |
 | `P2B-INV-OD-04A` | Inventory | `UNRESOLVED_CONDITIONAL` | `SAPO-04`,`KIOT-02`,`POS-02` `DIRECT` | BOM/deduction signals; no authoritative recognition event. | Preparation/accounting |
 | `P2B-INV-OD-04B` | Inventory | `DIRECTION_CONFIRMED_CONDITIONAL` | `KIOT-02`,`POS-02` `INDIRECT` | Disposal/variance context; not deviation taxonomy/authority. | Operations/accounting/food safety |
 | `P2B-INV-OD-05` | Inventory | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-07`,`KIOT-02` `INDIRECT` | Transfer exists; not dispatch/receipt/discrepancy policy. | Operations/accounting |
-| `P2B-INV-OD-06` | Inventory | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-07`,`POS-02`,`POS-03` `DIRECT` | Stocktake/audit options; not threshold/approval. | Loss control/accounting |
+| `P2B-INV-OD-06` | Inventory | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-07`,`POS-02`,`POS-03` `INDIRECT` | Stocktake, variance and audit context; no adjustment authority, reason requirement, threshold or approval evidence. | Loss control/accounting |
 | `P2B-INV-OD-07` | Inventory | `DEPENDENCY_BLOCKED` | `CUK-07`,`POS-02` `CONTEXT_ONLY` | Cost topics/claims; not applicable valuation selection. | Qualified accounting |
-| `P2B-INV-OD-08` | Inventory | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-04`,`POS-02` `DIRECT` | Units/conversions evidenced; not canonical set/version effects/rounding. | Catalog/Recipe/accounting |
+| `P2B-INV-OD-08` | Inventory | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-04`,`POS-02` `DIRECT` | Direct only for unit and conversion examples; not canonical set, conversion ownership, version effects or rounding. | Catalog/Recipe/accounting |
 | `P2A-LOY-OD-01` | Loyalty | `DIRECTION_CONFIRMED_CONDITIONAL` | `KIOT-01` `CONTEXT_ONLY` | Points promotion exists; not authoritative settled earning value. | Payment/accounting |
 | `P2A-LOY-OD-02` | Loyalty | `DIRECTION_CONFIRMED_CONDITIONAL` | `NO_PUBLIC_EVIDENCE_FOUND` | No deterministic redemption order/rate/rounding evidence. | Ordering/accounting |
 | `P2A-LOY-OD-03` | Loyalty | `RECORDED` | `NO_PUBLIC_EVIDENCE_FOUND` | No evidence changes disabled-expiry policy. | Legal/notice if revisited |
 | `P2A-LOY-OD-04` | Loyalty | `DIRECTION_CONFIRMED_CONDITIONAL` | `SAPO-03`,`IPOS-01` `INDIRECT` | Fine-grained permission option; not requester/approver thresholds. | Identity/audit |
 | `P2A-LOY-OD-05` | Loyalty | `DEPENDENCY_BLOCKED` | `KIOT-01` `INDIRECT` | Discounted retail return recalculation; not points reversal allocation. | Payment/Ordering/accounting |
-| `P2A-LOY-OD-06` | Loyalty | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-01` `CONTEXT_ONLY` | Chain applicability exists for promotions, not Loyalty scope. | Customer/privacy |
+| `P2A-LOY-OD-06` | Loyalty | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-01` `CONTEXT_ONLY` | Restaurant applicability exists for Promotions only; it supplies no Loyalty benefit-scope evidence. | Customer/privacy |
 | `P2A-LOY-OD-07` | Loyalty | `RECORDED` | `NO_PUBLIC_EVIDENCE_FOUND` | No evidence changes preserve/freeze/no-exception policy. | Privacy/legal if exception proposed |
 | `P2A-PROMO-OD-01` | Promotions | `CLARIFICATION_REQUIRED` | `CUK-01`–`CUK-04`,`KIOT-01` `DIRECT` | Multiple finite forms; not approved AFTER FOUR set. | Trade/tax/accounting/operations |
 | `P2A-PROMO-OD-02` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-01`,`KIOT-01`,`IPOS-01` `DIRECT` | Branch/channel/item scope options; not cross-Brand authority. | Catalog/operations |
-| `P2A-PROMO-OD-03` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-02`,`CUK-03` `DIRECT` | Exclusions/one-per-item examples; not deterministic global priority. | Ordering/Loyalty |
+| `P2A-PROMO-OD-03` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-02`,`CUK-03` `DIRECT` | Direct only for documented exclusions and a one-promotion-per-item example; not stacking groups, tie-breaking or deterministic global priority. | Ordering/Loyalty |
 | `P2A-PROMO-OD-04` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-05` `CONTEXT_ONLY` | Used-code/tender context; not reserve/redeem/release/reverse. | Order/Payment/provider |
 | `P2A-PROMO-OD-05` | Promotions | `DEPENDENCY_BLOCKED` | `KIOT-01`,`CUK-06` `INDIRECT` | Return/cancel examples; not discount allocation/reversal. | Payment/Catalog/accounting |
 | `P2A-PROMO-OD-06` | Promotions | `CLARIFICATION_REQUIRED` | `CUK-05`,`IPOS-01`,`KIOT-01` `DIRECT` | Conflicting voucher categories; not complete lifecycle/binding. | Privacy/fraud/tax/provider |
@@ -190,8 +200,8 @@ Status abbreviations preserve the canonical baseline: `RECORDED` (16 prior recor
 | `P2A-PROMO-OD-07E` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `NO_PUBLIC_EVIDENCE_FOUND` | No separate publish authority contract found. | Identity/lifecycle |
 | `P2A-PROMO-OD-07F` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `NO_PUBLIC_EVIDENCE_FOUND` | No pause capability/reason/effect evidence. | Identity/lifecycle |
 | `P2A-PROMO-OD-07G` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `NO_PUBLIC_EVIDENCE_FOUND` | No resume/revalidation evidence. | Identity/lifecycle |
-| `P2A-PROMO-OD-07H` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-02` `INDIRECT` | Stop-tracking option; not manual-end authority/history. | Identity/lifecycle |
-| `P2A-PROMO-OD-07I` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `KIOT-01`,`POS-03` `INDIRECT` | Edit/audit context; not prospective linked replacement. | Identity/audit/Customer |
+| `P2A-PROMO-OD-07H` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `CUK-02` `CONTEXT_ONLY` | A stop-tracking UI option supplies lifecycle context only; no manual-end authority, reason, effective time or history evidence. | Identity/lifecycle |
+| `P2A-PROMO-OD-07I` | Promotions | `DIRECTION_CONFIRMED_CONDITIONAL` | `KIOT-01`,`POS-03` `CONTEXT_ONLY` | Generic edit/audit context only; no published-Promotion correction, prospective reach or linked replacement evidence. | Identity/audit/Customer |
 | `P2A-PROMO-OD-07J` | Promotions | `RECORDED` | `NO_PUBLIC_EVIDENCE_FOUND` | No evidence changes disabled emergency authority. | Governance if revisited |
 | `P2A-PROMO-OD-08` | Promotions | `UNRESOLVED_CONDITIONAL` | `CUK-04`,`SAPO-05`,`IPOS-01` `DIRECT` | Schedule fields; not timezone/boundary semantics. | Operations/timezone |
 | `W2-ORD-OD-01` | Ordering | `DEPENDENCY_BLOCKED` | `SAPO-05`,`IPOS-01`,`KIOT-01` `INDIRECT` | Components exist; not authoritative calculation sequence/allocation. | Catalog/Payment/Loyalty/Promotions/accounting |
