@@ -91,9 +91,7 @@ Decision date and Owner identity/role: _________________________________________
 
 `E-OR-01` acceptance does not automatically grant Gate A. Gate A may be considered only after the Owner records a valid semantic-design acceptance outcome.
 
-The canonical Owner Decision Baseline, Foundation Decisions, and accepted ADRs do not establish a conditional Gate A approval mechanism. Earlier research packages mention conditional Gate A only as a contingent option if existing governance permits it; those preparation artifacts do not create that authority. Accordingly, E-OR-02 offers no conditional-approval outcome: if a prerequisite or requested condition is unresolved, the truthful outcome is `DEFER_GATE_A` or `NOT_GRANTED` until it is resolved and the Owner can make a separate explicit Gate A decision.
-
-E-OR-02 has no conditional-approval outcome. An unresolved prerequisite or condition requires `DEFER_GATE_A` or `NOT_GRANTED`; it cannot be converted into conditional Gate A approval.
+The canonical Owner Decision Baseline, Foundation Decisions, and accepted ADRs do not establish a conditional Gate A approval mechanism. Earlier research packages mention conditional Gate A only as a contingent option if existing governance permits it; those preparation artifacts do not create that authority. Accordingly, E-OR-02 offers no conditional-approval outcome: if a prerequisite or permitted E-OR-01 condition remains unresolved, the truthful outcome is `DEFER_GATE_A` or `NOT_GRANTED` until it is resolved and the Owner can make a separate explicit Gate A decision.
 
 | Option | Meaning | Material trade-off |
 |---|---|---|
@@ -212,7 +210,7 @@ No stage is granted automatically because the preceding artifact or stage is com
 ## 9. Recommended Owner review order
 
 1. Decide E-OR-01 bounded semantic-design acceptance.
-2. Decide E-OR-02 Gate A separately, only after the E-OR-01 outcome is recorded.
+2. Consider E-OR-02 only after E-OR-01 has produced a valid semantic-design acceptance outcome and every permitted E-OR-01 condition, if any, has been resolved and verified. Otherwise, retain Gate A as `NOT_GRANTED` or `DEFER_GATE_A`.
 3. Review and prioritize the fourteen-domain logical database inventory without treating it as a physical schema.
 4. Select the next-wave documentation/design packages and their true dependencies through NW-OR-01.
 5. Record selected Owner decisions and preserve every unresolved matter explicitly.
