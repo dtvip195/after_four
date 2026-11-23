@@ -162,7 +162,7 @@ No application/database test is required to prove a documentation-only semantic 
 | Anonymization completion | `INDEPENDENT_RE_REVIEW_CONFIRMED` | WP-T1 §7 proposed completion semantics, including the phone-change/Customer-side-anonymization race, were independently reviewed; receiving-context implementation and anonymization approval authority remain excluded. |
 | Authorization/non-disclosure | `SATISFIED_FOR_REVIEW` | WP-T1 §8; runtime implementation excluded. |
 | Cross-document consistency | `SATISFIED` | Corrected WP-T1 package is synchronized, independently re-reviewed, and cross-referenced by the frozen manifest. |
-| Curated `.gem` review | `COMPLETED — OWNER_REVIEW_REQUIRED` | Research report and correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` exist; no dependency was adopted. |
+| Curated GitLab Gemfile reference review | `COMPLETED — OWNER_REVIEW_REQUIRED` | Research report and correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` exist; no dependency was adopted. |
 | Frozen reviewed baseline | `SATISFIED` | [Manifest](after_four_candidate_e_frozen_reviewed_baseline_manifest.md) pins baseline `8d406314acbd390d431d75799b1f66499439f117`, exact evidence paths, and blob identities. |
 | Gate A decision | `NOT_GRANTED` | Requires later explicit Owner action. |
 
