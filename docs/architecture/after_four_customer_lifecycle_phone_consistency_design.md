@@ -445,6 +445,8 @@ After those decisions, a later bounded work package may compare aggregate/case b
 
 WP4.2 does not name or authorize WP4.3, implementation, or any Gate.
 
+The [WP-T1 Customer Technical Design](after_four_customer_technical_design.md) completes that bounded comparison as a `TECHNICAL_PROPOSAL`: it defines logical boundaries, required concurrency outcomes, anonymization completion meanings, and logical Application contracts while leaving every physical mechanism and authorization implementation unresolved. WP4.2 remains the scenario/policy source; WP-T1 is not Gate A approval.
+
 ## 18. Review checklist and change history
 
 ### 18.1 WP4.2 review checklist

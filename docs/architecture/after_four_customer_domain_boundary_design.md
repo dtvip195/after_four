@@ -366,6 +366,10 @@ ADR-0006, Identity Security Review Checklist statuses, Identity Milestone 2B, P1
 
 Later work packages may cover privacy/dispute case design, cross-domain contracts, and physical/security design, but WP4.1 does not define their numbering, approve their scope, or authorize them.
 
+### 13.3 WP-T1 design closure
+
+The [WP-T1 Customer Technical Design](after_four_customer_technical_design.md) now selects, for review only, a Customer Profile aggregate, a separate logical Organization Phone Admission boundary, and a material Customer Review Case boundary. It preserves Restricted Identity Evidence as a distinct optional security/privacy concept. This supersedes WP4.1's provisional aggregate comparison only within Candidate E; it does not approve physical representation, implementation, or any excluded operation.
+
 ## 14. Review checklist and change history
 
 ### 14.1 WP4.1 review checklist

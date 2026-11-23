@@ -55,7 +55,7 @@ Database cascades are limited to unconfirmed, purely dependent configuration row
 | Cash session number | UQ `(branch_id, session_number)` | Drawer scope additionally controls open session. |
 | Payroll | UQ `(payroll_period_id, employee_id)` | One frozen calculation per Employee/Period. |
 | Loyalty account | UQ `customer_id` | Organization-shared Customer. |
-| Customer phone admission | Organization-wide uniqueness across one current Profile association or one unreleased former-phone restriction | `OWNER_CONFIRMED` conceptual invariant under `SDP-CUST-04`; grants no cross-Brand visibility or authority. The physical constraint, index, lock, verifier, and transaction design are not approved. |
+| Customer phone admission | Organization-wide uniqueness across one current Profile association or one unreleased former-phone restriction | `OWNER_CONFIRMED` conceptual invariant under `SDP-CUST-04`; grants no cross-Brand visibility or authority. [WP-T1](after_four_customer_technical_design.md) defines required logical serialization, complete-or-preserve, non-disclosure, and recovery outcomes. The physical constraint, index, lock, verifier, transaction, and retry implementation remain unapproved. |
 | Idempotency | UQ `(organization_id, scope, key)` plus request fingerprint | Same key/different payload is conflict. |
 
 `TECHNICAL_PROPOSAL` Prefer named constraints with stable error mapping. `OWNER_CONFIRMED` Category/Product/Variant canonical Codes use separate entity-type namespaces within each Brand and remain reserved after Archive/future Soft Delete (`ODB-CAT-18`, `ODB-CAT-22`, `ODB-CAT-27`, `ODB-CAT-36`). SKU support is deferred from MVP (`ODB-CAT-34`); exact Code constraint names/storage and ancestry mechanics remain proposed.
