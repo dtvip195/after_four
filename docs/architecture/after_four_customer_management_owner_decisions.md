@@ -2,7 +2,7 @@
 
 **Decision status:** `OWNER_DECIDED` / `OWNER_CONFIRMED`
 
-**Decision date:** 2026-11-16
+**Decision dates:** 2026-11-16 (`SDP-CUST-03` through `SDP-CUST-14`, including `SDP-CUST-12A`, `SDP-CUST-12B`, and `SDP-CUST-A2`); 2026-11-23 (`SDP-CUST-15`)
 
 **Authority:** Owner
 
@@ -20,9 +20,9 @@
 
 ## 1. Purpose and provenance
 
-This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-14`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
+This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-15`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
 
-The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids fourteen near-duplicate files while retaining a stable section anchor for every decision.
+The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids fifteen near-duplicate files while retaining a stable section anchor for every decision.
 
 ## SDP-CUST-03
 
@@ -105,6 +105,14 @@ Exact periods, lawful bases, legal holds, disposal requirements, and mechanisms 
 **Option A2 — Restricted phone retention after anonymization.** Once anonymization becomes effective, the phone association is removed from the ordinary Customer Profile. The phone may be retained separately only for a legitimate, documented purpose. Any retained evidence belongs to a restricted identity-evidence boundary with controlled authorization, purpose limitation, access audit, and retention/disposal under [`SDP-CUST-14`](#sdp-cust-14).
 
 Restricted Identity Evidence must not support ordinary lookup, duplicate matching, marketing, identity restoration, or re-identification and is not a second ordinary Customer Profile. Retention is optional and purpose-dependent. Its physical storage topology, schema, API, authorization implementation, retention period, and legal-compliance conclusions remain unapproved.
+
+## SDP-CUST-15
+
+**Initial Customer Profile Lifecycle State — Active.** After all applicable Profile-creation preconditions succeed and a Customer Profile is successfully created, its initial lifecycle state is `Active`.
+
+`Active` records only the Profile lifecycle state. It does not mean phone ownership is verified, identity is verified, marketing consent exists, the actor or Customer has authorization, or Brand/Branch visibility expands. Phone validation, Organization-wide admission control, strict duplicate prevention, and scoped visibility remain governed by [`SDP-CUST-03`](#sdp-cust-03) through [`SDP-CUST-07`](#sdp-cust-07). Loyalty, Promotion, and Order lifecycles remain independently governed. Later Inactive and Anonymized transitions continue to follow [`SDP-CUST-10`](#sdp-cust-10) and [`SDP-CUST-11`](#sdp-cust-11), and Anonymized remains terminal for ordinary operations.
+
+This decision selects no verification mechanism, persistence representation, command, API, transaction, concurrency control, authorization rule, or implementation. Its canonical `ODB-*` ID remains `ID_PENDING_OWNER_GOVERNANCE`, and implementation authorization remains `NOT_GRANTED`.
 
 ## 2. Cross-domain ownership boundaries
 
