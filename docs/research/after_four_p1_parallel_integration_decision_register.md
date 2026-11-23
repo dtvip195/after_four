@@ -139,10 +139,10 @@ The existing `P1-OD-01` through `P1-OD-05` remain `OWNER_DECISION_REQUIRED`: Bra
 
 | Criterion | Result |
 |---|---|
-| Three independent evidence-backed workstream artifacts | `SATISFIED_FOR_OWNER_REVIEW` |
-| Confirmed policy separated from implementation/proposal | `SATISFIED_FOR_OWNER_REVIEW` |
-| Material implementation claims sourced and bounded | `SATISFIED_FOR_OWNER_REVIEW — CODE_INSPECTION_ONLY_WHERE_STATED` |
-| Cross-domain ownership and interfaces explicit | `SATISFIED_FOR_OWNER_REVIEW` |
+| Three independent evidence-backed workstream artifacts | `SATISFIED — OWNER_REVIEW_COMPLETED` |
+| Confirmed policy separated from implementation/proposal | `SATISFIED — OWNER_REVIEW_COMPLETED` |
+| Material implementation claims sourced and bounded | `SATISFIED — OWNER_REVIEW_COMPLETED / CODE_INSPECTION_ONLY_WHERE_STATED` |
+| Cross-domain ownership and interfaces explicit | `SATISFIED — OWNER_REVIEW_COMPLETED` |
 | Owner outcomes synchronized without changing accountable ownership | `SATISFIED — 8 APPROVED / 6 DEFERRED` |
 | Authentication dependency selection remains open | `SATISFIED` |
 | Candidate E Gate A/B boundary preserved | `SATISFIED` |

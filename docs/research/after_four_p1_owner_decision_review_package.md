@@ -57,15 +57,15 @@ Repository implementation is bounded evidence, not Owner authority. Every `P1A-O
 
 ### 2.3 What blocks what
 
-| Decision group | Current impact | Proposed recommendation — not current status |
+| Decision group | Recorded dependency impact | Historical review rationale / post-decision guidance |
 |---|---|---|
-| `P1A-OD-02`, `03`, `06` | Blocks coherent mismatch, excess, Refund, and late-success resolution policy. | Review together; decide only bounded business outcomes and authority. |
-| `P1A-OD-04`, `05`, `07` | Blocks cancellation, completed exception, and Order closure execution. | Recommend deferral until each decision's named downstream policy inputs are ready. |
-| `P1A-OD-01` | Blocks activation of partial/split tender, but does not block exact-balance operation. | Recommend deferral and preserve the current exact-balance limitation. |
-| `P1A-OD-08` | Blocks optional later Customer association, but does not block anonymous Orders. | Recommend routing to Customer policy and deferral until its verification/privacy inputs exist. |
-| `P1B-OD-01`–`04` | Blocks complete future Catalog create/edit/default-operation policy. | May be reviewed independently as business policy; no runtime work follows. |
-| `P1B-OD-05` | Blocks evidence requirements for future non-lifecycle mutations. | Review after or with `P1B-OD-02`–`04`, because the operation set determines consequential evidence. |
-| `P1C-OD-01` | Leaves authentication-foundation uncertainty unresolved. It does not block the existing I1 ancestry seam. | Recommend deferring execution until an exact spike manifest and security evidence protocol receive separate review. |
+| `P1A-OD-02`, `03`, `06` | These decisions supplied coherent bounded mismatch, excess, Refund, and late-success policy principles. | They were reviewed together to avoid conflicting outcomes; excluded technical and authority details remain separate. |
+| `P1A-OD-04`, `05`, `07` | Deferral leaves cancellation, completed exception, and Order closure execution unresolved. | Reopen only when each decision's named downstream policy inputs are ready. |
+| `P1A-OD-01` | Deferral blocks activation of partial/split tender, but does not block exact-balance operation. | Preserve the current exact-balance limitation unless a later Owner review reopens the question. |
+| `P1A-OD-08` | Deferral blocks optional later Customer association, but does not block anonymous Orders. | Route any later reopening through Customer policy with the required verification/privacy inputs. |
+| `P1B-OD-01`–`04` | The approved business principles bound future Catalog create/edit/default-operation policy. | No runtime work follows; excluded technical detail still requires separate review and authorization. |
+| `P1B-OD-05` | The approved policy principle establishes evidence for consequential non-lifecycle mutations without exhaustively classifying operations. | Classify remaining operation/evidence details against `P1B-OD-02`–`04` through later reviewed work. |
+| `P1C-OD-01` | Deferral leaves authentication-foundation uncertainty unresolved. It does not block the existing I1 ancestry seam. | Do not execute a spike unless a later exact manifest and security evidence protocol receive separate review and authorization. |
 
 ### 2.4 Outside this Owner review
 
@@ -311,18 +311,18 @@ Existing `P1-OD-01` through `P1-OD-05` remain unresolved and are not answered by
 
 ### 4.1 Dependency matrix
 
-| Decision(s) | May be reviewed independently? | Review together / prerequisite | Recommended timing |
+| Decision(s) | Independent review characteristics | Coordination / prerequisite | Recorded outcome / future guidance |
 |---|---|---|---|
-| `P1A-OD-01` | Yes | Full split-tender policy is prerequisite to enabling it, not to choosing deferral. | Review now only to confirm defer/reject/prepare-later direction. |
-| `P1A-OD-02`, `03`, `06` | Individually meaningful, but outcomes interact. | Review together so mismatch/excess, Refund, and late-success dispositions do not conflict. | Highest P1A policy-closure priority. |
-| `P1A-OD-04` | No responsible final outcome yet. | Preparation/Inventory and Loyalty/Promotion inputs; Payment/Refund baseline. | Defer to a later cross-domain policy review. |
-| `P1A-OD-05` | Yes. | Coordinate shared remedy vocabulary and downstream consequences with `P1A-OD-04`; completed-service scenarios and affected-domain inputs remain necessary for a responsible final choice, but `P1A-OD-04` is not a prerequisite. | Recommend deferral pending those inputs. |
-| `P1A-OD-07` | Closure remains Ordering-owned. | Preparation/Delivery completion and open review/Refund obligations. | Defer until those domains are bounded. |
-| `P1A-OD-08` | Customer may review it independently of other P1A questions. | Customer verification/privacy/authority and Loyalty/Promotion historical-effect inputs. | Route to Customer; do not bundle with Payment. |
-| `P1B-OD-01` | Yes | No prerequisite business decision. | Review independently. |
-| `P1B-OD-02`, `03`, `04` | Yes, and may be reviewed in parallel. | Share Identity/P1 and audit implementation prerequisites only. | Review as one Catalog operations session without bundling approval. |
-| `P1B-OD-05` | Partly | Needs the consequential operation set from `P1B-OD-02`–`04`. | Review immediately after those three. |
-| `P1C-OD-01` | Yes as a governance direction. | Exact spike manifest/evidence protocol is required before any execution authorization. | Defer execution; optionally direct preparation of the later package. |
+| `P1A-OD-01` | It was independently answerable. | Full split-tender policy is prerequisite to enabling it, not to deferring it. | `DEFERRED`; preserve exact-balance operation unless later reopened. |
+| `P1A-OD-02`, `03`, `06` | Individually meaningful, but their outcomes interact. | They were reviewed together so mismatch/excess, Refund, and late-success dispositions do not conflict. | `OWNER_CONFIRMED`; excluded design and implementation details remain separate. |
+| `P1A-OD-04` | No responsible final outcome was available. | Preparation/Inventory and Loyalty/Promotion inputs; Payment/Refund baseline. | `DEFERRED` to a later cross-domain policy review. |
+| `P1A-OD-05` | It was independently answerable. | Shared remedy vocabulary and downstream consequences require coordination with `P1A-OD-04`; completed-service scenarios and affected-domain inputs remain necessary, but `P1A-OD-04` is not a prerequisite. | `DEFERRED` pending those inputs. |
+| `P1A-OD-07` | Closure remains Ordering-owned. | Preparation/Delivery completion and open review/Refund obligations. | `DEFERRED` until those domains are bounded. |
+| `P1A-OD-08` | Customer could review it independently of other P1A questions. | Customer verification/privacy/authority and Loyalty/Promotion historical-effect inputs. | `DEFERRED`; route any reopening to Customer and do not bundle it with Payment. |
+| `P1B-OD-01` | It was independently answerable. | No prerequisite business decision. | `OWNER_CONFIRMED`; no implementation follows. |
+| `P1B-OD-02`, `03`, `04` | They were independently answerable and could be reviewed in parallel. | They share Identity/P1 and audit implementation prerequisites only. | `OWNER_CONFIRMED` as separate Catalog policy principles. |
+| `P1B-OD-05` | It was partly dependent on the bounded operation principles. | Consequential-operation classification depends on `P1B-OD-02`–`04`. | `OWNER_CONFIRMED` only at the limited, non-exhaustive policy-principle level. |
+| `P1C-OD-01` | It was independently answerable as a governance direction. | An exact spike manifest/evidence protocol is required before any execution authorization. | `DEFERRED`; no spike preparation or execution is authorized. |
 
 ### 4.2 Owner review sequence used
 
@@ -412,7 +412,7 @@ The outcomes are synchronized to the canonical Owner Decision Baseline. A checke
 - Candidate E remains `DEFER_GATE_A — NOT_GRANTED`; Candidate E Gate B proposal preparation remains `NOT_AUTHORIZED`.
 - Physical database design, schema, migrations, database operations, application/tests, dependency adoption, runtime changes, deployment, FOA, and Production Authorization remain unauthorized.
 
-If a proposed choice lacks the named prerequisite or qualified input, record `Defer` or `Reject / revise`; do not manufacture an answer.
+If any deferred question is reopened without its named prerequisite or qualified input, defer it again or request revision; do not manufacture an answer.
 
 ## 9. Review completion criteria
 
