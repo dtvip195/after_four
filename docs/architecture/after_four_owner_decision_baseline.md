@@ -2,7 +2,7 @@
 
 **Status:** Canonical source of truth for Owner-confirmed business decisions  
 **Date recorded:** 2026-11-14  
-**Latest decision update:** 2026-11-16
+**Latest decision update:** 2026-11-23
 **Scope:** Owner-confirmed business, planning and project-wide architecture decisions that constrain later implementation
 
 This baseline records Owner decisions supplied after the earlier repository consistency audit. It does not claim that these decisions were already present in the repository before this document was created.
@@ -84,6 +84,12 @@ A published canonical ID is immutable and must never be renumbered, reassigned, 
 Before a provisional reference can become canonical, its crosswalk must record the existing provisional reference, approved canonical ID, Owner approval provenance, allocation date, affected canonical documents, and treatment of historical references. Historical documents may retain the provisional reference where provenance requires it, while current canonical documents use the approved ID and preserve a traceable mapping. A blank or proposed canonical field is not an allocation.
 
 Every future allocation or amendment review must verify full-ID uniqueness, category validity, crosswalk consistency, affected canonical references, required historical-reference preservation, and absence of a duplicate canonical decision. The review must report unresolved ownership or reference conflicts rather than choosing a convenient classification.
+
+### Supporting research acceptance decisions
+
+| Reference | Decision date | Status | Owner-confirmed decision | Canonical ID / remaining boundary |
+|---|---|---|---|---|
+| `CAND-E-B01` | 2026-11-23 | `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED` | The Owner accepts the [Curated GitLab Gemfile Reference Review](../research/after_four_gitlab_gemfile_reference_review.md) as completed technical research and accepts its §15 dependency-management principles as guidance for future dependency proposals. Each future proposal must be evaluated selectively against AFTER FOUR architecture, requirements, compatibility, security, maintenance, and operational needs. | `ID_PENDING_OWNER_GOVERNANCE`; no exact canonical `ODB-*` ID was approved. No gem is selected or authorized, Devise 5 remains only a candidate for further evaluation, ADRs and dependency files remain unchanged, and a Devise-versus-custom authentication spike requires a separate decision after review of ADR-0006 and applicable authentication requirements. This decision grants no Candidate E Gate A or implementation authorization. |
 
 ## Project-wide architecture
 
