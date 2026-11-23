@@ -88,7 +88,7 @@ Required evidence: provider method/outcome/idempotency/settlement/fee evidence; 
 | Rounding adjustment | Qualified tax/accounting plus Ordering; unresolved. |
 | Final payable, Payment and refundable allocation | Ordering/Payment; unresolved dependencies. |
 
-VAT Law 48/2024/QH15 supplies the national VAT framework from 2025-07-01; the 2026 invoice sources supply current invoice constraints. They do not establish entity tax method, item rates, inclusive/exclusive display, service charge, discount treatment, mixed-rate allocation, zero/free treatment, or rounding. No calculation sequence is source-supported: proposing one would silently decide these matters.
+VAT Law 48/2024/QH15 is the originating national framework. For the assessment date, Consolidated Text 114/VBHN-VPQH dated 2026-05-20 is the primary reading/navigation reference: it incorporates amendments from Laws 90/2025/QH15, 149/2025/QH15, and 09/2026/QH16. It is not a new substantive enactment. The implementing framework also includes Decree 181/2025/NĐ-CP as amended, including by Decree 144/2026/NĐ-CP effective 2026-06-20; the separate 2026 invoice sources supply current invoice constraints. These sources do not establish AFTER FOUR's entity tax method, item rates, inclusive/exclusive display, service charge, discount treatment, mixed-rate allocation, zero/free treatment, or rounding. No calculation sequence is source-supported: proposing one would silently decide these matters.
 
 Qualified review must determine entity/method, categories/rates, tax presentation, service charge, discounts and benefits, mixed-rate/zero/free/remake treatment, rounding, retained snapshots, and partial-Refund allocation. Owner choices follow for Modifier models, complimentary authority, service charge, rounding, snapshot, and Ordering-owned sequence. No dependency for `P2A-LOY-OD-01`, `P2A-LOY-OD-02`, `P2A-PROMO-OD-01`, `P2A-PROMO-OD-03`, `P2A-PROMO-OD-05`, or `W2-ORD-OD-01` closes.
 
@@ -96,7 +96,7 @@ Qualified review must determine entity/method, categories/rates, tax presentatio
 
 ### 5.1 Authoritative floors
 
-Labour Code 45/2019/QH14 (effective 2021-01-01), Decree 145/2020/NĐ-CP (effective 2021-02-01), and Social Insurance Law 41/2024/QH15 (effective 2025-07-01) provide national evidence. Applicability depends on worker class, contract/CBA, internal labour rules, workforce size, schedule, work conditions, and later instruments.
+Labour Code 45/2019/QH14 (effective 2021-01-01) is the originating instrument. Consolidated Text 18/VBHN-VPQH, issued by the Office of the National Assembly on 2026-02-12, is the current reading reference for this assessment and incorporates amendments effective in 2026; it is not a new substantive enactment. That consolidated reference, Decree 145/2020/NĐ-CP (effective 2021-02-01), and Social Insurance Law 41/2024/QH15 (effective 2025-07-01) provide national evidence. The working-time, overtime, rest, leave, wage, and discipline propositions below were rechecked as bounded statutory propositions against the consolidated reference. Applicability still depends on worker class, contract/CBA, internal labour rules, workforce size, schedule, work conditions, and current implementing instruments, and requires employment-counsel confirmation.
 
 | Area | Primary-source fact | Not settled |
 |---|---|---|
@@ -114,8 +114,8 @@ Labour Code 45/2019/QH14 (effective 2021-01-01), Decree 145/2020/NĐ-CP (effecti
 |---|---|---|
 | `P2B-WF-OD-05` | Reliable original/corrected facts matter to pay/rest/discipline; no reviewed law mandates device, geolocation, or biometrics. | Privacy, retention, missed punch, correction authority and Payroll remain; conditional direction unchanged. |
 | `P2B-WF-OD-06A` | Statutory break/rest floors established. | Applicability, additional policy, recording/exceptions and Payroll; blocked. |
-| `P2B-WF-OD-06B` | No general legal grace period found. | Purpose, events, duration, consequences and safeguards; no numeric option supported; blocked. |
-| `P2B-WF-OD-06C` | Correct-pay floors constrain distortion; no general rounding authorization found. | Counsel/Payroll alternatives and safeguards; blocked. |
+| `P2B-WF-OD-06B` | The reviewed statutory provisions do not establish a general grace-period rule for this use case. | Purpose, events, duration, consequences and safeguards; no numeric option is supported by the reviewed sources; blocked. |
+| `P2B-WF-OD-06C` | Correct-pay floors constrain distortion; the reviewed sources do not establish a general rounding authorization for this use case. | Counsel/Payroll alternatives and safeguards; blocked. |
 | `P2B-WF-OD-06D` | Internal-rule and discipline guardrails established. | Classes, thresholds, excused evidence, actual-pay versus discipline, consequences; blocked. |
 | `P2B-WF-OD-06E` | Leave/insurance absence must remain distinct; dismissal thresholds are not generic classifications. | Depends on `07A`, counsel, Payroll, evidence and outcomes; blocked. |
 | `P2B-WF-OD-07A` | Statutory leave floors/categories partially established. | Current insurance mapping, optional categories, balance/workflow/pay; blocked. |
@@ -131,8 +131,9 @@ Required deliverables are a Vietnamese employment-counsel applicability memorand
 |---|---|---|
 | Food traceability | Food Safety Law 55/2010/QH12 requires relevant origin/safety records, traceability, stopping unsafe food, and recall/disposal cooperation. | No universal system lot, expiry, quarantine, or FEFO rule. |
 | Sector traceability | Circular 17/2021/TT-BNNPTNT addresses unsafe-food traceability/recall within its Ministry scope. | Cannot generalize across all items/regulators. |
-| Food-safety implementation | Decree 15/2018/NĐ-CP implements specified matters and responsibilities. | Does not select classes, workflow, or retention. |
-| Valuation | Circular 200/2014/TT-BTC permits specific identification, weighted average, and FIFO under that regime and requires quantity/value detail and reconciliation. | Does not prove applicability or approve weighted average. |
+| Current national food-safety implementation | Decree 46/2026/NĐ-CP was issued/effective 2026-01-26. Resolution 09/2026/NQ-CP, issued/effective 2026-02-04, suspended its application through 2026-04-15; it resumed effect on 2026-04-16. | Current national source as of 2026-11-24, but it does not select AFTER FOUR's classes, workflow, retention, or universal controls. Product/sector/location applicability requires qualified review. |
+| Transition context | Decree 15/2018/NĐ-CP remained applicable during the stated suspension period and is retained as historical/transition context, not the sole current implementing source. | Historical or transition relevance does not establish current item-specific obligations. |
+| Valuation regime currency | Circular 99/2025/TT-BTC was issued by the Ministry of Finance on 2025-10-27, takes effect 2026-01-01, and applies to financial years beginning on or after that date. A year beginning before 2026-01-01 may remain under its prior regime for that financial year, subject to qualified confirmation. Circular 200/2014/TT-BTC is retained only as possible prior-regime evidence. | The entity, financial-year start, and applicable accounting regime are not established. This review therefore does not assert that any specific valuation method is currently permitted for AFTER FOUR or select any method. |
 | Impairment | Circular 48/2019/TT-BTC, amended by Circular 24/2022/TT-BTC, supports impaired/damaged/obsolete-stock evidence where applicable. | Does not determine taxonomy, authority, or recognition event. |
 | Measurement | Measurement Law 04/2011/QH13 supports lawful, accurate, consistent units where applicable. | Does not select units, conversions, versions, or rounding. |
 
@@ -145,6 +146,8 @@ Required deliverables are a Vietnamese employment-counsel applicability memorand
 | Unpackaged ingredient/prepared food | Safe source, contamination prevention, appropriate storage/traceability. | Holding period, batch granularity, disposition, FEFO. |
 | Non-food consumables/supplies | Applicable accounting/measurement controls. | Food-law controls cannot be inferred without separate basis. |
 
+This matrix was reassessed against Decree 46's resumed application as of the assessment date. Its bounded conclusion is unchanged: national requirements, sector-specific instruments, and product-specific duties must be distinguished, and no universal lot, expiry, quarantine, temperature, or FEFO rule may be inferred without qualified classification.
+
 ### 6.3 Candidate results
 
 | Candidate | Result |
@@ -154,7 +157,7 @@ Required deliverables are a Vietnamese employment-counsel applicability memorand
 | `P2B-INV-OD-04B` | Separation of deviations is consistent with evidence; classes, authority, disposal, and journals remain conditional. |
 | `P2B-INV-OD-05` | Location/custody records and transport/storage supported; actors, partial receipt, discrepancy, responsibility and cost snapshot remain conditional. |
 | `P2B-INV-OD-06` | Reconciliation and explicit shortage/loss supported; thresholds, approval, recount and fraud escalation remain conditional. |
-| `P2B-INV-OD-07` | Several methods permissible under one possible regime; none approved. Remains blocked on regime and accountant selection. |
+| `P2B-INV-OD-07` | Circular 99 supersedes an unqualified reliance on Circular 200 for financial years beginning on or after 2026-01-01. The applicable regime and its permitted methods have not been established for AFTER FOUR; none is approved. Remains blocked on financial-year/regime confirmation, qualified-accountant recommendation, and Owner selection. |
 | `P2B-INV-OD-08` | Accurate/legal units supported; dictionary, conversion and rounding remain conditional. |
 
 Required providers: a Vietnamese food-safety adviser must classify actual items, regulator/location, traceability, dates, storage, temperature, quarantine, FEFO, recall/disposal and retention; a Vietnamese accountant must identify regime and valuation/cost/recognition/impairment/transfer/stocktake/conversion treatment; Preparation/Recipe/Ordering/Inventory must supply work and failure facts without selecting `INV-04A`.
@@ -262,8 +265,8 @@ No conflicting confirmed policy was found. Material distinctions remain: account
 |---|---|---|
 | `P2B-CASH-OD-05` | Refund/Cash vocabulary and invoice framework. | `NOT_RESOLVED`: provider method/outcome, allocation, accounting mapping identifying Cash effect. |
 | `P2B-WF-OD-06A` | Statutory break/rest floors. | `NOT_RESOLVED`: applicability, policy options, recording/exceptions, Payroll. |
-| `P2B-WF-OD-06B` | No general legal grace found. | `NOT_RESOLVED`: counsel-supported purpose/options and safeguards. |
-| `P2B-WF-OD-06C` | Correct-pay constraints; no general rounding authority. | `NOT_RESOLVED`: counsel/Payroll alternatives and safeguards. |
+| `P2B-WF-OD-06B` | Reviewed statutory provisions do not establish a general grace-period rule for this use case. | `NOT_RESOLVED`: counsel-supported purpose/options and safeguards. |
+| `P2B-WF-OD-06C` | Correct-pay constraints identified; reviewed sources do not establish a general rounding authorization for this use case. | `NOT_RESOLVED`: counsel/Payroll alternatives and safeguards. |
 | `P2B-WF-OD-06D` | Discipline guardrails. | `NOT_RESOLVED`: classes/evidence/thresholds, pay versus discipline, outcomes. |
 | `P2B-WF-OD-06E` | Leave/absence distinction and dismissal limits. | `NOT_RESOLVED`: `07A`, counsel/Payroll classifications and outcomes. |
 | `P2B-WF-OD-07A` | Labour Code leave floors. | `NOT_RESOLVED`: insurance mapping, optional categories, balances/workflow/Payroll. |
@@ -338,17 +341,28 @@ Legal/professional summaries are research, not advice or compliance certificatio
 | Source | Authority / jurisdiction | Publication/effect and limitation |
 |---|---|---|
 | [Accounting Law 88/2015/QH13](https://vanban.chinhphu.vn/?classid=1&docid=183198&pageid=27160&typegroupid=3) | National Assembly / Vietnam | Issued 2015-11-20; effective 2017-01-01. Records/corrections; no Cash authority. |
-| [VAT Law 48/2024/QH15](https://vanban.chinhphu.vn/?docid=212476&orggroupid=1&pageid=27160) | National Assembly / Vietnam | Issued 2024-11-26; effective 2025-07-01. Entity/rate review required. |
+| [VAT Law 48/2024/QH15](https://vanban.chinhphu.vn/?docid=212476&orggroupid=1&pageid=27160) | National Assembly / Vietnam | Originating instrument issued 2024-11-26; effective 2025-07-01. Read with later amendments and consolidated reference; entity/rate review required. |
+| [Law 90/2025/QH15](https://vanban.chinhphu.vn/?docid=214558&pageid=27160) | National Assembly / Vietnam | Issued 2025-06-25; VAT amendments effective 2025-07-01; incorporated in Consolidated Text 114. |
+| [Law 149/2025/QH15](https://congbao.chinhphu.vn/van-ban/luat-so-149-2025-qh15-468709.htm) | National Assembly / Vietnam | Issued 2025-12-11; effective 2026-01-01; VAT amendment incorporated in Consolidated Text 114. |
+| [Law 09/2026/QH16](https://vanban.chinhphu.vn/?docid=218095&pageid=27160) | National Assembly / Vietnam | Issued/effective 2026-04-24; VAT amendment incorporated in Consolidated Text 114. |
+| [Consolidated VAT Text 114/VBHN-VPQH](https://xdcs.cdnchinhphu.vn/446259493575335936/2026/6/5/2026-305-114-vbhn-vpqh-17806273642891917566820.pdf) | Office of the National Assembly / Vietnam | Certified 2026-05-20 and published in Official Gazette No. 305 on 2026-06-03. Current reading/navigation reference combining Laws 48, 90, 149, and 09; not a new enactment and not entity-specific tax advice. |
+| [Decree 144/2026/NĐ-CP](https://vanban.chinhphu.vn/?classid=1&docid=218020&pageid=27160) | Government / Vietnam | Issued 2026-05-05; effective 2026-06-20. Amends VAT implementation Decree 181/2025/NĐ-CP as previously amended; applicability still requires tax review. |
 | [Decree 254/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=218689&orggroupid=2&pageid=27160) | Government / Vietnam | Issued 2026-06-30; effective 2026-07-01. Current invoice framework; mapping required. |
 | [Circular 91/2026/TT-BTC](https://vanban.chinhphu.vn/?classid=1&docid=219006&orggroupid=4&pageid=27160) | Ministry of Finance / Vietnam | Issued 2026-06-30; effective 2026-07-01. No POS formula selected. |
 | [Labour Code 45/2019/QH14](https://vanban.chinhphu.vn/?docid=198540&pageid=27160) | National Assembly / Vietnam | Issued 2019-11-20; effective 2021-01-01. Counsel applicability required. |
+| [Consolidated Labour Code Text 18/VBHN-VPQH](https://vanban.chinhphu.vn/?classid=2629&docid=217002&pageid=27160) | Office of the National Assembly / Vietnam | Issued 2026-02-12. Current reading reference incorporating amendments effective in 2026; not a new enactment. Counsel applicability remains required. |
 | [ILO NATLEX Labour Code record](https://natlex.ilo.org/dyn/natlex2/r/natlex/fe/details?p3_isn=110469) | ILO repository / Vietnam instrument | Translation/navigation aid; enacted Vietnamese controls. |
 | [Decree 145/2020/NĐ-CP](https://vanban.chinhphu.vn/?classid=1&docid=201967&pageid=27160) | Government / Vietnam | Issued 2020-12-14; effective 2021-02-01. Applicability needs counsel. |
 | [Social Insurance Law 41/2024/QH15](https://vanban.chinhphu.vn/?classid=1&docid=211199&pageid=27160&typegroupid=3) | National Assembly / Vietnam | Issued 2024-06-29; effective 2025-07-01. Provider/counsel mapping required. |
 | [Food Safety Law 55/2010/QH12](https://vanban.chinhphu.vn/?classid=1&docid=96032&pageid=27160&typegroupid=3) | National Assembly / Vietnam | Issued 2010-06-17; effective 2011-07-01. No universal FEFO/lot policy. |
-| [Decree 15/2018/NĐ-CP](https://vanban.chinhphu.vn/?docid=192829&pageid=27160) | Government / Vietnam | Issued/effective 2018-02-02. Class/location review required. |
+| [Decree 46/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=216827&orggroupid=2&pageid=27160) | Government / Vietnam | Issued/effective 2026-01-26; application suspended through 2026-04-15 and resumed 2026-04-16. Current national implementation source; class/location/product review required. |
+| [Resolution 09/2026/NQ-CP](https://vanban.chinhphu.vn/?docid=216891&pageid=27160) | Government / Vietnam | Issued/effective 2026-02-04. Suspended Decree 46 through 2026-04-15 and provided resumption on 2026-04-16. |
+| [Government explanation of Decree 46 suspension/resumption](https://baochinhphu.vn/tam-ngung-hieu-luc-va-dieu-chinh-thoi-han-ap-dung-nghi-dinh-so-46-2026-nd-cp-102260205184324295.htm) | Government News / Vietnam | Published 2026-02-05. Explains the transition: Decree 15 continued during suspension; Decree 46 resumed 2026-04-16. Explanatory source, not a separate enactment. |
+| [Decree 15/2018/NĐ-CP](https://vanban.chinhphu.vn/?docid=192829&pageid=27160) | Government / Vietnam | Issued/effective 2018-02-02. Historical/transition context, including the Decree 46 suspension period; not the sole current implementation source. |
 | [Circular 17/2021/TT-BNNPTNT](https://vanban.chinhphu.vn/?classid=1&docid=204774&pageid=27160&typegroupid=6) | MARD / Vietnam | Issued 2021-12-20; effective 2022-02-02. Sector-scoped only. |
-| [Circular 200/2014/TT-BTC](https://vbpl.vn/FileData/TW/Lists/vbpq/Attachments/66801/VanBanGoc_200-2014-TT-BTC_200-2014-TT-BTC.pdf) | Ministry of Finance / Vietnam | Issued 2014-12-22; effective 2015-02-05; amended. Applicability not established. |
+| [Circular 99/2025/TT-BTC](https://congbao.chinhphu.vn/van-ban/thong-tu-so-99-2025-tt-btc-46529/59649.htm) | Ministry of Finance / Vietnam | Issued 2025-10-27; effective 2026-01-01 and applies to financial years beginning on or after that date. Applicable regime and valuation methods require qualified confirmation. |
+| [Ministry of Finance application guidance for Circular 99](https://portal.mof.gov.vn/hoidapcstc/home/cthoidap/159102) | Accounting and Auditing Policy Department, Ministry of Finance / Vietnam | Response dated 2026-01-14. Confirms a financial year beginning before 2026-01-01 remains under the prior regime for that year and applies Circular 99 from the next qualifying financial year; entity-specific confirmation remains required. |
+| [Circular 200/2014/TT-BTC](https://vbpl.vn/FileData/TW/Lists/vbpq/Attachments/66801/VanBanGoc_200-2014-TT-BTC_200-2014-TT-BTC.pdf) | Ministry of Finance / Vietnam | Issued 2014-12-22; effective 2015-02-05; amended. Retained as possible prior-financial-year regime evidence only, subject to qualified confirmation; not an unqualified current 2026 regime. |
 | [Circular 48/2019/TT-BTC as amended](https://vanban.chinhphu.vn/?classid=1&docid=205610&pageid=27160) | Ministry of Finance / Vietnam | Base issued 2019-08-08; amendment effective 2022-05-25. No workflow selected. |
 | [Measurement Law 04/2011/QH13](https://vanban.chinhphu.vn/default.aspx?docid=162349&pageid=27160) | National Assembly / Vietnam | Issued 2011-11-11; effective 2012-07-01. No internal unit policy selected. |
 | [Decree 13/2023/NĐ-CP](https://vanban.chinhphu.vn/default.aspx?docid=207759&pageid=27160) | Government / Vietnam | Issued 2023-04-17; effective 2023-07-01. Voucher applicability needs counsel. |
