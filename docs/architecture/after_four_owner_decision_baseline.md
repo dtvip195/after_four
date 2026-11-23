@@ -126,6 +126,21 @@ The references below remain provisional governance references. The Owner approve
 
 Totals: eight `OWNER_CONFIRMED` outcomes and six `DEFERRED` outcomes. These records grant policy authority only within their exact boundaries. Candidate E Gate A remains `DEFER_GATE_A — NOT_GRANTED`; Candidate E Gate B proposal preparation remains `NOT_AUTHORIZED`; physical database design, schema, migrations, database operations, application/tests, dependency adoption, runtime changes, deployment, FOA, and Production Authorization remain unauthorized.
 
+### Wave 2 Cash Owner decisions
+
+**Source:** Owner's explicit response, “Approve all four,” on 2026-11-23 to the Cash Owner Approval Ballot for `P2B-CASH-OD-01`, `P2B-CASH-OD-02`, `P2B-CASH-OD-04`, and `P2B-CASH-OD-06`. Owner comments and conditions: none.
+
+These references remain provisional governance references. The Owner approved the four stated policy directions but did not approve an exact full canonical `ODB-*` allocation for any of them. Under the controlled allocation procedure above, each therefore remains `ID_PENDING_OWNER_GOVERNANCE`; no ID is allocated or reserved by this record. The absence of a numbered ID does not reduce the authority of the confirmed policy within its exact scope.
+
+| Reference | Accountable owner | Decision date | Status | Owner-confirmed outcome and scope | Canonical ID / authorization boundary |
+|---|---|---|---|---|---|
+| `P2B-CASH-OD-01` | Cash | 2026-11-23 | `OWNER_DECIDED — OWNER_CONFIRMED` | Approve the recommended direction that Operating Day uses an explicit Branch timezone and cutoff. | `ID_PENDING_OWNER_GOVERNANCE`. Exact timezone, exact cutoff time, chain-wide versus Branch-specific configuration, and exceptional-day handling remain unresolved. No clock representation, configuration storage, scheduling, schema, API, code, or runtime behavior is approved. |
+| `P2B-CASH-OD-02` | Cash | 2026-11-23 | `OWNER_DECIDED — OWNER_CONFIRMED` | Approve separate Branch-scoped capabilities for opening, counting, handing over, and closing a Cash Session. Generic Staff status, Employee Shift, and Branch Assignment do not confer these capabilities. | `ID_PENDING_OWNER_GOVERNANCE`. Assignee mapping, delegation, revocation, separation of duties, emergency handling, Identity integration, and technical enforcement remain unresolved and unauthorized. |
+| `P2B-CASH-OD-04` | Cash | 2026-11-23 | `OWNER_DECIDED — OWNER_CONFIRMED` | Approve the direction that post-close corrections use separately attributable linked correction facts; closed evidence is not reopened or rewritten. | `ID_PENDING_OWNER_GOVERNANCE`. Permitted correction actions, initiators, approvers, mandatory reason and evidence, and reconciliation and Reporting consequences remain unresolved. No workflow, ledger/event representation, audit store, schema, transaction, API, code, or runtime behavior is approved. |
+| `P2B-CASH-OD-06` | Cash | 2026-11-23 | `OWNER_DECIDED — OWNER_CONFIRMED` | Approve Cash handover evidence containing outgoing actor, incoming actor, count, variance, reason, and acknowledgement. Acknowledgement is not approval. Handover preserves prior-session accountability and does not allocate a new Operating Day float. | `ID_PENDING_OWNER_GOVERNANCE`. Approval authority, refusal/disagreement handling, escalation, and whether handover automatically closes the outgoing Cash Session, requires a separate close action, or follows another controlled transition remain unresolved. No approval policy, state transition, schema, API, code, or runtime behavior is approved. |
+
+These four decisions are business-policy approvals only. `P2B-CASH-OD-03` remains `CLARIFICATION_REQUIRED`, `P2B-CASH-OD-05` remains `DEPENDENCY_BLOCKED`, and `P2B-CASH-OD-07` and `P2B-CASH-OD-08` remain `CONDITIONALLY_REVIEWABLE`. No physical database design, schema, migration, database operation, source code, test, dependency, API, UI, runtime grant, deployment, Gate A/B/C, Control Acceptance, FOA, or Production Authorization follows from these decisions.
+
 ## Project-wide architecture
 
 **Source for `ODB-ARCH-01`:** Owner's explicit project-wide Layered DDD adoption decision on 2026-11-15.
