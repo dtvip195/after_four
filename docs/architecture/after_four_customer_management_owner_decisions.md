@@ -2,7 +2,7 @@
 
 **Decision status:** `OWNER_DECIDED` / `OWNER_CONFIRMED`
 
-**Decision dates:** 2026-11-16 (`SDP-CUST-03` through `SDP-CUST-14`, including `SDP-CUST-12A`, `SDP-CUST-12B`, and `SDP-CUST-A2`); 2026-11-23 (`SDP-CUST-15`)
+**Decision dates:** 2026-11-16 (`SDP-CUST-03` through `SDP-CUST-14`, including `SDP-CUST-12A`, `SDP-CUST-12B`, and `SDP-CUST-A2`); 2026-11-23 (`SDP-CUST-15` and `SDP-CUST-16`)
 
 **Authority:** Owner
 
@@ -20,9 +20,9 @@
 
 ## 1. Purpose and provenance
 
-This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-15`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
+This register preserves the Owner-confirmed Customer Management business policies `SDP-CUST-03` through `SDP-CUST-16`, including separate decisions `SDP-CUST-12A` and `SDP-CUST-12B`, and `SDP-CUST-A2`. It complements the dedicated records for [`SDP-CUST-01`](after_four_sdp_cust_01_owner_decision.md), [`SDP-CUST-02`](after_four_sdp_cust_02_owner_decision.md), and [`SDP-SCOPE-01`](after_four_sdp_scope_01_owner_decision.md).
 
-The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids fifteen near-duplicate files while retaining a stable section anchor for every decision.
+The local references are stable governance references pending an explicitly approved canonical `ODB-*` allocation. Their absence from an earlier repository record did not make the Owner decisions unapproved. This consolidated register avoids sixteen near-duplicate files while retaining a stable section anchor for every decision.
 
 ## SDP-CUST-03
 
@@ -113,6 +113,14 @@ Restricted Identity Evidence must not support ordinary lookup, duplicate matchin
 `Active` records only the Profile lifecycle state. It does not mean phone ownership is verified, identity is verified, marketing consent exists, the actor or Customer has authorization, or Brand/Branch visibility expands. Phone validation, Organization-wide admission control, strict duplicate prevention, and scoped visibility remain governed by [`SDP-CUST-03`](#sdp-cust-03) through [`SDP-CUST-07`](#sdp-cust-07). Loyalty, Promotion, and Order lifecycles remain independently governed. Later Inactive and Anonymized transitions continue to follow [`SDP-CUST-10`](#sdp-cust-10) and [`SDP-CUST-11`](#sdp-cust-11), and Anonymized remains terminal for ordinary operations.
 
 This decision selects no verification mechanism, persistence representation, command, API, transaction, concurrency control, authorization rule, or implementation. Its canonical `ODB-*` ID remains `ID_PENDING_OWNER_GOVERNANCE`, and implementation authorization remains `NOT_GRANTED`.
+
+## SDP-CUST-16
+
+**Phone Change While Customer Profile Is Inactive — Option A.** An Inactive Customer Profile may undergo a controlled phone change. Existing Customer-verification and authority requirements under [`SDP-CUST-12A`](#sdp-cust-12a) continue to apply, and the proposed new phone must satisfy validation under [`SDP-CUST-03`](#sdp-cust-03) and Organization-wide admission control under [`SDP-CUST-04`](#sdp-cust-04).
+
+On successful completion, the new phone becomes the current phone association, the old phone becomes a former phone under unreleased restriction governed by [`SDP-CUST-12B`](#sdp-cust-12b), and the Profile remains `Inactive`. The phone change must not automatically reactivate the Profile. If the change fails, the previous phone association remains current and no partial accepted business outcome is permitted. Disputed or exceptional cases continue to follow [`SDP-CUST-12A`](#sdp-cust-12a) and [`SDP-CUST-13`](#sdp-cust-13).
+
+This operation does not merge Profiles, transfer Orders, Loyalty balances, Promotion entitlements, or expand Brand/Branch visibility. `Inactive` continues to restrict ordinary Profile operations under existing policy; this decision permits only the controlled phone-change operation. It selects no new verification or authorization mechanism, persistence representation, transaction, lock, index, concurrency/recovery mechanism, API, or implementation. Its canonical `ODB-*` ID remains `ID_PENDING_OWNER_GOVERNANCE`, and implementation authorization remains `NOT_GRANTED`.
 
 ## 2. Cross-domain ownership boundaries
 
