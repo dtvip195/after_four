@@ -4,7 +4,7 @@
 
 **Design scope:** Candidate E — Customer Lifecycle and Phone-Admission Semantic Contract
 
-**Document status:** `TECHNICAL_PROPOSAL — DESIGN_COMPLETE_FOR_REVIEW`
+**Document status:** `TECHNICAL_PROPOSAL — CORRECTIONS_PREPARED_FOR_INDEPENDENT_RE_REVIEW`
 
 **Gate A approval:** `NOT_GRANTED`
 
@@ -107,6 +107,19 @@ I1 may provide authoritative Brand-to-Organization ancestry through its publishe
 
 Restricted Identity Evidence is not part of any ordinary Profile or admission aggregate. It is an optional purpose-dependent security/privacy boundary whose physical ownership remains unresolved.
 
+The boundaries own different authoritative facts; Phone Admission must not become an uncontrolled duplicate Customer Profile:
+
+| Authoritative fact | Logical owner | Contract boundary |
+|---|---|---|
+| Customer Profile lifecycle | Customer Profile | Phone Admission may evaluate an authoritative lifecycle fact supplied for an operation but does not own or copy lifecycle state as another source of truth. |
+| Profile's current-phone relationship | Customer Profile | The Profile owns which canonical phone is current for that Profile. |
+| Organization-wide phone-admission decision | Organization Phone Admission | It owns whether a requested canonical phone may be admitted in the authoritative Organization namespace. |
+| Former-phone restriction | Organization Phone Admission | It owns the admission block, not the former Customer's identity. |
+| Dispute and material Review Case | Customer Review Case | It owns the purpose-limited hold/investigation/decision record, not Profile or admission state. |
+| Restricted Identity Evidence | Separate restricted boundary | It is never an ordinary Profile, admission, support, or duplicate-detection source. |
+
+`TECHNICAL_DESIGN_DECISION`: an included operation must compare the authoritative Profile current-phone fact with the applicable Phone Admission claim/restriction facts as one logical consistency check. Phone Admission may retain only the minimum logical claim evidence needed to decide the Organization namespace; this proposal does not select its physical representation. If the two boundaries disagree, the Application must not silently choose either fact, overwrite either owner, expose a possibly affected Customer, or claim success or confirmed preservation. It returns a non-disclosing incomplete/unknown result and requires controlled reconciliation under §§5.6 and 6.6. The physical detection, repair, and reconciliation mechanism remains a later-gate design.
+
 ### 5.2 Why not one aggregate
 
 | Alternative | Assessment |
@@ -133,7 +146,7 @@ Restricted Identity Evidence is not part of any ordinary Profile or admission ag
 | `WP-T1-INV-01` | Within one Organization, a canonical phone has at most one current association or one unreleased former-phone restriction. | `SDP-CUST-04` |
 | `WP-T1-INV-02` | A conflict discloses no other Brand, Customer, Profile, history, or restriction ownership. | `SDP-CUST-04`, `05`, `06` |
 | `WP-T1-INV-03` | Phone possession and Customer/Profile identifier possession establish neither identity nor authority. | `SDP-CUST-03`, `06`, `09`, `20` |
-| `WP-T1-INV-04` | Successful phone change replaces the current association completely and creates the old-phone restriction; failure preserves the previous current association. No partial accepted outcome exists. | `SDP-CUST-12A`, `16` |
+| `WP-T1-INV-04` | Successful phone change replaces the current association completely and creates the old-phone restriction. A confirmed-not-applied failure preserves the previous current association. An unknown result proves neither success nor preservation until reconciliation; no partial accepted outcome exists. | `SDP-CUST-12A`, `16` |
 | `WP-T1-INV-05` | An Inactive Profile remains Inactive after successful phone change. | `SDP-CUST-16` |
 | `WP-T1-INV-06` | Anonymized is terminal for ordinary Profile operations and cannot be restored by a new phone or Profile. | `SDP-CUST-10`, `11`, `22` |
 | `WP-T1-INV-07` | Manual release ends only admission blocking; it creates no association, identity restoration, authority, or history/value transfer. | `SDP-CUST-12B`, `13` |
@@ -141,7 +154,7 @@ Restricted Identity Evidence is not part of any ordinary Profile or admission ag
 | `WP-T1-INV-09` | Material disputes are held pending the applicable decision; routine rejection does not automatically create a Review Case. | `SDP-CUST-13`, `21` |
 | `WP-T1-INV-10` | Ordinary audit, support, reporting, or export cannot provide a route to reconstruct anonymized Customer identity. | `SDP-CUST-22` |
 
-### 5.5 Domain outcomes
+### 5.5 Business outcome dimension
 
 | Category | Semantic meaning |
 |---|---|
@@ -151,43 +164,91 @@ Restricted Identity Evidence is not part of any ordinary Profile or admission ag
 | `HeldForReview` | A material disputed/exceptional case requires controlled investigation or decision. |
 | `Denied` | Trusted authorization or verification decision is not sufficient. |
 | `DependencyUnavailable` | Required trusted scope, authorization, verification, or coordination evidence is unavailable; fail closed. |
-| `Incomplete` | A multi-context completion claim cannot yet be made; reconciliation/escalation is required. |
+| `NotYetDetermined` | No confirmed business success or confirmed business failure can yet be stated because application of the operation is unknown. |
 
-These are logical categories, not HTTP status codes or public DTOs.
+These are logical business meanings, not HTTP status codes, public DTOs, or persisted enum selections.
+
+### 5.6 Business outcome, execution certainty, and recovery status
+
+`TECHNICAL_DESIGN_DECISION`: every operation result is reasoned about on three independent semantic dimensions. They must not be collapsed into one status:
+
+| Dimension | Logical categories | Meaning |
+|---|---|---|
+| Business outcome | `Succeeded`, `Rejected`, `Conflict`, `HeldForReview`, `Denied`, `DependencyUnavailable`, or `NotYetDetermined` | What can truthfully be said about the requested business operation. |
+| Execution certainty | `ConfirmedApplied`, `ConfirmedNotApplied`, or `Unknown` | Whether the required authoritative facts are proven applied, proven not applied, or cannot yet be established. |
+| Recovery status | `NotRequired`, `Pending`, `ReconciliationRequired`, or `Completed` | Whether controlled technical recovery/reconciliation is needed and whether that work has ended. |
+
+Valid relationships are constrained as follows:
+
+| Semantic relationship | Required interpretation |
+|---|---|
+| `Succeeded` | Requires `ConfirmedApplied` and proof of every required completion postcondition. Recovery is `NotRequired` or `Completed`; recovery completion alone does not establish success. |
+| Terminal `Rejected`, `Conflict`, `Denied`, or pre-mutation `DependencyUnavailable` | Requires `ConfirmedNotApplied` for the requested mutation. It must not be used when execution is unknown. |
+| `HeldForReview` | Confirms that the requested phone change is not accepted as complete; a separately governed hold/Review Case may be authoritative. Review status is not technical recovery status. |
+| `NotYetDetermined` | Pairs with `Unknown` and `Pending` or `ReconciliationRequired`; it confirms neither business success nor business failure and does not prove that the original state is intact. |
+| Recovery `Completed` | Means reconciliation work ended. It must separately establish `ConfirmedApplied` or `ConfirmedNotApplied` and the resulting business outcome; it never implies the requested operation succeeded. |
+
+`Incomplete` remains the non-disclosing Application communication for `NotYetDetermined` + `Unknown` + pending/reconciliation semantics. It is not itself a confirmed business rejection, failure, or success. Retries and reconciliation retain the original request identity and provenance and revalidate every still-applicable condition.
 
 ## 6. TD-CUST-02 — Phone-admission consistency and recovery
 
 ### 6.1 Required serialization behavior
 
-`TECHNICAL_DESIGN_DECISION`: every accepted mutation affecting a canonical phone must behave as if evaluated against one authoritative ordering for the tuple `(Organization, canonical phone)`. The physical serialization mechanism remains unselected.
+`TECHNICAL_DESIGN_DECISION`: ordering by `(Organization, canonical phone)` is necessary for a phone resource but is not sufficient for a phone change spanning a Profile, an old phone, and a new phone. Every accepted phone change must behave as one semantic atomic operation over:
+
+- the authoritative Customer Profile and its lifecycle;
+- its existing current-phone relationship;
+- the requested new canonical phone;
+- the old and new Organization-wide admission facts;
+- any applicable former-phone restriction; and
+- any material dispute hold relevant under existing approved policy.
+
+All preconditions and invariants must be evaluated against one logically consistent operation state. The physical transaction, lock, index, isolation, storage, or distributed coordination mechanism remains unselected.
 
 Required outcomes:
 
 - two concurrent claims cannot both succeed;
 - a current association and an unreleased restriction cannot coexist as independent successful claims for the same phone;
-- a phone change is complete-or-preserve across old and new phone facts;
-- authorization, requester verification, Profile state, and admission facts are revalidated at the later-selected completion boundary;
-- a timeout or unknown technical result must not be reported as business success; and
+- two concurrent changes from the same Profile/input state to different new phones cannot both become authoritative successes;
+- operations with overlapping old/new phone resources cannot create duplicate current associations, bypass an unreleased former-phone restriction, or leave contradictory Profile/admission facts;
+- a phone change is complete-or-confirmed-preserve across Profile, old-phone, new-phone, admission, and restriction facts;
+- authorization, requester verification, Profile state, dispute hold, and admission facts are revalidated at the semantic completion boundary in §6.2;
+- success requires proof of every required postcondition;
+- a confirmed-not-applied outcome proves the prior authoritative relationship was preserved, while an unknown result must report `Incomplete` and cannot assume preservation; and
 - retries cannot create another accepted mutation.
 
-### 6.2 Conflict and non-disclosure
+Canonical phone validation remains a business precondition under `SDP-CUST-03`: it uses current official Vietnamese mobile allocation evidence and never guesses, repairs, infers, or fuzzy-matches invalid input.
+
+### 6.2 Semantic completion boundary
+
+`TECHNICAL_DESIGN_DECISION`: the completion boundary is a logical proof boundary, not a selected database commit point or coordination mechanism.
+
+- **Before the completion boundary:** the phone change is not yet a successful or authoritative completed operation. Initial authorization, validation, or partial work supplies no success claim. A dispute hold becoming applicable before this boundary blocks ordinary completion and produces the applicable held or incomplete semantics.
+- **At the completion boundary:** the operation proves against one logically consistent state that the actor/scope/verification remain valid; the Profile lifecycle still permits the operation; no applicable dispute hold blocks it; the proposed phone remains valid and admissible; the Profile's new current-phone relationship, the new-phone admission fact, the old-phone restriction, and required provenance agree; and every invariant in §5.4 holds. Only then may the business outcome become `Succeeded` with `ConfirmedApplied`.
+- **After the completion boundary:** the successful outcome is authoritative under this semantic contract. A retry with the same request identity returns or recovers that outcome and must not apply the logical operation twice or create a competing result. A later dispute may review the authoritative result under existing policy but does not retroactively make an in-flight competing change successful.
+
+If completion cannot be proven, the result is either confirmed not applied with prior authoritative state proven preserved, or `NotYetDetermined`/`Unknown` with `Incomplete` communication and reconciliation required. Complete-or-preserve is therefore an authoritative invariant, not permission for a caller to assume preservation during uncertainty.
+
+### 6.3 Conflict and non-disclosure
 
 The Application contract may reveal only that the requested phone is unavailable or that the request requires controlled review. It must not reveal whether the blocker is a current association or former restriction, nor the associated Profile, Brand, Branch, Customer, history, or evidence.
 
 Underlying evidence is available only through a separately authorized review path. A non-disclosing response must not prevent internal provenance sufficient for accountable review.
 
-### 6.3 Concurrency schedules
+### 6.4 Concurrency schedules
 
 | Schedule | Required result |
 |---|---|
 | Two Profiles claim the same unclaimed phone | At most one success; the other receives non-disclosing conflict or approved held-review outcome. |
-| Two changes target the same new phone | At most one complete change; every loser preserves its prior current phone. |
-| Two changes target different new phones for one Profile | At most one authoritative complete result; no orphan association or duplicate former restriction. |
-| Phone change races with a lifecycle change | Only combinations containing an included authorized operation are evaluated; excluded Deactivate/Reactivate/anonymization approval semantics are not invented. The phone change either completes against revalidated state or safely preserves prior state. |
-| Dispute hold races with ordinary change | The hold blocks a not-yet-complete ordinary change; an already complete authoritative result becomes evidence for re-evaluation. |
+| Two changes target the same new phone | At most one complete change; every other operation is confirmed not applied with preservation proven or remains unknown/incomplete until reconciliation. |
+| Two changes target different new phones for one Profile from the same input association | At most one authoritative complete result. The other is confirmed not applied or reported unknown pending reconciliation; no orphan association, duplicate former restriction, or second current phone may result. |
+| Profile A changes `old-a → new-c` while Profile B changes `old-b → old-a` | Both cannot bypass the fact that `old-a` is either A's current phone or A's unreleased former phone. At most policy-consistent non-overlapping outcomes may complete; no swap, duplicate association, or restriction bypass is inferred. |
+| Two Profiles submit any changes whose old/new phone resource sets overlap | Each operation is evaluated across its complete resource set. A winner must prove all postconditions; a loser is confirmed not applied or remains unknown/incomplete until reconciliation. |
+| Phone change races with a lifecycle change | Only combinations containing an included authorized operation are evaluated; excluded Deactivate/Reactivate/anonymization approval semantics are not invented. The phone change completes only against lifecycle state revalidated at §6.2; otherwise it is confirmed not applied or unknown/incomplete. |
+| Dispute hold races with ordinary change | A hold authoritative before the completion boundary blocks the not-yet-complete ordinary change. A change already proven complete remains authoritative evidence for controlled re-evaluation; an outcome whose ordering cannot be proven is incomplete and requires reconciliation. |
 | Duplicate/delayed request | It observes the original outcome or produces safe conflict; never a second mutation. |
 
-### 6.4 Manual release boundary
+### 6.5 Manual release boundary
 
 Candidate E defines only release semantics and disputed release outcomes already covered by `SDP-CUST-13`. Ordinary undisputed release remains excluded because its approving authority is unresolved. Any later included release operation must:
 
@@ -195,13 +256,17 @@ Candidate E defines only release semantics and disputed release outcomes already
 - revalidate the restriction and dispute state;
 - end only the named admission block;
 - leave identity/history/value untouched; and
-- require a later admission request to pass all checks independently.
+- require a later admission request to pass validation, authorization, Organization-wide admission, restriction, and dispute checks independently.
 
-### 6.5 Failure, idempotency, and recovery
+Release ends only the named restriction. It never creates a current association, authorizes admission, restores identity, or bypasses normal checks.
+
+### 6.6 Failure, idempotency, and recovery
 
 `TECHNICAL_DESIGN_DECISION`: an operation has a stable business request identity at the logical Application boundary. Repeating that identity must recover the same terminal outcome or report an unresolved/incomplete result; it must not execute another business mutation.
 
-The retention, key format, persistence, and replay mechanism remain unresolved. Automatic retry is not approved. After uncertain failure, authority and mutable facts must be revalidated before any later continuation. Recovery may yield success only when the complete authoritative outcome can be proven; otherwise it yields safe failure, `Incomplete`, or controlled escalation.
+The retention, key format, persistence, and replay mechanism remain unresolved. Automatic retry is not approved. A business rejection or denial is reported only with `ConfirmedNotApplied`; it must not disguise an unknown execution result. After uncertain failure, the operation reports `NotYetDetermined`/`Unknown` through `Incomplete`, retains original identity/provenance, and revalidates authority and every mutable fact before any continuation. It must not assert that the prior state is intact unless preservation is proven.
+
+Recovery may determine `Succeeded` only when the complete authoritative outcome is proven. It may determine a confirmed failure only when non-application and required preservation are proven. Recovery completion by itself states neither. Contradictory Profile/admission observations remain non-disclosing and require controlled reconciliation; they must not become an ordinary identity lookup.
 
 ## 7. TD-CUST-03 — Anonymization completion across contexts
 
@@ -246,6 +311,8 @@ These are semantic progress meanings, not approved persisted enum values.
 - Receiving contexts must treat repeated completion instructions idempotently at the semantic boundary and return their already-authoritative outcome where possible.
 - Unknown, unavailable, or failed receiving outcomes move to pending/reconciliation, not silent success.
 - Material unresolved completion creates controlled escalation evidence; it does not expose Restricted Identity Evidence to ordinary support.
+- An unresolved cross-context result has `NotYetDetermined` business meaning and `Unknown` execution certainty. Recovery completion must separately establish whether anonymization completed or did not complete; it does not itself imply business success.
+- Retry/reconciliation retains the original anonymization request identity and provenance and revalidates applicable authority and mutable conditions. Once ordinary Customer identity removal is authoritative, no recovery path may restore Profile PII or an ordinary identity association.
 
 No one-database transaction, event bus, outbox, saga, polling loop, or retry schedule is selected.
 
@@ -275,10 +342,10 @@ Client-supplied actor, role, capability, Organization, Brand, Branch, Customer o
 4. Obtain requester-verification result where required.
 5. Evaluate exact operation authorization against the persisted target/scope.
 6. Load the current Customer and admission facts through Customer-owned ports.
-7. Revalidate authorization, verification, lifecycle, dispute hold, and admission facts at the later-selected completion boundary.
+7. Revalidate authorization, verification, lifecycle, dispute hold, and admission facts at the semantic completion boundary defined in §6.2.
 8. Ask Domain policy for a typed decision.
-9. Commit the complete outcome and required provenance through a future approved mechanism, or preserve the prior authoritative state.
-10. Return a non-disclosing typed Application outcome.
+9. Through a future approved mechanism, establish the complete authoritative outcome and required provenance or prove that the requested mutation was not applied; if neither can be proven, record unknown execution certainty and require reconciliation.
+10. Return a non-disclosing result carrying the business outcome, execution certainty, and recovery status semantics in §5.6.
 
 The sequence is a logical contract. It approves no runtime port interface, transaction, lock, or persistence design.
 
@@ -293,21 +360,22 @@ The sequence is a logical contract. It approves no runtime port interface, trans
 | Profile absent, out of scope, or cross-Brand | Uniform non-disclosing result appropriate to the approved Presentation contract; exact external mapping remains later design. |
 | Phone unavailable due to any admission blocker | Non-disclosing `Conflict` or material `HeldForReview`; never blocker identity. |
 | Facts changed after initial authorization | Revalidate; reject/conflict/hold unless the current facts independently permit the operation. |
-| Persistence/coordination result unknown | `Incomplete`/safe failure; never invented success. |
+| Profile current-phone and Phone Admission facts disagree | `NotYetDetermined` + `Unknown` + `ReconciliationRequired`, communicated as `Incomplete`; no further mutation, silent source selection, or identity disclosure. |
+| Persistence/coordination result unknown | `NotYetDetermined` + `Unknown` + pending/reconciliation, communicated as `Incomplete`; never invented success, confirmed failure, or assumed preservation. |
 
 ### 8.4 Provenance obligations
 
-Successful, denied, held, failed, and incomplete sensitive operations require purpose-limited evidence sufficient to link request, trusted actor/requester, scope, authorization/verification decisions, affected target, before/after semantic facts, reason, outcome, time, and correlation. Raw secrets and unnecessary PII are prohibited. Exact audit schema, atomic append, readers, redaction, retention, and database protection remain later security/legal/technical design.
+Successful, denied, held, failed, and incomplete sensitive operations require purpose-limited evidence sufficient to link the original request identity, trusted actor/requester, scope, authorization/verification decisions, affected target, before/after semantic facts, business outcome, execution certainty, recovery status, reason, time, and correlation. Recovery evidence preserves that provenance and cannot become an ordinary identity-reconstruction route. Raw secrets and unnecessary PII are prohibited. Exact audit schema, atomic append, readers, redaction, retention, and database protection remain later security/legal/technical design.
 
 ## 9. Traceability
 
 | Design area | Owner decisions | Design refs |
 |---|---|---|
 | Phone validation/admission | `SDP-CUST-03`–`05` | `WP-T1-INV-01`–`04` |
-| Visibility/non-disclosure | `SDP-CUST-06`, `08`, `20` | `WP-T1-INV-02`, §§6.2, 8.3 |
+| Visibility/non-disclosure | `SDP-CUST-06`, `08`, `20` | `WP-T1-INV-02`, §§6.3, 8.3 |
 | Lifecycle/anonymization | `SDP-CUST-10`, `SDP-CUST-11`, `SDP-CUST-15`, `SDP-CUST-22`, `SDP-CUST-A2` | `WP-T1-INV-06`, §7 |
 | Phone change | `SDP-CUST-12A`, `16` | `WP-T1-INV-04`, `05`, §§3.1, 6 |
-| Release/dispute | `SDP-CUST-12B`, `13`, `21` | `WP-T1-INV-07`, `09`, §§6.4, 8.4 |
+| Release/dispute | `SDP-CUST-12B`, `13`, `21` | `WP-T1-INV-07`, `09`, §§6.5, 8.4 |
 | Loyalty/Promotion postconditions | `SDP-CUST-01`, `02`, `17` | §7 only; internals excluded |
 | Authority boundary | `SDP-CUST-09`, `12A`, `13`, `20` | §§3, 8 |
 | Context-only policies | `SDP-CUST-18`, `19` | Explicit exclusion; no Candidate E design |
@@ -319,8 +387,10 @@ Gate A reviewers must be able to verify from this document that:
 - every included use case maps to an Owner-confirmed outcome and authority precondition;
 - every deferred operation is visibly excluded;
 - all ten invariants are explicit and mutually consistent;
+- authoritative fact ownership prevents Customer Profile and Phone Admission from becoming competing sources of truth;
 - Profile, admission restriction, Review Case, and Restricted Identity Evidence are not conflated;
-- concurrency schedules state required outcomes without choosing a physical mechanism;
+- phone-change semantic atomicity, the completion boundary, and concurrency schedules state required outcomes without choosing a physical mechanism;
+- business outcome, execution certainty, and recovery status remain distinct, including during unknown results;
 - anonymization completion preserves receiving-context ownership and never assumes one transaction;
 - Application outcomes are typed, non-disclosing, and fail closed;
 - Layered DDD dependencies point inward;
@@ -344,6 +414,6 @@ Gate A reviewers must be able to verify from this document that:
 
 ## 12. Design closure verdict
 
-`WP-T1` is `DESIGN_COMPLETE_FOR_REVIEW` for `TD-CUST-01` through `TD-CUST-04`. This means the bounded semantic design is available for technical and Owner Gate A review. It does not mean `TECHNICAL_DESIGN_APPROVED`, `GATE_A_APPROVED`, implementation-ready, operationally accepted, or production-ready.
+`WP-T1` is `CORRECTIONS_PREPARED_FOR_INDEPENDENT_RE_REVIEW` for `TD-CUST-01` through `TD-CUST-04`. The proposed corrections address `T1-IR-01` through `T1-IR-04`, but only independent re-review may determine whether those findings are resolved. This does not mean `TECHNICAL_DESIGN_APPROVED`, `GATE_A_APPROVED`, implementation-ready, operationally accepted, or production-ready.
 
 The separate Candidate E Gate A readiness package determines whether the evidence set is ready to submit.

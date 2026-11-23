@@ -14,9 +14,9 @@
 
 ## 1. Executive summary
 
-WP-T1 now supplies a consolidated logical design for `TD-CUST-01` through `TD-CUST-04`. The design defines Candidate E's Domain/Application boundaries, ten invariants, phone-admission concurrency outcomes, anonymization completion contract, typed outcomes, fail-closed authorization dependency, provenance obligations, and unresolved later-gate mechanisms.
+WP-T1 now supplies a consolidated logical design for `TD-CUST-01` through `TD-CUST-04`. Corrections for independent-review findings `T1-IR-01` through `T1-IR-04` add the phone-change multi-resource atomicity contract, authoritative fact ownership, a precise semantic completion boundary, and separate business-outcome/execution-certainty/recovery-status dimensions. These corrections are prepared for independent re-review; they are not independently accepted.
 
-Candidate E is nevertheless `NOT_READY` for Owner Gate A review. The controlling WP-G0 Charter requires the separately curated `.gem` principles review after documentation/design closure and before final Gate A/B preparation; that review was explicitly prohibited in WP-T1 and has not occurred. In addition, the new WP-T1 baseline has not yet received technical review, and the final immutable evidence manifest cannot be recorded until this documentation checkpoint exists.
+Candidate E remains `NOT_READY` for Owner Gate A review. The separately curated GitLab Gemfile reference review is complete at correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` and remains research evidence requiring Owner review; it adopted no dependency. WP-T1 has received an independent technical review, but its four corrections still require independent re-review. The final immutable Gate A evidence manifest cannot be frozen until that re-review and any required Owner review complete.
 
 This is a readiness recommendation, not a Gate decision.
 
@@ -67,8 +67,8 @@ All SDP references retain `ID_PENDING_OWNER_GOVERNANCE`; no canonical ODB ID was
 
 | Work item | Evidence | Assessment |
 |---|---|---|
-| `TD-CUST-01` — aggregate/use-case/invariant boundary | [WP-T1 §§3–5](../architecture/after_four_customer_technical_design.md#3-candidate-e-scope) | `RESOLVED_IN_PROPOSED_DESIGN`; three logical boundaries, included use cases, typed outcomes, and ten invariants defined. |
-| `TD-CUST-02` — admission/concurrency/recovery | [WP-T1 §6](../architecture/after_four_customer_technical_design.md#6-td-cust-02--phone-admission-consistency-and-recovery) | `RESOLVED_IN_PROPOSED_DESIGN`; required serialization, non-disclosure, schedules, complete-or-preserve, and logical idempotency defined; mechanism deferred. |
+| `TD-CUST-01` — aggregate/use-case/invariant boundary | [WP-T1 §§3–5](../architecture/after_four_customer_technical_design.md#3-candidate-e-scope) | `RESOLVED_IN_PROPOSED_DESIGN`; three logical boundaries, authoritative fact ownership, included use cases, three-dimensional result semantics, and ten invariants defined; independent re-review required. |
+| `TD-CUST-02` — admission/concurrency/recovery | [WP-T1 §6](../architecture/after_four_customer_technical_design.md#6-td-cust-02--phone-admission-consistency-and-recovery) | `RESOLVED_IN_PROPOSED_DESIGN`; multi-resource semantic atomicity, completion boundary, non-disclosure, schedules, complete-or-confirmed-preserve, and logical idempotency defined; mechanism deferred and independent re-review required. |
 | `TD-CUST-03` — anonymization completion | [WP-T1 §7](../architecture/after_four_customer_technical_design.md#7-td-cust-03--anonymization-completion-across-contexts) | `RESOLVED_IN_PROPOSED_DESIGN`; ownership, completion facts, progress meanings, partial failure, retry, and reconciliation outcomes defined; infrastructure deferred. |
 | `TD-CUST-04` — Application contract | [WP-T1 §8](../architecture/after_four_customer_technical_design.md#8-td-cust-04--logical-application-contract) | `RESOLVED_IN_PROPOSED_DESIGN`; trusted inputs, sequence, typed/fail-closed outcomes, non-disclosure, and provenance defined; public API/runtime ports excluded. |
 
@@ -91,12 +91,12 @@ Customer Profile is not stretched into an Organization-wide or cross-context agg
 | Required property | Design evidence | Gate A evidence status |
 |---|---|---|
 | One current association or unreleased restriction per Organization/phone | `WP-T1-INV-01`; §6 schedules | Defined; not implemented. |
-| Non-disclosing conflicts | `WP-T1-INV-02`; §§6.2, 8.3 | Defined; public mapping excluded. |
+| Non-disclosing conflicts | `WP-T1-INV-02`; §§6.3, 8.3 | Defined; public mapping excluded. |
 | Phone/ID possession is not identity or authority | `WP-T1-INV-03`; §8.1 | Defined. |
-| Phone change is complete-or-preserve | `WP-T1-INV-04`; §§6.1, 6.3 | Defined; physical proof deferred. |
+| Phone change is complete-or-confirmed-preserve; unknown proves neither | `WP-T1-INV-04`; §§5.6, 6.1–6.2 | Defined in the corrected proposal; independent re-review and physical proof remain pending. |
 | Inactive remains Inactive | `WP-T1-INV-05` | Defined. |
 | Anonymized is terminal ordinarily | `WP-T1-INV-06`; §7 | Defined. |
-| Release changes only admission blocking | `WP-T1-INV-07`; §6.4 | Defined; ordinary authority unresolved/excluded. |
+| Release changes only admission blocking | `WP-T1-INV-07`; §6.5 | Defined; ordinary authority unresolved/excluded. |
 | No automatic merge/transfer | `WP-T1-INV-08` | Defined. |
 | Material cases only | `WP-T1-INV-09` | Defined; case workflow deferred. |
 | No ordinary re-identification route | `WP-T1-INV-10`; §7 | Defined; legal/privacy review remains later. |
@@ -109,20 +109,24 @@ Customer Profile is not stretched into an Organization-wide or cross-context agg
 | Verification | Separate requester verification from operator authorization. | Evidence/assurance policy and storage unresolved. |
 | Privacy/non-disclosure | Uniform conflict/out-of-scope behavior; never expose blocker identity or cross-Brand facts. | Presentation mapping and tests are Gate B work. |
 | Audit/provenance | Purpose-limited request, actor/requester, scope, decision, before/after, reason, outcome, time, correlation. | Schema, redaction, readers, atomic append, retention unresolved. |
-| Recovery | No success without complete proof; uncertain result becomes incomplete/safe failure; revalidate before continuation. | Transaction, idempotency retention, retry/reconciliation mechanism unresolved. |
+| Recovery | No success without complete proof; business outcome, execution certainty, and recovery status remain separate. Unknown execution is `Incomplete`, not confirmed failure or preservation; revalidate before continuation. | Transaction, idempotency retention, retry/reconciliation mechanism unresolved. |
 | Anonymization | Completion requires all approved Customer/Order/Loyalty/Promotion facts; no restoration during recovery. | Transport, progress persistence, operational ownership evidence unresolved. |
 
 ## 8. Findings and blockers
 
 | Ref | Status | Finding | Candidate E impact | Required action / authority |
 |---|---|---|---|---|
-| `WP-T1-F01` | `RESOLVED_IN_PROPOSED_DESIGN` | Aggregate/Application boundary was missing. | Semantic baseline now reviewable. | Independent technical review, then Owner Gate A decision. |
-| `WP-T1-F02` | `RESOLVED_IN_PROPOSED_DESIGN` | Phone concurrency outcomes were provisional. | Required outcomes now explicit without physical mechanism. | Review; physical proof belongs to Gate B. |
-| `WP-T1-F03` | `RESOLVED_IN_PROPOSED_DESIGN` | Cross-context anonymization completion was undefined. | Completion and partial-failure semantics now explicit. | Review; later receiving-context contract design. |
-| `WP-T1-F04` | `RESOLVED_IN_PROPOSED_DESIGN` | Logical Application/fail-closed contract was missing. | Typed semantic contract now explicit. | Review; runtime/public contracts remain separate. |
-| `CAND-E-B01` | `BLOCKED` | Required curated `.gem` principles review has not occurred and is prohibited in WP-T1. | Charter readiness condition unsatisfied. | Separate Owner-provided review activity. |
-| `CAND-E-B02` | `OPEN` | WP-T1 has not received technical review. | Cannot freeze a reviewed design baseline. | Independent technical/design review. |
-| `CAND-E-B03` | `OPEN` | Exact immutable Gate A evidence manifest and reviewed commit are not yet recorded. | Owner cannot review a frozen package yet. | Create documentation checkpoint, then record exact SHA/manifest without changing scope. |
+| `WP-T1-F01` | `RESOLVED_IN_PROPOSED_DESIGN` | Aggregate/Application boundary was missing. | Semantic baseline remains proposed and now includes authoritative fact ownership correction. | Independent re-review, then a later Owner Gate A decision only when all prerequisites are satisfied. |
+| `WP-T1-F02` | `RESOLVED_IN_PROPOSED_DESIGN` | Phone concurrency outcomes were provisional. | Corrected required outcomes are explicit without a physical mechanism. | Independent re-review; physical proof belongs to Gate B. |
+| `WP-T1-F03` | `RESOLVED_IN_PROPOSED_DESIGN` | Cross-context anonymization completion was undefined. | Completion and partial-failure semantics now use the corrected outcome/certainty/recovery distinction. | Independent re-review; later receiving-context contract design remains separate. |
+| `WP-T1-F04` | `RESOLVED_IN_PROPOSED_DESIGN` | Logical Application/fail-closed contract was missing. | Corrected typed semantic contract remains proposed. | Independent re-review; runtime/public contracts remain separate. |
+| `T1-IR-01` | `CORRECTIONS_PREPARED — INDEPENDENT_RE_REVIEW_REQUIRED` | Phone-change ordering did not establish multi-resource semantic atomicity. | WP-T1 §§6.1–6.4 now define the full resource set, consistent-state proof, same-Profile and overlapping-phone races, dispute-hold race, and unknown-result boundary without selecting a physical mechanism. | Independent re-review must determine resolution. |
+| `T1-IR-02` | `CORRECTIONS_PREPARED — INDEPENDENT_RE_REVIEW_REQUIRED` | Profile and Phone Admission authoritative fact ownership was insufficiently explicit. | WP-T1 §§5.1 and 8.3 now define fact owners and fail closed on disagreement without duplicate Profile state, source selection, or identity disclosure. | Independent re-review must determine resolution. |
+| `T1-IR-03` | `CORRECTIONS_PREPARED — INDEPENDENT_RE_REVIEW_REQUIRED` | The completion boundary was ambiguous. | WP-T1 §6.2 now defines before/at/after semantics, revalidation, success proof, retry identity, and incomplete reconciliation without selecting a physical commit point. | Independent re-review must determine resolution. |
+| `T1-IR-04` | `CORRECTIONS_PREPARED — INDEPENDENT_RE_REVIEW_REQUIRED` | Business outcome, execution certainty, and recovery status were conflated. | WP-T1 §§5.5–5.6, 6.6, 7.4, and 8 now separate the dimensions and prevent unknown results from becoming confirmed success, failure, or preservation. | Independent re-review must determine resolution. |
+| `CAND-E-B01` | `COMPLETED — OWNER_REVIEW_REQUIRED` | The [curated GitLab Gemfile reference review](after_four_gitlab_gemfile_reference_review.md) exists; correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` is merged in the current baseline. | The required research activity occurred, but it adopts no gem and grants no authentication/dependency decision. | Owner reviews the research where applicable; no dependency action is inferred. |
+| `CAND-E-B02` | `CORRECTIONS_PREPARED — INDEPENDENT_RE_REVIEW_REQUIRED` | Independent review produced `T1-IR-01` through `T1-IR-04`; this work package prepares corrections. | The reviewed design baseline is not yet accepted or frozen. | Independent technical re-review of all four findings. |
+| `CAND-E-B03` | `OPEN` | Exact immutable Gate A evidence manifest and independently re-reviewed correction commit are not yet recorded. | Owner cannot review a final frozen package yet. | After re-review and any required Owner review, record the exact SHA/manifest without changing scope. |
 | `CAND-E-D01` | `DEFERRED` | Authority for five excluded operations remains unresolved. | No blocker while operations stay excluded. | Owner decision only if later inclusion is requested. |
 | `CAND-E-D02` | `DEFERRED` | Physical persistence/concurrency/recovery and runtime authorization are unselected. | Gate B/implementation blocker, not a reason to invent mechanisms at Gate A. | Later separately authorized design. |
 | `CAND-E-D03` | `DEFERRED` | Legal/privacy/security details for evidence, retention, exceptional access remain unresolved. | Control/production blocker; exceptional workflow excluded. | Qualified review and Owner decisions where applicable. |
@@ -132,7 +136,7 @@ Customer Profile is not stretched into an Organization-wide or cross-context agg
 | Document family | Result |
 |---|---|
 | Owner decisions and WP-G0 | Candidate E boundary preserved; CUST-18/19 context-only; five authority operations excluded. |
-| WP4.1/WP4.2 | Discovery/scenario material remains valid; WP-T1 now supplies the bounded proposed design closure. |
+| WP4.1/WP4.2 | Discovery/scenario material remains valid; WP-T1 supplies the bounded proposed design with independent-review corrections awaiting re-review. |
 | Data/ERD/integrity/state | Logical concepts may be referenced, but physical representation remains pending; no schema is approved. |
 | API Contract | Public endpoints remain unapproved; WP-T1 supplies only logical Application outcome semantics. |
 | Identity/I1 | I1 may supply ancestry; runtime authorization remains a semantic dependency, not an existing integration claim. |
@@ -140,10 +144,10 @@ Customer Profile is not stretched into an Organization-wide or cross-context agg
 
 ## 10. Evidence required before Owner Gate A review
 
-1. Technical review of the complete WP-T1 document against WP-G0 and ADR-0011.
-2. Resolution of any review findings without expanding scope or inventing Owner policy.
-3. The separately curated `.gem` principles review required by WP-G0, performed only under its future authorization.
-4. A frozen documentation commit and exact manifest of WP-G0, Owner decisions, WP4.1/WP4.2, WP-T1, readiness package, and synchronized canonical documents.
+1. Independent technical re-review of `T1-IR-01` through `T1-IR-04` against the complete corrected WP-T1 document, WP-G0, and ADR-0011.
+2. Resolution of any remaining re-review findings without expanding scope or inventing Owner policy.
+3. Owner review, where applicable, of the completed curated GitLab Gemfile research; no dependency adoption is inferred.
+4. A frozen documentation commit and exact manifest of WP-G0, Owner decisions, WP4.1/WP4.2, corrected and independently re-reviewed WP-T1, readiness package, and synchronized canonical documents.
 5. Documentation-validation evidence for links, anchors, tables, fences, decision references, scope leakage, and authorization language.
 6. An Owner Gate A decision template that states approval would accept only the semantic design baseline and would not grant Gate B, implementation, Control Acceptance, FOA, or Production Authorization.
 
@@ -155,20 +159,20 @@ No application/database test is required to prove a documentation-only semantic 
 |---|---|---|
 | Exact scope and exclusions | `SATISFIED` | WP-G0 and §§2–3. |
 | Owner Decision traceability | `SATISFIED` | §3 and WP-T1 §9. |
-| Domain/Application boundaries | `SATISFIED_FOR_REVIEW` | WP-T1 §§4–5; technical review pending. |
-| Invariants and failure outcomes | `SATISFIED_FOR_REVIEW` | WP-T1 §§5–8. |
-| Concurrency-required outcomes | `SATISFIED_FOR_REVIEW` | WP-T1 §6; mechanism correctly deferred. |
+| Domain/Application boundaries | `CORRECTIONS_PREPARED_FOR_RE_REVIEW` | WP-T1 §§4–5; `T1-IR-02` correction awaits independent re-review. |
+| Invariants and failure outcomes | `CORRECTIONS_PREPARED_FOR_RE_REVIEW` | WP-T1 §§5–8; `T1-IR-04` correction awaits independent re-review. |
+| Concurrency-required outcomes | `CORRECTIONS_PREPARED_FOR_RE_REVIEW` | WP-T1 §6; `T1-IR-01`/`03` corrections await independent re-review; physical mechanism remains deferred. |
 | Anonymization completion | `SATISFIED_FOR_REVIEW` | WP-T1 §7; receiving internals excluded. |
 | Authorization/non-disclosure | `SATISFIED_FOR_REVIEW` | WP-T1 §8; runtime implementation excluded. |
-| Cross-document consistency | `SATISFIED_PENDING_FINAL_REVIEW` | Synchronized WP-T1 package; final review required. |
-| Curated `.gem` review | `NOT_SATISFIED` | Explicitly deferred to separate future activity. |
-| Frozen reviewed baseline | `NOT_SATISFIED` | Commit/review manifest not yet finalized. |
+| Cross-document consistency | `SATISFIED_PENDING_FINAL_REVIEW` | Corrected WP-T1 package synchronized; independent re-review required. |
+| Curated `.gem` review | `COMPLETED — OWNER_REVIEW_REQUIRED` | Research report and correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` exist; no dependency was adopted. |
+| Frozen reviewed baseline | `NOT_SATISFIED` | Correction checkpoint, independent re-review, and final manifest are not yet finalized. |
 | Gate A decision | `NOT_GRANTED` | Requires later explicit Owner action. |
 
 ## 12. Recommendation
 
 ### `NOT_READY`
 
-Do not submit Candidate E for Owner Gate A decision yet. WP-T1 is design-complete for review, but the required independent technical review, separately curated `.gem` review, and frozen reviewed evidence manifest remain outstanding.
+Do not submit Candidate E for Owner Gate A decision yet. The curated GitLab Gemfile research is complete but still requires Owner review where applicable. WP-T1 corrections for four independent-review findings require independent re-review, and the final reviewed evidence manifest remains unfrozen.
 
 This recommendation grants no Gate, implementation, operational, legal/privacy, residual-risk, or production approval.
