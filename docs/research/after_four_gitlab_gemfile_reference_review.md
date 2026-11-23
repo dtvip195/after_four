@@ -16,9 +16,9 @@ The complete GitLab Gemfile was reviewed as an engineering reference, not as a d
 
 No gem warrants unconditional adoption now. AFTER FOUR already covers its database adapter, primary test framework, factories, matchers, coverage, background jobs, and health/readiness needs. GitLab's scale, Rails version, monorepo, Redis/Sidekiq topology, authentication history, and internal forks differ materially from AFTER FOUR.
 
-The highest-value future candidate is **Devise 5 as a conditional authentication foundation**, not GitLab's Devise 4.9 constraint. That recommendation remains subject to an Owner architecture decision and a bounded Ruby 3.4.12/Rails 8.1.4.1 spike covering API-only behavior, first-party cookies, opaque revocable sessions, Argon2id integration, recovery, and mail boundaries. Devise does not solve authorization, authoritative Organization/Brand/Branch scope, delegation, MFA policy, requester verification, or POS PIN design.
+The highest-value future candidate is **Devise 5 as a conditional authentication foundation**, not GitLab's Devise 4.9 constraint. That recommendation remains subject to an Owner architecture decision and a bounded Ruby 3.4.12/Rails 8.1.4.1 spike covering API-only behavior, the proposed first-party cookie and opaque revocable-session direction in ADR-0006, Argon2id integration, recovery, and mail boundaries. Devise does not solve authorization, authoritative Organization/Brand/Branch scope, delegation, MFA policy, requester verification, or POS PIN design.
 
-Other ranked conditional candidates are Rack::Attack, a future phishing-resistant WebAuthn component, current Lockbox, one observability approach, WebMock for external adapters, and a minimal on-demand profiling toolset. Their prerequisites are not yet satisfied. This report changes no dependency, architecture decision, WP-T1 artifact, Candidate E readiness status, or Gate status.
+Other ranked conditional candidates are Rack::Attack, current Lockbox, one observability approach, WebMock for external adapters, and a minimal on-demand profiling toolset. WebAuthn remains a high-potential **deferred** phishing-resistant factor whose MFA, enrollment, step-up, recovery, freshness, and session-binding policy prerequisites are not yet satisfied. This report changes no dependency, architecture decision, WP-T1 artifact, Candidate E readiness status, or Gate status.
 
 ## 2. Source provenance
 
@@ -81,8 +81,8 @@ The matrix contains 49 relevant candidate rows. Each row has exactly one primary
 
 | Candidate | GitLab constraint; group/load | Capability and AFTER FOUR comparison | Compatibility / impact / prerequisite | Class | Priority and recommendation |
 |---|---|---|---|---|---|
-| `devise` | `~> 4.9.3`; runtime | Account authentication; no current equivalent | GitLab's constraint is not the proposed version; evaluate Devise 5 on Ruby 3.4/Rails 8.1 and the approved session design | `CONDITIONAL_CANDIDATE` | P1: preferred future foundation, subject to §7 spike and Owner decision |
-| `bcrypt` | `~> 3.1`, `>= 3.1.14`; runtime | Devise-default password hashing | Conflicts with current Argon2id direction if treated as production policy; does not cover PIN admission control | `REJECT` | Do not select from GitLab precedent; resolve approved Argon2 integration separately |
+| `devise` | `~> 4.9.3`; runtime | Account authentication; no current equivalent | GitLab's constraint is not the proposed version; evaluate Devise 5.0.4 on Ruby 3.4/Rails 8.1 and the proposed ADR-0006 session direction, subject to an eventual Owner decision | `CONDITIONAL_CANDIDATE` | P1: preferred future foundation, subject to §7 spike and Owner decision |
+| `bcrypt` | GitLab: `~> 3.1`, `>= 3.1.14`; Devise 5.0.4: direct runtime dependency `~> 3.0` | Stock Devise database-authenticatable password hashing | Reject as AFTER FOUR password-policy recommendation; selecting stock Devise still installs bcrypt and uses it by default unless a complete alternative path is proven | `REJECT` | Review dependency presence and prove the eventual Owner-approved Argon2id path has no unintended bcrypt fallback |
 | `devise-two-factor` | `~> 6.4.0`; runtime | TOTP MFA | MFA freshness/recovery/session binding remain deferred; misuse can create bypass paths | `DEFER` | Reassess only after MFA factor and recovery policy |
 | `webauthn` | `~> 3.0`; runtime | WebAuthn/passkeys | Plausible phishing-resistant factor; still needs RP, enrollment, recovery, step-up, browser, and origin design | `DEFER` | Preferred factor to investigate after MFA policy, not now |
 | OmniAuth/provider family | `omniauth ~> 2.1.0`; numerous SAML/OIDC/OAuth providers, some vendored | External identity federation | No provider/federation decision; provider gems expand attack and maintenance surface | `DEFER` | Select only one approved provider path when required |
@@ -137,13 +137,13 @@ The matrix contains 49 relevant candidate rows. Each row has exactly one primary
 
 Devise is a Warden-based Rails authentication framework. Its modules can provide database-backed credential authentication, recovery/reset tokens, confirmation, lockable account behavior, timeout behavior, remember-me behavior, controller integration, parameter handling, and mail hooks. It can substantially reduce bespoke handling of common credential lifecycle edges.
 
-For AFTER FOUR, an approved Devise integration could own the narrow mechanics of web-account credential authentication and selected recovery/account modules. It must sit behind Identity Application contracts and Infrastructure adapters under ADR-0011. Domain and Application code must not depend on Devise, Warden, controllers, or Active Record.
+For AFTER FOUR, a future Owner-approved Devise integration could own the narrow mechanics of web-account credential authentication and selected recovery/account modules. The stock Devise 5.0.4 database-authenticatable path uses bcrypt, so an Argon2id design cannot be assumed merely by choosing Devise. Any integration must sit behind Identity Application contracts and Infrastructure adapters under ADR-0011. Domain and Application code must not depend on Devise, Warden, controllers, or Active Record.
 
 ### 7.2 Compatibility evidence
 
-GitLab declares Devise `~> 4.9.3` while running its reviewed Rails 7.2 line. AFTER FOUR must not copy that constraint. Current [Devise upstream](https://github.com/heartcombo/devise), its [changelog](https://github.com/heartcombo/devise/blob/main/CHANGELOG.md), and [gemspec](https://github.com/heartcombo/devise/blob/main/devise.gemspec) identify Devise 5 as the line with explicit Rails 8 and Ruby 3.4 work and a Railties requirement compatible in principle with Rails 8.1.
+GitLab declares Devise `~> 4.9.3` while running its reviewed Rails 7.2 line. AFTER FOUR must not copy that constraint. The reproducible compatibility reference inspected here is **Devise 5.0.4**, annotated tag object `3a5e5b7c9a0cfb77f734a8bd4797f2fd7928d589`, peeled source commit `9ea459de9aec5f1217ad738c58e0d23fb9f5beaa`. The pinned [version source](https://github.com/heartcombo/devise/blob/9ea459de9aec5f1217ad738c58e0d23fb9f5beaa/lib/devise/version.rb), [gemspec](https://github.com/heartcombo/devise/blob/9ea459de9aec5f1217ad738c58e0d23fb9f5beaa/devise.gemspec), and [changelog](https://github.com/heartcombo/devise/blob/9ea459de9aec5f1217ad738c58e0d23fb9f5beaa/CHANGELOG.md) show Ruby `>= 2.7.0`, Railties `>= 7.0`, and the Devise 5 line's explicit Rails 8 and Ruby 3.4 support work.
 
-This is metadata evidence, not project compatibility proof. A bounded spike must resolve Devise 5 with the exact Ruby 3.4.12/Rails 8.1.4.1 lock, boot the API-only application, and test the selected modules. GitLab's use of Devise 4.9 is not such proof.
+This is upstream metadata evidence, not project compatibility proof and not an authentication architecture decision. This correction performed no local dependency resolution, installation, application boot, or runtime spike. A separately authorized bounded spike must resolve Devise 5.0.4 or a later specifically reviewed version with the exact Ruby 3.4.12/Rails 8.1.4.1 lock, boot the API-only application, and test the selected modules. GitLab's use of Devise 4.9 and Devise's upstream compatibility metadata are not such execution proof.
 
 ### 7.3 API-only Rails and React implications
 
@@ -153,7 +153,9 @@ Token/JWT authentication is not implied. Adding a JWT companion merely to make a
 
 ### 7.4 Password, recovery, confirmation, and lockout
 
-- Devise's database authentication defaults to bcrypt. AFTER FOUR's documented Argon2id direction requires an explicitly designed encryptor/integration, rehash behavior, admission control, malformed-hash handling, and compatibility evidence. GitLab's bcrypt dependency cannot override that work.
+- Devise 5.0.4's gemspec declares `bcrypt ~> 3.0` as an unconditional direct runtime dependency. Standard dependency resolution therefore includes bcrypt even if AFTER FOUR eventually selects another active hashing algorithm. Removing that declared dependency would require altered package metadata or a fork; this review found no supported removal mechanism.
+- The pinned [Devise encryptor](https://github.com/heartcombo/devise/blob/9ea459de9aec5f1217ad738c58e0d23fb9f5beaa/lib/devise/encryptor.rb) executes `require 'bcrypt'` when loaded and implements digest and comparison with BCrypt. The pinned [database-authenticatable module](https://github.com/heartcombo/devise/blob/9ea459de9aec5f1217ad738c58e0d23fb9f5beaa/lib/devise/models/database_authenticatable.rb) delegates stock password creation and verification to that encryptor. Dependency presence and the application-selected algorithm are distinct, but the stock path makes bcrypt active by default.
+- AFTER FOUR must not select bcrypt as its password-hashing policy from GitLab or Devise precedent. Its documented Argon2id direction still requires an eventually Owner-approved encryptor/integration, credential creation and verification behavior, upgrade/rehash strategy, admission control, malformed-hash handling, and compatibility evidence. No safe Devise/Argon2id integration or absence of fallback has been proven.
 - Recoverable can supply token mechanics, but it does not define the separate Owner recovery protocol, custodians, evidence, separation of duties, or emergency state transitions.
 - Confirmable is relevant only if email identity and delivery are approved. Action Mailer is currently disabled, and no mail provider is selected.
 - Lockable provides account-state mechanics, not distributed username/IP abuse defense, enumeration resistance, progressive delay, trusted-proxy handling, or rate-limit backend failure behavior.
@@ -161,12 +163,12 @@ Token/JWT authentication is not implied. Adding a JWT companion merely to make a
 
 ### 7.5 Session lifecycle and revocation
 
-Devise/Warden can establish a browser-authenticated session, but Devise alone does not implement AFTER FOUR's proposed opaque session record and verifier lifecycle, immediate single/all-session revocation, session rotation, idle and absolute expiration evidence, concurrent-session monitoring, POS idle lock, or lifecycle-triggered revocation. A wrapper/integration must preserve the canonical session contract rather than silently replacing it with framework defaults.
+Devise/Warden can establish a browser-authenticated session, but Devise alone does not implement AFTER FOUR's proposed opaque session record and verifier lifecycle, immediate single/all-session revocation, session rotation, idle and absolute expiration evidence, concurrent-session monitoring, POS idle lock, or lifecycle-triggered revocation. If the Owner later approves that ADR-0006 direction, an integration would have to preserve the resulting session contract rather than silently replacing it with framework defaults.
 
 ### 7.6 MFA, WebAuthn, and federation boundaries
 
 - `devise-two-factor` is a TOTP implementation, not the policy for enrollment, step-up, freshness, recovery, session binding, or invalidation. Its upstream documentation warns that an incorrect combination of authentication modules can permit MFA bypass. It remains `DEFER`.
-- [WebAuthn Ruby](https://github.com/cedarcode/webauthn-ruby) is a plausible phishing-resistant factor, but RP/origin, enrollment, device loss, recovery, step-up, attestation, and user-verification choices remain open.
+- [WebAuthn Ruby](https://github.com/cedarcode/webauthn-ruby) is a plausible phishing-resistant factor, but RP/origin, enrollment, device loss, recovery, step-up, freshness, session binding, attestation, and user-verification choices remain open. It remains `DEFER`.
 - OmniAuth and its providers handle external federation strategies. They do not authorize a provider, map Organization/Brand scope, or replace local authorization.
 - Doorkeeper makes the application an OAuth authorization server. That is a different responsibility and is rejected for current scope.
 
@@ -189,15 +191,15 @@ These remain explicit Domain/Application/security contracts. Generic role names 
 
 ### 7.8 Testing and customization cost
 
-Adoption would require focused request/integration tests for JSON and cookies, CSRF, session fixation/rotation, revocation, recovery tokens, account lifecycle, enumeration-resistant errors, mail boundaries, Argon2 upgrade, malformed credentials, MFA bypass attempts, and authorization separation. Framework upgrades would require security-advisory and behavioral review. Heavy overrides of Devise controllers/models could erase its maintenance advantage.
+Adoption would require focused request/integration tests for JSON and cookies, CSRF, session fixation/rotation, revocation, recovery tokens, account lifecycle, enumeration-resistant errors, mail boundaries, MFA bypass attempts, and authorization separation. The credential suite must prove which encryptor is used for creation and verification, the eventual approved Argon2id upgrade/rehash behavior, malformed/unsupported-hash handling, and that no unintended bcrypt fallback occurs. Framework upgrades and bcrypt's continued dependency-tree presence would require security-advisory and behavioral review. Heavy overrides of Devise controllers/models could erase its maintenance advantage.
 
 ### 7.9 Recommendation and decision condition
 
 **Recommendation:** classify **Devise 5 as `CONDITIONAL_CANDIDATE` and the preferred authentication foundation for future Owner consideration**, rather than starting with a wholly custom credential stack.
 
-This is optimal if the bounded spike shows that Devise modules can remain behind Identity boundaries while preserving opaque sessions, Argon2id, first-party API cookies, recovery, and failure contracts with limited overrides. It offers mature credential/recovery mechanics and a larger security review surface than bespoke implementations.
+This is optimal only if the bounded spike shows that Devise modules can remain behind Identity boundaries while remaining compatible with the proposed ADR-0006 opaque-session and first-party-cookie direction, and with an eventually Owner-approved Argon2id, recovery, and failure contract, using limited overrides. The spike must account for bcrypt as a direct dependency and default implementation. It offers mature credential/recovery mechanics and a larger security review surface than bespoke implementations.
 
-Choose a smaller custom Rails authentication implementation instead if the required session topology, Argon2 admission control, Owner recovery, and JSON behavior demand pervasive Devise overrides or parallel state machines. The Owner must decide the architecture after the spike; this report does not make that decision.
+Choose a smaller custom Rails authentication implementation instead if the eventual session topology, Argon2 admission control, Owner recovery, and JSON behavior demand pervasive Devise overrides or parallel state machines. Because the stock Devise package declares bcrypt directly, removing bcrypt from the resolved dependency tree would require altered packaging or a fork and its associated ownership/security maintenance; that trade-off requires explicit Owner consideration rather than an unsupported workaround. The Owner must decide the architecture after the spike; this report does not make that decision.
 
 ## 8. Authorization and permission management
 
@@ -294,7 +296,7 @@ GitLab's `feature_category:` metadata and custom Gemfile lint rules are GitLab-s
 
 No item is approved for installation. Ranked by potential value:
 
-1. **Devise 5 — `CONDITIONAL_CANDIDATE`.** Highest leverage for future account credential/recovery mechanics. Prefer it to bespoke authentication only if the bounded spike preserves the approved Identity/session architecture without pervasive overrides.
+1. **Devise 5 — `CONDITIONAL_CANDIDATE`.** Highest leverage for future account credential/recovery mechanics. Prefer it to bespoke authentication only if the bounded spike is compatible with the proposed ADR-0006 direction and the eventual Owner-reviewed architecture without pervasive overrides, and explicitly resolves bcrypt/Argon2id behavior.
 2. **Rack::Attack 6.8 line — `CONDITIONAL_CANDIDATE`.** Useful request-abuse enforcement point after trusted proxy, shared counter store, policy keys, failure behavior, and capacity are approved.
 3. **WebAuthn — `DEFER`.** Strong phishing-resistant factor to evaluate once MFA/recovery/step-up policy is settled; it is not a complete MFA system.
 4. **Current Lockbox — `CONDITIONAL_CANDIDATE`.** Best reviewed field-encryption option only after data classification and key/search/rotation design.
@@ -306,7 +308,7 @@ No item is approved for installation. Ranked by potential value:
 
 | Candidate | Minimum prerequisite before reconsideration |
 |---|---|
-| Devise two-factor / WebAuthn | Approved MFA factor, enrollment, step-up, recovery, freshness, and session-binding policy |
+| Devise two-factor / WebAuthn | A future Owner-approved MFA factor, enrollment, step-up, recovery, freshness, and session-binding policy |
 | OmniAuth/provider gems | Approved federation requirement and named provider/trust mapping |
 | OpenTelemetry | Deployment topology, telemetry backend, propagation, sampling, privacy, and operations owner |
 | Flipper | Release/rollback strategy, flag ownership, persistence, lifecycle cleanup, and authorization |
@@ -340,19 +342,20 @@ GitLab's constraint or use is supporting context only. Version selection must us
 - The pinned GitLab Gemfile and checksum in §2 were inspected completely.
 - AFTER FOUR already has the capabilities listed in §16.
 - GitLab's reviewed Rails line differs from AFTER FOUR's Rails 8.1.4.1.
+- Devise 5.0.4 directly depends on `bcrypt ~> 3.0`, and its stock database-authenticatable path uses BCrypt; no AFTER FOUR resolution, installation, boot, or runtime compatibility test has been performed.
 - No AFTER FOUR dependency or architecture document was changed by this review.
 
 ### Engineering recommendations
 
 - Use the practices in §15 for future dependency proposals.
 - Do not adopt a broad “GitLab stack.” Evaluate the minimal candidate that serves one approved seam.
-- Treat Devise 5 as the first authentication foundation to spike, with a smaller custom Rails design as the fallback if customization overwhelms the benefit.
+- Treat Devise 5.0.4 as the pinned reference for the first authentication-foundation spike, with a smaller custom Rails design as the fallback if bcrypt/Argon2id integration or other customization overwhelms the benefit.
 - Keep authorization, scope resolution, audit, privacy, and operational controls explicit regardless of framework choice.
 
 ### Decisions still requiring Owner approval
 
-1. Whether to authorize the bounded Devise-versus-custom authentication compatibility/design spike.
-2. Whether Devise becomes the authentication foundation after that evidence; ADR-0006 remains `Proposed` until separately decided.
+1. Whether to authorize the bounded Devise-versus-custom authentication compatibility/design spike, including explicit bcrypt dependency and Argon2id behavior evidence.
+2. Whether Devise becomes the authentication foundation after that evidence and whether bcrypt's unavoidable declared dependency is an acceptable maintenance/security trade-off or warrants a separately reviewed alternative; ADR-0006 remains `Proposed` until separately decided.
 3. MFA factor/recovery/step-up policy before Devise two-factor or WebAuthn selection.
 4. Abuse-defense architecture and shared counter backend before Rack::Attack adoption.
 5. Data classification/key governance before field encryption.
