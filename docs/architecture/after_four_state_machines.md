@@ -418,6 +418,24 @@ States: `requested → confirmed → seated → completed`; `requested/confirmed
 
 Guards: Branch/time/party size, consented contact use, capacity/table policy. Seating may open a Table Session; a walk-in Table Session may have no Reservation. Deposits, overbooking, table moves/merges/splits are `OPEN_DECISION`.
 
+## 19A. Customer Profile and phone-association semantic states
+
+The [WP-T1 Customer Technical Design](after_four_customer_technical_design.md) defines logical state meanings only; no persisted enum, command, transaction, or implementation is approved.
+
+```text
+Customer Profile: Active <-> Inactive
+Customer Profile: Active/Inactive -> Anonymized
+Customer Profile: Anonymized -/-> ordinary Active/Inactive restoration
+
+Phone admission: Unclaimed -> Current Association
+Phone admission: Current Association -> Former-phone Restriction
+Phone admission: Former-phone Restriction -> Unclaimed
+```
+
+The last transition represents only documented authorized release semantics. The ordinary undisputed release operation remains excluded from Candidate E because its approving authority is unresolved. Controlled phone change is complete-or-preserve: success replaces the current association and restricts the old phone; failure preserves the prior current association. Anonymization completion removes the ordinary current association, keeps the former phone restricted, and cannot claim completion until all approved cross-context outcomes are evidenced.
+
+`SDP-CUST-18` shared/family-phone and `SDP-CUST-19` anonymous-Order policies remain approved context outside this Candidate E state contract.
+
 ## 20. Customer Feedback state machine
 
 States: `open → triaged → in_progress → resolved → closed`; `resolved/closed → reopened` with reason.
