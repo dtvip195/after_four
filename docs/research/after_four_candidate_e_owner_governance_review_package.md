@@ -109,9 +109,17 @@ An acceptance here records Owner design acceptance only. Gate A remains a separa
 
 ### 5.1 Included approval boundary
 
-The bounded approval subject is the semantic contract described in §4, including ordinary verified phone change, Inactive Profile phone change, applicable Owner-approved disputed or exceptional outcomes, non-disclosing rejection, and approved anonymization postconditions.
+The bounded approval subject is the semantic contract described in §4 for these included operation semantics:
 
-Every included operation still depends on a current trusted, operation-specific, scope-bound, fail-closed authority decision. Candidate E does not claim that this runtime contract exists.
+1. Ordinary verified phone change.
+2. Phone change while the Customer Profile is Inactive, with the Profile remaining Inactive after success.
+3. Disputed, exceptional, or cross-scope phone change under the applicable already-approved authority path.
+4. Consequential or disputed Customer Profile ownership or phone-association decisions requiring Owner approval.
+5. Routine validation and duplicate rejection with non-disclosing outcomes.
+
+Candidate E may also define Customer-side anonymization completion postconditions after anonymization has been validly initiated through a separately authorized process. It neither authorizes nor assigns authority to approve or initiate anonymization.
+
+These are operation semantics, not runtime authorization implementation. Every included operation still depends on a current trusted, operation-specific, scope-bound, fail-closed authority decision. Candidate E does not claim that this runtime contract exists.
 
 ### 5.2 Five authority-dependent operations excluded
 
@@ -139,7 +147,7 @@ Candidate E also excludes physical persistence, public API/UI, runtime authoriza
 | Owner sufficiency review of B01 | Potential Gate A blocker requiring Owner direction | Owner decides whether the completed research is sufficient supporting context. | Any dependency choice requires a separate decision and evidence. |
 | Owner acceptance of the bounded semantic design | Potential Gate A blocker requiring Owner direction | Owner accepts, conditions, defers, or rejects the frozen proposal. | Accepted scope may proceed only to separately authorized Gate B preparation. |
 | Authority for the five excluded operations | Known deferred matter | Not a blocker while all five remain excluded. | Explicit Owner policy before adding any operation to a future approval boundary. |
-| Physical schema, consistency, concurrency, idempotency, and recovery | Later-gate technical work | Must remain unselected at Gate A. | Gate B technical design, implementation authorization, and executable evidence. |
+| Semantic concurrency outcomes versus physical/runtime mechanisms | The semantic outcomes already proposed for same-Profile concurrent phone changes, overlapping phone resources, phone change racing with lifecycle changes, and phone change racing with anonymization completion are part of the bounded Candidate E design baseline. Physical schema and persistence, serialization and consistency mechanisms, database locking/transactions/isolation, idempotency implementation, retry/reconciliation/recovery mechanisms, and executable physical proof remain later-gate technical work. | Gate A reviews and may accept the proposed semantic concurrency outcomes without selecting a physical mechanism. | The physical/runtime mechanisms must be designed, separately authorized, implemented, and verified at the appropriate later stage. |
 | Runtime identity, verification, and authorization integration | Later-gate technical and operational work | Semantic fail-closed dependency is reviewable; implementation is excluded. | Separately approved Identity/P1/runtime design and controls. |
 | Receiving-context anonymization integration | Later-gate cross-context work | Only approved postconditions are in scope. | Context-owned contracts, physical completion/recovery design, and evidence. |
 | Privacy, lawful basis, retention, legal hold, disposal, and exceptional evidence access | Known deferred legal/privacy and governance matters | Do not infer legal compliance or approve exceptional workflows. | Qualified review and explicit decisions before affected production processing. |
@@ -166,6 +174,8 @@ Conditions or required amendments: ______________________________________
 - [ ] `AMENDMENTS_REQUIRED` — Gate A remains `NOT_GRANTED`.
 - [ ] `DEFER` — Gate A remains `NOT_GRANTED`.
 - [ ] `REJECT` — Gate A remains `NOT_GRANTED`.
+
+Conditional acceptance constitutes Gate A approval only if the existing governance process permits it and the Owner's conditions are explicit, bounded, and objectively verifiable. Otherwise, the outcome must be recorded as `DEFER` or `NOT_GRANTED` until the conditions are resolved and an explicit Gate A decision is made. Conditional approval cannot silently authorize coding or implementation; every condition affecting the approval boundary must be recorded explicitly, and Gate B remains a separate authorization.
 
 Gate A decision: _______________________
 
