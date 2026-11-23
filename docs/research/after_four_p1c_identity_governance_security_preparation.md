@@ -144,7 +144,7 @@ The P1 Application contract should consume typed trusted facts and return bounde
 
 | Producer / owner | Consumer | Minimum logical contract | Prohibited inference | Dependency/status |
 |---|---|---|---|---|
-| Organization Application (I1) | Identity Application adapter | Brand ID to authoritative Organization ID, bounded outcomes | Ownership, role, capability, or permission | Implemented/accepted bounded; runtime consumer absent. |
+| Organization Application (I1) | Identity Infrastructure adapter implementing the Identity Application-owned port | Brand ID to authoritative Organization ID, bounded outcomes | Ownership, role, capability, or permission | Implemented/accepted bounded; runtime consumer absent. |
 | Organization Application (future ownership seam) | Identity Application | Current Organization/Brand ownership evidence and stable authority-source reference | Ownership from ancestry or role title | Not designed/authorized; depends on `P1-OD-01`. |
 | Identity Application | Target-owning Application adapter | Current trusted identity and exact target-specific authorization result | Durable/cached authority or client claims | P1 proposal; no implementation. |
 | Catalog Application | Identity/P1 | Trusted entity-to-Brand-to-Organization target binding and exact lifecycle capability | Brand ID alone proving entity membership | Package C/P1 proposal; not implemented. |
