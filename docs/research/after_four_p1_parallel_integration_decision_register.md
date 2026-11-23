@@ -2,11 +2,11 @@
 
 **Package:** `P1A + P1B + P1C`
 
-**Status:** `PREPARED_FOR_OWNER_REVIEW`
+**Status:** `OWNER_REVIEW_COMPLETED — GOVERNANCE_SYNCHRONIZED`
 
 **Authorizing decision:** `NW-OR-01` — documentation and logical-design preparation only
 
-**Canonical ODB allocation:** `NOT_REQUESTED`
+**Canonical ODB allocation:** `ID_PENDING_OWNER_GOVERNANCE — NO EXACT FULL ID APPROVED`
 
 **Candidate E Gate A:** `DEFER_GATE_A — NOT_GRANTED`
 
@@ -24,15 +24,15 @@ This register integrates the three independently owned P1 preparation artifacts 
 - [P1B Catalog Current-State Reconciliation](after_four_p1b_catalog_current_state_reconciliation.md); and
 - [P1C Identity Governance and Security Preparation](after_four_p1c_identity_governance_security_preparation.md).
 
-The [Next-Wave Execution Plan](after_four_next_wave_execution_plan.md) and `NW-OR-01` authorize these review artifacts only. This package does not allocate a canonical `ODB-*` ID, select an Owner option, approve a dependency or authentication foundation, change a CAT-TRR status, accept ADR-0006, authorize Identity Milestone 2B, or authorize physical database design, schema, migrations, database operations, code, tests, runtime configuration, deployment, Final Operational Acceptance, or Production Authorization.
+The [Next-Wave Execution Plan](after_four_next_wave_execution_plan.md) and `NW-OR-01` authorized these review artifacts only. The Owner's later consolidated selections are recorded in §5 and the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md#consolidated-p1-owner-decisions). This package does not allocate a canonical `ODB-*` ID, approve a dependency or authentication foundation, change a CAT-TRR status, accept ADR-0006, authorize Identity Milestone 2B, or authorize physical database design, schema, migrations, database operations, code, tests, runtime configuration, deployment, Final Operational Acceptance, or Production Authorization.
 
 ## 2. Independent workstream results
 
 | Workstream | Accountable domain ownership | Result | Reviewable next action | Boundary |
 |---|---|---|---|---|
-| P1A | Ordering owns commercial intent/snapshots; Payment owns settlement, Attempts, and reconciliation; Preparation owns durable handoff/work. | Current policy inventory, reconciliation findings, semantic failure scenarios, cross-domain responsibility map, and eight temporary decision proposals. | Review `P1A-OD-01` through `P1A-OD-08` independently; route Customer-owned association policy to Customer governance. | Exact-balance remains a Phase 1 limitation, not permanent policy; no refund/cancellation/runtime implementation follows. |
-| P1B | Catalog owns Category/Product/Variant behavior and current commercial definitions; Organization owns Brand ancestry; Ordering owns confirmed sold history. | Package B evidence inventory, current-state reconciliation, nine documented gaps, unchanged CAT-TRR matrix, one bounded documentation-sync proposal, and five future operation-policy questions. | Review `P1B-PROP-01`; consider `P1B-OD-01` through `P1B-OD-05` only as separate business-policy choices. | Package B is not blanket runtime authority; Package C, Pricing, Availability, and Catalog DML remain unauthorized. |
-| P1C | Identity owns trusted identity/session and authorization evaluation; target contexts own protected targets and business operations; Organization owns ancestry/ownership facts. | Governance/security inventory, responsibility matrix, fifteen threat/gap scenarios, bounded provider-neutral proposals, existing P1/C0 decision dependencies, and one future spike question. | Preserve and separately review `P1-OD-01` through `P1-OD-05`; review `P1C-OD-01` only as authorization to prepare/execute a later bounded spike. | ADR-0006 remains Proposed; Identity Milestone 2B and all Identity/P1 implementation remain unauthorized. |
+| P1A | Ordering owns commercial intent/snapshots; Payment owns settlement, Attempts, and reconciliation; Preparation owns durable handoff/work. | Current policy inventory, reconciliation findings, semantic failure scenarios, cross-domain responsibility map, three approved policy principles, and five deferred questions. | Preserve the approved boundaries; route `P1A-OD-08` and other deferred questions to their named future policy inputs without reopening them implicitly. | Exact-balance remains a Phase 1 limitation, not permanent policy; no Refund/cancellation/runtime implementation follows. |
+| P1B | Catalog owns Category/Product/Variant behavior and current commercial definitions; Organization owns Brand ancestry; Ordering owns confirmed sold history. | Package B evidence inventory, current-state reconciliation, nine documented gaps, unchanged CAT-TRR matrix, one bounded documentation-sync proposal, and five approved future-operation policy principles. | Keep `P1B-PROP-01` separate; any later technical-design or implementation package requires its own review and authorization. | Package B is not blanket runtime authority; Package C, Pricing, Availability, and Catalog DML remain unauthorized. |
+| P1C | Identity owns trusted identity/session and authorization evaluation; target contexts own protected targets and business operations; Organization owns ancestry/ownership facts. | Governance/security inventory, responsibility matrix, fifteen threat/gap scenarios, bounded provider-neutral proposals, existing P1/C0 decision dependencies, and one deferred spike question. | Preserve `P1-OD-01` through `P1-OD-05`; do not prepare or execute a spike unless `P1C-OD-01` is explicitly reopened through later governance. | ADR-0006 remains Proposed; Identity Milestone 2B and all Identity/P1 implementation remain unauthorized. |
 
 One workstream's readiness or blocker does not change another's status. Shared review is coordination, not shared domain ownership.
 
@@ -65,11 +65,30 @@ One workstream's readiness or blocker does not change another's status. Shared r
 
 No glossary change is required by this preparation package. Where canonical documents have stale maturity statements, the applicable reconciliation artifact identifies them without silently rewriting history.
 
-## 5. Consolidated temporary Owner decision register
+## 5. Consolidated provisional Owner decision register
 
-Every reference below is temporary, is not a canonical `ODB-*` ID, and remains `PROPOSED_NOT_APPROVED`. Full evidence, options, and trade-offs remain in the owning workstream artifact.
+Every reference below remains provisional and is not a canonical `ODB-*` ID. On 2026-11-23, the Owner approved eight recommendations and deferred six questions, with no comments or conditions. Exact outcomes and boundaries are canonical in the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md#consolidated-p1-owner-decisions). Full evidence, alternatives, and trade-offs remain in the owning workstream artifacts.
 
 `Accountable owner` identifies the context that owns the final business or governance decision. Consulted contexts may constrain the decision or supply evidence, but their input does not transfer accountability.
+
+### 5.0 Owner outcome crosswalk
+
+| Temporary reference | Accountable owner | Owner selection | Recorded status | Canonical ID |
+|---|---|---|---|---|
+| `P1A-OD-01` | Payment | Defer per recommendation | `OWNER_DECIDED — DEFERRED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1A-OD-02` | Payment | Approve recommendation | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1A-OD-03` | Payment | Approve recommendation | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1A-OD-04` | Ordering | Defer per recommendation | `OWNER_DECIDED — DEFERRED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1A-OD-05` | Ordering | Defer per recommendation | `OWNER_DECIDED — DEFERRED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1A-OD-06` | Payment | Approve recommendation | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1A-OD-07` | Ordering | Defer per recommendation | `OWNER_DECIDED — DEFERRED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1A-OD-08` | Customer | Defer per recommendation | `OWNER_DECIDED — DEFERRED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1B-OD-01` | Catalog | Approve recommendation | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1B-OD-02` | Catalog | Approve recommendation | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1B-OD-03` | Catalog | Approve recommendation | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1B-OD-04` | Catalog | Approve recommendation | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1B-OD-05` | Catalog | Approve recommendation at the policy-principle level | `OWNER_DECIDED — OWNER_CONFIRMED` | `ID_PENDING_OWNER_GOVERNANCE` |
+| `P1C-OD-01` | Identity | Defer per recommendation | `OWNER_DECIDED — DEFERRED` | `ID_PENDING_OWNER_GOVERNANCE` |
 
 ### 5.1 P1A — Ordering and Payment
 
@@ -106,13 +125,13 @@ The existing `P1-OD-01` through `P1-OD-05` remain `OWNER_DECISION_REQUIRED`: Bra
 
 `C0-R05`, `C0-R08`, and `C0-R11` remain `DEFERRED`. P1C does not reopen them or infer MFA, audit-governance, retry, or idempotency values.
 
-## 6. Dependencies and review sequence
+## 6. Dependencies and post-decision sequence
 
-1. Review each workstream's evidence and proposals independently; reject or correct one without blocking unrelated work.
-2. Review P1B's documentation-only synchronization proposal before any Catalog runtime package.
-3. Review P1A business-policy questions by primary owner; route Customer association, Loyalty/Promotion, Cash, Inventory, and qualified accounting/legal inputs to their owning packages.
-4. Review `P1-OD-01` through `P1-OD-05` without bundling them with authentication-foundation selection.
-5. If `P1C-OD-01` is selected, prepare a separate exact spike authorization and evidence manifest; do not execute from this package.
+1. Preserve each workstream's independent accountability; one outcome does not authorize unrelated work.
+2. Review P1B's documentation-only synchronization proposal separately before any Catalog runtime package.
+3. Route deferred P1A questions and their Customer, Loyalty/Promotion, Cash, Inventory, and qualified accounting/legal inputs to their owning future packages without silently reopening them.
+4. Review `P1-OD-01` through `P1-OD-05` without bundling them with authentication-foundation selection; they remain unresolved.
+5. `P1C-OD-01` is deferred. Do not prepare or execute a spike unless a later explicit Owner action reopens it and separately authorizes an exact manifest.
 6. Keep Candidate E Gate A deferred and do not prepare its Gate B proposal.
 7. Require separately approved technical design, bounded implementation authorization, evidence review, applicable Control Acceptance, FOA, and Production Authorization before any production use.
 
@@ -124,10 +143,10 @@ The existing `P1-OD-01` through `P1-OD-05` remain `OWNER_DECISION_REQUIRED`: Bra
 | Confirmed policy separated from implementation/proposal | `SATISFIED_FOR_OWNER_REVIEW` |
 | Material implementation claims sourced and bounded | `SATISFIED_FOR_OWNER_REVIEW — CODE_INSPECTION_ONLY_WHERE_STATED` |
 | Cross-domain ownership and interfaces explicit | `SATISFIED_FOR_OWNER_REVIEW` |
-| Proposed Owner questions actionable and unapproved | `SATISFIED_FOR_OWNER_REVIEW` |
+| Owner outcomes synchronized without changing accountable ownership | `SATISFIED — 8 APPROVED / 6 DEFERRED` |
 | Authentication dependency selection remains open | `SATISFIED` |
 | Candidate E Gate A/B boundary preserved | `SATISFIED` |
 | CAT-TRR statuses preserved | `SATISFIED` |
 | Physical database design or implementation authority introduced | `NO` |
 
-The package is ready for Owner review as documentation and logical-design preparation. It is not a Gate decision, technical-design approval, implementation manifest, executed control assessment, or production-readiness claim.
+Owner review and governance synchronization are complete for the fourteen provisional references. The package is not a Gate decision, technical-design approval, implementation manifest, executed control assessment, or production-readiness claim.
