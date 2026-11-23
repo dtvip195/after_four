@@ -18,6 +18,8 @@
 
 This dossier condenses the frozen Candidate E evidence into the two governance decisions still required from the Owner. It neither replaces nor modifies the [Frozen Reviewed Baseline Manifest](after_four_candidate_e_frozen_reviewed_baseline_manifest.md), whose immutable reviewed baseline remains `8d406314acbd390d431d75799b1f66499439f117`.
 
+The B01 Owner Decision was approved and recorded afterward in commit `63456b643ad670ffed2fc5e9d9166111fd0c70ee`. B01 is supplementary post-freeze governance evidence: it does not modify WP-T1's semantic design or any blob pinned by the Frozen Manifest, and it must not be represented as evidence included in that immutable manifest.
+
 Current prerequisite state:
 
 | Prerequisite | Current status | Evidence |
@@ -60,7 +62,7 @@ The following remain outside the approval boundary because approving authority i
 4. Anonymization approval.
 5. Ordinary undisputed former-phone release.
 
-Their already-approved meanings and postconditions may constrain Candidate E, but their executable use cases and authority assignments are not approved. See [WP-G0 §4](../architecture/after_four_wp_g0_candidate_e_scope_charter.md#4-deferred-operations-excluded-from-the-gate-a-approval-boundary).
+Existing Owner-approved policies may constrain relevant lifecycle, phone-association, anonymization, and former-phone-release semantics. This does not constitute approval of the excluded operations' complete use cases, authority assignments, execution flows, or implementation postconditions. Their unresolved authority boundaries remain outside Candidate E. See [WP-G0 §4](../architecture/after_four_wp_g0_candidate_e_scope_charter.md#4-deferred-operations-excluded-from-the-gate-a-approval-boundary).
 
 ### 2.3 Context-only decisions
 
@@ -77,7 +79,9 @@ Candidate E excludes physical persistence, schema, API/UI, runtime authorization
 
 | Matter | Classification | Gate A treatment |
 |---|---|---|
-| `SDP-CUST-03`–`22`, `SDP-CUST-A2`, and `SDP-SCOPE-01` within their exact boundaries | Owner-approved policy | Preserved; Gate A does not reopen them. See [Customer Owner Decisions §§1–3](../architecture/after_four_customer_management_owner_decisions.md#1-purpose-and-provenance). |
+| `SDP-CUST-01` | Owner-approved Loyalty preserve-and-freeze policy | Constrains the relevant external outcome when Customer anonymization becomes effective: Loyalty balance/ledger and necessary history remain, redemption freezes, and no new Customer-specific Loyalty benefit is issued. It adds no Candidate E Loyalty use case or implementation scope. See [SDP-CUST-01 §§1–4](../architecture/after_four_sdp_cust_01_owner_decision.md#1-decision). |
+| `SDP-CUST-02` | Owner-approved pseudonymous downstream-reference policy | Constrains relevant downstream provenance and re-identification boundaries: use purpose-proportionate pseudonymous references where a relationship must remain; do not automatically disclose original identity/mapping; and do not treat the reference as authority to reconstruct identity. It selects no identifier, mapping store, re-identification mechanism, or Candidate E implementation. See [SDP-CUST-02 §§1–5](../architecture/after_four_sdp_cust_02_owner_decision.md#1-decision). |
+| `SDP-CUST-03`–`22`, `SDP-CUST-A2`, and `SDP-SCOPE-01` within their exact boundaries | Owner-approved policy | Preserved; Gate A does not reopen them. See [Customer Owner Decisions §§1–3](../architecture/after_four_customer_management_owner_decisions.md#1-purpose-and-provenance) and [SDP-SCOPE-01](../architecture/after_four_sdp_scope_01_owner_decision.md). |
 | Logical aggregates, outcome dimensions, completion boundary, concurrency schedules, and Application contract | Independently reviewed `TECHNICAL_PROPOSAL` | Subject of Owner semantic-design acceptance. See [WP-T1 §§5–8](../architecture/after_four_customer_technical_design.md#5-td-cust-01--domain-model-use-cases-and-invariants). |
 | Physical schema, consistency enforcement, transaction boundaries, retry/reconciliation, and operational recovery | Deferred technical design | Gate B or later; Gate A selects none. |
 | Runtime Identity/authorization and verification evidence | External prerequisite | Semantic fail-closed requirement is in scope; implementation remains separate. |
