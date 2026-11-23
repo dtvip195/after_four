@@ -2,11 +2,11 @@
 
 **Candidate:** Customer Lifecycle and Phone-Admission Semantic Contract
 
-**Package status:** `PREPARED_FOR_OWNER_GOVERNANCE_REVIEW`
+**Package status:** `HISTORICAL_REVIEW_PACKAGE — OWNER_DECISIONS_RECORDED`
 
 **Candidate E readiness:** `NOT_READY`
 
-**Gate A approval:** `NOT_GRANTED`
+**Gate A approval:** `DEFER_GATE_A — NOT_GRANTED`
 
 **Implementation authorization:** `NOT_GRANTED`
 
@@ -14,7 +14,7 @@
 
 ## 1. Purpose and decision boundary
 
-This package presents the frozen Candidate E evidence for explicit Owner governance review. It does not make or preselect an Owner decision.
+This package presented the frozen Candidate E evidence for explicit Owner governance review. It did not make or preselect an Owner decision. The Owner later recorded `E-OR-01` as `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE` and `E-OR-02` as `DEFER_GATE_A` on 2026-11-23; see the [Owner Decision Baseline — Wave 1 decisions](../architecture/after_four_owner_decision_baseline.md#wave-1-semantic-design-gate-and-portfolio-decisions). Historical options below are retained as review provenance and do not override the recorded outcomes.
 
 The following milestones are distinct:
 
@@ -22,8 +22,8 @@ The following milestones are distinct:
 |---|---|---|
 | Documentation and research preparation | Complete for the frozen package | Required records exist; this is not Owner acceptance. |
 | Independent technical review | Complete | `T1-IR-01` through `T1-IR-04` are resolved and independently re-reviewed. This does not approve a physical mechanism. |
-| Owner review of supporting research and semantic design | B01 research accepted; semantic design review required | The Owner accepted B01 research within its no-adoption boundary. The Owner must still decide whether to accept the bounded semantic design baseline. |
-| Gate A | `NOT_GRANTED` | Only an explicit Owner Gate A decision can approve the bounded design baseline. |
+| Owner review of supporting research and semantic design | B01 research accepted; semantic baseline accepted through `E-OR-01` | Both decisions retain their exact no-adoption/no-implementation boundaries. |
+| Gate A | `DEFER_GATE_A — NOT_GRANTED` | `E-OR-02` deferred Gate A; Candidate E Gate B proposal preparation is unauthorized. |
 | Gate B / implementation | `NOT_GRANTED` | Requires later, separately bounded design and authorization. Gate A would not authorize coding. |
 
 ## 2. Frozen evidence baseline
@@ -37,7 +37,7 @@ The authoritative evidence index is the [Candidate E Frozen Reviewed Baseline Ma
 | B01 terminology correction | `5a8b9750d4b2ba50ea0be2130285bd30d9895e03` | Corrects only the readiness label to “Curated GitLab Gemfile reference review.” It changes no frozen evidence, dependency decision, or authorization. |
 | Current `main` integration point observed during package preflight | `3ae3ca69cd36d2cb437009bcf6726591b1d4ed69` | Merge commit for PR #36; all three commits above are ancestors. It does not replace the frozen baseline identity. |
 
-The [Candidate E Gate A Readiness Package](after_four_candidate_e_gate_a_readiness.md) remains `NOT_READY`, with Gate A and implementation authorization `NOT_GRANTED`.
+The [Candidate E Gate A Readiness Package](after_four_candidate_e_gate_a_readiness.md) remains `NOT_READY`, with Gate A `DEFER_GATE_A — NOT_GRANTED` and implementation authorization `NOT_GRANTED`.
 
 ## 3. Owner review item 1 — B01 supporting research
 
@@ -86,19 +86,19 @@ The proposal defines logical Customer Profile lifecycle and phone-admission sema
 | `T1-IR-03` | `RESOLVED — INDEPENDENT_RE_REVIEW_CONFIRMED` | Physical completion, retry, and recovery mechanisms. |
 | `T1-IR-04` | `RESOLVED — INDEPENDENT_RE_REVIEW_CONFIRMED` | Runtime hold/review persistence and authorization implementation. |
 
-Independent review confirms that the proposal is coherent enough for governance consideration. It does not mean the design is implemented, accepted by the Owner, legally approved, operationally proven, or production-ready.
+Independent review confirmed that the proposal was coherent enough for governance consideration. `E-OR-01` later accepted the frozen bounded semantic baseline; it remains unimplemented, legally unapproved, operationally unproven, and not production-ready.
 
 ### Owner semantic-baseline decision
 
-Owner selection: ______________________________
+Owner selection: `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`
 
-- [ ] `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`
+- [x] `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`
 - [ ] `ACCEPT_WITH_EXPLICIT_AMENDMENTS`
 - [ ] `AMENDMENTS_REQUIRED_BEFORE_ACCEPTANCE`
 - [ ] `DEFER`
 - [ ] `REJECT`
 
-Required amendments, conditions, or rationale, if any: ___________________________________
+Required amendments, conditions, or rationale, if any: None.
 
 An acceptance here records Owner design acceptance only. Gate A remains a separate explicit decision below.
 
@@ -125,7 +125,7 @@ The following operations remain outside Candidate E because approving authority 
 1. Customer Profile creation.
 2. Ordinary Deactivate.
 3. Reactivate.
-4. Anonymization approval.
+4. Anonymization approval/initiation.
 5. Ordinary undisputed former-phone release.
 
 Their already-approved meanings, invariants, or postconditions may constrain the semantic baseline; their executable use cases and authority assignments are not approved.
@@ -142,7 +142,7 @@ Candidate E also excludes physical persistence, public API/UI, runtime authoriza
 | Concern | Current classification | Gate A treatment | Later requirement |
 |---|---|---|---|
 | Owner sufficiency review of B01 | `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED` | B01 research review is complete and no longer a Gate A evidence blocker. | Any dependency choice or authentication spike requires a separate decision and evidence. |
-| Owner acceptance of the bounded semantic design | Potential Gate A blocker requiring Owner direction | Owner accepts, conditions, defers, or rejects the frozen proposal. | Accepted scope may proceed only to separately authorized Gate B preparation. |
+| Owner acceptance of the bounded semantic design | `ACCEPTED — E-OR-01` | The Owner accepted the frozen bounded semantic baseline without outstanding conditions. | Gate A remains separately deferred; no Candidate E Gate B proposal preparation is authorized. |
 | Authority for the five excluded operations | Known deferred matter | Not a blocker while all five remain excluded. | Explicit Owner policy before adding any operation to a future approval boundary. |
 | Semantic concurrency outcomes versus physical/runtime mechanisms | The semantic outcomes already proposed for same-Profile concurrent phone changes, overlapping phone resources, phone change racing with lifecycle changes, and phone change racing with anonymization completion are part of the bounded Candidate E design baseline. Physical schema and persistence, serialization and consistency mechanisms, database locking/transactions/isolation, idempotency implementation, retry/reconciliation/recovery mechanisms, and executable physical proof remain later-gate technical work. | Gate A reviews and may accept the proposed semantic concurrency outcomes without selecting a physical mechanism. | The physical/runtime mechanisms must be designed, separately authorized, implemented, and verified at the appropriate later stage. |
 | Runtime identity, verification, and authorization integration | Later-gate technical and operational work | Semantic fail-closed dependency is reviewable; implementation is excluded. | Separately approved Identity/P1/runtime design and controls. |
@@ -152,51 +152,53 @@ Candidate E also excludes physical persistence, public API/UI, runtime authoriza
 
 ## 7. Owner governance decision record
 
-No remaining semantic-design or Gate A option is preselected.
+The Owner outcomes are recorded below. The option lists preserve the review presentation; they are not current open selections.
 
 ### 7.1 Remaining semantic-design package review
 
-Decision: ______________________________
+Decision: `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`
 
-Decision date: _________________________
+Decision date: 2026-11-23
 
-Owner identity / recorded role: __________________________________________
+Owner identity / recorded role: Owner
 
-Conditions or required amendments: ______________________________________
+Conditions or required amendments: None.
 
 ### 7.2 Candidate E Gate A
 
 - [ ] `APPROVE` — accept only the frozen bounded semantic design baseline and authorize preparation of a separately reviewed Gate B proposal.
 - [ ] `APPROVE_WITH_CONDITIONS` — state exact conditions; no coding begins until a later bounded Gate B authorization.
 - [ ] `AMENDMENTS_REQUIRED` — Gate A remains `NOT_GRANTED`.
-- [ ] `DEFER` — Gate A remains `NOT_GRANTED`.
+- [x] `DEFER` — Gate A remains `NOT_GRANTED`.
 - [ ] `REJECT` — Gate A remains `NOT_GRANTED`.
 
 Conditional acceptance constitutes Gate A approval only if the existing governance process permits it and the Owner's conditions are explicit, bounded, and objectively verifiable. Otherwise, the outcome must be recorded as `DEFER` or `NOT_GRANTED` until the conditions are resolved and an explicit Gate A decision is made. Conditional approval cannot silently authorize coding or implementation; every condition affecting the approval boundary must be recorded explicitly, and Gate B remains a separate authorization.
 
-Gate A decision: _______________________
+Gate A decision: `DEFER_GATE_A`
 
-Decision date: _________________________
+Decision date: 2026-11-23
 
-Owner identity / recorded role: __________________________________________
+Owner identity / recorded role: Owner
 
-Conditions, amendments, or rationale: ____________________________________
+Conditions, amendments, or rationale: Gate A deferred; future reconsideration requires a separate Owner review.
 
-## 8. Consequences of a future Owner decision
+## 8. Consequences of the recorded Owner decisions
 
-If Gate A is explicitly granted, the only new authorization is to treat the frozen Candidate E semantic design as the approved baseline and prepare a separately bounded Gate B proposal. Gate A does not authorize application or test code, schema, migration, database mutation, dependencies, API/UI, runtime wiring, WP4.3, WP-T2, deployment, or production use.
+`E-OR-01` accepts the frozen Candidate E semantic baseline. `E-OR-02` defers Gate A, so no Candidate E Gate B proposal preparation is authorized. Neither decision authorizes application or test code, schema, migration, database mutation, dependencies, API/UI, runtime wiring, WP4.3, WP-T2, deployment, or production use.
 
-If Gate A is conditional, deferred, requires amendments, or is rejected, Candidate E remains `NOT_READY` and `NOT_GRANTED` until the stated governance path is completed.
+Candidate E remains `NOT_READY`, and Gate A remains `NOT_GRANTED`, while the deferral is in effect. A future change requires a separate explicit Owner review.
 
 Under every option, Gate B, Gate C, Control Acceptance, Final Operational Acceptance, Production Authorization, legal/privacy approval, residual-risk acceptance, and dependency adoption remain `NOT_GRANTED` unless separately and explicitly decided.
 
 ## 9. Package conclusion
 
-This package records the B01 Owner decision while leaving the semantic-design and Gate decisions open:
+This historical package now cross-references all recorded outcomes:
 
 - B01 is `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED`;
 - B02 is `COMPLETED — INDEPENDENT_TECHNICAL_REVIEW_CONFIRMED`;
 - B03 is `COMPLETED — FROZEN_REVIEWED_BASELINE_MANIFEST_RECORDED`;
+- E-OR-01 is `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`;
+- E-OR-02 is `DEFER_GATE_A`;
 - Candidate E is `NOT_READY`;
-- Gate A is `NOT_GRANTED`; and
+- Gate A is `NOT_GRANTED`, and Candidate E Gate B proposal preparation is unauthorized; and
 - implementation and all later operational/production gates are `NOT_GRANTED`.

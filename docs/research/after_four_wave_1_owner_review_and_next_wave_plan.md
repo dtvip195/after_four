@@ -1,12 +1,12 @@
 # AFTER FOUR — Wave 1 Owner Review and Next-Wave Plan
 
-**Package status:** `READY_FOR_OWNER_REVIEW — DECISIONS_UNSELECTED`
+**Package status:** `OWNER_DECISIONS_RECORDED — NEXT_WAVE_PREPARATION_AUTHORIZED`
 
 **Verified base main:** `cd397884db32d94a49df45cf79f235251d28e461`
 
-**Candidate E:** `NOT_READY`
+**Candidate E:** `SEMANTIC_DESIGN_ACCEPTED — NOT_READY`
 
-**Candidate E Gate A:** `NOT_GRANTED`
+**Candidate E Gate A:** `DEFER_GATE_A — NOT_GRANTED`
 
 **Physical database design approval:** `NOT_GRANTED`
 
@@ -18,24 +18,24 @@
 
 ## 1. Executive decision summary
 
-Acceleration Wave 1 established two decision-preparation artifacts: the [Candidate E Owner Review Dossier](after_four_candidate_e_owner_review_dossier.md) and the [Project-wide Logical Database Design Inventory](../architecture/after_four_logical_database_design_inventory.md). It did not make an Owner decision or grant a Gate.
+Acceleration Wave 1 established two decision-preparation artifacts: the [Candidate E Owner Review Dossier](after_four_candidate_e_owner_review_dossier.md) and the [Project-wide Logical Database Design Inventory](../architecture/after_four_logical_database_design_inventory.md). On 2026-11-23, the Owner recorded `E-OR-01`, `E-OR-02`, and `NW-OR-01`. These decisions accept the bounded Candidate E semantic baseline, defer Candidate E Gate A, and authorize only the named Next-Wave documentation/design preparation portfolio.
 
 | Evidence or governance layer | Current result | Meaning and boundary |
 |---|---|---|
 | Owner-approved policy | Customer `SDP-*` decisions, scope decisions, existing domain decisions, and accepted ADR foundations remain authoritative within their exact scopes. | Policy approval does not select physical persistence or authorize implementation. |
 | B01 supporting research | `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED` | The Owner accepted the curated GitLab Gemfile research and its §15 dependency-management principles. No gem or authentication foundation was selected. B01 is supplementary post-freeze governance evidence, not part of the Candidate E Frozen Manifest. |
-| Candidate E semantic design | Frozen and independently reviewed `TECHNICAL_PROPOSAL`; `T1-IR-01` through `T1-IR-04` are resolved. | Owner semantic-design acceptance remains undecided. Review completion is not acceptance, Gate approval, runtime evidence, or production proof. |
+| Candidate E semantic design | `OWNER_ACCEPTED_BOUNDED_SEMANTIC_DESIGN`; `T1-IR-01` through `T1-IR-04` are resolved, and the frozen baseline is unchanged. | `E-OR-01` accepted the baseline with no outstanding conditions. This is not Gate approval, runtime evidence, or production proof. |
 | Bounded implementation evidence | A1/I1, Catalog Package B, and Order/Payment/Preparation Phase 1 have evidence only within their recorded scopes. | No bounded implementation proves unrestricted runtime, cross-domain, operational, or production readiness. |
 | Logical database inventory | Fourteen domain areas are classified by policy, design, proposal, implementation evidence, and unresolved requirements. | It is preparation for future bounded design, not a physical schema baseline. |
 | Deferred matters | Physical persistence, cross-context completion, runtime authorization, legal/privacy details, operational controls, and domain-specific open policies remain deferred as recorded. | No missing mechanism or policy may be inferred from an ERD, dictionary, role name, phone, identifier, or existing implementation. |
 
-The next decisions are deliberately separate:
+The recorded decisions remain deliberately separate:
 
-1. `E-OR-01`: whether to accept the frozen bounded Candidate E semantic-design baseline.
-2. `E-OR-02`: whether to grant Candidate E Gate A after `E-OR-01`.
-3. `NW-OR-01`: which documentation/design work packages the Owner wants prepared next.
+1. `E-OR-01`: `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`, with no outstanding conditions.
+2. `E-OR-02`: `DEFER_GATE_A`; Gate A remains `NOT_GRANTED`.
+3. `NW-OR-01`: approve the recommended documentation/design preparation portfolio within its recorded exclusions.
 
-`E-OR-01`, `E-OR-02`, and `NW-OR-01` are temporary review references, not canonical `ODB-*` IDs. None is selected by this package.
+`E-OR-01`, `E-OR-02`, and `NW-OR-01` are provisional governance references, not canonical `ODB-*` IDs. The Owner selected each outcome on 2026-11-23, but exact canonical ID allocation remains `ID_PENDING_OWNER_GOVERNANCE` under the controlled allocation procedure in the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md#identifier-format-and-allocation).
 
 ## 2. Candidate E — E-OR-01 bounded semantic-design acceptance
 
@@ -61,7 +61,7 @@ The five authority-dependent operations remain outside Candidate E:
 1. Customer Profile creation.
 2. Ordinary Deactivate.
 3. Reactivate.
-4. Anonymization approval.
+4. Anonymization approval/initiation.
 5. Ordinary undisputed former-phone release.
 
 Existing policy may constrain relevant semantics, but complete use cases, authority assignments, execution flows, and implementation postconditions for these operations are not approved.
@@ -77,13 +77,13 @@ Existing policy may constrain relevant semantics, but complete use cases, author
 | `DEFER` | Make no design-acceptance decision. | Preserves flexibility but leaves Candidate E and Gate A blocked. |
 | `REJECT` | Reject the bounded semantic baseline. | Requires a new design direction and another evidence/review cycle. |
 
-**Recommendation:** `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`. Independent review resolved all four technical findings, the evidence is immutable, and unresolved physical, authorization, legal/privacy, and operational matters are explicitly excluded. This recommendation assumes the Owner agrees with the exact frozen semantic outcomes and does not want to add any excluded operation. The principal trade-off is that later design must conform to these semantics; acceptance still grants no Gate or implementation authority.
+**Historical recommendation:** `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`. Independent review resolved all four technical findings, the evidence is immutable, and unresolved physical, authorization, legal/privacy, and operational matters are explicitly excluded.
 
-Owner decision: __________________________________________
+**Recorded Owner decision:** `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE`
 
-Conditions or rationale: ________________________________________________________________
+**Outstanding conditions:** None.
 
-Decision date and Owner identity/role: __________________________________________________
+**Decision date and Owner identity/role:** 2026-11-23 — Owner.
 
 ## 3. Candidate E — E-OR-02 Gate A
 
@@ -99,15 +99,15 @@ The canonical Owner Decision Baseline, Foundation Decisions, and accepted ADRs d
 | `DEFER_GATE_A` | Leave Gate A pending. | Avoids premature approval but blocks Candidate E Gate B preparation. |
 | `NOT_GRANTED` | Record that Gate A is not granted. | No downstream Candidate E authorization follows. |
 
-**Recommendation:** `APPROVE_GATE_A`, but only after an explicit `E-OR-01` acceptance and only for the frozen scope. The evidence is sufficient for semantic governance review, while every physical and runtime concern is visibly assigned to later gates. If the Owner requires a semantic or scope change, the safer option is `DEFER_GATE_A` until an amended baseline is reviewed.
+**Historical recommendation:** `APPROVE_GATE_A`, but only after an explicit `E-OR-01` acceptance and only for the frozen scope. The Owner did not select this recommendation.
 
 Gate A does not grant Gate B; authorize schema, migrations, database creation, application/test code, API/UI, runtime authorization, deployment, or production use; or bring any of the five excluded operations into scope.
 
-Owner decision: __________________________________________
+**Recorded Owner decision:** `DEFER_GATE_A`
 
-Rationale or prerequisite blocker: ______________________________________________________
+**Resulting boundary:** Gate A remains `NOT_GRANTED`; Candidate E Gate B proposal preparation and implementation remain unauthorized.
 
-Decision date and Owner identity/role: __________________________________________________
+**Decision date and Owner identity/role:** 2026-11-23 — Owner.
 
 ## 4. Logical database design — fourteen-domain review
 
@@ -129,7 +129,7 @@ Conceptual ERDs, dictionaries, accepted platform ADRs, and bounded implementatio
 | 1. Organization | Organization → Brand → Branch is established; A1 reference persistence and I1 ancestry have `BOUNDED_IMPLEMENTED_EVIDENCE`. | Administration, lifecycle, production mapping, remapping, and wider consumers remain undesigned. Identity/Catalog consume ancestry through contracts; they do not own it. | A bounded extension-design brief for one identified consumer or administration use case. | No unrestricted Organization administration, production mapping, or inferred cross-context FK. | Reconcile the exact extension scope; Owner decision is needed only when administration/mapping authority or a new bounded operation is proposed. |
 | 2. Identity | Owner policies exist; I1 ancestry is implemented; P1 is design-only and ADR-0006 remains `Proposed`. | P1 open decisions, Session/MFA policy under deferred `C0-R05`, retry/idempotency under deferred `C0-R11`, runtime wiring, secrets, and operational roles remain. | P1 governance/security decision preparation and evidence planning. | No authentication, Session, AuthorizationContext, delegation, capability, Devise, or Milestone 2B implementation. Workforce assignment is not authorization. | P1 Owner-decision closure package plus bounded security/operational evidence plan. Explicit Owner decisions remain required. |
 | 3. Catalog | Owner lifecycle/integrity policies and Package B `BOUNDED_IMPLEMENTED_EVIDENCE` exist; Package C/P2/P3 remain proposals. | Current-state documentation reconciliation, operation authority, P1/P2/P3, CAT-TRR operational evidence, pricing/menu/availability, and lifecycle runtime are incomplete. | Reconcile Package B evidence and prepare one operation-specific logical-design proposal. | Package B does not authorize Package C, runtime lifecycle DML, pricing, menu publication, or new schema. | Catalog current-state reconciliation and a separately bounded operation-design candidate; Owner selects any later operation/scope. |
-| 4. Customer | `SDP-*` policies are approved; Candidate E is an independently reviewed proposal, not yet Owner-accepted. | E-OR-01/E-OR-02, five excluded authorities, physical representation, runtime authorization, retention/legal details, and receiving-context mechanisms remain. | Conduct the two Owner decisions in §§2–3. | No WP4.3, WP-T2, physical Customer schema, runtime flow, shared-phone workflow, or anonymous-Order design. | Record E-OR-01, then E-OR-02 separately; only an approved Gate A may lead to a separately authorized Gate B proposal. |
+| 4. Customer | `SDP-*` policies are approved; Candidate E's frozen bounded semantic baseline is Owner-accepted through E-OR-01. | Gate A is deferred; five excluded authorities, physical representation, runtime authorization, retention/legal details, and receiving-context mechanisms remain. | Preserve the accepted semantics and deferred Gate boundary while preparing only the separately approved Next-Wave portfolio. | No Candidate E Gate B proposal, WP4.3, WP-T2, physical Customer schema, runtime flow, shared-phone workflow, or anonymous-Order design. | Candidate E remains blocked unless a future separate Owner review grants Gate A and later preparation authority. |
 | 5. Loyalty | Production MVP scope and `SDP-CUST-01/02` preserve/freeze and pseudonymous-provenance boundaries are Owner-approved. Core model is not implementation-ready. | Earning/redemption formulas, expiry, reversal, adjustment, negative balance, scope, refunds, aggregate/ledger, legal/privacy, and Customer integration remain. | Consolidated Loyalty policy discovery and decision brief. | No ledger/schema, balance calculation, cross-Brand sharing, identity reconstruction, or redemption implementation. | Loyalty policy-closure package. Owner decisions are required for calculation, scope, correction, and authority policies. |
 | 6. Promotions | Production MVP advanced-engine scope and `SDP-CUST-17/02` anonymization boundaries are approved; general rule design is not. | Eligibility, stacking, precedence, issuance/reuse, limits, allocation, tax/refund effects, cross-Brand applicability, authority, retention, and entitlement lifecycle remain. | Consolidated Promotions policy discovery, preferably alongside Loyalty but with separate ownership. | No rule engine, entitlement schema, cross-Brand behavior, or inference that anonymization policy defines general eligibility. | Promotions policy-closure package with Owner-selectable business options. |
 | 7. Ordering | Owner policies and Phase 1 bounded command/constraint evidence exist. Anonymous Orders are permitted; later association is unresolved. | Catalog-backed construction, pricing/tax/discount snapshots, tables/additional items, cancellation/refund outcomes, Customer association, API, and authorization remain. | Combined Order/Payment policy-closure package and bounded logical gap analysis. | No public API, item/pricing implementation, Customer auto-association, or automatic expansion beyond Phase 1. | Decision briefs for cancellation/refund, Customer association, commercial snapshot inputs, and remaining lifecycle exceptions. |
@@ -141,13 +141,13 @@ Conceptual ERDs, dictionaries, accepted platform ADRs, and bounded implementatio
 | 13. Operations | Tables, assets, maintenance, and operational tasks are conceptual; context ownership is not implementation-ready. | Ownership, lifecycle, authority, Branch scope, Ordering/table-session integration, concurrency, and retention remain. | Bounded-context and workflow discovery. | No shared aggregate with Ordering, inferred FK topology, table-session implementation, or asset workflow. | Operations boundary/options brief; Owner chooses priority and business workflow before technical design. |
 | 14. Reporting/Audit | Phase 1 has bounded Branch-scoped AuditEvent/Outbox evidence; P2/P3 are proposed; `C0-R08` is deferred. | Project-wide taxonomy, readers, retention, legal hold, export, redaction, integrity, projections, delivery/replay, privacy, and production operations remain. | Audit/reporting governance preparation and source-domain ownership reconciliation. | No universal AuditEvent/reporting schema, project-wide atomicity inference, reader/export grant, or compliance claim. | Reporting/Audit governance brief and qualified retention/privacy review; Owner decisions for readers, export, hold, and reporting priorities. |
 
-## 5. Recommended next-wave prioritization
+## 5. Approved Next-Wave preparation portfolio
 
-The optimal plan keeps the two Candidate E decisions sequential while allowing unrelated discovery/design preparation to run in parallel. It avoids treating every domain as one delivery stream or inventing a shared aggregate.
+`NW-OR-01` approves the portfolio below for documentation/design preparation only. It avoids treating every domain as one delivery stream or inventing a shared aggregate. Candidate E Gate B proposal preparation is not part of this authorization.
 
 | Priority / package | Rationale and deliverable | Dependencies and parallelism | Owner decisions | Must not authorize | Exit criteria |
 |---|---|---|---|---|---|
-| P0 — Candidate E Owner decisions | Record E-OR-01 and then E-OR-02 against the frozen evidence. | E-OR-02 depends on a valid E-OR-01 outcome. Other documentation tracks may run in parallel. | E-OR-01 and E-OR-02. | Physical design, Gate B, implementation, or excluded operations. | Both decisions are truthfully recorded with their exact scope, or blockers are explicitly retained. |
+| P0 — Candidate E Owner decisions | Preserve the recorded E-OR-01 acceptance and E-OR-02 deferral against the frozen evidence. | Complete; unrelated approved documentation tracks may proceed. | Future Gate A reconsideration requires a separate Owner review. | Candidate E Gate B proposal preparation, physical design, implementation, or excluded operations. | Decisions remain traceable; Gate A remains deferred and no downstream authority is inferred. |
 | P1A — Order/Payment policy closure | One consolidated decision package for allocation, refund/cancellation, mismatch/overpayment, late success, and Customer association boundaries. | Uses Phase 1 evidence and Catalog/Customer policies; can run beside P1B/P1C. | Multiple business-policy choices must be presented, not inferred. | Changes to Phase 1 code, schema, API, or provider integration. | Owner decisions and remaining technical questions are separated and traceable. |
 | P1B — Catalog current-state reconciliation | Align design/readiness records with Package B evidence and identify one bounded next operation/design candidate. | Independent of Candidate E; P1/P2/P3 remain prerequisites for runtime operations. | Owner selects any new operation or later scope. | Package C implementation, lifecycle DML, pricing, or CAT-TRR closure. | Current-state contradictions removed; one bounded proposal has explicit prerequisites. |
 | P1C — Identity/P1 governance and security | Resolve P1 Owner questions and define evidence prerequisites for trusted authorization consumers. | Can run in parallel; runtime consumers wait for later authorization. | P1-specific decisions; deferred C0 matters remain deferred unless explicitly reopened. | Identity Milestone 2B, Devise adoption, Session/MFA implementation, or ADR-0006 acceptance. | Decision-ready P1 package and explicit security/operational evidence gaps. |
@@ -162,7 +162,7 @@ The optimal plan keeps the two Candidate E decisions sequential while allowing u
 - Combining Loyalty and Promotions into one governance review reduces repeated anonymization review, but their decisions and ownership must remain separate.
 - Inventory, Cash, and Workforce may share one review cadence, not one model; separate annexes prevent artificial coupling.
 - Organization extension work is intentionally demand-driven because A1/I1 already serves its bounded purpose and speculative administration design would create premature abstractions.
-- Candidate E Gate B preparation must wait for E-OR-01 and E-OR-02; unrelated domain discovery need not wait.
+- Candidate E Gate B proposal preparation remains unauthorized because E-OR-02 is `DEFER_GATE_A`; unrelated `NW-OR-01` documentation/design work need not wait.
 
 ## 6. Cross-domain dependency and conflict review
 
@@ -181,13 +181,13 @@ The optimal plan keeps the two Candidate E decisions sequential while allowing u
 
 ## 7. Consolidated Owner decision register
 
-No option is selected below. B01 is not reopened: it remains `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED`. No gem was selected or installed; Devise 5 remains only a future candidate, and a Devise-versus-custom spike requires a separate Owner decision after review of ADR-0006 and applicable authentication requirements.
+The Owner selections are recorded below. B01 is not reopened: it remains `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED`. No gem was selected or installed; Devise 5 remains only a future candidate, and a Devise-versus-custom spike requires a separate Owner decision after review of ADR-0006 and applicable authentication requirements.
 
 | Temporary review reference | Decision question and evidence | Recommended option | Alternatives and trade-offs | Dependencies and scope impact | Does not authorize | Owner decision |
 |---|---|---|---|---|---|---|
-| `E-OR-01` | Accept the frozen bounded Candidate E semantic design? Evidence: Frozen Manifest, WP-G0, WP-T1, resolved independent review. | `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE` for the exact scope. | Conditional semantic-design acceptance is distinct from conditional Gate A approval and is available only if applicable existing governance explicitly supports it. If permitted and selected, every condition must be resolved and verified before E-OR-02 can be considered; defer/reject avoids unsupported or premature acceptance. | Required before E-OR-02; stabilizes semantics only. E-OR-02 has no conditional-approval outcome. | Gate A, physical design, Gate B, implementation, excluded operations, legal/privacy approval. | ____________________ |
-| `E-OR-02` | Grant Candidate E Gate A after a valid E-OR-01 outcome? | `APPROVE_GATE_A` for the frozen scope only. | `DEFER_GATE_A` or `NOT_GRANTED` applies while any prerequisite or E-OR-01 condition remains unresolved; E-OR-02 has no conditional-approval outcome. | Depends on a valid E-OR-01 outcome and, where applicable, verified resolution of every permitted E-OR-01 condition; permits only a separately reviewed Gate B proposal. | Schema, migrations, database creation, code, runtime authorization, Gate B/C, FOA, production. | ____________________ |
-| `NW-OR-01` | Which next-wave documentation/design portfolio should be authorized for preparation? Evidence: §4 inventory and §5 dependency plan. | Authorize P1A, P1B, and P1C in parallel; authorize P2A/P2B discovery; keep P2C demand-driven and P3 at governance/discovery level. | A narrower portfolio reduces review load but lengthens the critical path; a broader portfolio raises coordination and premature-design risk. | Does not depend on Candidate E Gate A except for Candidate E Gate B work; each package retains its own exit gate. | Any package's substantive Owner decisions, physical design, implementation, dependency adoption, or production activity. | ____________________ |
+| `E-OR-01` | Accept the frozen bounded Candidate E semantic design? Evidence: Frozen Manifest, WP-G0, WP-T1, resolved independent review. | `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE` for the exact scope. | Later physical and runtime design must preserve the accepted semantics; all exclusions remain. | Stabilizes semantics only. | Gate A, physical design, Gate B, implementation, excluded operations, legal/privacy approval. | `ACCEPT_BOUNDED_SEMANTIC_DESIGN_BASELINE` — 2026-11-23; no outstanding conditions. |
+| `E-OR-02` | Grant Candidate E Gate A after E-OR-01? | Historical recommendation was `APPROVE_GATE_A`; the Owner selected defer. | Deferral preserves future review without granting downstream authority. | Gate A remains `NOT_GRANTED`; Candidate E Gate B proposal preparation is unauthorized. | Schema, migrations, database creation, code, runtime authorization, Gate B/C, FOA, production. | `DEFER_GATE_A` — 2026-11-23. |
+| `NW-OR-01` | Which next-wave documentation/design portfolio should be authorized for preparation? Evidence: §4 inventory and §5 dependency plan. | P1A/P1B/P1C in parallel; P2A/P2B discovery; P2C demand-driven; P3 governance/discovery. | Coordination may be parallel, but each domain retains separate ownership and exit gates. | Authorizes only the named preparation portfolio; Candidate E Gate B work is excluded. | Any package's substantive Owner decisions, physical design, implementation, dependency adoption, or production activity. | Approved — 2026-11-23. |
 
 Domain-specific unresolved questions in §4 are decision-preparation backlog, not pre-approved decisions and not silently allocated temporary or canonical IDs by this package.
 
@@ -196,8 +196,8 @@ Domain-specific unresolved questions in §4 are decision-preparation backlog, no
 | Stage | Required evidence | Required explicit approval | What completion permits | What remains prohibited |
 |---|---|---|---|---|
 | Current documentation/design preparation | Canonical policy traceability, reviewed evidence, truthful readiness/gap inventory | Authorization for the named documentation task | Owner review and bounded proposal preparation only | Owner decision inference, schema, code, runtime/database changes |
-| Candidate E semantic acceptance | Frozen baseline/manifest, WP-G0 boundary, WP-T1, independent-review evidence | E-OR-01 | Records accepted semantic baseline only | Gate A/B, physical design, implementation |
-| Candidate E Gate A | Valid E-OR-01 result, explicit scope/exclusions, and verified resolution of every permitted E-OR-01 condition | E-OR-02 | Preparation of a separately reviewed bounded Gate B proposal | Physical/schema work, migrations, code, excluded operations |
+| Candidate E semantic acceptance | Frozen baseline/manifest, WP-G0 boundary, WP-T1, independent-review evidence | E-OR-01 — recorded | Accepted semantic baseline only | Gate A/B, physical design, implementation |
+| Candidate E Gate A | Accepted E-OR-01 baseline and a future separate Owner reconsideration | E-OR-02 currently `DEFER_GATE_A` | Nothing while deferred | Candidate E Gate B proposal preparation, physical/schema work, migrations, code, excluded operations |
 | Future bounded Gate B proposal preparation | Approved Gate A baseline, exact proposed scope, physical/runtime alternatives, threat/failure analysis, migration/test/evidence plan, and prerequisites | Gate A's recorded proposal-preparation boundary plus any separately required documentation-task authorization | A reviewable Gate B authorization proposal only | Schema/migrations, implementation, database mutation, or treating the proposal as approved |
 | Gate B implementation authorization | Frozen Gate B proposal/manifest, exact files/operations, test environment, rollback, threat/failure evidence, and unresolved risks | Explicit Owner Gate B decision for that exact bounded manifest | Only the specifically authorized implementation and verification scope | Unlisted files/operations, production, broader domains, automatic Gate C |
 | Implementation and verification | Gate B authorization, controlled environment, exact diff, executed evidence, and unresolved findings | Existing Gate B boundary plus any separately required environment/data authority | Produces implementation evidence for review | Acceptance, deployment, production use, silent residual-risk acceptance |
@@ -209,13 +209,13 @@ No stage is granted automatically because the preceding artifact or stage is com
 
 ## 9. Recommended Owner review order
 
-1. Decide E-OR-01 bounded semantic-design acceptance.
-2. Consider E-OR-02 only after E-OR-01 has produced a valid semantic-design acceptance outcome and every permitted E-OR-01 condition, if any, has been resolved and verified. Otherwise, retain Gate A as `NOT_GRANTED` or `DEFER_GATE_A`.
-3. Review and prioritize the fourteen-domain logical database inventory without treating it as a physical schema.
-4. Select the next-wave documentation/design packages and their true dependencies through NW-OR-01.
-5. Record selected Owner decisions and preserve every unresolved matter explicitly.
+1. Preserve E-OR-01 bounded semantic-design acceptance and all exclusions against the unchanged frozen manifest.
+2. Preserve E-OR-02 as `DEFER_GATE_A`; do not prepare a Candidate E Gate B proposal unless a future separate Owner review changes that status and grants the necessary preparation authority.
+3. Execute only the documentation/design preparation portfolio approved by NW-OR-01, using the consolidated [Next-Wave Execution Plan](after_four_next_wave_execution_plan.md).
+4. Keep package-specific Owner decisions and exit gates explicit; do not infer them from portfolio approval.
+5. Preserve every unresolved matter and authorization boundary explicitly.
 
-This order first establishes what Candidate E means, then whether it passes its design gate, and only afterward chooses broader work. It prevents semantic acceptance from being mistaken for Gate approval, prevents Gate A from being mistaken for implementation authorization, and avoids physical design rework against an unstable policy baseline.
+This order preserves the accepted Candidate E semantics without treating deferred Gate A as approval, then advances only the separately approved preparation portfolio. It prevents semantic acceptance from being mistaken for Gate approval and prevents portfolio authorization from becoming substantive policy, physical design, or implementation authority.
 
 ## 10. Explicit non-authorization statement
 
@@ -229,7 +229,7 @@ This package does not authorize:
 - new or expanded implementation scope;
 - dependency installation/adoption or selection of Devise 5;
 - WP-T2, WP4.3, or any Candidate E excluded operation;
-- Gate A, Gate B, Gate C, Control Acceptance, residual-risk acceptance, FOA, or Production Authorization; or
+- Candidate E Gate A or Gate B proposal preparation, Gate B implementation, Gate C, Control Acceptance, residual-risk acceptance, FOA, or Production Authorization; or
 - legal/privacy compliance conclusions.
 
 Parallel preparation is limited to logical/domain analysis, evidence reconciliation, and decision-ready documentation. It is not permission to create schema, migrations, database objects, or application code.
@@ -245,6 +245,7 @@ Parallel preparation is limited to logical/domain analysis, evidence reconciliat
 - [Customer Management Owner Decisions](../architecture/after_four_customer_management_owner_decisions.md)
 - [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md)
 - [Logical Database Design Inventory](../architecture/after_four_logical_database_design_inventory.md)
+- [Next-Wave Documentation and Design Execution Plan](after_four_next_wave_execution_plan.md)
 - [Business Domain Model](../architecture/after_four_business_domain_model.md)
 - [DDD Foundation](../architecture/after_four_ddd_foundation.md)
 - [ERD](../architecture/after_four_erd.md)
@@ -260,4 +261,4 @@ Parallel preparation is limited to logical/domain analysis, evidence reconciliat
 - [ADR-0010 — Database Migrations and Schema](../architecture/adr/0010-database-migrations-and-schema.md)
 - [ADR-0011 — Project-wide Layered DDD](../architecture/adr/0011-project-wide-layered-ddd.md)
 
-The Frozen Manifest and its pinned evidence remain unchanged. This package records no decision by itself.
+The Frozen Manifest and its pinned evidence remain unchanged. This package records and cross-references the Owner outcomes; the documentation does not create or expand those decisions.
