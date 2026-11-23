@@ -112,4 +112,4 @@ Every matrix row is still `PROPOSED_NOT_APPROVED`. Evidence means required futur
 
 ## 7. Exit assessment
 
-Promotions ownership, confirmed anonymization constraints, proposed capability boundaries, and eight Owner questions are prepared. No Promotion type, formula, lifecycle, technical design, dependency, implementation, Gate, FOA, or Production Authorization is approved.
+Promotions ownership, confirmed anonymization constraints, proposed operation-specific capability boundaries, and seventeen active Owner decision candidates are prepared for Owner review. The superseded `P2A-PROMO-OD-07` is excluded from this count. No Promotion type, formula, lifecycle, technical design, dependency, implementation, Gate, FOA, or Production Authorization is approved.
