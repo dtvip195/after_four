@@ -59,7 +59,7 @@ The following remain outside the approval boundary because approving authority i
 1. Customer Profile creation.
 2. Ordinary Deactivate.
 3. Reactivate.
-4. Anonymization approval.
+4. Anonymization approval/initiation.
 5. Ordinary undisputed former-phone release.
 
 Existing Owner-approved policies may constrain relevant lifecycle, phone-association, anonymization, and former-phone-release semantics. This does not constitute approval of the excluded operations' complete use cases, authority assignments, execution flows, or implementation postconditions. Their unresolved authority boundaries remain outside Candidate E. See [WP-G0 §4](../architecture/after_four_wp_g0_candidate_e_scope_charter.md#4-deferred-operations-excluded-from-the-gate-a-approval-boundary).

@@ -40,7 +40,7 @@ The authoritative boundary is the [WP-G0 Candidate E Scope Charter](../architect
 
 ### Excluded or deferred
 
-- Profile creation, ordinary Deactivate, Reactivate, anonymization approval, and ordinary undisputed former-phone release;
+- Profile creation, ordinary Deactivate, Reactivate, anonymization approval/initiation, and ordinary undisputed former-phone release;
 - `SDP-CUST-18` shared/family-phone design and `SDP-CUST-19` anonymous-Order design;
 - multi-Brand behavior, public API, physical persistence, runtime authorization, Identity/MFA/Session implementation, Loyalty/Promotion internals, Restricted Identity Evidence topology, and exceptional access workflow; and
 - WP4.3, implementation, deployment, and production use.

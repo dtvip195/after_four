@@ -125,7 +125,7 @@ The following operations remain outside Candidate E because approving authority 
 1. Customer Profile creation.
 2. Ordinary Deactivate.
 3. Reactivate.
-4. Anonymization approval.
+4. Anonymization approval/initiation.
 5. Ordinary undisputed former-phone release.
 
 Their already-approved meanings, invariants, or postconditions may constrain the semantic baseline; their executable use cases and authority assignments are not approved.

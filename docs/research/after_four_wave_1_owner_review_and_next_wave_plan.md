@@ -61,7 +61,7 @@ The five authority-dependent operations remain outside Candidate E:
 1. Customer Profile creation.
 2. Ordinary Deactivate.
 3. Reactivate.
-4. Anonymization approval.
+4. Anonymization approval/initiation.
 5. Ordinary undisputed former-phone release.
 
 Existing policy may constrain relevant semantics, but complete use cases, authority assignments, execution flows, and implementation postconditions for these operations are not approved.
