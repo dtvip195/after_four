@@ -105,7 +105,7 @@ Controlling sources are the [Owner Decision Baseline](../architecture/after_four
 | `P2A-PROMO-OD-05` | Define discount allocation and Refund/cancellation treatment. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | P1A; Price/tax/service-charge/rounding | `DEPENDENCY_BLOCKED` / wait |
 | `P2A-PROMO-OD-06` | Define Voucher issuance, reuse, transfer, and limits. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | Customer/privacy/fraud consultation | `READY_FOR_OWNER_REVIEW` / independent scope choice |
 | `P2A-PROMO-OD-07A` | Assign Draft/create authority. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | Approved scope model | `READY_FOR_OWNER_REVIEW` / independent operation |
-| `P2A-PROMO-OD-07B` | Assign edit authority and permitted states. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | Lifecycle-state policy | `READY_FOR_OWNER_REVIEW` / authority direction now, states later |
+| `P2A-PROMO-OD-07B` | Assign edit authority and permitted states. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | Lifecycle-state policy | `CONDITIONALLY_REVIEWABLE` / directional authority review; final state restrictions await lifecycle-state policy |
 | `P2A-PROMO-OD-07C` | Decide submission step and authority. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | Approval workflow choice | `READY_FOR_OWNER_REVIEW` / independent workflow direction |
 | `P2A-PROMO-OD-07D` | Assign approval authority. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | Scope/delegation policy | `READY_FOR_OWNER_REVIEW` / independent operation |
 | `P2A-PROMO-OD-07E` | Assign publish/activate authority. | Promotions | [Promotions §5](after_four_p2a_promotions_policy_discovery.md#5-candidate-policy-decisions) | Approval and lifecycle policy | `CONDITIONALLY_REVIEWABLE` / coordinated |
@@ -198,7 +198,7 @@ Each row is a complete compact brief. “Outside” applies even if the Owner se
 | `P2A-PROMO-OD-05` | Refund/cancellation needs discount allocation. | Line-proportional, rule-attributed, and item-first are alternatives; defer selection. | Each changes Refund/reporting results. | Allocation and automation remain unresolved/outside. | P1A and Price/tax/rounding. `RECOMMENDATION_NOT_ESTABLISHED` pending dependency. |
 | `P2A-PROMO-OD-06` | Voucher capability needs explicit issuance/use/transfer policy. | Treat as optional separate capability; bearer or identity-bound are alternatives. | Bearer is simple but leak/fraud prone; bound use raises privacy/verification duties. | Whether Voucher is included and its limits remain unresolved; mechanisms outside. | Customer/privacy/fraud input. |
 | `P2A-PROMO-OD-07A` | Draft creation needs bounded preparation authority. | Scoped preparation capability; Owner-only drafting is the alternative. | Delegation improves speed but must not imply approval/publication. | Exact scope/escalation and RBAC remain outside. | Promotion scope model. |
-| `P2A-PROMO-OD-07B` | Editing can bypass review unless states/authority are explicit. | Separate edit authority; broad edit is the alternative. | Separation protects review; broad authority is flexible. | Permitted states/fields and implementation remain unresolved/outside. | Lifecycle-state policy. |
+| `P2A-PROMO-OD-07B` | Editing can bypass review unless states/authority are explicit. | Owner may review the direction of separating edit authority from other Promotion operations; broad edit authority remains the supported alternative. | Separation protects review; broad authority is flexible. Directional discussion is not a complete decision on permitted states or editable fields. | Permitted states/fields and implementation remain unresolved/outside; no state machine, RBAC, API, or implementation is authorized. | `CONDITIONALLY_REVIEWABLE`: final selection for the complete candidate awaits lifecycle-state policy establishing the necessary state boundaries. |
 | `P2A-PROMO-OD-07C` | Approval workflow may need a submission boundary. | Adopt scoped submitter/requester separation if approval is required; direct approval is the alternative. | Submission improves separation but adds workflow. | Whether submission exists and rejection/withdrawal remain unresolved/outside. | Approval workflow choice. |
 | `P2A-PROMO-OD-07D` | Approval is sensitive and must not follow from title/draft authority. | Exact scoped approval capability; Owner-only or explicit delegation are alternatives. | Owner-only is safe/slow; delegation needs evidence/scope. | Delegation/RBAC and escalation remain outside. | Scope policy. |
 | `P2A-PROMO-OD-07E` | Publication changes customer-visible commercial behavior. | Separate publication from draft/approval; combined approve/publish is the alternative. | Separation strengthens control but adds steps. | Lifecycle/effective-time and runtime remain unresolved/outside. | Approval and lifecycle policy. |
@@ -223,7 +223,7 @@ Each row is a complete compact brief. “Outside” applies even if the Owner se
 | 2 | Workforce | Foundational employment/assignment decisions can close while qualified policy is gathered. | `WF-01`–`04`; directional review of `05`, `08A` | `06A`–`07B`: employment/legal/Payroll; final `05`/`08A` needs named input |
 | 3 | Inventory | Location, shortage, custody, and count policy can precede technical design. | `INV-01`, `02`, `05`, `06`; directional `03`, `04A/B`, `08` | `INV-07`: accounting; other conditional items need food-safety/Preparation/Recipe |
 | 4 | Loyalty | Anonymization and MVP boundaries are fixed, while calculation depends on commercial inputs. | `LOY-03`, `04`, `07`; directional `01`, `02`, `06` | `LOY-05`: P1A; calculation inputs for conditional rows |
-| 5 | Promotions | MVP priority is fixed, but commercial and lifecycle choices need coordination. | `PROMO-01`, `06`, `07A`–`07D`, `07J`, `08`; directional remaining conditional rows | `PROMO-05`: P1A/total components |
+| 5 | Promotions | MVP priority is fixed, but commercial and lifecycle choices need coordination. | `PROMO-01`, `06`, `07A`, `07C`–`07D`, `07J`, `08`; directional review of `07B` and the remaining conditional rows | `PROMO-07B`: final permitted-state restrictions await lifecycle-state policy; `PROMO-05`: P1A/total components. Neither blocks independent Promotions candidates. |
 | 6 | Ordering | It must integrate approved component policies without owning them. | None for exact sequence yet | `W2-ORD-OD-01`: Catalog, Loyalty, Promotions, and P1A inputs |
 
 This sequence is a review recommendation only. It does not transfer ownership, bypass prerequisites, or authorize work.
@@ -270,9 +270,9 @@ Dependency-blocked candidates should normally be `DEFER` or `REQUEST_CLARIFICATI
 | Workforce | 13 | 4 | 2 | 7 | 0 |
 | Inventory | 9 | 4 | 4 | 1 | 0 |
 | Loyalty | 7 | 3 | 3 | 1 | 0 |
-| Promotions | 17 | 8 | 8 | 1 | 0 |
+| Promotions | 17 | 7 | 9 | 1 | 0 |
 | Ordering | 1 | 0 | 0 | 1 | 0 |
-| **Total** | **55** | **26** | **17** | **12** | **0** |
+| **Total** | **55** | **25** | **18** | **12** | **0** |
 
 The counts classify readiness to make the stated business choice, not product priority or implementation maturity. Conditional candidates may receive directional review, but their named prerequisites remain controlling. Blocked candidates must not be made to appear complete through guessed policy.
 
