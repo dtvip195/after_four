@@ -4,7 +4,7 @@
 
 **Document status:** `DOMAIN DESIGN PROPOSAL`
 
-**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-14`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
+**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-15`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
 
 **Technical design approval:** `NOT_GRANTED`
 
@@ -107,17 +107,17 @@ No source conflict requiring a canonical correction was identified. Existing phy
 | State | Classification | Meaning |
 |---|---|---|
 | Not yet created | `DOMAIN DESIGN PROPOSAL` | No admitted Profile exists. A request may be evaluated without implying a durable record. |
-| Active | `OWNER-APPROVED BUSINESS POLICY` | Profile is available for ordinary authorized Customer operations. The state itself grants no capability. |
+| Active | `OWNER-APPROVED BUSINESS POLICY` | Initial state after successful Profile creation under `SDP-CUST-15`; Profile is available for ordinary authorized Customer operations. The state itself grants no capability. |
 | Inactive | `OWNER-APPROVED BUSINESS POLICY` | Profile is unavailable for ordinary active use but may be reactivated after authorized review. It is neither deleted nor anonymized. |
 | Anonymized | `OWNER-APPROVED BUSINESS POLICY` | Terminal for ordinary Profile operations. Ordinary Profile data no longer identifies the Customer; no ordinary restoration exists. |
 
-The initial state after successful Profile creation is not explicitly approved. `PROVISIONAL`: Active is the operational candidate, but WP4.2 does not select it. A separate Owner decision or authoritative existing policy is required before implementation.
+`OWNER-APPROVED BUSINESS POLICY`: under `SDP-CUST-15`, every successfully created Customer Profile starts in `Active`. This lifecycle state does not establish phone ownership or identity verification, marketing consent, authorization, or broader Brand/Branch visibility.
 
 ### 5.2 Transition matrix
 
 | Source | Requested action | Preconditions | Business-policy authority | Target | Profile-data effect | Phone effect | Downstream effect | Must not happen | Provenance | Unresolved |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Not yet created | Create Profile | Valid phone; Organization-wide admission succeeds; required trusted scope | Exact create capability/authority unresolved | Approved initial state, unresolved (`Active` candidate) | Create allowed basic data; display name optional | Establish one current association | No automatic Order/Loyalty/Promotion creation or transfer | Duplicate Profile, disclosure of conflicting record, merge, value transfer | Creation actor/scope, validation/admission outcome | Initial state, failed-attempt record, exact authority/evidence |
+| Not yet created | Create Profile | Valid phone; Organization-wide admission succeeds; required trusted scope | Exact create capability/authority unresolved | Active (`SDP-CUST-15`) | Create allowed basic data; display name optional | Establish one current association | No automatic Order/Loyalty/Promotion creation or transfer | Duplicate Profile, disclosure of conflicting record, merge, value transfer | Creation actor/scope, validation/admission outcome | Failed-attempt record, exact authority/evidence |
 | Active | Deactivate | Controlled request and authorization | Exact role/capability unresolved | Inactive | Preserve Profile/history; mark lifecycle outcome | Current phone remains associated; no release | No silent Loyalty/Promotion/Order transition | Purge, anonymize, release phone, freeze/transfer value by implication | Actor, authority, reason/evidence where later required, before/after | Reason rule, capability, effects on ordinary reads |
 | Inactive | Reactivate | Authorized review succeeds | Exact role/capability unresolved | Active | Restore ordinary active state without recreating identity | Existing association/restriction remains unchanged unless separately changed | No silent downstream state change | New Profile identity, phone reassignment, restoration of anonymized identity | Reviewer, evidence, decision, before/after | Review standard and authority |
 | Active | Controlled anonymization | Verified request and authority; required legal/privacy conditions; coordinated completion | Exact authority/capability unresolved | Anonymized | Ordinary Profile becomes nonidentifying | Remove ordinary association; retain former-phone restriction until manual release | Preserve Orders/history; preserve/freeze Loyalty; Promotion behavior unresolved; pseudonymous references only for legitimate purpose | Automatic phone release, downstream deletion/transfer, identity restoration | Request, verification/authority, purpose, outcome, before/after, downstream coordination evidence | Atomicity, partial failure, exact field treatment, legal requirements |
@@ -132,12 +132,13 @@ Profile lifecycle, phone association, former-phone restriction, Loyalty, Promoti
 ### 6.1 Approved rules
 
 1. `OWNER-APPROVED BUSINESS POLICY`: a new Profile requires a valid canonical Vietnamese mobile under `SDP-CUST-03` and `SDP-CUST-07`.
-2. Display name is optional.
-3. Admission is evaluated in the Organization-wide phone namespace, regardless of Brand.
-4. A current association or unreleased former-phone restriction blocks admission.
-5. The conflict response must not reveal another Brand, Customer, Profile, or history.
-6. Failure never authorizes merge, overwrite, reassignment, or value/entitlement transfer.
-7. Mandatory phone for Profile creation does not require every visitor or Order to register.
+2. `OWNER-APPROVED BUSINESS POLICY`: after successful creation, the Profile starts in `Active` under `SDP-CUST-15`; this state grants no verification, consent, authorization, or visibility by itself.
+3. Display name is optional.
+4. Admission is evaluated in the Organization-wide phone namespace, regardless of Brand.
+5. A current association or unreleased former-phone restriction blocks admission.
+6. The conflict response must not reveal another Brand, Customer, Profile, or history.
+7. Failure never authorizes merge, overwrite, reassignment, or value/entitlement transfer.
+8. Mandatory phone for Profile creation does not require every visitor or Order to register.
 
 ### 6.2 Originating scope and disclosure
 
@@ -369,7 +370,7 @@ I1 may supply authoritative Brand ancestry through its approved Application cont
 | Inactivation does not release the phone; effective anonymization removes the ordinary phone association, does not automatically release the former phone, and leaves it unavailable for new admission until documented authorized manual release. Release ends admission blocking only and creates no new association. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-04`, `10`, `11`, `12B`, and `A2`; representation and enforcement remain unapproved. |
 | Manual release requires documented authorization and never restores identity/transfers history or value. | `OWNER-APPROVED BUSINESS POLICY` |
 | Successful phone change should complete old-phone restriction and new-phone association as one accepted business outcome. | `DOMAIN DESIGN PROPOSAL`; atomic mechanism `REQUIRES TECHNICAL DESIGN` |
-| Successful Profile creation initially becomes Active. | `PROVISIONAL`; `REQUIRES OWNER DECISION` |
+| Every successfully created Customer Profile initially becomes Active; Active alone establishes no phone ownership/identity verification, marketing consent, authorization, or expanded Brand/Branch visibility. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-15`; technical representation and implementation remain unapproved |
 | Candidate and held are persisted states. | `UNRESOLVED`; conceptual conditions only |
 | Phone admission is a separate Organization-scoped consistency concern. | `DOMAIN DESIGN PROPOSAL`; concrete model/mechanism unselected |
 | Former-phone restriction supplies admission blocking only; it supplies no Customer/Profile lookup, identity evidence, visibility, or authorization. | `OWNER-APPROVED BUSINESS POLICY` boundary from `SDP-CUST-04`, `12B`, and `A2`; concrete enforcement unselected |
@@ -383,7 +384,6 @@ I1 may supply authoritative Brand ancestry through its approved Application cont
 
 | Open matter | Classification |
 |---|---|
-| Initial Profile lifecycle state after successful creation | `REQUIRES OWNER DECISION`; later domain design |
 | Phone change while Profile is Inactive | `REQUIRES OWNER DECISION`; later domain design |
 | Shared/family phone policy | `REQUIRES OWNER DECISION` |
 | Anonymous Order and historical access behavior | `REQUIRES OWNER DECISION`; `OUT OF SCOPE` for WP4.2 |
@@ -406,12 +406,12 @@ ADR-0006, ADR-0008, Identity Security Review Checklist statuses, Identity Milest
 
 ## 17. Impact and prerequisites for subsequent WP4 work
 
-`DOMAIN DESIGN PROPOSAL`: the next milestone should be an Owner review/decision closure of the two lifecycle gaps exposed here—initial Profile state and phone-change eligibility while Inactive—plus any shared/family-phone direction needed before final aggregate design.
+`DOMAIN DESIGN PROPOSAL`: the next milestone should be an Owner review/decision closure of phone-change eligibility while Inactive, plus any shared/family-phone direction needed before final aggregate design. The initial Profile state is now resolved by `SDP-CUST-15`.
 
 After those decisions, a later bounded work package may compare aggregate/case boundaries and technical consistency mechanisms. Its prerequisites are:
 
 - Owner-reviewed WP4.1 and WP4.2 vocabulary/boundaries;
-- closed or explicitly deferred initial-state and Inactive-phone-change policy;
+- closed or explicitly deferred Inactive-phone-change policy;
 - scenario evidence for every race in §12;
 - approved requester verification/capability prerequisites or explicit design gates;
 - legal/privacy/security review inputs for evidence, retention, Restricted Identity Evidence, and phone allocation; and
