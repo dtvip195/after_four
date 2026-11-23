@@ -97,7 +97,9 @@ Superseded, non-active references are `P2A-PROMO-OD-07`, `P2B-INV-OD-04`, `P2B-W
 5. Workforce timekeeping/legal brief before payroll or attendance technical design.
 6. Ordering review of `W2-ORD-OD-01` after the applicable component policies are available; coordination does not combine ownership.
 
-No technical Gate A or implementation proposal should begin until the applicable policy set and dependencies are explicitly closed.
+No domain-specific technical Gate A request or implementation proposal may proceed for a scope whose required Owner policies and dependencies remain unresolved.
+
+This restriction does not suspend the Owner-approved parallel preparation of logical database design documentation under NW-OR-01. Such preparation remains documentation/design only and does not authorize physical schema, migrations, database creation, persistence implementation, transaction or locking mechanisms, or runtime behavior. Any domain-specific technical baseline remains subject to its applicable Owner decisions and governance gates.
 
 ## 8. Deliverable index and boundary
 
