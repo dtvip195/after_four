@@ -22,7 +22,7 @@ The following milestones are distinct:
 |---|---|---|
 | Documentation and research preparation | Complete for the frozen package | Required records exist; this is not Owner acceptance. |
 | Independent technical review | Complete | `T1-IR-01` through `T1-IR-04` are resolved and independently re-reviewed. This does not approve a physical mechanism. |
-| Owner review of supporting research and semantic design | Required | The Owner must decide whether the evidence is sufficient and whether to accept the bounded semantic design baseline. |
+| Owner review of supporting research and semantic design | B01 research accepted; semantic design review required | The Owner accepted B01 research within its no-adoption boundary. The Owner must still decide whether to accept the bounded semantic design baseline. |
 | Gate A | `NOT_GRANTED` | Only an explicit Owner Gate A decision can approve the bounded design baseline. |
 | Gate B / implementation | `NOT_GRANTED` | Requires later, separately bounded design and authorization. Gate A would not authorize coding. |
 
@@ -43,25 +43,22 @@ The [Candidate E Gate A Readiness Package](after_four_candidate_e_gate_a_readine
 
 The [Curated GitLab Gemfile Reference Review](after_four_gitlab_gemfile_reference_review.md) was introduced at `a3cb0363386bf7c82d4193712f6bb702b67e6cdb` and corrected at `7f47579ce0bb2d981a42ba74777ed384422704e9`.
 
-Its current status is `COMPLETED — OWNER_REVIEW_REQUIRED`.
+Its current status is `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED`.
 
 - The reviewed source was the curated external GitLab Gemfile reference supplied for research.
 - The local project `.gem` file was not inspected and is not represented as reviewed.
 - No dependency was selected, adopted, installed, or authorized.
 - Recommendations remain conditional research inputs. They do not decide authentication architecture, dependency versions, or implementation.
 
-### Owner sufficiency decision — B01
+### Recorded Owner decision — B01
 
-Owner selection: ______________________________
+**Decision date:** 2026-11-23
 
-- [ ] `SUFFICIENT_FOR_CANDIDATE_E_GATE_A_REVIEW`
-- [ ] `AMENDMENTS_REQUIRED`
-- [ ] `DEFER`
-- [ ] `REJECT_AS_GATE_A_SUPPORTING_EVIDENCE`
+**Decision reference / canonical ID:** `CAND-E-B01` / `ID_PENDING_OWNER_GOVERNANCE`
 
-Required amendments or rationale, if any: ________________________________________________
+The Owner accepted the report as completed technical research and accepted its §15 dependency-management principles as guidance for future dependency proposals. Each future proposal must be evaluated selectively against AFTER FOUR architecture, requirements, compatibility, security, maintenance, and operational needs.
 
-This decision concerns only whether B01 is sufficient supporting context for Candidate E governance review. It cannot authorize dependency adoption.
+The decision adopts no gem, does not select Devise 5 as the authentication foundation, and does not treat GitLab as an authoritative dependency baseline. It changes no ADR or dependency file. Devise 5 remains a candidate for further evaluation, and a Devise-versus-custom authentication spike requires a separate decision after review of ADR-0006 and relevant authentication requirements. This decision grants neither Candidate E Gate A nor implementation authorization.
 
 ## 4. Owner review item 2 — bounded semantic design baseline
 
@@ -144,7 +141,7 @@ Candidate E also excludes physical persistence, public API/UI, runtime authoriza
 
 | Concern | Current classification | Gate A treatment | Later requirement |
 |---|---|---|---|
-| Owner sufficiency review of B01 | Potential Gate A blocker requiring Owner direction | Owner decides whether the completed research is sufficient supporting context. | Any dependency choice requires a separate decision and evidence. |
+| Owner sufficiency review of B01 | `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED` | B01 research review is complete and no longer a Gate A evidence blocker. | Any dependency choice or authentication spike requires a separate decision and evidence. |
 | Owner acceptance of the bounded semantic design | Potential Gate A blocker requiring Owner direction | Owner accepts, conditions, defers, or rejects the frozen proposal. | Accepted scope may proceed only to separately authorized Gate B preparation. |
 | Authority for the five excluded operations | Known deferred matter | Not a blocker while all five remain excluded. | Explicit Owner policy before adding any operation to a future approval boundary. |
 | Semantic concurrency outcomes versus physical/runtime mechanisms | The semantic outcomes already proposed for same-Profile concurrent phone changes, overlapping phone resources, phone change racing with lifecycle changes, and phone change racing with anonymization completion are part of the bounded Candidate E design baseline. Physical schema and persistence, serialization and consistency mechanisms, database locking/transactions/isolation, idempotency implementation, retry/reconciliation/recovery mechanisms, and executable physical proof remain later-gate technical work. | Gate A reviews and may accept the proposed semantic concurrency outcomes without selecting a physical mechanism. | The physical/runtime mechanisms must be designed, separately authorized, implemented, and verified at the appropriate later stage. |
@@ -155,9 +152,9 @@ Candidate E also excludes physical persistence, public API/UI, runtime authoriza
 
 ## 7. Owner governance decision record
 
-No option is preselected.
+No remaining semantic-design or Gate A option is preselected.
 
-### 7.1 Evidence-package review
+### 7.1 Remaining semantic-design package review
 
 Decision: ______________________________
 
@@ -195,9 +192,9 @@ Under every option, Gate B, Gate C, Control Acceptance, Final Operational Accept
 
 ## 9. Package conclusion
 
-This package is decision-ready evidence presentation, not a decision. At creation time:
+This package records the B01 Owner decision while leaving the semantic-design and Gate decisions open:
 
-- B01 is `COMPLETED — OWNER_REVIEW_REQUIRED`;
+- B01 is `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED`;
 - B02 is `COMPLETED — INDEPENDENT_TECHNICAL_REVIEW_CONFIRMED`;
 - B03 is `COMPLETED — FROZEN_REVIEWED_BASELINE_MANIFEST_RECORDED`;
 - Candidate E is `NOT_READY`;

@@ -2,13 +2,17 @@
 
 **Document type:** External dependency reference review
 
-**Review status:** `RESEARCH_COMPLETE — OWNER_REVIEW_REQUIRED`
+**Review status:** `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED`
 
 **Dependency adoption:** `NOT_AUTHORIZED`
 
 **Authentication architecture decision:** `NOT_MADE`
 
 **Review date:** 2026-11-23
+
+**Owner decision date:** 2026-11-23
+
+**Decision reference / canonical ID:** `CAND-E-B01` / `ID_PENDING_OWNER_GOVERNANCE`
 
 ## 1. Executive summary
 
@@ -351,6 +355,12 @@ GitLab's constraint or use is supporting context only. Version selection must us
 - Do not adopt a broad “GitLab stack.” Evaluate the minimal candidate that serves one approved seam.
 - Treat Devise 5.0.4 as the pinned reference for the first authentication-foundation spike, with a smaller custom Rails design as the fallback if bcrypt/Argon2id integration or other customization overwhelms the benefit.
 - Keep authorization, scope resolution, audit, privacy, and operational controls explicit regardless of framework choice.
+
+### Owner decision recorded
+
+On 2026-11-23, the Owner accepted this report as completed technical research and accepted the dependency-management principles in §15 as guidance for future dependency proposals. Future proposals must be evaluated selectively against AFTER FOUR architecture, requirements, compatibility, security, maintenance, and operational needs.
+
+This approval does not adopt or install any gem, does not select Devise 5 as the authentication foundation, does not make GitLab an authoritative dependency baseline, and does not change any ADR, `Gemfile`, `Gemfile.lock`, or runtime dependency. Devise 5 remains a candidate for further evaluation only. A Devise-versus-custom authentication spike requires a separate Owner decision after review of ADR-0006 and the applicable authentication requirements. Candidate E Gate A and implementation authorization remain `NOT_GRANTED`.
 
 ### Decisions still requiring Owner approval
 

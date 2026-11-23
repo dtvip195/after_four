@@ -16,7 +16,7 @@
 
 WP-T1 now supplies a consolidated logical design for `TD-CUST-01` through `TD-CUST-04`. Independent technical re-review confirmed `T1-IR-01` through `T1-IR-04` as resolved, including the final phone-change/Customer-side-anonymization race and `HeldForReview` execution-certainty clarifications in reviewed commit `9cfba961b56aaf1ef167d541436e8dcb7d14f5e1`. The design remains proposed; review confirmation does not approve a physical mechanism, anonymization approval authority, implementation, or Gate A.
 
-Candidate E remains `NOT_READY` for Owner Gate A review. The separately curated GitLab Gemfile reference review is complete at correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` and remains research evidence requiring Owner review; it adopted no dependency. WP-T1's independent technical re-review is complete. `CAND-E-B03` is complete through the [Frozen Reviewed Baseline Manifest](after_four_candidate_e_frozen_reviewed_baseline_manifest.md), pinned to baseline `8d406314acbd390d431d75799b1f66499439f117`. Applicable Owner review and the explicit Gate A governance process remain outstanding.
+Candidate E remains `NOT_READY` for Owner Gate A review. The Owner accepted the separately curated GitLab Gemfile reference review as completed technical research and accepted its §15 principles as guidance for future dependency proposals; this adopted no dependency and did not select an authentication foundation. WP-T1's independent technical re-review is complete. `CAND-E-B03` is complete through the [Frozen Reviewed Baseline Manifest](after_four_candidate_e_frozen_reviewed_baseline_manifest.md), pinned to baseline `8d406314acbd390d431d75799b1f66499439f117`. Owner review of the bounded semantic design and an explicit Gate A decision remain outstanding.
 
 This is a readiness recommendation, not a Gate decision.
 
@@ -124,7 +124,7 @@ Customer Profile is not stretched into an Organization-wide or cross-context agg
 | `T1-IR-02` | `RESOLVED — INDEPENDENT_RE_REVIEW_CONFIRMED` | Profile and Phone Admission authoritative fact ownership was insufficiently explicit. | Independent re-review confirmed that WP-T1 §§5.1 and 8.3 define fact owners and fail closed on disagreement without duplicate Profile state, source selection, or identity disclosure. | Preserve the resolved contract; no further correction in this work package. |
 | `T1-IR-03` | `RESOLVED — INDEPENDENT_RE_REVIEW_CONFIRMED` | The completion boundary was ambiguous. | Independent re-review confirmed that WP-T1 §6.2 defines before/at/after semantics, revalidation, success proof, retry identity, and incomplete reconciliation without selecting a physical commit point. | Preserve the resolved contract; no further correction in this work package. |
 | `T1-IR-04` | `RESOLVED — INDEPENDENT_RE_REVIEW_CONFIRMED` | `HeldForReview` did not establish its required execution certainty or separate hold evidence from phone-change evidence. | Independent re-review confirmed that WP-T1 §§5.5–5.6 and 8 require `ConfirmedNotApplied` plus an authoritative hold for `HeldForReview`; unknown application remains `NotYetDetermined`/`Unknown`/`Incomplete`, and hold persistence alone proves no phone-change outcome. | Preserve the resolved contract; no further correction in this work package. |
-| `CAND-E-B01` | `COMPLETED — OWNER_REVIEW_REQUIRED` | The [curated GitLab Gemfile reference review](after_four_gitlab_gemfile_reference_review.md) exists; correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` is merged in the current baseline. | The required research activity occurred, but it adopts no gem and grants no authentication/dependency decision. | Owner reviews the research where applicable; no dependency action is inferred. |
+| `CAND-E-B01` | `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED` | The Owner accepted the [curated GitLab Gemfile reference review](after_four_gitlab_gemfile_reference_review.md) and its §15 principles on 2026-11-23. | The research prerequisite and its Owner review are complete; no gem or authentication foundation was selected. | Preserve the decision boundary. Any dependency proposal or Devise-versus-custom spike requires separate review and authorization. |
 | `CAND-E-B02` | `COMPLETED — INDEPENDENT_TECHNICAL_REVIEW_CONFIRMED` | Independent re-review resolved `T1-IR-01` through `T1-IR-04` against reviewed commit `9cfba961b56aaf1ef167d541436e8dcb7d14f5e1`. | The semantic design review prerequisite is complete; this is not Gate A or implementation approval. | Preserve the reviewed baseline and its frozen manifest for governance review. |
 | `CAND-E-B03` | `COMPLETED — FROZEN_REVIEWED_BASELINE_MANIFEST_RECORDED` | The [Frozen Reviewed Baseline Manifest](after_four_candidate_e_frozen_reviewed_baseline_manifest.md) pins the exact reviewed evidence set to baseline `8d406314acbd390d431d75799b1f66499439f117` with per-document blob identities. | The reviewed baseline is reproducible; this grants no Gate or implementation approval. | Preserve the frozen baseline and manifest for Owner governance review. |
 | `CAND-E-D01` | `DEFERRED` | Authority for five excluded operations remains unresolved. | No blocker while operations stay excluded. | Owner decision only if later inclusion is requested. |
@@ -144,9 +144,10 @@ Customer Profile is not stretched into an Organization-wide or cross-context agg
 
 ## 10. Evidence required before Owner Gate A review
 
-1. Owner review, where applicable, of the completed curated GitLab Gemfile research; no dependency adoption is inferred.
-2. Owner governance review of the exact frozen baseline and manifest without changing its scope or treating evidence packaging as approval.
-3. An Owner Gate A decision template that states approval would accept only the semantic design baseline and would not grant Gate B, implementation, Control Acceptance, FOA, or Production Authorization.
+1. Owner governance review of the exact frozen baseline and manifest without changing its scope or treating evidence packaging as approval.
+2. An Owner Gate A decision template that states approval would accept only the semantic design baseline and would not grant Gate B, implementation, Control Acceptance, FOA, or Production Authorization.
+
+The B01 research review is complete under the Owner decision dated 2026-11-23. It creates no dependency action or authentication architecture approval.
 
 No application/database test is required to prove a documentation-only semantic Gate A package. Runtime tests become relevant only under separately authorized Gate B/implementation work.
 
@@ -162,7 +163,7 @@ No application/database test is required to prove a documentation-only semantic 
 | Anonymization completion | `INDEPENDENT_RE_REVIEW_CONFIRMED` | WP-T1 §7 proposed completion semantics, including the phone-change/Customer-side-anonymization race, were independently reviewed; receiving-context implementation and anonymization approval authority remain excluded. |
 | Authorization/non-disclosure | `SATISFIED_FOR_REVIEW` | WP-T1 §8; runtime implementation excluded. |
 | Cross-document consistency | `SATISFIED` | Corrected WP-T1 package is synchronized, independently re-reviewed, and cross-referenced by the frozen manifest. |
-| Curated GitLab Gemfile reference review | `COMPLETED — OWNER_REVIEW_REQUIRED` | Research report and correction checkpoint `7f47579ce0bb2d981a42ba74777ed384422704e9` exist; no dependency was adopted. |
+| Curated GitLab Gemfile reference review | `OWNER_APPROVED — RESEARCH ACCEPTED; DEPENDENCY ADOPTION NOT AUTHORIZED` | The Owner accepted the completed research and §15 guidance on 2026-11-23; no dependency or authentication foundation was adopted. |
 | Frozen reviewed baseline | `SATISFIED` | [Manifest](after_four_candidate_e_frozen_reviewed_baseline_manifest.md) pins baseline `8d406314acbd390d431d75799b1f66499439f117`, exact evidence paths, and blob identities. |
 | Gate A decision | `NOT_GRANTED` | Requires later explicit Owner action. |
 
@@ -170,6 +171,6 @@ No application/database test is required to prove a documentation-only semantic 
 
 ### `NOT_READY`
 
-Do not treat Candidate E as Gate A-approved or implementation-ready. Independent technical re-review resolved `T1-IR-01` through `T1-IR-04`, and the frozen reviewed baseline manifest is recorded. Candidate E remains `NOT_READY` pending applicable Owner review of the curated research and review/acceptance of the complete readiness package through the required governance process.
+Do not treat Candidate E as Gate A-approved or implementation-ready. Independent technical re-review resolved `T1-IR-01` through `T1-IR-04`, the frozen reviewed baseline manifest is recorded, and B01 research is Owner-approved within its no-adoption boundary. Candidate E remains `NOT_READY` pending Owner review of the bounded semantic design and an explicit Gate A decision through the required governance process.
 
 This recommendation grants no Gate, implementation, operational, legal/privacy, residual-risk, or production approval.
