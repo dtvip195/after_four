@@ -161,7 +161,7 @@ The boundaries own different authoritative facts; Phone Admission must not becom
 | `Succeeded` | The complete authorized business outcome is authoritative. |
 | `Rejected` | Validation, lifecycle, or policy precondition failed without mutation; response remains non-disclosing. |
 | `Conflict` | Admission or concurrent-state conflict prevented mutation; no conflicting identity is disclosed. |
-| `HeldForReview` | A material disputed/exceptional case requires controlled investigation or decision. |
+| `HeldForReview` | The phone change is confirmed not applied. An applicable controlled hold or review condition is authoritative. |
 | `Denied` | Trusted authorization or verification decision is not sufficient. |
 | `DependencyUnavailable` | Required trusted scope, authorization, verification, or coordination evidence is unavailable; fail closed. |
 | `NotYetDetermined` | No confirmed business success or confirmed business failure can yet be stated because application of the operation is unknown. |
@@ -184,11 +184,15 @@ Valid relationships are constrained as follows:
 |---|---|
 | `Succeeded` | Requires `ConfirmedApplied` and proof of every required completion postcondition. Recovery is `NotRequired` or `Completed`; recovery completion alone does not establish success. |
 | Terminal `Rejected`, `Conflict`, `Denied`, or pre-mutation `DependencyUnavailable` | Requires `ConfirmedNotApplied` for the requested mutation. It must not be used when execution is unknown. |
-| `HeldForReview` | Confirms that the requested phone change is not accepted as complete; a separately governed hold/Review Case may be authoritative. Review status is not technical recovery status. |
+| `HeldForReview` | Requires `ConfirmedNotApplied` for the requested mutation and an authoritative controlled hold or review condition. Human review status remains distinct from technical recovery status. |
 | `NotYetDetermined` | Pairs with `Unknown` and `Pending` or `ReconciliationRequired`; it confirms neither business success nor business failure and does not prove that the original state is intact. |
 | Recovery `Completed` | Means reconciliation work ended. It must separately establish `ConfirmedApplied` or `ConfirmedNotApplied` and the resulting business outcome; it never implies the requested operation succeeded. |
 
 `Incomplete` remains the non-disclosing Application communication for `NotYetDetermined` + `Unknown` + pending/reconciliation semantics. It is not itself a confirmed business rejection, failure, or success. Retries and reconciliation retain the original request identity and provenance and revalidate every still-applicable condition.
+
+For a phone-change request, `HeldForReview` is valid only with `ConfirmedNotApplied` and an authoritative controlled hold or review condition. Its recovery status is `NotRequired`, or `Completed` only after reconciliation proved non-application and the authoritative hold. Human review being pending is not technical recovery status; `Pending` or `ReconciliationRequired` cannot establish `HeldForReview`. An uncertain request remains `NotYetDetermined` + `Unknown` and is communicated as `Incomplete`.
+
+The hold/Review Case and phone-change mutations have separate outcomes and evidence. A successfully persisted hold or Review Case is not proof that the phone change was prevented. `HeldForReview` requires separate proof that the phone change was not applied and that the hold condition is authoritative.
 
 ## 6. TD-CUST-02 — Phone-admission consistency and recovery
 
@@ -217,6 +221,8 @@ Required outcomes:
 - a confirmed-not-applied outcome proves the prior authoritative relationship was preserved, while an unknown result must report `Incomplete` and cannot assume preservation; and
 - retries cannot create another accepted mutation.
 
+The required lifecycle race semantics include an already-authorized phone change overlapping Customer-side anonymization completion. Candidate E begins only after separately authorized anonymization initiation and does not define anonymization approval authority. The authoritative ordering and outcomes are specified in §6.4 and §7.4.
+
 Canonical phone validation remains a business precondition under `SDP-CUST-03`: it uses current official Vietnamese mobile allocation evidence and never guesses, repairs, infers, or fuzzy-matches invalid input.
 
 ### 6.2 Semantic completion boundary
@@ -244,7 +250,8 @@ Underlying evidence is available only through a separately authorized review pat
 | Two changes target different new phones for one Profile from the same input association | At most one authoritative complete result. The other is confirmed not applied or reported unknown pending reconciliation; no orphan association, duplicate former restriction, or second current phone may result. |
 | Profile A changes `old-a → new-c` while Profile B changes `old-b → old-a` | Both cannot bypass the fact that `old-a` is either A's current phone or A's unreleased former phone. At most policy-consistent non-overlapping outcomes may complete; no swap, duplicate association, or restriction bypass is inferred. |
 | Two Profiles submit any changes whose old/new phone resource sets overlap | Each operation is evaluated across its complete resource set. A winner must prove all postconditions; a loser is confirmed not applied or remains unknown/incomplete until reconciliation. |
-| Phone change races with a lifecycle change | Only combinations containing an included authorized operation are evaluated; excluded Deactivate/Reactivate/anonymization approval semantics are not invented. The phone change completes only against lifecycle state revalidated at §6.2; otherwise it is confirmed not applied or unknown/incomplete. |
+| Phone change races with Customer-side anonymization completion | If Customer-side anonymization becomes authoritative first, the ordinary phone change cannot complete, the ordinary current-phone association is removed, and every applicable former-phone restriction remains effective. If the phone change reaches §6.2 first, its new phone becomes current and its old phone becomes restricted; subsequent anonymization removes the then-current ordinary association and preserves every required restriction. If ordering or application cannot be proven, report `NotYetDetermined` + `Unknown` through `Incomplete`, require controlled reconciliation, assume neither preservation nor success, and never restore ordinary Profile PII after anonymization is effective. Candidate E begins after separately authorized anonymization initiation and does not define approval authority. |
+| Phone change races with another lifecycle change | Only combinations containing an included authorized operation are evaluated; excluded Deactivate/Reactivate semantics are not invented. The phone change completes only against lifecycle state revalidated at §6.2; otherwise it is confirmed not applied or unknown/incomplete. |
 | Dispute hold races with ordinary change | A hold authoritative before the completion boundary blocks the not-yet-complete ordinary change. A change already proven complete remains authoritative evidence for controlled re-evaluation; an outcome whose ordering cannot be proven is incomplete and requires reconciliation. |
 | Duplicate/delayed request | It observes the original outcome or produces safe conflict; never a second mutation. |
 
@@ -314,6 +321,12 @@ These are semantic progress meanings, not approved persisted enum values.
 - An unresolved cross-context result has `NotYetDetermined` business meaning and `Unknown` execution certainty. Recovery completion must separately establish whether anonymization completed or did not complete; it does not itself imply business success.
 - Retry/reconciliation retains the original anonymization request identity and provenance and revalidates applicable authority and mutable conditions. Once ordinary Customer identity removal is authoritative, no recovery path may restore Profile PII or an ordinary identity association.
 
+Phone-change interaction follows the same authoritative-ordering rule:
+
+- if Customer-side anonymization becomes effective before phone-change completion, the ordinary change cannot complete, the ordinary current-phone association is removed, and applicable former-phone restrictions remain effective;
+- if phone change reaches its authoritative completion boundary first, its new phone becomes current and its old phone becomes restricted; later anonymization removes that then-current ordinary association and preserves every required restriction; and
+- if ordering or application cannot be proven, the result is `NotYetDetermined` + `Unknown`, communicated as `Incomplete`, with controlled reconciliation. Neither preservation nor success is assumed, and effective anonymization is never reversed to restore ordinary Profile PII.
+
 No one-database transaction, event bus, outbox, saga, polling loop, or retry schedule is selected.
 
 ## 8. TD-CUST-04 — Logical Application contract
@@ -358,14 +371,16 @@ The sequence is a logical contract. It approves no runtime port interface, trans
 | Missing/invalid/unavailable/out-of-scope authorization | `Denied` or `DependencyUnavailable`; no mutation. |
 | Required requester verification absent/invalid | `Denied` or controlled hold according to existing policy; no mutation. |
 | Profile absent, out of scope, or cross-Brand | Uniform non-disclosing result appropriate to the approved Presentation contract; exact external mapping remains later design. |
-| Phone unavailable due to any admission blocker | Non-disclosing `Conflict` or material `HeldForReview`; never blocker identity. |
+| Phone unavailable due to any admission blocker | Non-disclosing `Conflict`, or `HeldForReview` only when the next row's certainty and hold conditions are proven; never blocker identity. |
+| Applicable controlled hold/review condition is authoritative and phone change is proven not applied | `HeldForReview` + `ConfirmedNotApplied`; recovery is `NotRequired`, or `Completed` only after reconciliation separately proved both non-application and the authoritative hold. |
+| Hold/Review Case persists but phone-change non-application is not proven | `NotYetDetermined` + `Unknown` + pending/reconciliation, communicated as `Incomplete`; the hold outcome is not proof of the phone-change outcome. |
 | Facts changed after initial authorization | Revalidate; reject/conflict/hold unless the current facts independently permit the operation. |
 | Profile current-phone and Phone Admission facts disagree | `NotYetDetermined` + `Unknown` + `ReconciliationRequired`, communicated as `Incomplete`; no further mutation, silent source selection, or identity disclosure. |
 | Persistence/coordination result unknown | `NotYetDetermined` + `Unknown` + pending/reconciliation, communicated as `Incomplete`; never invented success, confirmed failure, or assumed preservation. |
 
 ### 8.4 Provenance obligations
 
-Successful, denied, held, failed, and incomplete sensitive operations require purpose-limited evidence sufficient to link the original request identity, trusted actor/requester, scope, authorization/verification decisions, affected target, before/after semantic facts, business outcome, execution certainty, recovery status, reason, time, and correlation. Recovery evidence preserves that provenance and cannot become an ordinary identity-reconstruction route. Raw secrets and unnecessary PII are prohibited. Exact audit schema, atomic append, readers, redaction, retention, and database protection remain later security/legal/technical design.
+Successful, denied, held, failed, and incomplete sensitive operations require purpose-limited evidence sufficient to link the original request identity, trusted actor/requester, scope, authorization/verification decisions, affected target, before/after semantic facts, business outcome, execution certainty, recovery status, reason, time, and correlation. Where a hold/Review Case and phone change both occur, their outcomes and evidence remain separately attributable: evidence that the hold persisted does not prove the phone change was not applied. Recovery evidence preserves that provenance and cannot become an ordinary identity-reconstruction route. Raw secrets and unnecessary PII are prohibited. Exact audit schema, atomic append, readers, redaction, retention, and database protection remain later security/legal/technical design.
 
 ## 9. Traceability
 
@@ -414,6 +429,6 @@ Gate A reviewers must be able to verify from this document that:
 
 ## 12. Design closure verdict
 
-`WP-T1` is `CORRECTIONS_PREPARED_FOR_INDEPENDENT_RE_REVIEW` for `TD-CUST-01` through `TD-CUST-04`. The proposed corrections address `T1-IR-01` through `T1-IR-04`, but only independent re-review may determine whether those findings are resolved. This does not mean `TECHNICAL_DESIGN_APPROVED`, `GATE_A_APPROVED`, implementation-ready, operationally accepted, or production-ready.
+`WP-T1` remains `CORRECTIONS_PREPARED_FOR_INDEPENDENT_RE_REVIEW` for `TD-CUST-01` through `TD-CUST-04`. Independent re-review resolved `T1-IR-02` and `T1-IR-03`. The final semantic corrections for `T1-IR-01` and `T1-IR-04` are prepared and remain pending independent re-review; this document does not independently accept its own corrections. This does not mean `TECHNICAL_DESIGN_APPROVED`, `GATE_A_APPROVED`, implementation-ready, operationally accepted, or production-ready.
 
 The separate Candidate E Gate A readiness package determines whether the evidence set is ready to submit.
