@@ -53,19 +53,19 @@ Repository implementation is bounded evidence, not Owner authority. Every `P1A-O
 | Proposed Owner decisions | The fourteen `P1A-OD-*`, `P1B-OD-*`, and `P1C-OD-*` questions in §3. | Require explicit Owner selection; no recommendation is approval. |
 | Technical proposals | P1A/P1C logical directions and `P1B-PROP-01` documentation synchronization. | May inform later reviewed work; grant no policy or implementation authority. |
 | Unresolved questions | Downstream P1A outcomes, optional Customer association, future Catalog operation detail, `P1-OD-01`–`05`, and authentication-foundation evidence. | Must remain open or be explicitly deferred when prerequisites are missing. |
-| Deferred matters | `C0-R05`, `C0-R08`, `C0-R11`, and the decisions recommended for later domain input below. | No replacement policy may be inferred. |
+| Deferred matters | `C0-R05`, `C0-R08`, and `C0-R11`. | These are already postponed under existing governance; no replacement policy may be inferred. Temporary P1 decisions recommended for deferral remain `PROPOSED_NOT_APPROVED`, not `DEFERRED`. |
 
 ### 2.3 What blocks what
 
-| Decision group | Current impact | Safe disposition now |
+| Decision group | Current impact | Proposed recommendation — not current status |
 |---|---|---|
 | `P1A-OD-02`, `03`, `06` | Blocks coherent mismatch, excess, Refund, and late-success resolution policy. | Review together; decide only bounded business outcomes and authority. |
-| `P1A-OD-04`, `05`, `07` | Blocks cancellation, completed exception, and Order closure execution. | Keep deferred until Preparation/Delivery and downstream policy inputs are ready. |
-| `P1A-OD-01` | Blocks activation of partial/split tender, but does not block exact-balance operation. | Safely defer; preserve the current exact-balance limitation. |
-| `P1A-OD-08` | Blocks optional later Customer association, but does not block anonymous Orders. | Route to Customer policy and defer until its verification/privacy inputs exist. |
+| `P1A-OD-04`, `05`, `07` | Blocks cancellation, completed exception, and Order closure execution. | Recommend deferral until each decision's named downstream policy inputs are ready. |
+| `P1A-OD-01` | Blocks activation of partial/split tender, but does not block exact-balance operation. | Recommend deferral and preserve the current exact-balance limitation. |
+| `P1A-OD-08` | Blocks optional later Customer association, but does not block anonymous Orders. | Recommend routing to Customer policy and deferral until its verification/privacy inputs exist. |
 | `P1B-OD-01`–`04` | Blocks complete future Catalog create/edit/default-operation policy. | May be reviewed independently as business policy; no runtime work follows. |
 | `P1B-OD-05` | Blocks evidence requirements for future non-lifecycle mutations. | Review after or with `P1B-OD-02`–`04`, because the operation set determines consequential evidence. |
-| `P1C-OD-01` | Leaves authentication-foundation uncertainty unresolved. It does not block the existing I1 ancestry seam. | Defer execution until an exact spike manifest and security evidence protocol receive separate review. |
+| `P1C-OD-01` | Leaves authentication-foundation uncertainty unresolved. It does not block the existing I1 ancestry seam. | Recommend deferring execution until an exact spike manifest and security evidence protocol receive separate review. |
 
 ### 2.4 Outside this Owner review
 
@@ -139,7 +139,7 @@ Each card separates final accountability from consulted domains. A selected opti
 | Dependencies / consultation | Payment/Refund, Preparation, Delivery, Inventory, Loyalty, Promotions, Cash, Reporting, and customer-remedy policy. These inputs do not transfer accountability from Ordering. |
 | Would authorize | Stage-specific Order cancellation consequence policy only. |
 | Explicit exclusions | Stock posting, benefit reversal, compensation mechanism, transaction boundary, and implementation. |
-| Suggested status | `OWNER_DECISION_REQUIRED — DEFER_PENDING_DOWNSTREAM_INPUTS` |
+| Suggested status | `OWNER_DECISION_REQUIRED — RECOMMEND_DEFER_PENDING_DOWNSTREAM_INPUTS` |
 
 #### P1A-OD-05 — Completed-Order exception policy
 
@@ -152,10 +152,10 @@ Each card separates final accountability from consulted domains. A selected opti
 | Alternatives | Narrow Refund-only correction; broader remake/credit/compensation remedies; or continued manual external handling. |
 | Benefits and trade-offs | Separation protects terminal history. Broader remedies support service recovery but increase fraud, reconciliation, and cross-domain complexity. |
 | Consequence of deferral | Completed exceptions remain external/manual and unimplemented. |
-| Dependencies / consultation | Review after `P1A-OD-04`; consult Payment, Preparation, Inventory, Loyalty, Promotions, Customer remedy, and Reporting. |
+| Dependencies / consultation | May be reviewed independently of `P1A-OD-04`; coordinate shared remedy vocabulary and downstream consequences with `P1A-OD-04`, Payment, Preparation, Inventory, Loyalty, Promotions, Customer remedy, and Reporting. |
 | Would authorize | Completed-Order exception policy only. |
 | Explicit exclusions | Reopening an Order, exception endpoint, Refund implementation, stock/benefit mutation, and runtime authority. |
-| Suggested status | `OWNER_DECISION_REQUIRED — DEFER_AFTER_P1A-OD-04` |
+| Suggested status | `OWNER_DECISION_REQUIRED — RECOMMEND_DEFER_PENDING_COMPLETED_SERVICE_INPUTS` |
 
 #### P1A-OD-06 — Late-success review disposition
 
@@ -187,7 +187,7 @@ Each card separates final accountability from consulted domains. A selected opti
 | Dependencies / consultation | Preparation, Delivery, Payment/Refund, Customer handoff, and Reporting. Ordering remains accountable. |
 | Would authorize | Order closure business semantics only. |
 | Explicit exclusions | Closure command, delivery model, reporting implementation, schema, and runtime activation. |
-| Suggested status | `OWNER_DECISION_REQUIRED — DEFER_PENDING_PREPARATION_DELIVERY` |
+| Suggested status | `OWNER_DECISION_REQUIRED — RECOMMEND_DEFER_PENDING_PREPARATION_DELIVERY` |
 
 #### P1A-OD-08 — Optional later Customer association
 
@@ -203,7 +203,7 @@ Each card separates final accountability from consulted domains. A selected opti
 | Dependencies / consultation | Ordering supplies Order provenance; consult Loyalty, Promotions, Identity/P1, legal/privacy, and Customer Review Case policy. These inputs do not transfer accountability from Customer. |
 | Would authorize | Customer later-association business policy only. |
 | Explicit exclusions | Candidate E expansion, Customer implementation, public endpoint, identity inference, automatic merge, and retroactive benefits. |
-| Suggested status | `OWNER_DECISION_REQUIRED — DEFER_TO_CUSTOMER_POLICY` |
+| Suggested status | `OWNER_DECISION_REQUIRED — RECOMMEND_DEFER_TO_CUSTOMER_POLICY` |
 
 ### 3.2 P1B — Catalog
 
@@ -296,14 +296,14 @@ Each card separates final accountability from consulted domains. A selected opti
 | Accountable owner | Identity |
 | Exact question | Should the Owner later authorize a bounded Devise-versus-custom compatibility/design spike after reviewing its exact manifest and evidence protocol? |
 | Evidence and constraints | Devise 5 is a candidate only. No dependency or authentication foundation is selected. Argon2id, API-only behavior, opaque server-side Session fit, revocation, and override/maintenance surface require executable evidence. ADR-0006 remains `Proposed`; Milestone 2B is unauthorized. |
-| Recommended option | Support preparation of a separately reviewable spike authorization only after the §3.3 prerequisites below are satisfied; select neither Devise nor custom now. |
+| Recommended option | Support preparation of a separately reviewable spike authorization only after the prerequisites in [P1C §9.2](after_four_p1c_identity_governance_security_preparation.md#92-minimum-authorization-package-for-a-later-spike) and this card's `Dependencies / consultation` row are satisfied; select neither Devise nor custom now. |
 | Alternatives | Defer pending ADR/security inputs; or stop Devise evaluation and later prepare a custom-only proposal. |
 | Benefits and trade-offs | A bounded spike reduces provider-selection uncertainty with evidence. It consumes engineering/security review effort and can create accidental momentum toward adoption unless the no-adoption boundary is enforced. Deferral avoids that cost but leaves foundation uncertainty open. |
 | Consequence of deferral | No authentication foundation is selected; P1 runtime remains absent; I1 ancestry remains independently usable only within its accepted bounded seam. |
 | Dependencies / consultation | Exact isolated manifest, Ruby/Rails/PostgreSQL assumptions, candidate versions, Argon2id and Session criteria, threat/control acceptance criteria, cleanup/stop conditions, Identity security review, and ADR-0006 review. |
 | Would authorize | At most a later exact evidence-gathering spike if separately and explicitly authorized after manifest review. |
 | Explicit exclusions | Dependency adoption, Gemfile change, authentication/authorization implementation, provider selection, runtime wiring, ADR acceptance, Milestone 2B, and production use. |
-| Suggested status | `OWNER_DECISION_REQUIRED — DEFER_PENDING_EXACT_SPIKE_AUTHORIZATION_PACKAGE` |
+| Suggested status | `OWNER_DECISION_REQUIRED — RECOMMEND_DEFER_PENDING_EXACT_SPIKE_AUTHORIZATION_PACKAGE` |
 
 Existing `P1-OD-01` through `P1-OD-05` remain unresolved and are not answered by `P1C-OD-01`. `C0-R05`, `C0-R08`, and `C0-R11` remain `DEFERRED`.
 
@@ -316,7 +316,7 @@ Existing `P1-OD-01` through `P1-OD-05` remain unresolved and are not answered by
 | `P1A-OD-01` | Yes | Full split-tender policy is prerequisite to enabling it, not to choosing deferral. | Review now only to confirm defer/reject/prepare-later direction. |
 | `P1A-OD-02`, `03`, `06` | Individually meaningful, but outcomes interact. | Review together so mismatch/excess, Refund, and late-success dispositions do not conflict. | Highest P1A policy-closure priority. |
 | `P1A-OD-04` | No responsible final outcome yet. | Preparation/Inventory and Loyalty/Promotion inputs; Payment/Refund baseline. | Defer to a later cross-domain policy review. |
-| `P1A-OD-05` | Separate policy, but depends on the cancellation/remedy vocabulary. | Review after `P1A-OD-04` inputs and completed-service scenarios exist. | Defer. |
+| `P1A-OD-05` | Yes. | Coordinate shared remedy vocabulary and downstream consequences with `P1A-OD-04`; completed-service scenarios and affected-domain inputs remain necessary for a responsible final choice, but `P1A-OD-04` is not a prerequisite. | Recommend deferral pending those inputs. |
 | `P1A-OD-07` | Closure remains Ordering-owned. | Preparation/Delivery completion and open review/Refund obligations. | Defer until those domains are bounded. |
 | `P1A-OD-08` | Customer may review it independently of other P1A questions. | Customer verification/privacy/authority and Loyalty/Promotion historical-effect inputs. | Route to Customer; do not bundle with Payment. |
 | `P1B-OD-01` | Yes | No prerequisite business decision. | Review independently. |
@@ -326,11 +326,11 @@ Existing `P1-OD-01` through `P1-OD-05` remain unresolved and are not answered by
 
 ### 4.2 Efficient Owner review sequence
 
-1. Confirm that deferred matters remain deferred: `P1A-OD-01`, `04`, `05`, `07`, `08`, and `P1C-OD-01` execution.
+1. Review whether to defer the decisions whose proposed recommendation is deferral: `P1A-OD-01`, `04`, `05`, `07`, `08`, and `P1C-OD-01` execution.
 2. Review the coherent Payment exception cluster: `P1A-OD-03`, then `P1A-OD-02` and `P1A-OD-06` against that baseline.
 3. Review independent Catalog semantics: `P1B-OD-01` through `04`, without granting implementation.
 4. Review `P1B-OD-05` against the operation set selected or retained as proposed in step 3.
-5. Route `P1A-OD-08` to Customer and the remaining P1A deferred matters to their named domain-input packages.
+5. Route `P1A-OD-08` to Customer and the remaining P1A decisions recommended for deferral to their named domain-input packages.
 6. If authentication evidence is still desired, request an exact `P1C-OD-01` spike authorization package; do not execute a spike from this review.
 
 This sequence is efficient, not mandatory. Independent decisions may proceed in parallel, and rejection/correction of one workstream does not block unrelated decisions.
@@ -371,24 +371,31 @@ Approval of a business policy does not authorize the next stage automatically. D
 
 ## 7. Owner decision worksheet
 
-Complete one outcome per row. Blank cells are intentional; no decision is pre-populated.
+Complete exactly one outcome per row. Blank cells are intentional; no decision is pre-populated. The two tables use different choice sets so that a recommendation to defer cannot be confused with a separate generic deferral choice.
 
-| Temporary ref | Accountable owner | Approve recommended option | Approve alternative (identify) | Defer | Reject / revise | Conditions or comments |
+### 7.1 Decisions whose proposed recommendation is deferral
+
+| Temporary ref | Accountable owner | Defer per recommendation | Approve identified alternative | Reject / revise | Identified alternative and/or conditions/comments |
+|---|---|---|---|---|---|
+| `P1A-OD-01` | Payment | ☐ | ☐ | ☐ | |
+| `P1A-OD-04` | Ordering | ☐ | ☐ | ☐ | |
+| `P1A-OD-05` | Ordering | ☐ | ☐ | ☐ | |
+| `P1A-OD-07` | Ordering | ☐ | ☐ | ☐ | |
+| `P1A-OD-08` | Customer | ☐ | ☐ | ☐ | |
+| `P1C-OD-01` | Identity | ☐ | ☐ | ☐ | |
+
+### 7.2 Decisions whose recommendation proposes affirmative policy closure
+
+| Temporary ref | Accountable owner | Approve recommendation | Approve identified alternative | Defer | Reject / revise | Identified alternative and/or conditions/comments |
 |---|---|---|---|---|---|---|
-| `P1A-OD-01` | Payment | ☐ | ☐ | ☐ | ☐ | |
 | `P1A-OD-02` | Payment | ☐ | ☐ | ☐ | ☐ | |
 | `P1A-OD-03` | Payment | ☐ | ☐ | ☐ | ☐ | |
-| `P1A-OD-04` | Ordering | ☐ | ☐ | ☐ | ☐ | |
-| `P1A-OD-05` | Ordering | ☐ | ☐ | ☐ | ☐ | |
 | `P1A-OD-06` | Payment | ☐ | ☐ | ☐ | ☐ | |
-| `P1A-OD-07` | Ordering | ☐ | ☐ | ☐ | ☐ | |
-| `P1A-OD-08` | Customer | ☐ | ☐ | ☐ | ☐ | |
 | `P1B-OD-01` | Catalog | ☐ | ☐ | ☐ | ☐ | |
 | `P1B-OD-02` | Catalog | ☐ | ☐ | ☐ | ☐ | |
 | `P1B-OD-03` | Catalog | ☐ | ☐ | ☐ | ☐ | |
 | `P1B-OD-04` | Catalog | ☐ | ☐ | ☐ | ☐ | |
 | `P1B-OD-05` | Catalog | ☐ | ☐ | ☐ | ☐ | |
-| `P1C-OD-01` | Identity | ☐ | ☐ | ☐ | ☐ | |
 
 Any selected outcome must be recorded later through the applicable canonical governance procedure. A checked worksheet alone is not a canonical `ODB-*` allocation, implementation authorization, or production approval.
 
