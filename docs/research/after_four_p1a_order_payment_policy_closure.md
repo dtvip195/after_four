@@ -2,11 +2,11 @@
 
 **Work package:** `P1A`
 
-**Status:** `DOCUMENTATION_DESIGN_PREPARATION — OWNER_REVIEW_REQUIRED`
+**Status:** `OWNER_REVIEW_COMPLETED — 3 APPROVED / 5 DEFERRED`
 
 **Authorizing decision:** `NW-OR-01` — documentation and logical-design preparation only
 
-**Canonical ODB allocation:** `NOT_REQUESTED`
+**Canonical ODB allocation:** `ID_PENDING_OWNER_GOVERNANCE — NO EXACT FULL ID APPROVED`
 
 **Implementation authorization:** `NOT_GRANTED`
 
@@ -14,7 +14,7 @@
 
 ## 1. Purpose and authority boundary
 
-This artifact reconciles current Order, Payment, Payment Attempt, Preparation Dispatch, cancellation, Refund, Customer-association, Cash, and audit policy evidence. It prepares bounded Owner questions without selecting policy for the Owner.
+This artifact reconciles current Order, Payment, Payment Attempt, Preparation Dispatch, cancellation, Refund, Customer-association, Cash, and audit policy evidence. It prepared eight bounded Owner questions. The Owner approved three recommendations and deferred five on 2026-11-23; the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md#consolidated-p1-owner-decisions) is authoritative for those outcomes.
 
 The canonical business terms are **Order**, **Payment**, **Payment Attempt**, **Preparation Dispatch**, and **Refund**. An Order is not a Payment or Preparation state; one Payment is the settlement aggregate for one Order; a Payment Attempt is one method-specific attempt/outcome. Existing Rails namespaces do not change those domain meanings or approve the proposed Sales/Billing vocabulary amendment.
 
@@ -134,11 +134,13 @@ These are `TECHNICAL_PROPOSAL`/decision-preparation statements, not Owner decisi
 | Source contexts ↔ Reporting/Audit | Source context owns business truth; Reporting projects it; audit preserves attributable evidence. | Reporting cannot redefine revenue, settlement, cancellation, Refund, or Cash truth. | Confirmed direction; formulas/retention unresolved. |
 | Protected operations ↔ Identity/P1 | Target context owns operation; P1 supplies trusted actor/session/capability/scope decision. | Opaque actor UUID or role title alone is not authority. | Security prerequisite; runtime absent. |
 
-## 9. Proposed Owner decision register
+## 9. Owner decision register
 
-These are temporary review references only. They are not canonical `ODB-*` IDs, are not allocated/reserved, and are not Owner-approved.
+These remain provisional review references, not canonical `ODB-*` IDs. They are not allocated or reserved. The Owner outcomes below were recorded on 2026-11-23 with no comments or conditions.
 
 ### P1A-OD-01 — Partial/split tender scope
+
+- **Owner outcome:** `OWNER_DECIDED — DEFERRED`; defer per recommendation.
 
 - **Question:** Should the next bounded production Payment scope support more than one successful tender toward an Order?
 - **Recommended option:** `DEFER_PARTIAL_SPLIT_TENDER`; preserve exact-balance-only activation until allocation, rounding, cancellation/refund, reporting, and UX policy is approved together.
@@ -148,6 +150,8 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 
 ### P1A-OD-02 — Mismatch and excess operating disposition
 
+- **Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve recommendation.
+
 - **Question:** Which bounded dispositions may an authorized operator select for mismatch/excess evidence before the case is closed?
 - **Recommended option:** require a held exception with explicit evidence and Owner or separately authorized approval; no dispatch until exact target allocation is authoritative; excess follows an approved Refund path.
 - **Alternatives:** immediate full reversal/refund where a method can prove it, or method-specific handling; these reduce delay but require provider/Cash evidence and recovery policy.
@@ -155,6 +159,8 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 - **Would not authorize:** exception roles, provider calls, Cash writes, or Refund implementation.
 
 ### P1A-OD-03 — Refund policy baseline
+
+- **Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve recommendation.
 
 - **Question:** What eligibility, authority, method, allocation, reconciliation, and correction rules govern Refunds?
 - **Recommended option:** approve a later method-aware policy that preserves the original charge, uses append-only Refund outcomes, requires authoritative result reconciliation, caps cumulative successful Refunds at refundable value, and records reason/actor/approval.
@@ -164,6 +170,8 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 
 ### P1A-OD-04 — Cancellation consequence matrix
 
+- **Owner outcome:** `OWNER_DECIDED — DEFERRED`; defer per recommendation.
+
 - **Question:** For before-start and after-start cancellation, what refund, prepared-work, Inventory, Loyalty/Promotion, and customer-remedy outcomes are required?
 - **Recommendation:** no single option is responsibly preferred until Preparation/Inventory and Loyalty/Promotion inputs are available; preserve the confirmed authority boundary and prepare stage-specific options.
 - **Alternatives:** full refund, partial/line allocation, remake/credit, or no refund for defined prepared scope; each has materially different operational/accounting consequences.
@@ -171,6 +179,8 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 - **Would not authorize:** stock posting, benefit reversal, compensation, or implementation.
 
 ### P1A-OD-05 — Completed-Order exception policy
+
+- **Owner outcome:** `OWNER_DECIDED — DEFERRED`; defer per recommendation. `P1A-OD-04` remains coordination, not a prerequisite.
 
 - **Question:** Which actors and outcomes are permitted after an Order is completed?
 - **Recommendation:** keep this separate from ordinary cancellation and require an Owner-reviewed exception package with immutable reason/evidence and explicit financial/stock/benefit treatment.
@@ -180,6 +190,8 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 
 ### P1A-OD-06 — Late-success review disposition
 
+- **Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve recommendation.
+
 - **Question:** Who may resolve a late-success review and which outcomes may close it without reactivating or automatically dispatching the Order?
 - **Recommended option:** Owner or explicitly delegated exception authority chooses from separately approved Refund, replacement/new-Order, or documented no-dispatch resolution; original Order/Payment history remains unchanged.
 - **Alternatives:** Owner-only handling is simpler/safer but slower; bounded delegation improves operations but needs capability/audit design.
@@ -188,6 +200,8 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 
 ### P1A-OD-07 — Order closure guards
 
+- **Owner outcome:** `OWNER_DECIDED — DEFERRED`; defer per recommendation.
+
 - **Question:** Which fulfillment, settlement, review, Refund, and delivery conditions are necessary to close an Order?
 - **Recommendation:** defer the final matrix until Preparation/Delivery scope is bounded; preserve the invariant that Payment success alone never closes the Order.
 - **Alternatives:** close at preparation completion, customer handoff/delivery completion, or a channel-specific condition; each affects operations and reporting.
@@ -195,6 +209,8 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 - **Would not authorize:** closure command, delivery model, or reporting implementation.
 
 ### P1A-OD-08 — Optional later Customer association
+
+- **Owner outcome:** `OWNER_DECIDED — DEFERRED`; defer per recommendation and route future policy closure to Customer governance.
 
 - **Question:** May an anonymous Order later be associated with a Customer Profile, by whom, with what verification/consent, time boundary, and historical effects?
 - **Recommendation:** route this to Customer-owned policy preparation; keep association absent until explicit policy prohibits phone-based inference, automatic merge, and unauthorized history exposure.
@@ -206,7 +222,7 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 
 | Prerequisite | Current status | Required before later design/implementation |
 |---|---|---|
-| P1A Owner decisions | `PROPOSED_NOT_APPROVED` | Explicit selections, exact scope, and canonical recording where applicable. |
+| P1A Owner decisions | `OWNER_REVIEW_COMPLETED — 3 APPROVED / 5 DEFERRED` | Provisional references remain `ID_PENDING_OWNER_GOVERNANCE`; approved principles and deferred questions retain every stated exclusion. |
 | Identity/P1 | Design/governance preparation only | Trusted actor/session/capability/Branch scope and fail-closed runtime prerequisite. |
 | Catalog/Pricing | Package B bounded evidence; pricing/publication incomplete | Authoritative quote/snapshot contract and confirmed commercial inputs. |
 | Customer association | Anonymous Order policy confirmed; later association unresolved | Customer-owned policy and authorization/privacy contract. |
@@ -215,4 +231,4 @@ These are temporary review references only. They are not canonical `ODB-*` IDs, 
 | Preparation/Inventory | Dispatch foundation exists; worker/stock workflows incomplete | Stage facts and downstream cancellation/remake/stock outcomes. |
 | Provider/accounting/legal | Not selected/verified | Method authority, reconciliation, tax/invoice/accounting obligations where applicable. |
 
-P1A is ready for Owner review as a policy-closure brief, not as a technical-design gate or implementation package. Its safe next action is independent review of the eight temporary decision proposals and reconciliation findings. No proposal is approved merely because it appears here.
+P1A Owner review is complete: three recommendations are approved as policy principles and five questions are deferred. This remains a policy-closure record, not a technical-design gate or implementation package. No approved principle authorizes its excluded technical or runtime behavior.

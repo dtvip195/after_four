@@ -2,7 +2,7 @@
 
 **Work package:** `P1B — Catalog current-state reconciliation`
 
-**Package status:** `PREPARED_FOR_OWNER_REVIEW`
+**Package status:** `OWNER_REVIEW_COMPLETED — 5 APPROVED`
 
 **Authorizing decision:** `NW-OR-01` — documentation/design preparation only
 
@@ -19,6 +19,8 @@
 ## 1. Purpose and authority boundary
 
 This report establishes the current Catalog truth by reconciling Owner decisions, canonical domain documents, the Package B design, merged Package B implementation artifacts, later CAT-TRR evidence, and Package C prerequisites. It does not reinterpret existing implementation as blanket authority and does not close a CAT-TRR finding.
+
+The Owner approved all five §9 policy recommendations on 2026-11-23 with no comments or conditions. The [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md#consolidated-p1-owner-decisions) is authoritative for their exact outcomes and boundaries. Every reference remains `ID_PENDING_OWNER_GOVERNANCE`; no Catalog implementation authorization follows.
 
 The [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md) remains authoritative for business policy. [ADR-0011](../architecture/adr/0011-project-wide-layered-ddd.md) remains authoritative for source dependency direction. Repository code and tests are evidence of implemented mechanisms only within their authorized package; they do not create business policy, runtime mutation authority, production readiness, or proof that an unexecuted scenario passed.
 
@@ -119,7 +121,7 @@ No glossary correction is required by the inspected evidence. The mismatch is pr
 | `P1B-GAP-005` | High | `EXTERNAL_PREREQUISITE` | Package C design §13; P1/P2/P3 designs; `C0-*` decisions | Trusted authorization/delegation, Brand-scoped audit, and runtime DB boundary are designed or proposed but not implemented/operationally evidenced. | Keep all runtime mutation and Package C work blocked. P1B cannot supply these controls. |
 | `P1B-GAP-006` | High | `OPERATIONAL_EVIDENCE_REQUIRED` | CAT-TRR-005/007; current local/test role assumptions | A no-Purge trigger does not prove runtime least privilege, table-owner/superuser limitations, or production-like role separation. | Separately authorized non-production/production-like role evidence; no role creation in P1B. |
 | `P1B-GAP-007` | Medium | `TEST_EVIDENCE_RECONCILIATION_REQUIRED` | Merged CAT-TRR-006/008 specs; Package C §13 | Test implementations exist and Package C notes merged evidence, but finding statuses remain open and this workstream did not authenticate retained executions. | Preserve statuses. A separate evidence review must map exact executed artifacts/results to each acceptance criterion before any status change. |
-| `P1B-GAP-008` | Medium | `OWNER_DECISION_REQUIRED` | Catalog design §13; `ODB-CAT-19`, `C0-CAT-08` | Product universal initial state, create/edit authority, Default designation authority, and non-lifecycle mutation audit remain intentionally unresolved. | Decide only through separate, operation-specific Owner decisions; table columns or Domain constructors do not settle them. |
+| `P1B-GAP-008` | Medium | `POLICY_APPROVED — TECHNICAL_FOLLOW_UP_REQUIRED` | Catalog design §13; `ODB-CAT-19`, `C0-CAT-08`; `P1B-OD-01`–`05` | Product initial Draft state and bounded creation, non-lifecycle edit, Default designation, and consequential-mutation evidence principles are Owner-confirmed. Exact capabilities, editable-field/operation classifications, audit mechanism, and implementation remain unresolved; `P1B-OD-05` is limited and non-exhaustive. | Preserve the approved policy boundaries and resolve only their excluded technical and operation-specific details through separately reviewed design and authorization; table columns or Domain constructors do not implement the policy. |
 | `P1B-GAP-009` | High | `BUSINESS_POLICY_BACKLOG` | `ODB-CAT-05`–`10`; Business Domain Model §7 | Tax/service charge/rounding/free items, Modifier price effects, Price publication authority, time-based availability, and related commercial policy remain unresolved. | Keep Pricing/Availability outside any Catalog Core runtime proposal until their own policy package closes them. |
 
 No verified implementation deviation from an Owner-confirmed Package B invariant was found by code inspection. This statement is not an executed-test or production assurance claim.
@@ -177,11 +179,13 @@ Prepare one separately reviewed documentation-only synchronization that:
 
 This proposal is not automatically authorized by appearing here.
 
-## 9. Owner decision proposals for future operations
+## 9. Owner decisions for future operation policy
 
-The references below are temporary P1B review identifiers, not canonical `ODB-*` IDs. They are not approved decisions and are not required to complete the documentation-only proposal in §8.
+The references below remain provisional P1B identifiers, not canonical `ODB-*` IDs. The Owner approved each recommendation at its stated policy level; no selection approves the excluded technical or implementation detail.
 
 ### `P1B-OD-01 — Initial Product lifecycle state`
+
+**Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve recommendation.
 
 **Question:** Must every successfully created Product begin in Draft?
 
@@ -199,6 +203,8 @@ The references below are temporary P1B review identifiers, not canonical `ODB-*`
 
 ### `P1B-OD-02 — Catalog master-data creation authority`
 
+**Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve recommendation.
+
 **Question:** Who may create Category, Product, and Variant records within an authoritative Brand scope?
 
 **Recommended option:** Organization/Brand Owner or personnel explicitly granted the exact entity-specific creation capability; no authority from a generic role title or Branch assignment.
@@ -212,6 +218,8 @@ The references below are temporary P1B review identifiers, not canonical `ODB-*`
 **Would not authorize:** P1 implementation, persistence, audit mechanism, endpoint, or runtime operation.
 
 ### `P1B-OD-03 — Non-lifecycle Catalog editing authority and field boundary`
+
+**Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve recommendation.
 
 **Question:** Which actors may edit Category/Product/Variant names, descriptions, display positions, visibility, and Codes, and which fields become immutable after activation or use?
 
@@ -227,6 +235,8 @@ The references below are temporary P1B review identifiers, not canonical `ODB-*`
 
 ### `P1B-OD-04 — Default Variant designation authority`
 
+**Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve recommendation.
+
 **Question:** Who may designate or replace a Product's Default Variant, and under which Product lifecycle states may that operation occur?
 
 **Recommended option:** a distinct Brand-scoped, capability-specific operation requiring final aggregate validity; do not infer it from lifecycle authority, visibility edits, or a generic Catalog role.
@@ -240,6 +250,8 @@ The references below are temporary P1B review identifiers, not canonical `ODB-*`
 **Would not authorize:** an index/lock/transaction, Package C expansion, code, or API.
 
 ### `P1B-OD-05 — Audit policy for non-lifecycle mutations`
+
+**Owner outcome:** `OWNER_DECIDED — OWNER_CONFIRMED`; approve the recommendation at the policy-principle level only. The consequential-operation list remains dependent on `P1B-OD-02` through `P1B-OD-04` and is not exhaustive.
 
 **Question:** Which create/edit/Default-designation operations require durable audit evidence, mandatory reason, before/after state, approval, or step-up?
 
@@ -276,13 +288,13 @@ Read/disclosure scope, Price publication, Availability administration, tax/servi
 | CAT-TRR statuses preserved | `SATISFIED` |
 | Pricing/Availability/runtime scope not expanded | `SATISFIED` |
 | One bounded next proposal identified | `P1B-PROP-01 — OWNER_REVIEW_REQUIRED` |
-| Future Owner questions actionable and unapproved | `SATISFIED` |
+| P1B Owner policy questions recorded at their approved scope; excluded follow-up remains open | `SATISFIED — 5 OWNER_CONFIRMED / TECHNICAL_FOLLOW_UP_REQUIRED` |
 | New implementation authorization | `NOT_GRANTED` |
 
 ## 11. Final status
 
-### `P1B RECONCILIATION PREPARED — OWNER REVIEW REQUIRED`
+### `P1B POLICY REVIEW COMPLETE — RECONCILIATION FOLLOW-UP REQUIRED`
 
 Package B is implemented and merged only as the empty Catalog schema/integrity foundation evidenced above. No Catalog runtime operation, Package C lifecycle command, Pricing, Availability, menu publication, production mapping, or production readiness follows from that fact.
 
-The immediate recommended follow-up is the documentation-only `P1B-PROP-01` synchronization. The temporary Owner decision proposals remain unapproved. CAT-TRR-005 through CAT-TRR-008 retain their current statuses. This report creates no canonical ODB ID, modifies no Owner decision, and grants no physical database, schema, migration, application, test, dependency, runtime, deployment, FOA, or Production Authorization.
+The immediate recommended follow-up remains the documentation-only `P1B-PROP-01` synchronization. The five policy recommendations are Owner-confirmed within their exact exclusions and remain `ID_PENDING_OWNER_GOVERNANCE`. CAT-TRR-005 through CAT-TRR-008 retain their current statuses. This report creates no canonical ODB ID and grants no physical database, schema, migration, application, test, dependency, runtime, deployment, FOA, or Production Authorization.

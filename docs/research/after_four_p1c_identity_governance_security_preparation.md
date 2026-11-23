@@ -1,6 +1,6 @@
 # AFTER FOUR — P1C Identity Governance and Security Preparation
 
-**Status:** `PREPARED_FOR_OWNER_REVIEW`
+**Status:** `OWNER_REVIEW_COMPLETED — P1C-OD-01 DEFERRED`
 
 **Prepared under:** `NW-OR-01` documentation/design preparation only
 
@@ -14,7 +14,7 @@
 
 ## 1. Purpose and authority boundary
 
-This package prepares the Identity/P1 governance and security decisions required by future trusted authorization consumers. It reconciles current policy, design, implementation evidence, and missing evidence without approving an authentication provider, changing a deferred decision, or authorizing implementation.
+This package prepared the Identity/P1 governance and security decisions required by future trusted authorization consumers. It reconciles current policy, design, implementation evidence, and missing evidence without approving an authentication provider or authorizing implementation. On 2026-11-23, the Owner deferred `P1C-OD-01` per its recommendation; the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md#consolidated-p1-owner-decisions) is authoritative for that outcome.
 
 This package does not:
 
@@ -179,11 +179,11 @@ These identifiers and statuses remain unchanged.
 
 P1C does not request implicit reopening. The Owner must explicitly authorize any later decision process.
 
-### 8.3 Temporary P1C proposal reference
+### 8.3 Provisional P1C decision reference
 
-| Temporary ref | Decision for later Owner review | Options | Recommendation | Status |
+| Temporary ref | Decision reviewed by Owner | Options | Recommendation | Status |
 |---|---|---|---|---|
-| `P1C-OD-01` | Whether to authorize a bounded Devise-versus-custom authentication compatibility/design spike after its manifest and evidence protocol are reviewed. | A — authorize the bounded spike; B — defer pending ADR-0006/security inputs; C — stop Devise evaluation and prepare a custom-only proposal. | A is supportable only as an evidence-gathering step after the prerequisites in §9 are approved. It selects neither candidate. | `PROPOSED_FOR_OWNER_DECISION`; not a canonical ODB ID; no authorization granted. |
+| `P1C-OD-01` | Whether to authorize a bounded Devise-versus-custom authentication compatibility/design spike after its manifest and evidence protocol are reviewed. | A — authorize the bounded spike; B — defer pending ADR-0006/security inputs; C — stop Devise evaluation and prepare a custom-only proposal. | A is supportable only as an evidence-gathering step after the prerequisites in §9 are approved. It selects neither candidate. | `OWNER_DECIDED — DEFERRED`; `ID_PENDING_OWNER_GOVERNANCE`; no spike, dependency, provider, ADR, Milestone 2B, implementation, or production authorization granted. |
 
 ### 8.4 Other prerequisites
 
@@ -234,14 +234,14 @@ Devise should remain a candidate only if the spike shows that AFTER FOUR can ret
 3. Decide whether and when to reopen the deferred C0 matters through their own governance process.
 4. Reconcile the P1 current-state description with I1 without changing I1's ancestry-only meaning.
 5. Prepare an ADR-0006 design-baseline review and bounded threat/control acceptance criteria.
-6. If the Owner selects `P1C-OD-01` Option A, prepare a separate exact spike authorization; do not execute the spike from this package.
+6. `P1C-OD-01` is deferred. If the Owner later reopens it and selects Option A through explicit governance, prepare a separate exact spike authorization; do not execute the spike from this package.
 7. Use spike evidence, not library reputation, to prepare the authentication-foundation Owner decision.
 8. Prepare consumer-specific Gate A designs and later bounded Gate B manifests independently.
 9. Require applicable Control Acceptance, independent/operational evidence, FOA, and Production Authorization before production use.
 
 ## 11. Review and exit criteria
 
-P1C is ready for Owner review when:
+P1C completed Owner review with `P1C-OD-01` deferred. Its design/governance evidence remains valid only within these exit criteria:
 
 - confirmed policy, deferred policy, design proposal, implementation evidence, and missing evidence remain distinguishable;
 - I1 is represented as implemented/accepted ancestry evidence without being promoted to ownership or authorization;
