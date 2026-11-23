@@ -59,19 +59,32 @@ These names describe possible committed facts, not approved payloads or transpor
 | Ref | Conflict/dependency | Required treatment | Status |
 |---|---|---|---|
 | `W2-INT-01` | P1A split tender/Refund/cancellation deferrals affect Loyalty and Promotions allocation and Cash corrections. | Preserve deferral; do not choose proportional or method rules here. | `BLOCKED_BY_OWNER_POLICY` |
-| `W2-INT-02` | Promotion discounts and Loyalty redemption both affect payable/eligible value. | Approve deterministic ordering and allocation without merging domain ownership. | `OWNER_DECISION_REQUIRED` |
+| `W2-INT-02A` | Ordering owns Order-level calculation sequence and line/amount allocation; P1A does not currently decide the ordering of Loyalty redemption and Promotion discounts. | Review `W2-ORD-OD-01` as an Ordering-owned policy while consulting Loyalty, Promotions, Payment, Catalog, tax/accounting, and Reporting. | `COORDINATION_REQUIRED` |
+| `W2-INT-02B` | Loyalty owns eligible earning/redemption value and Loyalty allocation, but consumes authoritative Order/Payment and Promotion allocation facts. | Coordinate `P2A-LOY-OD-01`, `P2A-LOY-OD-02`, and `P2A-LOY-OD-05` with Ordering/Promotions without transferring Loyalty accountability. | `COORDINATION_REQUIRED` |
+| `W2-INT-02C` | Promotions owns eligibility, priority/stacking, and Promotion discount allocation, but does not own Order totals or Loyalty value. | Coordinate `P2A-PROMO-OD-03` and `P2A-PROMO-OD-05` with Ordering/Loyalty without transferring Promotions accountability. | `COORDINATION_REQUIRED` |
 | `W2-INT-03` | Catalog Price/tax/service-charge/rounding remain unresolved. | Close authoritative total components before calculation design. | `OWNER_DECISION_REQUIRED` |
 | `W2-INT-04` | Preparation timing/waste/remake affects Inventory. | Preparation owns work facts; Inventory owns movements; approve timing/outcomes. | `OWNER_DECISION_REQUIRED` |
 | `W2-INT-05` | Employee Shift, Cash Session, and Operating Day are distinct but overlap operationally. | Preserve separate identities and approve explicit relationships/cutoff. | `OWNER_DECISION_REQUIRED` |
 | `W2-INT-06` | Branch scope is known structurally but cross-Brand Loyalty/Promotion behavior is unresolved. | Default deny/unavailable; do not infer Organization-wide sharing. | `OWNER_DECISION_REQUIRED` |
 | `W2-INT-07` | Historical docs propose APIs/transactions before policy closure. | Treat as non-authoritative design evidence; no physical adoption. | `DOCUMENTATION_MATURITY_GAP` |
 
+`W2-INT-02` is superseded by `W2-INT-02A`–`02C` and is not an active decision or coordination record. Coordination does not create shared domain ownership or permit one domain to approve another domain's policy.
+
+### 5.1 Ordering-owned allocation candidate
+
+| Ref | Accountable owner | Owner question | Recommendation | Alternatives / trade-offs | Dependencies / boundary |
+|---|---|---|---|---|---|
+| `W2-ORD-OD-01` | Ordering | What Order-level calculation sequence and line/amount allocation policy applies when Catalog Price, Promotions, Loyalty redemption, tax, service charge, and rounding interact? | Approve a deterministic business sequence and preservation of component provenance only after the participating policies are known. | Different orderings change payable value, eligible Loyalty value, allocation, Refunds, and reporting; leaving it undefined prevents authoritative totals. | Consult Catalog, Promotions, Loyalty, Payment, tax/accounting, and Reporting. P1A Refund/cancellation/split-tender deferrals remain controlling. This decides business calculation policy only, not algorithms, schema, or runtime orchestration. |
+
+`W2-ORD-OD-01` is a temporary `OWNER_DECISION_REQUIRED` reference because no existing P1A decision establishes this Order-level calculation/allocation policy. It is counted once as an Ordering candidate; the three `W2-INT-02*` rows are dependency records and are not Owner ballot items.
+
 ## 6. Consolidated Owner-review ordering
 
 1. Review independent foundation questions in parallel: `P2A-LOY-OD-01`–`04`, `P2A-PROMO-OD-01`–`03`, `P2B-INV-OD-01`–`03`, `P2B-CASH-OD-01`–`04`, and `P2B-WF-OD-01`–`05`.
 2. Coordinate, but do not bundle, shared commercial questions: Loyalty eligible value/redemption, Promotion allocation/stacking, Catalog total components, and P1A Refund/cancellation.
-3. Review downstream operational questions only after their prerequisites: Inventory consumption/valuation, Cash Refund reconciliation, Workforce payroll/legal inputs.
-4. Retain anonymization policies as fixed constraints; no Wave 2 question reopens them.
+3. Review `W2-ORD-OD-01` only after the applicable Catalog total-component, Promotion, and Loyalty policy inputs are known; its Ordering owner does not approve those inputs.
+4. Review downstream operational questions only after their prerequisites: Inventory consumption/valuation, Cash Refund reconciliation, Workforce payroll/legal inputs.
+5. Retain anonymization policies as fixed constraints; no Wave 2 question reopens them.
 
 ## 7. Governance boundary and exit
 

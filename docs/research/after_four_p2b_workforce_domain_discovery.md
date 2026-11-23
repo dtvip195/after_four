@@ -53,9 +53,29 @@ Every row below is `OWNER_DECISION_REQUIRED` and `PROPOSED_NOT_APPROVED`. A late
 | `P2B-WF-OD-03` | Workforce | Who drafts, publishes, changes, and cancels shifts? | Separate draft from publication and preserve post-publication change evidence. | Manager-only is simple; delegated scheduling needs bounded capability. |
 | `P2B-WF-OD-04` | Workforce | What shift-swap policy applies? | Require affected Employee acceptance plus authorized Branch decision and audit. | Direct swaps reduce admin but can violate eligibility/accountability. |
 | `P2B-WF-OD-05` | Workforce | What clock-in/out authority, device, location, and correction policy applies? | Use trusted time/device evidence and a separate reasoned correction path. | Self-entry is convenient but raises fraud and legal risk. |
-| `P2B-WF-OD-06` | Workforce | What breaks, grace, rounding, lateness, and absence rules apply? | Obtain qualified employment/legal input before calculations or enforcement. | Silent defaults risk wage/timekeeping errors. |
-| `P2B-WF-OD-07` | Workforce | What leave categories/balances and overtime rules apply? | Preserve confirmed approval roles but separately approve rates, categories, evidence, and exceptions. | One generic policy is simpler but may not satisfy operational/legal needs. |
-| `P2B-WF-OD-08` | Workforce | What Workforce facts may Cash and operational domains consume? | Expose only authoritative assignment/shift/attendance facts through explicit contracts; no inferred capabilities. | Direct record access creates cross-context coupling and authority leakage. |
+| `P2B-WF-OD-06A` | Workforce | What break entitlement and recording policy applies? | Obtain qualified employment/legal input; separately approve entitlement, timing, evidence, missed/interrupted-break treatment, and accountable correction. | Informal breaks are flexible but weaken time/payroll evidence. |
+| `P2B-WF-OD-06B` | Workforce | Are grace periods allowed, and for which attendance events? | Keep disabled until purpose, duration, scope, and consequences are approved with qualified employment/legal input. | Grace reduces operational noise but can obscure actual attendance facts. |
+| `P2B-WF-OD-06C` | Workforce | What time-rounding policy, if any, applies? | Preserve raw attendance facts and obtain qualified employment/legal input before approving any calculation rule. | Rounding simplifies calculation but can create systematic wage/time distortion. |
+| `P2B-WF-OD-06D` | Workforce | How are lateness and its consequences classified? | Separately approve thresholds, excused outcomes, evidence, review, and payroll/reporting consequences. | One automatic threshold is simple but may ignore legitimate exceptions. |
+| `P2B-WF-OD-06E` | Workforce | How are absence and its consequences classified? | Separately approve absence categories, evidence, review, correction, and payroll/reporting consequences. | Treating every missed Shift identically can misclassify leave or operational exceptions. |
+| `P2B-WF-OD-07A` | Workforce | What leave categories, entitlement/balance, request/approval, cancellation/correction, evidence, and effective-date policy applies? | Obtain qualified employment/legal input and approve leave policy independently from overtime. | A single generic leave balance is simple but may not reflect different purposes and obligations. |
+| `P2B-WF-OD-07B` | Workforce | What overtime eligibility, prior authorization, recording/validation, rate/calculation, exception, and correction policy applies? | Obtain qualified employment/legal and payroll input before approving calculations or enforcement. | Unrestricted overtime is flexible but creates cost, compliance, and evidence risk. |
+| `P2B-WF-OD-08A` | Workforce | Which Workforce facts may Cash or other operational domains consume, for which legitimate purposes, scope, accountability, exclusions, and review/audit expectations? | Permit only explicitly approved minimum facts and purposes; exclude inferred capabilities, unrelated employment data, and unrestricted history. | Broad sharing simplifies operations but creates privacy, coupling, and authority leakage. |
+
+`P2B-WF-OD-06`, `P2B-WF-OD-07`, and `P2B-WF-OD-08` are superseded and are not active ballot items. Their replacements remain independently `OWNER_DECISION_REQUIRED`. Each timekeeping/leave/overtime decision requires its own qualified legal/employment-policy review and may depend on Shift, attendance, Payroll, or Reporting facts without transferring accountability.
+
+| Active ref | Existing evidence | Required dependencies and consultation |
+|---|---|---|
+| `06A` | Attendance must preserve original/corrected facts; no break policy is approved. | Shift and attendance facts; qualified employment/legal and Payroll input. |
+| `06B` | Grace remains explicitly open in the Business Domain Model/workshop evidence. | Attendance event definitions; qualified employment/legal and Reporting input. |
+| `06C` | Rounding remains explicitly open; raw/corrected attendance provenance is the controlling discovery constraint. | Trusted time facts; qualified employment/legal and Payroll input. |
+| `06D` | Lateness consequences are not established by planning assumptions or role names. | Shift expectation, attendance evidence, exception review, qualified employment/legal and Payroll/Reporting input. |
+| `06E` | Absence consequences are not established; leave and missed attendance must not be conflated. | Shift, attendance, leave outcome, qualified employment/legal and Payroll/Reporting input. |
+| `07A` | Leave/Overtime input is only a candidate Workforce concept; categories, balances, and workflow are open. | Effective-dated employment/assignment, qualified employment/legal and Payroll input. |
+| `07B` | No overtime eligibility, rate, or approval policy is Owner-approved. | Shift/attendance facts, qualified employment/legal, accounting, and Payroll input. |
+| `08A` | Workforce may supply accountability context, while Cash/operations retain authority and state. | Privacy/retention, consuming-domain purpose, Identity boundary, and audit review. |
+
+Events, APIs, DTOs, integration contracts, delivery semantics, and adapter placement for `P2B-WF-OD-08A` are a later `TECHNICAL_DESIGN_FOLLOW_UP`, excluded from the Owner policy ballot. The Owner decision covers only permitted facts, purposes, business scope, exclusions, accountability, and review expectations.
 
 ## 6. Risks and exit
 

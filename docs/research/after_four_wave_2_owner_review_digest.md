@@ -2,7 +2,7 @@
 
 **Portfolio:** `P2A Loyalty/Promotions + P2B Inventory/Cash/Workforce`
 
-**Status:** `PREPARED_FOR_OWNER_REVIEW — NO_NEW_DECISIONS_RECORDED`
+**Status:** `CORRECTIONS_PREPARED — INDEPENDENT_RE_REVIEW_REQUIRED — NO_NEW_DECISIONS_RECORDED`
 
 **Authority:** `NW-OR-01` — documentation/discovery only
 
@@ -41,7 +41,7 @@ No Wave 2 recommendation is approved merely by appearing here. The annexes selec
 ### Batch A — independent foundations
 
 - Loyalty: earning basis, redemption limits, expiration, and adjustment authority.
-- Promotions: first bounded types, applicability scope, and stacking/priority.
+- Promotions: first bounded types, applicability scope, stacking/priority, and the operation-specific administration authority matrix.
 - Inventory: locations, negative-stock rule, and lot/expiry applicability.
 - Cash: Operating Day, Session actors, discrepancy, and correction policy.
 - Workforce: Employee lifecycle, Branch Assignment, scheduling, swaps, and attendance authority.
@@ -59,7 +59,7 @@ Coordination is required; one domain's decision does not transfer accountability
 
 ### Batch C — evidence-dependent operations
 
-- Inventory consumption/waste/remake and costing after Recipe/Preparation/accounting input.
+- Inventory normal consumption recognition, waste/remake deviations, and costing after Recipe/Preparation/accounting input.
 - Cash Refund/reconciliation after P1A Refund method/allocation closure.
 - Workforce break/rounding/leave/overtime after qualified employment/legal review.
 
@@ -68,12 +68,16 @@ Coordination is required; one domain's decision does not transfer accountability
 | Domain | Temporary refs | Count | Current status |
 |---|---:|---:|---|
 | Loyalty | `P2A-LOY-OD-01`–`07` | 7 | `OWNER_DECISION_REQUIRED` |
-| Promotions | `P2A-PROMO-OD-01`–`08` | 8 | `OWNER_DECISION_REQUIRED` |
-| Inventory | `P2B-INV-OD-01`–`08` | 8 | `OWNER_DECISION_REQUIRED` |
+| Promotions | `P2A-PROMO-OD-01`–`06`, `07A`–`07J`, `08` | 17 | `OWNER_DECISION_REQUIRED` |
+| Inventory | `P2B-INV-OD-01`–`03`, `04A`–`04B`, `05`–`08` | 9 | `OWNER_DECISION_REQUIRED` |
 | Cash | `P2B-CASH-OD-01`–`08` | 8 | `OWNER_DECISION_REQUIRED` |
-| Workforce | `P2B-WF-OD-01`–`08` | 8 | `OWNER_DECISION_REQUIRED` |
+| Workforce | `P2B-WF-OD-01`–`05`, `06A`–`06E`, `07A`–`07B`, `08A` | 13 | `OWNER_DECISION_REQUIRED` |
+| Ordering | `W2-ORD-OD-01` | 1 | `OWNER_DECISION_REQUIRED — DEPENDENT` |
+| **Total active Owner policy candidates** |  | **55** | Superseded and technical follow-up references excluded |
 
 These references are navigation aids only. No canonical `ODB-*` ID is allocated, requested, or reserved.
+
+Superseded, non-active references are `P2A-PROMO-OD-07`, `P2B-INV-OD-04`, `P2B-WF-OD-06`, `P2B-WF-OD-07`, `P2B-WF-OD-08`, and `W2-INT-02`. The `W2-INT-02A`–`02C` rows are coordination/dependency records, not additional ballot candidates. Workforce integration mechanisms associated with `P2B-WF-OD-08A` are a later technical-design follow-up and are not counted.
 
 ## 6. Explicitly preserved deferrals and gaps
 
@@ -86,11 +90,12 @@ These references are navigation aids only. No canonical `ODB-*` ID is allocated,
 
 ## 7. Recommended next work packages
 
-1. Owner review of Batch A as five independently accountable decision sets.
+1. Owner review of Batch A as five independently accountable decision sets, using separate selections for each Promotions administration operation and each Workforce policy.
 2. A coordinated commercial-allocation brief only after Batch A identifies supported Loyalty/Promotion behavior.
-3. Separate Inventory Preparation/Recipe and valuation briefs with qualified operational/accounting input.
+3. Separate Inventory normal-consumption, deviation, and valuation briefs with qualified operational/accounting input.
 4. Cash Operating Day/discrepancy/Refund brief aligned with P1A policy.
 5. Workforce timekeeping/legal brief before payroll or attendance technical design.
+6. Ordering review of `W2-ORD-OD-01` after the applicable component policies are available; coordination does not combine ownership.
 
 No technical Gate A or implementation proposal should begin until the applicable policy set and dependencies are explicitly closed.
 
@@ -103,4 +108,4 @@ No technical Gate A or implementation proposal should begin until the applicable
 - [Workforce annex](after_four_p2b_workforce_domain_discovery.md)
 - [Cross-domain register](after_four_wave_2_cross_domain_integration_decision_register.md)
 
-This digest records discovery, not Owner selections. Candidate E Gate A remains `DEFER_GATE_A — NOT_GRANTED`; Candidate E Gate B preparation remains `NOT_AUTHORIZED`. No schema, migration, database, API, code, test, dependency, runtime, deployment, Control Acceptance, FOA, or Production Authorization is granted.
+This digest records discovery, not Owner selections. The 55 active candidates require independent re-review before the package may claim consolidated Owner-review readiness. Candidate E Gate A remains `DEFER_GATE_A — NOT_GRANTED`; Candidate E Gate B preparation remains `NOT_AUTHORIZED`. No schema, migration, database, API, code, test, dependency, runtime, deployment, Control Acceptance, FOA, or Production Authorization is granted.
