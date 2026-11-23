@@ -54,7 +54,7 @@ The requested entity list is expanded only where a canonical invariant needs an 
 | Generic “configuration history” | `configurations` + immutable/effective `configuration_versions`. | Separates stable key/scope from versioned values. |
 | Generic status-event table for every aggregate | Not proposed globally. | Important aggregates have domain-specific history or immutable ledgers; a universal event table would weaken semantics. |
 | Soft-delete concern on every table | Excluded. | Master data deactivates/archives; confirmed transactions remain and are reversed/adjusted. |
-| Customer-authentication account | Excluded from this logical ERD. | Customer Profile and phone/consent handling do not imply customer login; anonymous-Order permission remains `UNDECIDED`. |
+| Customer-authentication account | Excluded from this logical ERD. | Customer Profile and phone/consent handling do not imply customer login; `SDP-CUST-19` permits anonymous/unregistered Orders without inferring Customer identity or selecting an authentication design. |
 | SaaS tenant/subscription/marketplace tables | Excluded. | Explicitly outside MVP. |
 
 ## 3. Ownership and data isolation
@@ -435,7 +435,7 @@ The logical model covers all canonical entities, including items omitted from th
 | Operating Day boundary is open | Daily float, Expense accumulation, and reports can disagree at cutoff. | Confirm timezone/cutoff without changing approved amounts. |
 | Transfer cost snapshot timing needs validation | Central and Branch valuation can disagree. | Accounting review plus one stable snapshot rule. |
 | Generic approval/audit targets lack hard FKs | Orphaned evidence is possible if domain deletion were allowed. | Prohibit transaction deletion; application validation; retention tests. |
-| Customer phone enforcement and privacy mechanisms are not designed | The Owner-confirmed Organization-wide admission invariant, manual conflict resolution, non-disclosure, purpose limitation, and controlled anonymization could be implemented incorrectly. | Preserve [`SDP-CUST-03` through `SDP-CUST-14` and `SDP-CUST-A2`](after_four_customer_management_owner_decisions.md); obtain legal/privacy review and separately approve physical design without automatic merge. |
+| Customer phone enforcement and privacy mechanisms are not designed | The Owner-confirmed Organization-wide admission invariant, manual conflict resolution, non-disclosure, purpose limitation, controlled anonymization, material Review Case, and ordinary non-re-identification boundaries could be implemented incorrectly. | Preserve [`SDP-CUST-03` through `SDP-CUST-22` and `SDP-CUST-A2`](after_four_customer_management_owner_decisions.md); obtain legal/privacy review and separately approve physical design without automatic merge or identity inference. |
 | Configuration JSON can hide unstable schema | Critical policy could bypass typed constraints. | Keep core business facts in typed tables; allow configuration only for approved policy values. |
 | Downstream loyalty/printing/dispatch can fail | Committed money could lack downstream effects. | Durable outbox, idempotent consumers, operator recovery views. |
 

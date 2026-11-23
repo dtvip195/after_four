@@ -1,7 +1,7 @@
 # AFTER FOUR API Contract v1.0
 
-**Status:** Canonical logical HTTP contract for review; no implementation is authorized  
-**Date:** 2026-11-14  
+**Status:** Canonical logical HTTP contract for review; no implementation is authorized
+**Date:** 2026-11-14
 **Sources:** [Owner Decision Baseline](after_four_owner_decision_baseline.md) · [DDD Foundation](after_four_ddd_foundation.md) · [Business Domain Model](after_four_business_domain_model.md) · [ERD](after_four_erd.md) · [Data Dictionary](after_four_data_dictionary.md) · [Integrity Rules](after_four_data_integrity_rules.md) · [State Machines](after_four_state_machines.md) · [Error Catalog](after_four_api_error_catalog.md) · [Payment Model](after_four_payment_model.md) · [API ADR](adr/0009-api-conventions-versioning.md)
 
 ## 1. Contract stance and provenance
@@ -340,7 +340,7 @@ Delegated expenses are limited to 200,000 VND per expense and 500,000 VND cumula
 |---|---|---|
 | Approvals | `GET /approval-requests`, `POST /approval-requests/{id}/decisions` | Contract stable; threshold/self-approval policies `OPEN_DECISION` |
 | Reservations/tables | `POST /branches/{id}/reservations`, `POST /reservations/{id}/confirmations`, `/arrivals`, `/cancellations`; `POST /table-sessions`, `/table-assignments` | Resource shape stable; deposits/move/merge/split `OPEN_DECISION` |
-| Customer/loyalty | `POST /customers`, `POST /customers/{id}/consents`, `GET /customers/{id}/loyalty`, `POST /loyalty-adjustment-requests` | `SUPERSEDED_OR_UNAPPROVED_ILLUSTRATIONS`: Production MVP scope and [`SDP-CUST-03` through `SDP-CUST-14` and `SDP-CUST-A2`](after_four_customer_management_owner_decisions.md) are `OWNER_CONFIRMED`, but no endpoint, payload, response, error, or authorization contract is approved. Anonymous-Order behavior, exact verification/capabilities, consent/legal details, and Loyalty rules remain unresolved. |
+| Customer/loyalty | `POST /customers`, `POST /customers/{id}/consents`, `GET /customers/{id}/loyalty`, `POST /loyalty-adjustment-requests` | `SUPERSEDED_OR_UNAPPROVED_ILLUSTRATIONS`: Production MVP scope and [`SDP-CUST-03` through `SDP-CUST-22` and `SDP-CUST-A2`](after_four_customer_management_owner_decisions.md) are `OWNER_CONFIRMED`, but no endpoint, payload, response, error, or authorization contract is approved. `SDP-CUST-19` permits anonymous Orders without inferred Customer identity; later optional association, exact verification/capabilities, consent/legal details, and Loyalty rules remain unresolved. |
 | Feedback | `POST /branches/{id}/customer-feedback`, `POST /customer-feedback/{id}/triage`, `/resolutions`, `/reopenings` | State machine stable; retention `LEGAL_VALIDATION` |
 | Printing | `POST /print-jobs`, `GET /print-jobs/{id}`, `POST /print-jobs/{id}/retries` | Stable and independent from Payment/Preparation; hardware `OPEN_DECISION` |
 | Reporting | Owner Dashboard read models for daily/weekly/monthly/custom ranges and comparisons; daily Telegram delivery history/retries | Direction `OWNER_CONFIRMED`; exact metrics, cutoff, Branch scope, schedule, recipients, privacy, and failure escalation `UNRESOLVED`; no endpoint or Telegram implementation authorized |
@@ -395,7 +395,7 @@ External adapters are injected behind internal ports only where production and t
 | Operating-day definition and cash representation | Cash Session, daily float, delegated-expense accumulation, reports | Cutoff/timezone boundary and physical/API representation | Documentation/model design only; implementation blocked |
 | Reporting details | Owner Dashboard and daily Telegram report | Schedule, recipients, cutoff, formulas, Branch scope, privacy, and failure escalation | Read-model design can proceed; production delivery blocked |
 | Transfer cost timing | Transfer receipt valuation | Cost snapshot at dispatch or receipt and rounding | Quantity flow yes; production valuation blocked |
-| Customer Profile and association | Customer association/search/create | Approved policy requires Vietnam-only mobile validation, Organization-wide phone admission control, scoped non-disclosing visibility, controlled changes/anonymization, and no automatic merge; API and authorization contracts remain undesigned | Anonymous-Order permission, exact verification/capabilities, consent/legal detail, and replacement endpoint/error contracts remain unresolved; no Customer API implementation is authorized |
+| Customer Profile and association | Customer association/search/create | Approved policy requires Vietnam-only mobile validation, Organization-wide phone admission control, scoped non-disclosing visibility, controlled changes/anonymization, and no automatic merge; API and authorization contracts remain undesigned | SDP-CUST-19 permits Orders to be created and completed without a Customer Profile. Optional later Customer association, exact verification/capabilities, consent/legal detail, and replacement endpoint/error contracts remain unresolved; no Customer API implementation is authorized. |
 | Payment provider | Attempt fields, webhook/reconciliation adapter | Provider/methods and authoritative result contract | Cash slice yes; electronic integration blocked |
 | Offline operations | Idempotency lifetime, device auth, queued commands | Which commands may work offline | Online-authoritative API yes; offline queue blocked |
 | Tax/accounting | Totals, invoices, payroll, payable/expense/report contracts | Current legal/accounting/provider obligations | Non-tax prototype/foundation only; production finance acceptance blocked |

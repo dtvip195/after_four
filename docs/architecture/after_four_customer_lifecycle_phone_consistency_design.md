@@ -4,7 +4,7 @@
 
 **Document status:** `DOMAIN DESIGN PROPOSAL`
 
-**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-17`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
+**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-22`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
 
 **Technical design approval:** `NOT_GRANTED`
 
@@ -70,6 +70,7 @@ No transition in one model silently causes an unapproved transition in another.
 - [SDP-SCOPE-01 — Multi-Brand deferral](after_four_sdp_scope_01_owner_decision.md)
 - [Business Domain Model §11](after_four_business_domain_model.md#11-customers-loyalty-and-promotions)
 - [WP4.1 Customer Domain Boundary](after_four_customer_domain_boundary_design.md)
+- [WP-G0 Candidate E Scope Charter](after_four_wp_g0_candidate_e_scope_charter.md)
 
 ### 3.2 Architecture and supporting sources
 
@@ -147,7 +148,7 @@ Profile lifecycle, phone association, former-phone restriction, Loyalty, Promoti
 
 An allowed result may state only that creation was accepted. A rejected conflict may state that the phone cannot be admitted or that manual review is required, subject to later API/error design. It must not identify the holding Profile, Brand, Branch, Customer, history, or whether the blocker is a current association versus former restriction unless an independently authorized investigation permits that evidence.
 
-`UNRESOLVED`: whether a failed admission creates a durable business attempt/conflict record. A technical log is not automatically a business record, and WP4.2 selects neither.
+`OWNER-APPROVED BUSINESS POLICY`: under `SDP-CUST-21`, a material conflict creates a durable Customer Review Case when investigation is required, a disputed association is held, or an authorized manual decision is needed. The case retains purpose, scope, status, responsible reviewer, decision, and only necessary provenance. Routine validation failures and ordinary duplicate rejections do not automatically create a durable case. Persistence, workflow, and technical audit representation remain unselected; a technical log is not automatically a business record.
 
 ## 7. Phone association lifecycle
 
@@ -391,27 +392,34 @@ I1 may supply authoritative Brand ancestry through its approved Application cont
 | A successful controlled phone change for an Inactive Profile makes the new phone current, makes the old phone formerly restricted, and leaves the Profile Inactive; failure preserves the previous current association with no partial accepted outcome. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-16`; atomicity, concurrency, and recovery mechanisms remain `REQUIRES TECHNICAL DESIGN` |
 | Every successfully created Customer Profile initially becomes Active; Active alone establishes no phone ownership/identity verification, marketing consent, authorization, or expanded Brand/Branch visibility. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-15`; technical representation and implementation remain unapproved |
 | Effective anonymization preserves successful Promotion redemption history, freezes unredeemed Customer-specific Promotion benefits, prohibits their later redemption or transfer, and does not restore identity to enable redemption. Public or non-Customer-specific Promotion rules remain independently governed. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-17`; Promotion representation, coordination, retention mechanisms, and implementation remain unapproved |
+| Shared/family use preserves one current Profile association per canonical phone in an Organization; phone sharing does not establish shared identity or permit duplicate Profiles. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-18`; context only outside Candidate E, and any assisted shared-phone process remains separately unapproved |
+| Orders may be created/completed without a Customer Profile; transaction phone data does not infer identity or create/retroactively attach a Customer association. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-19`; context only outside Candidate E, while later optional association remains unresolved and outside WP4.2 |
+| Customer-operation authority is operation-specific, scope-bound, least-privilege, and fail-closed; requester verification is distinct from operator authorization. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-20`; no complete role assignment or runtime mechanism approved |
+| A material held/investigative/manual-decision conflict requires a purpose-limited Customer Review Case; routine validation/duplicate rejection does not automatically create one. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-21`; persistence/workflow remains unapproved |
+| Ordinary Customer operations cannot restore/reconstruct an anonymized identity; exceptional evidence access/export remains separately authorized and legally/privacy reviewed. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-22`; no exceptional workflow or legal conclusion approved |
 | Candidate and held are persisted states. | `UNRESOLVED`; conceptual conditions only |
 | Phone admission is a separate Organization-scoped consistency concern. | `DOMAIN DESIGN PROPOSAL`; concrete model/mechanism unselected |
 | Former-phone restriction supplies admission blocking only; it supplies no Customer/Profile lookup, identity evidence, visibility, or authorization. | `OWNER-APPROVED BUSINESS POLICY` boundary from `SDP-CUST-04`, `12B`, and `A2`; concrete enforcement unselected |
 | Restricted Identity Evidence is separate from former-phone restriction and is not assumed to store or enforce it. | `OWNER-APPROVED BUSINESS POLICY` conceptual boundary from `SDP-CUST-14` and `A2`; physical relationship and topology `UNRESOLVED` |
 | Audit/provenance automatically justifies a reversible Anonymized-Profile-to-former-phone mapping. | `NOT APPROVED`; purpose-specific retention remains governed by `SDP-CUST-A2` and `14` |
 | Representation/persistence of the former-phone restriction, its physical relationship to Restricted Identity Evidence, and transition coordination, atomicity, concurrency, recovery, and consistency mechanisms. | `UNRESOLVED` / `REQUIRES TECHNICAL DESIGN`; no storage topology, identifier, hashing, encryption, index, or consistency mechanism approved |
-| A durable failed-admission/conflict record is mandatory. | `UNRESOLVED` |
+| Every failed admission creates a durable Customer Review Case. | `NOT APPROVED`; `SDP-CUST-21` requires a case only for material investigation, held dispute, or authorized manual decision |
 | A specific lock, transaction, index, queue, outbox, saga, or retry mechanism is required. | `OUT OF SCOPE`; later technical comparison required |
 
 ## 16. Open decisions and dependencies
 
 | Open matter | Classification |
 |---|---|
-| Shared/family phone policy | `REQUIRES OWNER DECISION` |
-| Anonymous Order and historical access behavior | `REQUIRES OWNER DECISION`; `OUT OF SCOPE` for WP4.2 |
+| Assisted shared/family phone process | Core one-association policy resolved by `SDP-CUST-18`; the policy is context only outside Candidate E, and the assisted process remains `REQUIRES OWNER DECISION` and design |
+| Optional later Customer association for anonymous Orders | Anonymous purchasing resolved by `SDP-CUST-19`; the policy is context only outside Candidate E, while later association remains `REQUIRES OWNER DECISION`/design and `OUT OF SCOPE` for WP4.2 |
 | Exact requester/Customer verification evidence and assurance | `REQUIRES OWNER DECISION`, `REQUIRES SECURITY REVIEW`, `REQUIRES LEGAL/PRIVACY REVIEW` |
-| Exact field-level visibility and capability/authorization matrix | `REQUIRES OWNER DECISION`, `REQUIRES SECURITY REVIEW` |
+| Exact role-to-operation assignments for Profile creation, ordinary Deactivate, Reactivate, anonymization approval, and ordinary undisputed release | Deferred prerequisite under `SDP-CUST-20`; excluded from Candidate E Gate A boundary until Owner-confirmed |
+| Exact field-level visibility, capability representation, and runtime authorization contract | `REQUIRES OWNER DECISION` where policy is absent, `REQUIRES SECURITY REVIEW`, `REQUIRES TECHNICAL DESIGN` |
 | Existing duplicate/conflicting data remediation | `REQUIRES OWNER DECISION`, later domain/operational design |
 | Official phone-allocation source, refresh cadence, stale/outage behavior | `REQUIRES TECHNICAL DESIGN`, operational/security review; failure policy may require Owner decision |
 | Disputed ownership/carrier reassignment evidence | `REQUIRES OWNER DECISION`, `REQUIRES LEGAL/PRIVACY REVIEW` |
-| Durable record for rejected/failed attempts and retention | `REQUIRES OWNER DECISION`, `REQUIRES LEGAL/PRIVACY REVIEW`, `REQUIRES TECHNICAL DESIGN` |
+| Customer Review Case states, persistence, workflow, evidence access, and retention | Business trigger resolved by `SDP-CUST-21`; `REQUIRES LEGAL/PRIVACY REVIEW`, `REQUIRES TECHNICAL DESIGN` |
+| Exceptional identity-evidence access/export | Ordinary re-identification prohibited by `SDP-CUST-22`; exception purpose, authority, legal basis, fields, recipient, and controls remain separately unresolved |
 | Audit envelope, redaction, readers, atomicity, and retention | `REQUIRES SECURITY REVIEW`, `REQUIRES LEGAL/PRIVACY REVIEW`, `REQUIRES TECHNICAL DESIGN` |
 | Legal basis, purpose-specific consent, periods, holds, privacy, disposal | `REQUIRES LEGAL/PRIVACY REVIEW`; some outcomes require Owner decision |
 | Restricted Identity Evidence need, ownership, controls, and physical topology | `REQUIRES OWNER DECISION` where purpose is optional; `REQUIRES LEGAL/PRIVACY REVIEW`, `REQUIRES SECURITY REVIEW`, `REQUIRES TECHNICAL DESIGN` |
@@ -424,13 +432,14 @@ ADR-0006, ADR-0008, Identity Security Review Checklist statuses, Identity Milest
 
 ## 17. Impact and prerequisites for subsequent WP4 work
 
-`DOMAIN DESIGN PROPOSAL`: the next Owner decision before final aggregate design should address any shared/family-phone direction that is required. The initial Profile state, Inactive phone-change eligibility, and Promotion treatment after anonymization are resolved by `SDP-CUST-15`, `SDP-CUST-16`, and `SDP-CUST-17` respectively. General Promotion eligibility, public Promotion rules, and multi-Brand applicability remain independently governed and unresolved where already recorded.
+`OWNER-SELECTED PREPARATION SCOPE`: Candidate E is the next Gate A preparation target under the [WP-G0 Scope Charter](after_four_wp_g0_candidate_e_scope_charter.md), but remains `NOT_READY` and not Gate A-approved. Initial Profile state, Inactive phone-change eligibility, Promotion treatment after anonymization, operation-specific authority principles, material Review Cases, and the re-identification/export boundary are resolved by `SDP-CUST-15` through `SDP-CUST-17` and `SDP-CUST-20` through `SDP-CUST-22`. The approved shared-phone policy in `SDP-CUST-18` and anonymous-Order policy in `SDP-CUST-19` are context only and are not being designed, validated, or submitted through Candidate E. General Promotion eligibility, optional later anonymous-Order association, assisted shared-phone handling, exceptional identity-evidence access, and multi-Brand applicability remain independently governed and unresolved where recorded.
 
 After those decisions, a later bounded work package may compare aggregate/case boundaries and technical consistency mechanisms. Its prerequisites are:
 
 - Owner-reviewed WP4.1 and WP4.2 vocabulary/boundaries;
 - scenario evidence for every race in §12;
 - approved requester verification/capability prerequisites or explicit design gates;
+- explicit exclusion of Profile creation, ordinary Deactivate, Reactivate, anonymization approval, and ordinary undisputed former-phone release from Candidate E's approval boundary until their authority policies are Owner-confirmed;
 - legal/privacy/security review inputs for evidence, retention, Restricted Identity Evidence, and phone allocation; and
 - explicit authorization before selecting schema, API, transaction, concurrency, audit, or recovery mechanisms.
 
@@ -452,6 +461,7 @@ WP4.2 does not name or authorize WP4.3, implementation, or any Gate.
 - [x] No concurrency, persistence, API, or infrastructure mechanism is selected.
 - [x] Layer responsibilities follow ADR-0011.
 - [x] Open Owner/legal/privacy/security/technical decisions remain open.
+- [x] `SDP-CUST-18` and `SDP-CUST-19` are reflected as approved context outside Candidate E; `SDP-CUST-20` through `SDP-CUST-22` are reflected within its semantic scope without selecting implementation mechanisms or inventing role assignments.
 - [x] No implementation or Gate/operational authorization is claimed.
 
 ### 18.2 Change history
@@ -460,3 +470,4 @@ WP4.2 does not name or authorize WP4.3, implementation, or any Gate.
 |---|---|---|
 | 2026-11-16 | Initial WP4.2 lifecycle and phone-admission consistency proposal. | `DOMAIN DESIGN PROPOSAL`; Owner review required. |
 | 2026-11-23 | Synchronized the Owner-confirmed post-anonymization Promotion preserve/freeze policy under `SDP-CUST-17`. | `OWNER-APPROVED BUSINESS POLICY`; technical design and implementation remain unapproved. |
+| 2026-11-23 | Synchronized `SDP-CUST-18` through `SDP-CUST-22` and corrected the WP-G0 Candidate E boundary so `SDP-CUST-18`/`19` remain context only. | Documentation synchronization; WP4.2 remains a proposal and Candidate E remains `NOT_READY`. |
