@@ -4,7 +4,7 @@
 
 **Document status:** `DOMAIN DESIGN PROPOSAL`
 
-**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-15`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
+**Owner-approved inputs:** `SDP-CUST-01` through `SDP-CUST-16`, including `SDP-CUST-12A` and `SDP-CUST-12B`; `SDP-CUST-A2`; `SDP-SCOPE-01`
 
 **Technical design approval:** `NOT_GRANTED`
 
@@ -108,7 +108,7 @@ No source conflict requiring a canonical correction was identified. Existing phy
 |---|---|---|
 | Not yet created | `DOMAIN DESIGN PROPOSAL` | No admitted Profile exists. A request may be evaluated without implying a durable record. |
 | Active | `OWNER-APPROVED BUSINESS POLICY` | Initial state after successful Profile creation under `SDP-CUST-15`; Profile is available for ordinary authorized Customer operations. The state itself grants no capability. |
-| Inactive | `OWNER-APPROVED BUSINESS POLICY` | Profile is unavailable for ordinary active use but may be reactivated after authorized review. It is neither deleted nor anonymized. |
+| Inactive | `OWNER-APPROVED BUSINESS POLICY` | Profile is unavailable for ordinary active use but may undergo the controlled phone-change operation under `SDP-CUST-16` without reactivation. It may be reactivated only after authorized review and is neither deleted nor anonymized. |
 | Anonymized | `OWNER-APPROVED BUSINESS POLICY` | Terminal for ordinary Profile operations. Ordinary Profile data no longer identifies the Customer; no ordinary restoration exists. |
 
 `OWNER-APPROVED BUSINESS POLICY`: under `SDP-CUST-15`, every successfully created Customer Profile starts in `Active`. This lifecycle state does not establish phone ownership or identity verification, marketing consent, authorization, or broader Brand/Branch visibility.
@@ -120,6 +120,7 @@ No source conflict requiring a canonical correction was identified. Existing phy
 | Not yet created | Create Profile | Valid phone; Organization-wide admission succeeds; required trusted scope | Exact create capability/authority unresolved | Active (`SDP-CUST-15`) | Create allowed basic data; display name optional | Establish one current association | No automatic Order/Loyalty/Promotion creation or transfer | Duplicate Profile, disclosure of conflicting record, merge, value transfer | Creation actor/scope, validation/admission outcome | Failed-attempt record, exact authority/evidence |
 | Active | Deactivate | Controlled request and authorization | Exact role/capability unresolved | Inactive | Preserve Profile/history; mark lifecycle outcome | Current phone remains associated; no release | No silent Loyalty/Promotion/Order transition | Purge, anonymize, release phone, freeze/transfer value by implication | Actor, authority, reason/evidence where later required, before/after | Reason rule, capability, effects on ordinary reads |
 | Inactive | Reactivate | Authorized review succeeds | Exact role/capability unresolved | Active | Restore ordinary active state without recreating identity | Existing association/restriction remains unchanged unless separately changed | No silent downstream state change | New Profile identity, phone reassignment, restoration of anonymized identity | Reviewer, evidence, decision, before/after | Review standard and authority |
+| Inactive | Controlled phone change | Customer verification succeeds; new phone is valid; Organization-wide admission succeeds; required authority is current | `SDP-CUST-12A` and `SDP-CUST-16`; disputed/exceptional cases also follow `SDP-CUST-13` | Inactive | Preserve Profile data and lifecycle state | New phone becomes current; old phone becomes formerly restricted under `SDP-CUST-12B` | No silent Loyalty/Promotion/Order transition or transfer | Automatic reactivation, merge, history/value transfer, expanded visibility, or partial accepted outcome | Actor, verifier, authority, scope, validation/admission, before/after association, outcome | Verification evidence, capability representation, atomicity, concurrency, recovery |
 | Active | Controlled anonymization | Verified request and authority; required legal/privacy conditions; coordinated completion | Exact authority/capability unresolved | Anonymized | Ordinary Profile becomes nonidentifying | Remove ordinary association; retain former-phone restriction until manual release | Preserve Orders/history; preserve/freeze Loyalty; Promotion behavior unresolved; pseudonymous references only for legitimate purpose | Automatic phone release, downstream deletion/transfer, identity restoration | Request, verification/authority, purpose, outcome, before/after, downstream coordination evidence | Atomicity, partial failure, exact field treatment, legal requirements |
 | Inactive | Controlled anonymization | Same as above | Exact authority/capability unresolved | Anonymized | Same as above | Same as above | Same as above | Same as above | Same as above | Same as above |
 | Anonymized | Reactivate/restore ordinary Profile | Never permitted by ordinary operations | None | Anonymized | No ordinary restoration | New phone/Profile cannot restore old identity | No downstream restoration/value transfer | Re-identification or revival by convenience | Rejected attempt evidence subject to later policy | Exceptional legal conflict/re-identification remains separate review |
@@ -174,7 +175,7 @@ Restricted Identity Evidence is a separate, optional, purpose-dependent concept 
 | Available | Begin admission evaluation | Candidate | `PROVISIONAL`; may be transient and creates no guaranteed reservation. |
 | Candidate | Successful creation/change admission | Currently associated | `DOMAIN DESIGN PROPOSAL`; only one accepted association may result. |
 | Candidate | Validation/conflict/authority failure | Available or prior authoritative condition | No association or release occurs. Durable failure record remains unresolved. |
-| Currently associated | Successful controlled phone change | Former phone under unreleased restriction | `OWNER-APPROVED BUSINESS POLICY` combined with `DOMAIN DESIGN PROPOSAL` for coordinated completion: old phone becomes former and new phone becomes current as one business outcome. |
+| Currently associated | Successful controlled phone change | Former phone under unreleased restriction | `OWNER-APPROVED BUSINESS POLICY` for the Inactive case under `SDP-CUST-16`: old phone becomes former, new phone becomes current, and Profile lifecycle remains Inactive. Exact technical coordination remains `REQUIRES TECHNICAL DESIGN`. |
 | Currently associated | Effective controlled anonymization | Former phone under unreleased restriction | `OWNER-APPROVED BUSINESS POLICY`: the ordinary phone association is removed and the phone remains unavailable for new admission until documented authorized manual release. The restriction's representation/persistence and the transition's coordination, atomicity, concurrency, recovery, and consistency mechanisms remain `REQUIRES TECHNICAL DESIGN`. |
 | Currently associated | Profile becomes Inactive | Currently associated | Inactivation does not release or reassign phone. |
 | Former restriction | Complete documented authorized manual release | Released / eligible | Investigation, a hold, or Owner review alone does not change eligibility. Completed release ends admission blocking only; it does not restore identity, create a Profile, or transfer history/value. |
@@ -201,6 +202,8 @@ Restricted Identity Evidence is a separate, optional, purpose-dependent concept 
 
 Steps express business sequencing, not an API, command, transaction, lock, or storage design.
 
+`OWNER-APPROVED BUSINESS POLICY`: this process may run for an Inactive Profile under `SDP-CUST-16`. Success leaves the Profile Inactive; it is not reactivation. Failure leaves the previous phone association current and permits no partial accepted business outcome.
+
 ### 8.2 Outcome matrix
 
 | Condition | Business outcome | Must remain true |
@@ -212,11 +215,11 @@ Steps express business sequencing, not an API, command, transaction, lock, or st
 | Disputed ownership/carrier reassignment | Hold and escalate under `SDP-CUST-13`. | No automatic transfer, release, merge, deletion, or value movement. |
 | Owner approval required but absent | Do not complete. | Prior authoritative state remains. |
 | Profile becomes Anonymized before completion | Ordinary phone-change request cannot complete; controlled anonymization outcome governs. | No new phone association restores or survives as ordinary identity data. |
-| Profile becomes Inactive before completion | Re-evaluate; completion policy while Inactive is unresolved. | Do not assume the earlier approval or Active-state eligibility remains valid. |
+| Profile is or becomes Inactive before completion | Revalidate verification, authority, phone validation, admission, and all other current preconditions. The change may complete under `SDP-CUST-16` only if they still hold. | Success changes the phone association while the Profile remains Inactive. Failure leaves the previous phone current; no automatic reactivation or partial accepted outcome occurs. |
 | Concurrent request targets same new phone | At most one request may produce the accepted current association. | Other request receives a non-disclosing conflict/hold outcome. |
 | Failure before full business outcome | No half-completed accepted outcome is allowed as the intended domain result. | Exact rollback/recovery/reconciliation mechanism remains technical design. |
 
-`UNRESOLVED`: whether a phone change for an already Inactive Profile is allowed, which evidence expires while a request is pending, and whether an interrupted approval must be resubmitted.
+`UNRESOLVED`: which evidence expires while a request is pending and whether an interrupted approval must be resubmitted.
 
 ## 9. Former-phone restriction and manual release
 
@@ -280,7 +283,7 @@ Evidence of completion must preserve accountability without turning ordinary aud
 | 5 | Failed admission creates no second current association. | Validation, conflict, authorization, interruption, duplicate request. | None. | Preserve prior authoritative state; reconcile any incomplete attempt. | Final-state and failure evidence. | `SDP-CUST-04`, `05` |
 | 6 | Admission/conflict never automatically merges, overwrites, reassigns, or transfers history/value/entitlement. | All duplicate and dispute outcomes. | No automatic exception approved. | Hold/reject/manual case; preserve provenance. | Before/after domain state and absence of transfer. | `SDP-CUST-04`, `05`, `13` |
 | 7 | Effective anonymization does not automatically release the removed phone or authorize a reversible ordinary identity mapping. | Active/Inactive to Anonymized. | Later documented manual release affects admission blocking only; any identifying evidence requires separate `SDP-CUST-A2`/`14` justification and governance. | Former restriction remains; reject new admission; ordinary audit/evidence must not become a re-identification path. | Anonymization and proportionate restriction/release evidence. | `SDP-CUST-10`, `12B`, `14`, `A2` |
-| 8 | Inactivation does not automatically release or reassign the current phone. | Active to Inactive. | Separate approved phone-change/release operation only. | Association continues to block second claim. | Lifecycle/association state evidence. | `SDP-CUST-11`, `12B`; WP4.2 required boundary |
+| 8 | Inactivation does not automatically release or reassign the current phone. A later controlled phone change may replace it while preserving Inactive state. | Active to Inactive; later Inactive phone change under `SDP-CUST-16`. | Separately authorized controlled phone change or release only. | Association continues to block a second claim unless an approved operation completes; phone change never reactivates the Profile. | Lifecycle/association state and controlled-change evidence. | `SDP-CUST-11`, `12A`, `12B`, `16` |
 | 9 | Manual release must complete under documented authorization before a formerly restricted phone is eligible for a later independent admission. | Former restriction to Released/eligible. | None; a hold, investigation, Owner review, elapsed time, or carrier reassignment is not release. | Restriction remains until release completes; release itself creates no association. | Investigator/proposal/Owner decision/release result provenance plus separate later admission evidence. | `SDP-CUST-12B`, `13` |
 | 10 | Conflict handling does not disclose another Brand, Customer, Profile, or history. | Creation, change, retry, investigation entry. | Only independently authorized scoped investigation may access allowed evidence. | Non-disclosing reject/hold; no cross-Brand read. | Safe outcome and access-control evidence. | `SDP-CUST-04`, `06`, `13`, `SCOPE-01` |
 
@@ -294,7 +297,7 @@ The table restates approved policies and required WP4.2 consequences. It does no
 | Different Brands, same phone | Same Organization; Brand A and Brand B request admission. | Both accepted because Brand differs; Brand/customer disclosure. | At most one accepted Organization-wide; other non-disclosing conflict/hold. | Invariants 3, 4, 10. | Preserve authoritative Organization and requesting scopes. | Ancestry resolution point and authorization contract. |
 | Two phone changes target same phone | Profiles P1/P2 each retain old current phones; same new phone Available. | Both new associations; either old phone restricted when its change did not succeed. | One complete change wins and its old phone becomes restricted; loser remains unchanged; both may fail safely. | Invariants 1, 5, 6. | Each approval/precondition and final outcome. | Atomic multi-fact update, conflict detection, request identity. |
 | Phone change vs anonymization | One Profile current phone X; change proposes Y while anonymization runs. | Anonymized Profile with Y current; claimed successful change plus incomplete anonymization; X/Y released silently. | Anonymization wins and no ordinary association remains, with required former restriction; or complete phone change linearizes first and anonymization then removes/restricts Y, subject to proven ordering; safe failure is allowed. | Invariants 5, 7; terminal Profile rule. | Record authoritative ordering and both outcomes. | Linearization point, coordination, recovery. |
-| Phone change vs inactivation | Active Profile changes X→Y while deactivation runs. | Half-change; phone release; stale approval blindly applied after state changed. | Complete change then Inactive with Y current/X restricted, or Inactive first and change is re-evaluated/rejected; safe failure permitted. | Invariants 5, 8. | Lifecycle and change ordering, revalidation result. | Whether change while Inactive is permitted; consistency mechanism. |
+| Phone change vs inactivation | Active Profile changes X→Y while deactivation runs. | Half-change; phone release; stale approval blindly applied after state changed; successful change reactivates the Profile. | Complete change then Inactive with Y current/X restricted; or Inactive first, followed by revalidation and either a complete `SDP-CUST-16` change that leaves the Profile Inactive or a safe failure preserving X as current. | Invariants 5, 8. | Lifecycle and change ordering, revalidation result, final Inactive state when deactivation wins first. | Consistency, atomicity, and recovery mechanism. |
 | Manual release vs new creation | Phone X formerly restricted; release and creation race. | Creation succeeds before completed authorized release; a hold/review bypasses the restriction; release transfers identity/history. | Completed release linearizes first and a separately evaluated creation may then succeed, or creation sees the restriction and fails; release may fail and the restriction remains. | Invariants 2, 6, 9. | Release authority/completion time and separate admission evaluation ordering. | Atomicity/visibility and request retry. |
 | Dispute resolution vs phone change | Current/disputed association; Owner resolution and ordinary change overlap. | Ordinary change bypasses hold; contradictory final associations; value transfer. | Hold blocks change until resolution, or earlier complete change is authoritative and resolution re-evaluates; no automatic merge/transfer. | Invariant 6 plus dispute hold. | Evidence, proposal, Owner decision, ordering. | Hold representation and revalidation. |
 | Retry/delayed duplicate admission | Original request outcome uncertain; same or equivalent request repeats. | Second Profile/association; old phone restricted twice; contradictory success. | Replay observes original business outcome or safely conflicts without another mutation. | Invariants 1, 5, 6. | Stable request/outcome correlation if later approved. | Business request identity and idempotency retention. |
@@ -369,7 +372,7 @@ I1 may supply authoritative Brand ancestry through its approved Application cont
 | Inactive may reactivate after review; Anonymized is terminal for ordinary operations. | `OWNER-APPROVED BUSINESS POLICY` |
 | Inactivation does not release the phone; effective anonymization removes the ordinary phone association, does not automatically release the former phone, and leaves it unavailable for new admission until documented authorized manual release. Release ends admission blocking only and creates no new association. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-04`, `10`, `11`, `12B`, and `A2`; representation and enforcement remain unapproved. |
 | Manual release requires documented authorization and never restores identity/transfers history or value. | `OWNER-APPROVED BUSINESS POLICY` |
-| Successful phone change should complete old-phone restriction and new-phone association as one accepted business outcome. | `DOMAIN DESIGN PROPOSAL`; atomic mechanism `REQUIRES TECHNICAL DESIGN` |
+| A successful controlled phone change for an Inactive Profile makes the new phone current, makes the old phone formerly restricted, and leaves the Profile Inactive; failure preserves the previous current association with no partial accepted outcome. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-16`; atomicity, concurrency, and recovery mechanisms remain `REQUIRES TECHNICAL DESIGN` |
 | Every successfully created Customer Profile initially becomes Active; Active alone establishes no phone ownership/identity verification, marketing consent, authorization, or expanded Brand/Branch visibility. | `OWNER-APPROVED BUSINESS POLICY` under `SDP-CUST-15`; technical representation and implementation remain unapproved |
 | Candidate and held are persisted states. | `UNRESOLVED`; conceptual conditions only |
 | Phone admission is a separate Organization-scoped consistency concern. | `DOMAIN DESIGN PROPOSAL`; concrete model/mechanism unselected |
@@ -384,7 +387,6 @@ I1 may supply authoritative Brand ancestry through its approved Application cont
 
 | Open matter | Classification |
 |---|---|
-| Phone change while Profile is Inactive | `REQUIRES OWNER DECISION`; later domain design |
 | Shared/family phone policy | `REQUIRES OWNER DECISION` |
 | Anonymous Order and historical access behavior | `REQUIRES OWNER DECISION`; `OUT OF SCOPE` for WP4.2 |
 | Exact requester/Customer verification evidence and assurance | `REQUIRES OWNER DECISION`, `REQUIRES SECURITY REVIEW`, `REQUIRES LEGAL/PRIVACY REVIEW` |
@@ -406,12 +408,11 @@ ADR-0006, ADR-0008, Identity Security Review Checklist statuses, Identity Milest
 
 ## 17. Impact and prerequisites for subsequent WP4 work
 
-`DOMAIN DESIGN PROPOSAL`: the next milestone should be an Owner review/decision closure of phone-change eligibility while Inactive, plus any shared/family-phone direction needed before final aggregate design. The initial Profile state is now resolved by `SDP-CUST-15`.
+`DOMAIN DESIGN PROPOSAL`: the next Owner decision before final aggregate design should address any shared/family-phone direction that is required. The initial Profile state and Inactive phone-change eligibility are resolved by `SDP-CUST-15` and `SDP-CUST-16` respectively.
 
 After those decisions, a later bounded work package may compare aggregate/case boundaries and technical consistency mechanisms. Its prerequisites are:
 
 - Owner-reviewed WP4.1 and WP4.2 vocabulary/boundaries;
-- closed or explicitly deferred Inactive-phone-change policy;
 - scenario evidence for every race in §12;
 - approved requester verification/capability prerequisites or explicit design gates;
 - legal/privacy/security review inputs for evidence, retention, Restricted Identity Evidence, and phone allocation; and
