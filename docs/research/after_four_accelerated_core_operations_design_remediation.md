@@ -17,7 +17,7 @@ This package remediates the logical design findings in the [Independent Core Ope
 | Workstream | Logical remediation result | Remaining blocker | Gate A readiness |
 |---|---|---|---|
 | CORE-01 | Payment-target lifecycle, deterministic menu/Price resolution, Application-owned ports, orchestration and trusted-command/audit contracts are now explicit. | Exact Product/Variant Prices do not exist; tax and rounding remain deferred pending qualified input and Owner decisions. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
-| CORE-02 | Dispatch/Outbox/acceptance/Ticket/Item/acknowledgement/custody-transfer/Exception axes, terminal/held acceptance outcomes, Candidate Ticket quarantine and ADR-0011 ownership contracts are explicit. | A new independent review is required after FIR remediation; broader universal closure, Identity implementation, transfer-proof mechanism, exception resolver authority, Refund and physical mechanisms remain separate. | `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED` |
+| CORE-02 | Dispatch/Outbox/acceptance/Ticket/Item/acknowledgement/custody-transfer/Exception axes, terminal/held acceptance outcomes, Candidate Ticket quarantine and ADR-0011 ownership contracts are explicit. | Acceptable actual-release evidence classes, attester policy and recipient-linkage validation remain unresolved Owner/qualified inputs; broader universal closure, Identity implementation, exception resolver authority, Refund and physical mechanisms remain separate. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
 | CORE-04 | Confirmed policy, distinct lifecycle outcomes, durable disagreement hold and initial exact-cash source contract are explicit. | Exact cutoff, capability assignments, post-close correction policy and disposition/release authority remain deferred. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
 
 No logical closure below creates a table, migration, lock, transaction, broker, worker, API, capability assignment or implementation authorization.
@@ -194,21 +194,23 @@ Each exception has a stable identity and correlations to Order, Dispatch, Ticket
 | Complete Item | Item in progress plus actor/time/version evidence | Item completes; Ticket completes only when every required Item completes. |
 | Partial Item progress across Items | Some Items complete | Ticket remains in progress; partial Ticket completion is prohibited. |
 | Quantity progress or partial handover attempt | Any | Reject as outside approved initial policy. |
-| Record Customer Custody Transfer | Trusted actor, valid Session evidence, exact Order/Ticket/Branch, exact handover capability, expected Ticket version, stable command identity, authoritative whole-Ticket completion, no prior transfer and trusted evidence of actual release to the customer or customer's recipient | Record acknowledgement evidence, when present, separately from one authoritative custody-transfer fact. Acknowledgement alone does not transfer custody. Exact replay returns the same facts; missing/stale/conflicting transfer evidence fails closed and preserves dispute evidence. |
+| Record Customer Custody Transfer | Trusted actor, valid Session evidence, exact Order/Ticket/Branch, exact handover capability, expected Ticket version, stable command identity, authoritative whole-Ticket completion, no prior transfer and actual-release evidence satisfying the approved source/attester/recipient-linkage policy | Record acknowledgement evidence, when present, separately. Record custody transfer only when evidence positively asserts actual release, has approved trusted-source attribution/accountable attester, exact bindings/time/completion-version evidence and verifiable intended-recipient linkage. Refusal, dispute, unverifiable recipient/release or missing/stale/conflicting/mismatched/unavailable/criteria-insufficient evidence preserves its distinct fail-closed outcome and creates no transfer fact. |
 | Cancel before Dispatch | Same-decision-point proof of no start | Preserve paid facts and block Dispatch; no Refund authority. |
 | Cancel queued Ticket | Same-decision-point proof no Item started | Record Ticket cancellation and evidence. |
 | Cancel in-progress/completed/handed-over work | Confirmed authority for observed stage | Preserve work/evidence and create/link exception; never infer Refund or closure. |
-| Evaluate bounded closure eligibility | Settled Payment, completed Ticket, handover, no open exception | Eligible under `CORE-OD-10C`; no automatic closure command follows. |
+| Evaluate bounded closure eligibility | Settled Payment, completed Ticket, authoritative customer custody-transfer fact, no open exception | Eligible under `CORE-OD-10C`; acknowledgement/refusal/disagreement or uncertain transfer evidence fails the handover guard. Ordering still makes the separate closure decision; no automatic closure command follows. |
 
 `CORE-OD-10C` is the bounded minimum for this exact-cash dine-in/takeaway slice. It does not resolve universal/final `P1A-OD-07`, Delivery, Refund/review settlement, completed-service exceptions or automatic closure.
 
 ### 4.5 Trusted handover command
 
-The explicit handover command is Application-owned and distinct from completion. Before mutation it validates trusted actor identity, authenticated Session evidence, exact Order/Ticket/Branch binding, operation-specific handover capability, expected Ticket version, stable command/idempotency identity, authoritative whole-Ticket completion and trusted evidence of actual release to the customer or customer's recipient. Missing, stale, conflicting or mismatched evidence fails closed without custody transfer.
+The explicit handover command is Application-owned and distinct from completion. Before recording custody transfer it validates trusted actor identity, authenticated Session evidence, exact Order/Ticket/Branch binding, operation-specific handover capability, expected Ticket version, stable command/idempotency identity, authoritative whole-Ticket completion and actual-release evidence. That evidence is sufficient at the logical business-contract level only when it positively asserts release to the intended customer or recipient, comes from an approved trusted-source class and accountable attester, establishes authoritative event time, carries the exact bindings and completion/version evidence, and provides verifiable intended-recipient-to-receiver linkage. These properties must be independently examinable; authenticated actor metadata alone is insufficient.
 
-Acknowledgement evidence and authoritative customer custody transfer are separate logical facts and identities even when one command proposes both. Acknowledgement records an actor response/observation and never proves transfer or approval. The custody-transfer fact binds the exact Order, Ticket, Branch and command to the transfer-recording actor, authoritative time, applicable completion/version evidence and trusted evidence that the completed Ticket was actually released. The contract selects no recipient identity scheme, device, signature, API or physical proof mechanism.
+Acknowledgement evidence and authoritative customer custody transfer are separate logical facts and identities even when one command proposes both. Acknowledgement records an actor response/observation and never proves transfer or approval. Preparation completion, prompt acknowledgement, command invocation/transport success, actor/Session/capability/timestamp metadata without actual-release evidence, generic acknowledgement, absence of refusal/dispute and unverified/conflicting/mismatched recipient or release assertions are each insufficient alone. The contract selects no recipient identity scheme, device, signature, witness count, API or physical proof mechanism.
 
-Exact duplicate replay returns the same acknowledgement and/or transfer results. Conflicting replay, stale version, missing transfer evidence, refusal, disagreement or unverifiable recipient/transfer evidence creates no custody-transfer fact and preserves the evidence for separately governed resolution. Completion, acknowledgement, approval, custody transfer and Order closure eligibility remain distinct. Custody transfer does not close a Cash Session, resolve discrepancy, authorize Refund or close an Order by itself. This contract assigns no holder and does not authorize Identity Milestone 2B.
+Exact duplicate replay returns the same acknowledgement and/or evidence outcome. Customer/recipient refusal, disagreement/dispute, recipient-unverified, release-unverified and missing/stale/conflicting/mismatched/unavailable/criteria-insufficient evidence are distinct fail-closed outcomes. Each preserves evidence, creates no custody-transfer fact and blocks Order closure eligibility; none silently upgrades on replay. Completion, acknowledgement, approval, custody transfer and Order closure eligibility remain distinct. Under `CORE-OD-10C`, eligibility requires settled Payment, completed Preparation, the authoritative custody-transfer fact and no open exception, after which Ordering still owns the separate closure decision. Custody transfer does not close a Cash Session, resolve discrepancy, authorize Refund or close an Order by itself.
+
+Current Owner decisions do not establish acceptable evidence-source classes, who may attest actual release or how recipient linkage must be validated. Those unresolved Owner/qualified inputs materially prevent a complete evidence-acceptance baseline. This contract assigns no holder, treats no authenticated assertion as automatically sufficient and does not authorize Identity Milestone 2B.
 
 ### 4.6 ADR-0011 dependency contract
 
@@ -310,12 +312,13 @@ Result: `NOT_READY_FOR_OWNER_GATE_A_REVIEW`.
 - [x] Accepted/rejected terminal outcomes and held non-terminal disposition defined.
 - [x] Dispatch-plus-attempt replay/new-attempt rules and Candidate Ticket quarantine defined.
 - [x] Acknowledgement and authoritative customer custody-transfer evidence defined separately.
+- [ ] Owner/qualified input defines acceptable actual-release evidence classes, attester policy and recipient-linkage validation.
 - [x] ADR-0011 ownership, port/adapter direction and composition boundary defined.
 - [x] Bounded closure reconciled with deferred `P1A-OD-07`.
 - [x] Logical acceptance matrix defined.
 - [ ] Fresh independent re-review confirms `CORE02-FIR-01` and `CORE02-FIR-02` closure.
 
-Result: `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`.
+Result: `NOT_READY_FOR_OWNER_GATE_A_REVIEW`.
 
 ### CORE-04
 
@@ -348,4 +351,4 @@ Explicit exclusions remain: manual bank; Refund execution; Service Charge; price
 
 This remediation preserves `CORE-OD-01`, retired `CORE-OD-02`, all 27 confirmed and seven deferred decisions, all `ID_PENDING_OWNER_GOVERNANCE` references, Refund separation, Inventory deferral, manual-bank exclusion, CORE-03/Identity Milestone 2B non-authorization, Reporting restrictions and all Gate boundaries.
 
-**Final status:** `CORE_01_INPUT_BLOCKED — CORE_02_READY_FOR_FRESH_INDEPENDENT_REVIEW_ONLY — CORE_04_OWNER_INPUT_BLOCKED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.
+**Final status:** `CORE_01_INPUT_BLOCKED — CORE_02_OWNER_QUALIFIED_INPUT_BLOCKED — CORE_04_OWNER_INPUT_BLOCKED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.

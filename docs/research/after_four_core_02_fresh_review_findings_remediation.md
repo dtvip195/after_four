@@ -1,6 +1,6 @@
 # AFTER FOUR — CORE-02 Fresh Review Findings Remediation
 
-**Status:** `AUTHORED_REMEDIATION_COMPLETE — READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`
+**Status:** `CUSTODY_TRANSFER_CONTRACT_EXPLICIT — OWNER_QUALIFIED_INPUT_BLOCKED — NOT_READY_FOR_OWNER_GATE_A_REVIEW`
 
 **Baseline:** `main` / local `origin/main` at `2df940c935e4618d1dea25837af2c2e60fcad903`
 
@@ -17,9 +17,9 @@ This documentation-only work package addresses the two findings recorded by the 
 | Finding | Review severity | Authored disposition | Independent confirmation |
 |---|---|---|---|
 | `CORE02-FIR-01` | `BLOCKER` | `REMEDIATED_IN_AUTHORED_LOGICAL_DESIGN` | Required before Owner Gate A presentation. |
-| `CORE02-FIR-02` | `MAJOR` | `REMEDIATED_IN_AUTHORED_LOGICAL_DESIGN` | Required before Owner Gate A presentation. |
+| `CORE02-FIR-02` | `MAJOR` | `LOGICAL_CONTRACT_EXPLICIT — OWNER_QUALIFIED_INPUT_BLOCKED` | Acceptable evidence classes, attester policy and recipient-linkage validation must be resolved before independent Gate A review. |
 
-Readiness after authored remediation is `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`. It is not `READY_FOR_OWNER_GATE_A_REVIEW` and grants no Gate A, Gate B or implementation authority.
+Authored remediation does not constitute independent review. The acceptance/retry blocker is remediated, but the custody-transfer evidence contract exposes unresolved Owner/qualified inputs that materially prevent a coherent Gate A baseline. Current readiness is `NOT_READY_FOR_OWNER_GATE_A_REVIEW`; no Gate A, Gate B or implementation authority is granted.
 
 ## 2. `CORE02-FIR-01` — acceptance identity, retry and quarantine
 
@@ -80,19 +80,33 @@ Acknowledgement records an actor response or observation. It does not prove tran
 
 ### 3.3 Custody-transfer evidence contract
 
-The authoritative custody-transfer fact requires trusted evidence that the completed whole Ticket was actually released to the customer or the customer's recipient. At the logical level it binds:
+The authoritative custody-transfer fact may be accepted only from evidence that positively establishes that the completed whole Ticket was actually released to the intended customer or the customer's recipient. At the logical level sufficient evidence must:
 
-- the exact Order, Ticket and Branch;
-- the stable handover command identity;
-- the trusted transfer-recording actor and valid authenticated Session evidence;
-- the exact operation-specific capability and applicable scope;
-- authoritative whole-Ticket completion and applicable expected version evidence;
-- authoritative transfer time; and
-- trusted evidence of actual release to the customer or customer's recipient.
+- contain an explicit actual-release assertion distinguishable from acknowledgement, command invocation, transport success or mere participation;
+- come from an approved trusted-source class and be attributable to an accountable attester;
+- bind the exact Order, Ticket, Branch and stable handover-command identity;
+- establish authoritative event time, authoritative whole-Ticket completion and applicable expected version evidence;
+- provide a verifiable logical relationship between the intended customer/recipient context and the receiving person or party; and
+- expose the assertion, attribution, bindings, completion/version evidence and recipient linkage for independent examination against the approved acceptance criteria.
 
-Missing, expired, stale, conflicting, mismatched, refused, disputed or unverifiable transfer evidence fails closed without custody transfer. Acknowledgement/refusal/disagreement evidence remains preserved for separately governed resolution. A command may record acknowledgement and transfer together only when the evidence and identities for each fact remain independently identifiable.
+Preparation completion; acknowledgement that a prompt was read; command invocation or successful transport; actor identity, Session, capability or timestamp without actual-release evidence; generic acknowledgement; absence of refusal/dispute; and unverified, conflicting or mismatched recipient/release assertions are insufficient alone. An authenticated actor's assertion is not automatically sufficient.
 
-The design assigns no person or job title and selects no recipient identity scheme, device, signature, API, DTO, database representation or hardware proof mechanism. Those physical choices remain Gate B matters. Identity Milestone 2B remains unauthorized.
+Negative and uncertain outcomes remain distinct and fail closed:
+
+| Evidence outcome | Required logical result |
+|---|---|
+| Customer or recipient refuses | Preserve refusal evidence; record no custody transfer; block closure eligibility. |
+| Actor or recipient disputes the release | Preserve dispute evidence; record no custody transfer; block closure eligibility. |
+| Intended-recipient linkage cannot be verified | Preserve recipient-unverified evidence; record no custody transfer; block closure eligibility. |
+| Actual release cannot be verified | Preserve release-unverified evidence; record no custody transfer; block closure eligibility. |
+| Evidence is missing, stale, conflicting, mismatched or unavailable | Preserve the corresponding evidence state; record no custody transfer; block closure eligibility. |
+| Evidence is received but fails an approved acceptance criterion | Preserve the criteria-insufficient result and supplied evidence; record no custody transfer; block closure eligibility. |
+
+An exact replay returns the same evidence outcome and cannot silently upgrade it. Acknowledgement/refusal/disagreement evidence remains independently identifiable and preserved for separately governed resolution. A command may record acknowledgement and transfer together only when the evidence and identities for each fact are independently identifiable and the actual-release evidence satisfies every approved criterion.
+
+The design assigns no person or job title and selects no recipient identity scheme, device, signature, OTP, QR code, photograph, GPS, witness count, API, DTO, database representation or hardware proof mechanism. Those physical choices remain Gate B matters. Identity Milestone 2B remains unauthorized.
+
+Current Owner decisions establish the explicit post-completion event and closure guard, but do not establish acceptable trusted-source/evidence classes, who may attest actual release or how recipient linkage must be validated. Those three matters are explicit Owner/qualified-input blockers and are not presented as settled policy.
 
 ### 3.4 Transition and downstream boundaries
 
@@ -100,7 +114,9 @@ The design assigns no person or job title and selects no recipient identity sche
 - Acknowledgement alone never transfers custody.
 - Customer custody transfer is not approval.
 - Custody transfer does not close a Cash Session, resolve a discrepancy, release reporting, authorize Refund or close an Order by itself.
-- `CORE-OD-10C` remains only the bounded closure-eligibility guard; universal `P1A-OD-07` remains deferred and no automatic Order-close command is authorized.
+- `CORE-OD-10C` requires all four conditions: settled Payment, completed Preparation, authoritative customer custody-transfer evidence and no open exception.
+- Preparation completion, acknowledgement, refusal, disagreement, missing evidence and disputed or unverifiable recipient/release evidence do not satisfy the transfer condition.
+- Even valid custody transfer only satisfies one guard; Ordering owns the separate closure decision. Universal `P1A-OD-07` remains deferred and no automatic Order-close command is authorized.
 
 ## 4. Canonical sections synchronized
 
@@ -139,9 +155,9 @@ Those matters require later evidence and, where applicable, separate Owner decis
 
 ## 7. Remaining assumptions and readiness
 
-No logical ambiguity is intentionally retained for the two findings. Independent review must verify that the synchronized documents consistently implement the stated logical contract. Physical mechanisms, evidence representation, human/capability assignments and resolver workflow remain unresolved by design and do not prevent fresh independent Gate A review because they are explicitly separated into later governance/Gate B concerns.
+The logical distinction and fail-closed outcomes are explicit, but acceptable actual-release evidence classes, attester policy and recipient-linkage validation remain unresolved. They determine whether evidence satisfies the business acceptance contract and therefore materially block a coherent Gate A baseline. Physical mechanisms, evidence representation, human/capability assignments and resolver workflow also remain unselected and separately governed.
 
-**Readiness classification:** `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`
+**Readiness classification:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW`
 
 ## 8. Validation record
 
@@ -158,4 +174,4 @@ The final checkpoint validates:
 
 No application tests, builds, services, migrations or database commands are required or authorized for this work package.
 
-**Final status:** `CORE02_FIR_01_REMEDIATED — CORE02_FIR_02_REMEDIATED — FRESH_INDEPENDENT_REVIEW_REQUIRED — NO_GATE_GRANTED — NO_IMPLEMENTATION_AUTHORIZED`
+**Final status:** `CORE02_FIR_01_REMEDIATED — CUSTODY_TRANSFER_CONTRACT_EXPLICIT — OWNER_QUALIFIED_INPUT_BLOCKED — NOT_READY_FOR_OWNER_GATE_A_REVIEW — NO_GATE_GRANTED — NO_IMPLEMENTATION_AUTHORIZED`

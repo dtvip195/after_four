@@ -1,6 +1,6 @@
 # AFTER FOUR — CORE-02 Accelerated Design Remediation
 
-**Status:** `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`
+**Status:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW`
 
 **Base commit:** `4c0856b0d9786e7009e9d49ff6889ba006efc474`
 
@@ -107,15 +107,21 @@ The explicit Preparation handover command may capture acknowledgement evidence a
 6. authoritative whole-Ticket completion evidence and no prior custody transfer;
 7. stable command/idempotency identity; and
 8. reason where the applicable policy requires it; and
-9. trusted evidence that the completed whole Ticket was actually released to the customer or the customer's recipient when custody transfer is to be recorded.
+9. actual-release evidence that positively asserts release of the completed whole Ticket to the intended customer or the customer's recipient, comes from an approved trusted-source class and accountable attester, establishes authoritative event time and provides verifiable intended-recipient-to-receiver linkage.
 
-Missing, expired, stale, conflicting or mismatched identity, scope, capability, version, completion or transfer evidence fails closed without customer custody transfer. The design selects no person/title, recipient identity scheme, device, signature or physical evidence mechanism.
+The assertion, trusted-source attribution, accountable actor, exact Order/Ticket/Branch/command bindings, completion/version evidence, event time and recipient linkage must be independently examinable. Preparation completion, prompt acknowledgement, command invocation/transport success, actor/Session/capability/timestamp metadata without actual-release evidence, generic acknowledgement, absence of refusal/dispute and an unverified/conflicting/mismatched recipient or release assertion are insufficient alone. Authentication does not make an actor assertion sufficient automatically.
+
+Missing, expired, stale, conflicting, mismatched, unavailable or criteria-insufficient evidence fails closed without customer custody transfer. The design selects no person/title, recipient identity scheme, device, signature, witness count or physical evidence mechanism.
 
 ### 6.2 Result, replay and conflict
 
-Acknowledgement records the actor's response/observation, non-secret Session reference, exact Order/Ticket/Branch, command identity, authoritative timestamp and reason where required. The authoritative custody-transfer fact separately binds the exact Order/Ticket/Branch and command to the transfer-recording actor, authoritative time, applicable completion/version evidence and trusted evidence of actual release. A command may record both only when evidence for each fact is independently identifiable.
+Acknowledgement records the actor's response/observation, non-secret Session reference, exact Order/Ticket/Branch, command identity, authoritative timestamp and reason where required. The authoritative custody-transfer fact separately binds the exact Order/Ticket/Branch and command to the accountable transfer attester, authoritative time, applicable completion/version evidence, accepted trusted-source evidence and verified intended-recipient linkage. A command may record both only when evidence for each fact is independently identifiable.
 
-An exact duplicate returns the same acknowledgement and/or custody-transfer facts. A stale expected version, conflicting payload, refusal, disagreement, unverifiable transfer or already-recorded different transfer fails closed without a second transfer fact and preserves all evidence for separately governed resolution. Completion, acknowledgement, approval, customer custody transfer and Order closure eligibility are distinct. Acknowledgement alone, command invocation or prompt confirmation does not create custody transfer, approval or closure eligibility. Custody transfer does not close a Cash Session, resolve a discrepancy, authorize Refund or close an Order by itself. The contract assigns no human holder and does not authorize Identity Milestone 2B.
+An exact duplicate returns the same acknowledgement and/or evidence outcome. Customer/recipient refusal records refusal evidence; disagreement records dispute evidence; an unverifiable recipient records recipient-unverified evidence; unverifiable actual release records release-unverified evidence; and missing/stale/conflicting/mismatched/unavailable/criteria-insufficient evidence records its fail-closed evidence outcome. Each preserves evidence, creates no custody-transfer fact and blocks Order closure eligibility. Acknowledgement alone, command invocation or prompt confirmation does not create custody transfer, approval or closure eligibility.
+
+For `CORE-OD-10C`, bounded Order closure eligibility requires all four conditions: settled Payment, completed Preparation, authoritative customer custody transfer and no open exception. Preparation completion, acknowledgement, refusal, disagreement or uncertain transfer evidence does not satisfy the transfer condition. Even valid transfer does not close the Order; Ordering owns the separate closure decision, and universal `P1A-OD-07` remains deferred. Custody transfer does not close a Cash Session, resolve a discrepancy or authorize Refund.
+
+Current Owner decisions do not establish acceptable trusted-source/evidence classes, who may attest actual release or how recipient linkage must be validated. These are explicit Owner/qualified-input blockers; the contract assigns no human holder and does not authorize Identity Milestone 2B.
 
 ## 7. ADR-0011 dependency contract
 
@@ -184,11 +190,11 @@ Manual bank, Refund, Promotions, Loyalty and Inventory remain excluded or separa
 |---|---|---|---|
 | Distinct acceptance outcomes, replay, lost result and Candidate Ticket quarantine | Canonical Design Package §§4.2–4.3; this report §§4–5; [FIR remediation](after_four_core_02_fresh_review_findings_remediation.md) | Physical enforcement unselected. | Gate B only after independent design acceptance. |
 | Same/new attempt and held resolution | This report §§5.2–5.4; FIR remediation | Resolver holder/implementation unassigned. | Separate authorization. |
-| Acknowledgement and customer custody-transfer evidence | Canonical Design Package §4.3; this report §6; FIR remediation | Physical proof/audit/concurrency mechanism unselected. | Gate B; Identity implementation separately authorized. |
+| Acknowledgement and customer custody-transfer evidence | Canonical Design Package §4.3; this report §6; FIR remediation | Acceptable evidence classes, attester policy and recipient-linkage validation unresolved; physical proof/audit/concurrency mechanism also unselected. | Owner/qualified input blocks Gate A baseline; physical mechanism remains Gate B; Identity implementation separately authorized. |
 | ADR-0011 contract ownership/direction | Canonical Design Package §4.4; this report §7 | Exact source layout unselected. | Gate B. |
 | Owner-policy and cross-context preservation | This report §§8–9 | Universal closure, Refund and resolver details remain separate. | Outside bounded Gate A or separately governed. |
 
-The PR #86 independent review found two remaining issues after this report: `CORE02-FIR-01` and `CORE02-FIR-02`. Their authored closure is recorded in the [FIR remediation report](after_four_core_02_fresh_review_findings_remediation.md). With that synchronized remediation, the design may again be classified `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`. This is not evidence that the new independent review passed.
+The PR #86 independent review found two remaining issues after this report: `CORE02-FIR-01` and `CORE02-FIR-02`. Their subsequent authored remediation is recorded in the [FIR remediation report](after_four_core_02_fresh_review_findings_remediation.md). The acceptance contract is now explicit, but acceptable actual-release evidence classes, attester policy and recipient-linkage validation remain unresolved Owner/qualified inputs. The resulting classification is `NOT_READY_FOR_OWNER_GATE_A_REVIEW`.
 
 ## 11. Before/after readiness
 
@@ -196,7 +202,7 @@ The PR #86 independent review found two remaining issues after this report: `COR
 |---|---|---|
 | Before this remediation | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — DESIGN_CORRECTION_REQUIRED` | One blocker and two major logical-design findings remained. |
 | After PR #85 authored remediation | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` | PR #86 found `CORE02-FIR-01` and `CORE02-FIR-02`; the historical review remains authoritative for that reviewed baseline. |
-| After FIR authored remediation | `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED` | Attempt-scoped retry/quarantine and custody-transfer evidence contracts are now explicit; a new independent verification is the next mandatory step. |
+| After custody-transfer evidence remediation | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` | Attempt-scoped retry/quarantine is explicit, but actual-release evidence classes, attester policy and recipient-linkage validation require Owner/qualified input before a coherent Gate A baseline exists. |
 
 CORE-01 remains `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED`. CORE-04 remains `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_INPUT_REQUIRED`.
 
@@ -207,12 +213,13 @@ The documentation change must preserve 27 confirmed and seven deferred consolida
 Validation completed for this authored remediation:
 
 - state-axis and acceptance terminology is consistent across the canonical design, prior remediation, sprint and readiness assessment;
-- `accepted`, `rejected_terminal` and `held_unresolved` semantics, handover guards and ADR-0011 contracts are present;
+- `accepted`, `rejected_terminal` and `held_unresolved` semantics, custody-transfer acceptance/negative outcomes and ADR-0011 contracts are present;
+- `CORE-OD-10C` requires authoritative actual-transfer evidence rather than acknowledgement alone;
 - Markdown tables and fenced blocks are structurally valid;
 - all local Markdown link targets in the changed documents exist;
 - whitespace validation passes;
 - the canonical decision register remains 27 confirmed / seven deferred references;
-- changed paths are limited to the five intended `docs/research/` documents; and
+- changed paths are limited to the intended `docs/research/` documents; and
 - no application test, build, service or database command was run.
 
-**Final status:** `CORE_02_FIR_LOGICAL_REMEDIATION_COMPLETE — READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED — NO_IMPLEMENTATION_AUTHORIZED`
+**Final status:** `CORE_02_CUSTODY_TRANSFER_CONTRACT_EXPLICIT — OWNER_QUALIFIED_INPUT_BLOCKED — NOT_READY_FOR_OWNER_GATE_A_REVIEW — NO_GATE_GRANTED — NO_IMPLEMENTATION_AUTHORIZED`
