@@ -180,10 +180,12 @@ erDiagram
 - `OWNER_CONFIRMED` Catalog Core MVP uses lifecycle/Archive retention, not Soft Delete, and prohibits physical Purge of Draft, Active, Inactive, or Archived Category/Product/Variant records (`ODB-CAT-35`–`ODB-CAT-37`, `ODB-DATA-01`). Future Soft Delete/Purge requires separate authorization; reuse after hypothetical physical Draft deletion is not inferred.
 - `OWNER_CONFIRMED` Modifier Group minimum/maximum limits express required/optional and single/multiple choice (`ODB-CAT-05`). Modifier price effects remain unresolved.
 - `OWNER_CONFIRMED` Chain default and explicit Branch override Prices share `product_prices`; a nullable `branch_id` distinguishes default from override. Price versions are immutable, effective-dated, and may not overlap for the same Variant/Branch scope (`ODB-CAT-07`, `ODB-CAT-08`).
+- `OWNER_CONFIRMED`, `UNRESOLVED_RECONCILIATION` Commercial Baseline V1 (`CORE-OD-18`) supplies 52 exact Product/Variant selling-price inputs for costing, with the first Branch as the first Price Version scope and no chain default or Branch override in that costing baseline. This conflicts with the earlier `ODB-CAT-07` chain-default-plus-override direction for publication. The costing inputs are not published Price Versions; publication and implementation must remain blocked until the Owner explicitly reconciles the two directions.
 - `OWNER_CONFIRMED` Branch availability is an effective-dated explicit override separate from Price; absence of an effective Branch row inherits the chain default (`ODB-CAT-06`).
 - `OWNER_CONFIRMED` A changed authoritative Price requires Draft quote review before confirmation, and confirmation locks the sold Price into the Order Item snapshot (`ODB-CAT-09`, `ODB-CAT-10`).
-- `WORKSHOP_AGREED` RecipeVersion effective intervals may not overlap for one Recipe.
-- `WORKSHOP_AGREED` Historical Preparation Items retain the RecipeVersion used.
+- `DESIGN_DEPENDENCY` The 24 MAKE Products and 48 priced combinations demonstrate Recipe/BOM coverage demand, but approve no Recipe, Ingredient, quantity, conversion, yield, waste, substitute, or packaging allocation. Recipe identity, Product-versus-Variant scope, sharing across Products/Variants, version publication, and effective periods remain unresolved logical-design inputs.
+- `DESIGN_DEPENDENCY` If an approved Recipe Version governs preparation, the historical Preparation Item must retain that exact version. The initial operational slice must not require a Recipe reference where no approved Recipe exists.
+- `DESIGN_DEPENDENCY` The four BUY_FINISHED Products require a durable distinction among a finished-product specification, supplier candidate, public price evidence, accepted quotation, actual purchase fact, and sellable Product/Variant mapping. No supplier, specification, quotation, purchase price, tax treatment, delivery term, shelf life, storage rule, or waste rate is approved by the current input artifacts.
 - `TECHNICAL_PROPOSAL` Modifier assignment is at Variant scope for v1. Product-wide assignment can be expressed by assigning all current Variants; adding polymorphic scope now would weaken FKs.
 
 The table/column shapes remain logical proposals rather than implementation authorization. Tax/service charge, rounding, zero/free pricing, Modifier price effects, time-based availability, manual price overrides, inventory, and media storage remain unresolved.
@@ -261,7 +263,7 @@ Terminology: `PAYMENT_ATTEMPTS` is the canonical logical entity and maps to the 
 - `WORKSHOP_AGREED` Refund references an original successful Payment Attempt and never edits it.
 - `TECHNICAL_PROPOSAL` One Payment is the settlement aggregate per Order and contains many Payment Attempts. MVP accepts only an exact-balance attempt. `OPEN_DECISION` Partial/split checks and item allocation may require a future `payment_allocations` entity; it is not included until allocation semantics are approved.
 - `TECHNICAL_PROPOSAL` Provider webhook/event uniqueness is recorded in `payment_provider_events`; raw sensitive payload storage is not assumed.
-- `OWNER_CONFIRMED` MVP bank transfer uses the Owner's bank QR, but a speaker amount alert is not Payment proof. Cashier confirmation is manual; no automatic bank API matching is approved. Mismatch/excess evidence cannot silently become a successful exact-balance allocation.
+- `OWNER_CONFIRMED` The initial implementation path is exact-balance cash only (`CORE-OD-07`). Manual bank remains historical Phase 1 evidence but is excluded from the initial slice pending separate capability and evidence prerequisites; no provider integration or Refund authority is inferred.
 
 ## 9. Inventory and purchasing ERD
 
@@ -309,11 +311,21 @@ erDiagram
 
 ```mermaid
 erDiagram
+  CASH_HANDOVER_ATTEMPTS {
+    string stable_attempt_identity
+    string disposition
+  }
+  CASH_HANDOVER_EVIDENCE {
+    string independently_identifiable_evidence
+    string revision
+  }
   BRANCHES ||--o{ CASH_SESSIONS : operates
   BRANCHES ||--o{ CASH_DRAWERS : contains
   CASH_DRAWERS ||--o{ CASH_SESSIONS : opens
   DEVICES o|--o{ CASH_SESSIONS : operated_on
   CASH_SESSIONS ||--o{ CASH_TRANSACTIONS : records
+  CASH_SESSIONS ||--o{ CASH_HANDOVER_ATTEMPTS : hands_over
+  CASH_HANDOVER_ATTEMPTS ||--o{ CASH_HANDOVER_EVIDENCE : preserves
   PAYMENT_ATTEMPTS o|--o{ CASH_TRANSACTIONS : funds
   CASH_TRANSACTIONS o|--o{ CASH_TRANSACTIONS : reverses
   ORGANIZATIONS ||--o{ EXPENSE_CATEGORIES : defines
@@ -330,6 +342,8 @@ erDiagram
 - `WORKSHOP_AGREED` Cash Transaction actor is individual even though the drawer is shared.
 - `WORKSHOP_AGREED` Closed Cash Session totals are immutable; corrections are new Cash Transactions with reversal/adjustment links.
 - `WORKSHOP_AGREED` Cash settlement and bank/electronic settlement are distinct Payment Attempt methods.
+- `OWNER_CONFIRMED` Each handover keeps one stable attempt identity. `transfer_evidence_unresolved` is nonterminal and fail-closed; conflicting or disputed evidence remains held until sufficient approved evidence and an authorized disposition exist. Evidence revisions never erase or silently supersede prior assertions. Acknowledgement is not approval and does not close the outgoing Cash Session; Close is a separate capability-governed action (`ODB-CASH-15`, `CORE-OD-14A/B`, `CORE02-FIR2-02`). Exact records and enforcement remain logical proposals, not physical schema approval.
+- `UNRESOLVED` The two entity declarations intentionally expose only the already-defined stable attempt identity/disposition and independently identifiable evidence/revision concepts. Primary/foreign keys, evidence field decomposition, actor/recipient linkage, attester and conflict-resolution authority, constraints, indexes, storage, and enforcement remain undecided.
 - `OWNER_CONFIRMED` Float top-ups are Owner-authorized explicit Cash movements with amount, source, executor, approver, and time; Staff may request them, they are not revenue, and no fixed frequency limit is approved.
 - `OWNER_CONFIRMED` Delegated Expenses are limited to 200,000 VND each and 500,000 VND cumulatively per Operating Day. Exceeding either requires Owner approval; self-approval and splitting to evade limits are prohibited; limits are configurable.
 - `OWNER_CONFIRMED` The initial operating model has one shared drawer. `TECHNICAL_PROPOSAL` A Device may identify its counter/register; hardware selection and any future multi-drawer expansion require a later decision and do not weaken the initial shared-drawer rule.
@@ -441,10 +455,12 @@ The logical model covers all canonical entities, including items omitted from th
 
 ### 14.4 Conflicts with the canonical model
 
-No business policy was intentionally changed. Two technical qualifications remain explicit:
+No business policy is changed by this ERD. The following conflicts or qualifications remain explicit:
 
-1. the ERD defers `payment_allocations` because partial/split semantics are an `OPEN_DECISION`;
-2. the ERD proposes generic target references for cross-domain Audit/Approval evidence, while critical domain decisions also retain explicit actors and state.
+1. `CORE-OD-18` first-Branch/no-default costing scope and `ODB-CAT-07` chain-default/Branch-override publication policy require Owner reconciliation before Price publication or implementation;
+2. the ERD defers `payment_allocations` because partial/split semantics remain deferred;
+3. Recipe scope/sharing and all Recipe/BOM facts remain unresolved despite the candidate Variant-to-Recipe relationship shown above;
+4. the ERD proposes generic target references for cross-domain Audit/Approval evidence, while critical domain decisions also retain explicit actors and state.
 
 The earlier repository proposals that dispatched preparation on Order submission remain superseded. This ERD places the unique Preparation Dispatch after full Payment settlement.
 
@@ -453,13 +469,13 @@ The earlier repository proposals that dispatched preparation on Order submission
 | Area | Historical risk | Concurrency risk | Control |
 |---|---|---|---|
 | Catalog → Order | Current names/prices could rewrite old sales | Price changes race Order confirmation | Immutable Order snapshots; resolve/lock effective price during confirmation |
-| Recipe → Preparation | Later recipes could alter consumption history | Recipe publication races ticket creation | Preparation Item retains exact RecipeVersion; non-overlapping versions |
+| Recipe → Preparation | Later recipes could alter consumption/cost history | Recipe publication races ticket creation | When an approved Recipe governs preparation, retain the exact Recipe Version and source-price lineage; Recipe scope/version rules remain unresolved |
 | Payment → Preparation | Charge can succeed without a recoverable ticket | Replayed provider result or competing clients can double-dispatch | Provider uniqueness; locked Payment; unique Order dispatch inserted with settlement |
 | Refund | Original success could be overwritten | Concurrent refunds can exceed refundable amount | Append-only Refunds; lock Payment/Transaction; recompute cumulative success |
 | Inventory | Balance/cost cache can drift from ledger | Concurrent receipt/issue can lose quantity or average cost | Movement + Position/Lot update under stable row locks; reconciliation |
 | Transfer | Receipt could erase dispatch evidence | Partial receipts can over-receive the same in-transit quantity | Independent Receipt rows; cumulative validation under Transfer/Position locks |
 | Employee/Payroll | New assignments/pay rates could rewrite old payroll context | Close can race attendance/overtime correction | Effective histories; frozen calculation snapshot; lock Period/Payrolls on close |
-| Cash | Closed count could be edited | New cash movement can race closing count | Immutable close; Session lock/counting state; adjustment-only correction |
+| Cash | Closed count or disputed handover evidence could be overwritten | New movement, close, and handover resolution can race | Immutable close; stable handover attempt and append-only evidence; adjustment-only correction; fail-closed conflicts |
 | Configuration | JSON replacement can hide prior policy | Two publications can overlap | Immutable Configuration Versions; effective-range exclusion/serialized publish |
 
 ## 15. Review gate and next phase

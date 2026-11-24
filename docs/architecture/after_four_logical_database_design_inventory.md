@@ -6,9 +6,9 @@
 
 **Implementation authorization:** `NOT_GRANTED`
 
-**Prepared from main:** `13aab731941d690b5bd764d2744893260d001986`
+**Consolidated against main:** `985ceab1accb9c2101bc24db9d8341d40f1bfff8`
 
-**Date:** 2026-11-23
+**Date:** 2026-11-24
 
 ## 1. Purpose and interpretation
 
@@ -38,6 +38,7 @@ The detailed claims below use these source sections; a conceptual ERD or diction
 | Organization/Brand/Branch | [Business Domain Model §§3–5](after_four_business_domain_model.md#3-bounded-context-overview), [DDD Foundation §§2–4](after_four_ddd_foundation.md#2-context-map), and [I1 Design §§1–8](after_four_i1_organization_scope_contract_design.md#1-context-purpose-and-decision-discipline). |
 | Identity/access | [Owner Decision Baseline §7](after_four_owner_decision_baseline.md#7-identity-and-authorization), [P1 §§3–15](after_four_p1_trusted_identity_authorization_design.md#3-current-state-evidence), and proposed [ADR-0006](adr/0006-authentication-session-topology.md). |
 | Catalog | [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp), [Catalog Core Design §§1–15](after_four_catalog_core_technical_design.md#1-authority-evidence-and-classifications), and [Package C §§1–15](after_four_package_c_technical_design.md#1-purpose-and-authority-boundary). |
+| Commercial V1 costing evidence | [Real Menu & Pricing Specification §4](after_four_real_menu_pricing_specification.md#4-commercial-baseline-v1-for-cost-calculation), [52-combination costing input](after_four_commercial_v1_costing_input.csv), [24-Product MAKE input](after_four_commercial_v1_make_recipe_bom_input.csv), [four-Product BUY input](after_four_commercial_v1_buy_finished_procurement_input.csv), and [external research](../research/after_four_commercial_v1_external_ingredient_supplier_research.md). These are costing/evidence inputs, not approved Recipes, procurement facts, published Prices, or implementation authority. |
 | Customer | [Customer Owner Decisions §§1–3](after_four_customer_management_owner_decisions.md#1-purpose-and-provenance), [WP4.1 §§4–12](after_four_customer_domain_boundary_design.md#4-customer-domain-mission), [WP4.2 §§4–16](after_four_customer_lifecycle_phone_consistency_design.md#4-domain-concepts-and-lifecycle-separation), and [WP-T1 §§3–11](after_four_customer_technical_design.md#3-candidate-e-scope). |
 | Ordering/Payment/Preparation | [Business Domain Model §8](after_four_business_domain_model.md#8-sales-payment-preparation-printing-and-delivery), [Payment Model §§2–8](after_four_payment_model.md#2-state-vocabularies), [State Machines §§3–10](after_four_state_machines.md#3-mandatory-payment-to-preparation-flow), and [Phase 1 Record §§1–8](after_four_order_payment_implementation_phase1.md#1-scope-decision). |
 | Inventory/procurement | [Business Domain Model §9](after_four_business_domain_model.md#9-inventory-and-procurement), [Data Dictionary §8](after_four_data_dictionary.md#8-inventory-and-procurement), and [Data Integrity Rules §9](after_four_data_integrity_rules.md#9-inventory-and-weighted-average-integrity). |
@@ -75,11 +76,12 @@ The detailed claims below use these source sections; a conceptual ERD or diction
 | Aspect | Inventory |
 |---|---|
 | Canonical sources and maturity | [Catalog Core Technical Design](after_four_catalog_core_technical_design.md), [Package C Design](after_four_package_c_technical_design.md), [Data Dictionary](after_four_data_dictionary.md), and [Data Integrity Rules](after_four_data_integrity_rules.md). Package B supplies bounded Category/Product/Variant persistence and integrity evidence. Runtime Catalog lifecycle operations, P1/P2/P3 integration, pricing, availability, modifiers, recipes, and menu publication are not implemented by that foundation. |
-| Concepts and ownership | Brand-owned Category, Product, and Variant; later Catalog concepts include modifier groups/options, availability, recipes, and price definitions. Catalog owns sellable definitions; Ordering owns quoted/confirmed snapshots. |
+| Concepts and ownership | Brand-owned Category, Product, and Variant; later Catalog concepts include modifier groups/options, availability, recipes, and price definitions. Catalog owns sellable definitions; Ordering owns quoted/confirmed snapshots. Recipe/BOM definition and finished-product procurement evidence require explicit seams without transferring Catalog identity ownership to Inventory/procurement. |
 | Aggregate/lifecycle evidence | Category, Product, and Variant boundaries and lifecycle policies are documented. Product lifecycle commands are excluded from the initial MVP; Package C Category/Variant operations remain unauthorized. |
 | Relationships and invariants | Brand-scoped, entity-type-specific code namespaces; Product belongs to Category; Variant belongs to Product; active/default/category consistency; no purge; Variant Archive/Restore preserves configuration flags. Package B uses database backstops, but CAT-TRR operational findings remain governed separately. |
 | Provenance and sensitive data | Catalog lifecycle reason and actor/capability evidence are required by C0 decisions. P2 Brand-scoped Catalog AuditEvent is design-only. Catalog data is generally commercial rather than personal, but actor/session evidence is security-sensitive. |
-| Gaps | Runtime authorization, database-role boundary, audit implementation, operation-specific error mapping, lifecycle commands, price history, availability, modifiers, recipes, tax/charge/rounding, and real menu data need later decisions/design. |
+| Commercial V1 evidence | The approved costing baseline contains 28 Products and 52 priced Product/Variant combinations: 24 MAKE Products/48 combinations and four BUY_FINISHED Products. No approved Ingredient/BOM quantity, conversion, yield, waste, packaging allocation, finished-product specification, supplier quotation, or actual purchase price exists; unit cost remains calculable for 0/52. External source IDs are candidate evidence only. |
+| Gaps | `CORE-OD-18` first-Branch/no-default costing scope conflicts with `ODB-CAT-07` chain-default/Branch-override publication policy and requires explicit Owner reconciliation before publication or implementation. Runtime authorization, price history, availability, Recipes, procurement evidence, tax, precision/rounding, and cost lineage remain unresolved. |
 
 ### 2.4 Customer Management
 
@@ -119,7 +121,7 @@ The detailed claims below use these source sections; a conceptual ERD or diction
 |---|---|
 | Canonical sources and maturity | [Business Domain Model — Order Management](after_four_business_domain_model.md), [State Machines](after_four_state_machines.md), [Data Integrity Rules](after_four_data_integrity_rules.md), and [Phase 1 Implementation Record](after_four_order_payment_implementation_phase1.md). Phase 1 has bounded backend implementation; public API activation and full business workflow remain deferred. |
 | Concepts and ownership | Order, Order Item, price/product snapshot, fulfillment type, table/session references, Order status, and authoritative total. Ordering owns commercial intent and snapshots; it references Catalog definitions and optional Customer association without owning either domain. |
-| Lifecycle and invariants | Draft/confirmation/payment-window/held/expired and preparation-dispatch gating are implemented in a narrow foundation. Confirmed snapshots must not change because Catalog changes. Anonymous Orders are allowed by `SDP-CUST-19`; optional later association is unresolved. |
+| Lifecycle and invariants | Draft/confirmation/payment-window/held/expired and preparation-dispatch gating are implemented in a narrow foundation. Confirmed snapshots must not change because Catalog changes. Dine-in/takeaway channel is explicit; Table Session is optional. No initial Service Charge, price-changing Modifier, complimentary/zero-price item, direct sold-price override, or automatic cancellation is permitted. Payment success alone never closes an Order. Anonymous Orders are allowed by `SDP-CUST-19`; optional later association is unresolved. |
 | Provenance and sensitive data | Actor/Branch UUIDs in Phase 1 are trusted server-provided references, not authentication. Order history may be personal data only when associated with Customer; actor-level accountability must not become employee revenue scoring. |
 | Gaps | Catalog-backed item construction, pricing/discount/tax/rounding, tables/additional items, cancellation/refund outcomes, split/partial payment, Customer association, public API, runtime authorization, and operational reporting require later work. |
 
@@ -129,7 +131,7 @@ The detailed claims below use these source sections; a conceptual ERD or diction
 |---|---|
 | Canonical sources and maturity | [Payment Model](after_four_payment_model.md), [State Machines](after_four_state_machines.md), and [Phase 1 Implementation Record](after_four_order_payment_implementation_phase1.md). Payment/PaymentAttempt safety is bounded implementation evidence; refund and broader settlement are not complete. |
 | Concepts and ownership | Payment aggregate, immutable Payment Attempt evidence, provider reference, settlement state, review case, and future refund/allocation concepts. Payment owns settlement truth; Ordering consumes verified settlement outcomes. |
-| Lifecycle and invariants | Pending, failed, unknown, mismatched, held, or expired payment cannot dispatch preparation. Late success does not automatically dispatch expired/held Orders. Current exact-balance settlement is an implementation limitation, not a permanent Owner policy. |
+| Lifecycle and invariants | Pending, failed, unknown, mismatched, held, or expired payment cannot dispatch preparation. Late success does not automatically dispatch expired/held Orders. The initial implementation path is exact-balance cash only; partial/split remains deferred and manual bank is excluded pending separate prerequisites. Cancellation does not authorize Refund, and settlement alone does not close an Order. |
 | Provenance and sensitive data | Provider payload references and reconciliation evidence need redaction and restricted access; no raw payment credential storage is authorized. Audit/outbox writes participate in bounded transactions where implemented. |
 | Gaps | Refund/cancellation authority, partial/split payments, overpayment/mismatch outcomes, chargeback/reconciliation, provider integration, retention, and production idempotency/operations remain open. |
 
@@ -138,8 +140,8 @@ The detailed claims below use these source sections; a conceptual ERD or diction
 | Aspect | Inventory |
 |---|---|
 | Canonical sources and maturity | [Business Domain Model](after_four_business_domain_model.md), [State Machines](after_four_state_machines.md), and [Phase 1 Implementation Record](after_four_order_payment_implementation_phase1.md). PreparationDispatch/outbox foundation exists; KDS publishing and complete fulfillment operations do not. |
-| Concepts and ownership | Preparation Dispatch, dispatch evidence, kitchen ticket/queue concepts, retry intent, and fulfillment status. Preparation owns execution after an authorized paid Order outcome. |
-| Lifecycle and invariants | Dispatch identity is reused across retry; retry updates OutboxEvent and appends AuditEvent in the implemented scope. Documentation does not claim a PreparationDispatchAttempt is created when it is not. |
+| Concepts and ownership | Preparation Dispatch, Outbox delivery state, Ticket, Ticket Item, item-level progress, completion evidence, handover evidence, and retry intent are distinct. Preparation owns execution after an authorized paid Order outcome. |
+| Lifecycle and invariants | Dispatch identity is reused across retry. Progress is Item-level; quantity-level progress, partial Ticket completion, and partial Ticket handover are excluded. Completion and handover are separate. Order closure requires settled Payment, completed Preparation, handover evidence, and no open exception. An exact Recipe Version is retained only when an approved Recipe actually governs the Item. |
 | Provenance and sensitive data | Dispatch/outbox/audit evidence supports operational traceability. Customer data should be minimized at the preparation boundary. |
 | Gaps | Publisher/consumer delivery, KDS/ticket lifecycle, retry policy, cancellation after dispatch, handoff, inventory consumption, and production monitoring remain later work. |
 
@@ -158,8 +160,8 @@ The detailed claims below use these source sections; a conceptual ERD or diction
 | Aspect | Inventory |
 |---|---|
 | Canonical sources and maturity | [Owner Decision Baseline](after_four_owner_decision_baseline.md), [Business Domain Model](after_four_business_domain_model.md), [Data Dictionary](after_four_data_dictionary.md), and [State Machines](after_four_state_machines.md) contain confirmed policies and conceptual records. No bounded implementation-ready technical design is established. |
-| Concepts and ownership | Cash Session, float, cash movement, expense, approval, shift handover, counted/expected balance, discrepancy, and evidence attachments. Cash/Expense facts must remain distinct from Payment settlement facts. |
-| Lifecycle and invariants | Confirmed float, expense approval, cash handling, handover, and accountability limits must retain exact scope. Physical ledger, correction, close/reopen, and discrepancy resolution mechanisms are unresolved. |
+| Concepts and ownership | Cash Session, Operating Day, float, cash movement, stable handover attempt, append-only handover evidence, counted/expected balance, discrepancy, linked correction, and report-release boundary. Cash facts remain distinct from Payment settlement and Reporting projections. |
+| Lifecycle and invariants | Explicit Branch timezone and initial `00:00` local cutoff govern Operating Day. Model A keeps `transfer_evidence_unresolved` nonterminal and fail-closed within one attempt; conflicts require authorized disposition and cannot be overwritten. Acknowledgement is not approval or Session Close. Every nonzero discrepancy requires reason and Owner notification; unreconciled facts are withheld from authoritative reporting. |
 | Provenance and sensitive data | Actor-level cash/expense evidence and approval provenance are sensitive operational records. Reader/export/retention governance is not fully established. |
 | Gaps | Aggregate split, relation to shift and Payment, denomination/counting model, exception authority, immutable corrections, Branch/day boundaries, and accounting/legal review remain. |
 
@@ -188,10 +190,27 @@ The detailed claims below use these source sections; a conceptual ERD or diction
 | Aspect | Inventory |
 |---|---|
 | Canonical sources and maturity | [Business Domain Model](after_four_business_domain_model.md), [Phase 1 Implementation Record](after_four_order_payment_implementation_phase1.md), [P2 Catalog AuditEvent Design](after_four_p2_brand_scoped_catalog_audit_event_design.md), and [Package C Design](after_four_package_c_technical_design.md). Phase 1 has bounded Branch-scoped AuditEvent/OutboxEvent evidence; P2 is design-only. |
-| Concepts and ownership | Domain event evidence, append-only audit, outbox delivery intent, reporting projections, daily Telegram report, Owner Dashboard, and export/legal-hold boundaries. Audit evidence does not transfer ownership of source-domain facts. `SDP-CUST-02` permits a purpose-proportionate pseudonymous Customer reference where downstream provenance must remain; it does not transfer Customer identity or approve access to a reference-to-identity mapping. |
-| Lifecycle and invariants | Append-only and atomic audit requirements are bounded by their source decisions. Daily Telegram reporting and Owner Dashboard requirements are distinct; unapproved report details remain recommendations. |
+| Concepts and ownership | Domain event evidence, append-only audit, outbox delivery intent, reporting projections, Owner Dashboard, deferred external-delivery proposals, and export/legal-hold boundaries. Audit evidence does not transfer ownership of source-domain facts. `SDP-CUST-02` permits a purpose-proportionate pseudonymous Customer reference where downstream provenance must remain; it does not transfer Customer identity or approve access to a reference-to-identity mapping. |
+| Lifecycle and invariants | Append-only and atomic audit requirements are bounded by their source decisions. Initial report lineage is limited to authoritative Order, Payment, and pending Preparation Dispatch facts. Cash-dependent facts remain withheld until reconciliation and separately authorized release. Excel export and automatic Telegram/external delivery are deferred. |
 | Provenance and sensitive data | Actor/target/correlation/reason/before-after evidence needs redaction and reader authorization. Deferred `C0-R08` leaves retention, legal hold, reader, and export governance unresolved. |
-| Gaps | Project-wide event taxonomy, P2/P3 implementation, integrity verification, delivery/replay, projection freshness, legal/privacy rules, reader/export authority, and production operations remain. |
+| Gaps | Product/Variant sales, Preparation progress/handover, Cash, Refund/net sales, Expenses/float/top-ups, Promotions, and Loyalty are not initial authoritative report sources. Metric formulas, reader scope, release authority, recipients/schedule, retention/legal hold, event taxonomy, projection freshness, and production operations remain unresolved. |
+
+### 2.15 Core operational-flow consolidation
+
+This cross-domain view is the current logical-design checkpoint. It records consistency, not Gate acceptance or physical design authority.
+
+| Flow boundary | Consolidated logical outcome | Missing decision/evidence and consequence |
+|---|---|---|
+| Catalog → Order | Order Item keeps Product/Variant identity, source Price Version where applicable, channel, labels, quantity, currency, and immutable sold-price evidence. A changed Draft quote fails closed for explicit review. | `CORE-OD-18` and `ODB-CAT-07` conflict on first publication scope; no Price publication or physical scope constraint is final until Owner reconciliation. Tax and rounding remain deferred. |
+| MAKE costing | 24 Products/48 combinations require versioned Recipe/BOM evidence and reproducible source-price lineage; the current matrix is collection evidence only. | No approved Recipe, Ingredient, quantity, conversion, yield, waste, substitute, or packaging allocation exists; 0/48 MAKE costs are calculable. Recipe ownership/scope and sharing remain unresolved. |
+| BUY costing | Four Products require finished specification, supplier/offer/quotation/purchase distinctions and mapping to sellable identity. | No finished specification, supplier selection, accepted quotation, actual purchase price, delivery/tax/storage/shelf-life/waste evidence exists; 0/4 BUY costs are calculable. |
+| Order → Payment | One Order has a settlement aggregate and immutable attempts. Initial path is exact-balance cash; late/ambiguous results fail closed. | Partial/split, Refund authority/allocation, overpayment evidence and manual-bank prerequisites remain unresolved; Payment success cannot imply Order closure. |
+| Payment → Preparation | Eligible full settlement creates one durable Dispatch identity; delivery retry never creates a charge or duplicate business Dispatch. | Physical delivery mechanism remains Gate B work. Acceptance evidence must remain separate from Outbox delivery and Ticket execution state. |
+| Preparation → Handover → Order closure | Item-level progress only; all Items complete before whole-Ticket completion; handover is separate; closure additionally requires settled Payment and no open exception. | Recipe Version is optional until an approved Recipe exists. Exception/Refund outcomes and physical evidence mechanisms remain unresolved. |
+| Cash → Reporting | Operating Day uses explicit Branch timezone and initial local `00:00` cutoff. Stable handover attempts preserve disputed evidence; nonzero discrepancies require reason/Owner notification and block authoritative reporting. | Cash capability assignment, corrections, conflict/discrepancy disposition, report release, metrics, reader scope, and retention remain unresolved. |
+| Reporting lineage | Initial source set is Order, Payment, and pending Preparation Dispatch only. Reporting may project committed facts but never rewrite source domains. | Other sources and external delivery/export remain deferred; including them now would create unsupported authority and irreproducible reports. |
+
+Across every row, ADR-0011 applies: the source Bounded Context owns its business fact and Application contract; downstream contexts consume explicit contracts or committed evidence. This inventory does not select shared aggregates, cross-context database transactions, foreign keys, locks, isolation, persistence technology usage, or deployment topology.
 
 ## 3. Conceptual relationship inventory
 

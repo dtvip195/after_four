@@ -112,6 +112,7 @@ Collections are pre-scoped before serialization. UUID unpredictability, a select
 | Modifier cardinality (`ODB-CAT-05`) | Enforce `0 <= minimum_selections <= maximum_selections`; validate selected count and membership. | Modifier price effect remains unresolved. |
 | Branch availability override (`ODB-CAT-06`) | At most one effective explicit Branch/Variant override at an instant; otherwise inherit chain default. | Time-based menu policy and publishing authority remain unresolved. |
 | Price scope/history (`ODB-CAT-07`, `ODB-CAT-08`) | At most one effective Price per Variant/scope at an instant; effective Branch version overrides chain default; published versions are immutable. | Tax, service charge, rounding, zero/free pricing, and manual override policy remain unresolved. |
+| Commercial V1 costing scope (`CORE-OD-18`) | Preserve the 52 exact first-Branch Product/Variant costing inputs as evidence; do not treat them as published Price Versions. | The no-chain-default costing direction conflicts with `ODB-CAT-07`; publication, schema finalization, and implementation remain blocked pending explicit Owner reconciliation. |
 | Draft price review (`ODB-CAT-09`) | If the authoritative Price version/value differs from the Draft quote, confirmation fails closed until a revised quote is reviewed and accepted. | Quote/version token and acceptance protocol require technical design. |
 | Sold-price lock (`ODB-CAT-10`) | Confirmation atomically stores immutable sold-price evidence; later Price changes never update it. | Exact snapshot components depend on unresolved Price composition policies. |
 
@@ -121,7 +122,7 @@ Collections are pre-scoped before serialization. UUID unpredictability, a select
 |---|---|
 | Order Item | Product/Variant codes and labels, Modifier labels, quantity, sold unit price, approved price components, currency, and source Price Version identity where retained |
 | Promotion Usage | Rule/benefit snapshot and applied discount |
-| Preparation Item | Display name, requested quantity, exact RecipeVersion |
+| Preparation Item | Display name, requested quantity, Item-level state and actor/time/version evidence; exact RecipeVersion only when an approved Recipe Version governs preparation |
 | Reservation | Guest/contact details allowed by consent/retention policy |
 | Delivery | Destination/table/floor display at dispatch |
 | Payroll | Effective compensation and approved input calculation snapshot |
@@ -197,8 +198,9 @@ The following are append-only after their business outcome is recorded:
 - Target/success/refund amounts are nonnegative; Refund amount is positive.
 - A provider/cash attempt is never overwritten from unknown to an invented result; an authoritative result is applied idempotently.
 - MVP accepts only an exact-balance attempt. `partially_paid` is reserved but unreachable through production commands; split/partial allocation remains `OPEN_DECISION` and no `payment_allocations` schema is authorized.
+- `OWNER_CONFIRMED` The initial implementation method is exact-balance cash only (`CORE-OD-07`). Manual bank is excluded from the initial slice pending separately governed capability/evidence prerequisites; historical Phase 1 behavior does not authorize it here.
 - `OWNER_CONFIRMED` Money actually received above target must be evidenced and its excess refunded; excess is not revenue. This requirement does not permit `successful_amount > target_amount` in the implemented aggregate. A future design must preserve received/excess amount, method, reason, actor/approver, time, and linked Payment/Order without weakening Phase 1 exact-target constraints.
-- For manual MVP bank transfer, the Owner bank QR and speaker amount alert do not provide authoritative proof. Cashier comparison/confirmation is explicit; mismatch/excess cannot dispatch by default and requires resolution or appropriate Refund with audited approval where applicable.
+- Historical manual-bank evidence (Owner QR, speaker alert, and cashier comparison) remains non-authoritative and outside the initial exact-cash slice. If manual bank is reconsidered later, mismatch/excess must remain fail-closed and cannot dispatch or create Refund authority by implication.
 
 ### 8.2 Owner-confirmed dispatch boundary
 
@@ -222,6 +224,8 @@ Database guards in the implemented Phase 1 schema: unique `preparation_dispatche
 If post-commit ticket creation fails, the pending dispatch remains retryable. A retry uses the same dispatch identity, never a new charge. Print Job failure has no write path to either Payment axis.
 
 In implemented Phase 1, `Preparation::RetryDispatch` requeues the existing Outbox Event and appends an Audit Event for the operator command; it does not append `preparation_dispatch_attempts`. The attempt table/model exist as reserved physical scaffolding. Appending numbered delivery-attempt start/success/failure outcomes remains a `TECHNICAL_PROPOSAL` for the deferred outbox consumer/ticket-delivery implementation. If authorized later, that technical state must remain separate from Payment and must not replace the business Dispatch identity.
+
+For the initial Preparation slice, progress is Item-level, not quantity-level. Each required Item has one logical state progression; partial Ticket completion and partial Ticket handover are prohibited. Ticket completion requires every required Item complete. Completion and handover are separate evidence-bearing events, and Order closure additionally requires settled Payment, handover evidence, and no open exception. Cancellation never silently advances completion, handover, closure, or Refund.
 
 Terminal Payment Attempts (`succeeded`, `failed`, `cancelled`) preserve their financial and confirmation evidence. Normal Rails mutation is rejected by the model and callback-bypassing/direct SQL mutation is rejected by a PostgreSQL trigger. Transition from a stored non-terminal state into a legitimate terminal state remains allowed. Trigger enforcement does not protect against a database superuser or owner that deliberately disables or drops it.
 
@@ -283,6 +287,8 @@ Receipt never edits dispatch movements. Cancelled dispatched stock requires retu
 - Float top-up requires Owner authorization and amount/source/executor/approver/time evidence; Staff may request it. It is a Cash Transaction/funding movement, not revenue, and no fixed frequency limit is approved.
 - Shift close and handover preserve actual count, actor/session accountability, discrepancy reason, and Owner notification. No discrepancy tolerance is approved.
 - Delegated Expenses require positive amount and purpose/recipient/executor evidence plus receipt or explanation. A single amount above 200,000 VND or cumulative delegated amount above 500,000 VND per Operating Day requires Owner approval. Self-approval and splitting to evade limits are forbidden. Values are configurable; the initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone, while future cutoff configuration and database enforcement remain unresolved.
+- Cash handover preserves one stable attempt and append-only evidence history. Required evidence is outgoing actor, incoming actor, count, variance, reason, and acknowledgement. `transfer_evidence_unresolved` is nonterminal and fail-closed; replay, timeout, transport success, acknowledgement, or repeated command cannot resolve conflicting/disputed evidence. Later evidence cannot erase or silently supersede prior assertions. `transferred` requires approved evidence criteria plus authorized disposition of every conflict/dispute. Acknowledgement is not approval and does not close the outgoing Session.
+- Every nonzero discrepancy requires recording, reason, and Owner notification; no tolerance exists. Unreconciled Cash facts are held from authoritative reporting. Discrepancy resolution does not itself grant report-release authority, and the resolver/release capability remains unresolved.
 
 ### 10.2 Payroll
 
@@ -413,7 +419,10 @@ For the implemented Phase 1 `audit_events` table, Rails callbacks reject ordinar
 | Drawer/device topology | One-open-session constraint scope | Confirm physical drawer identity and concurrency |
 | Transfer valuation timing | Central/Branch cost agreement | Accounting validation and stable snapshot event |
 | Remaining approval thresholds/self-approval | Generic approval cardinality and authorization | Preserve confirmed Expense limits/no-self-approval; approve only other policy areas |
-| Operating Day/reporting cutoff | Daily float, Expense accumulation, and report totals may disagree | Approve timezone/cutoff and formula versions |
+| Operating Day/reporting formulas | Branch timezone and initial `00:00` local cutoff are confirmed, but future configuration, exceptional-day representation, metric formulas, and release authority remain unresolved | Preserve explicit Branch timezone/cutoff and approve formula/version/release semantics before implementation |
+| Price publication scope conflict | `CORE-OD-18` first-Branch/no-default costing input conflicts with `ODB-CAT-07` chain-default/Branch-override publication policy | Owner reconciliation before published Price logical/physical design |
+| Recipe/BOM and BUY finished evidence | 24 MAKE/48 combinations and four BUY Products have no approved Recipe, quantity, conversion, yield, packaging, finished specification, supplier quotation, or actual purchase price | Collect and approve evidence; retain version/source lineage before cost is calculable |
+| Cash handover/discrepancy authority | Evidence can remain unresolved, while acknowledgement, disposition, Session Close, and report release are separate authorities | Approve attester/recipient/conflict disposition and report-release boundaries without weakening fail-closed history |
 | Customer phone conflict, purpose, and privacy | Organization-wide admission control must not disclose cross-Brand data; automatic merge/value transfer is prohibited; purchase is not marketing consent | Apply the manual investigation/hold/Owner-approval boundaries in `SDP-CUST-05`, `SDP-CUST-08`, and `SDP-CUST-13`; obtain legal/privacy review and separately approve technical enforcement |
 | Payroll/leave/overtime details | Calculation and closed-period correction | Owner decision plus legal validation |
 | Tax invoice/provider | Required entities, numbering, retention, correction | Legal/provider validation |
