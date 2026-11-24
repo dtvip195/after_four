@@ -1,6 +1,6 @@
 # AFTER FOUR — Accelerated Core Operations Design Package
 
-**Package status:** `OWNER_REVIEW_RECORDED — CORE_01_READY_FOR_INDEPENDENT_GATE_A_REVIEW — NOT_READY_FOR_GATE_A_APPROVAL`
+**Package status:** `OWNER_REVIEW_RECORDED — DESIGN_REMEDIATION_RECORDED — CORE_01_02_04_NOT_READY_FOR_OWNER_GATE_A_REVIEW`
 
 **Repository baseline:** `main` / `origin/main` at `d1d8807faa1234fc7924bd522fa26363d1e3a414`
 
@@ -10,7 +10,7 @@
 
 ## 1. Purpose, authority and classifications
 
-This package consolidates five bounded Core Operations workstreams and the Owner review recorded on 2026-11-24. It follows the [Accelerated Core Operations Readiness Assessment](after_four_accelerated_core_operations_readiness_assessment.md), preserves the canonical [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), and follows accepted [ADR-0011 Layered DDD](../architecture/adr/0011-project-wide-layered-ddd.md).
+This package consolidates five bounded Core Operations workstreams and the Owner review recorded on 2026-11-24. Its CORE-01/02/04 logical contracts are synchronized with the [Accelerated Core Operations Design Remediation](after_four_accelerated_core_operations_design_remediation.md). It follows the [Accelerated Core Operations Readiness Assessment](after_four_accelerated_core_operations_readiness_assessment.md), preserves the canonical [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), and follows accepted [ADR-0011 Layered DDD](../architecture/adr/0011-project-wide-layered-ddd.md).
 
 The Owner confirmed `CORE-OD-01` on 2026-11-24: dine-in plus takeaway, the detailed draft menu/options approved by reference to [Proposed Launch Menu v3](../architecture/after_four_proposed_launch_menu_v3.md), and approximate selling-price directions of VND 23,000, VND 33,000 and VND 43,000–49,000. The repository does not contain an exact Product/Variant-to-Price mapping, so the bands are not exact SKU Prices and must not be used as one. `CORE-OD-01` is recorded with `ID_PENDING_OWNER_GOVERNANCE`; it does not rewrite the narrower scopes of `ODB-CAT-11`–`ODB-CAT-13` ([Owner Decision Baseline §5](../architecture/after_four_owner_decision_baseline.md#5-catalogpricing-mvp)). Inventory deferral, parallel design preparation and consolidated review remain task boundaries.
 
@@ -143,6 +143,17 @@ Catalog/Pricing owns current sellability and Price history. Ordering owns Draft 
 
 Candidate Application/API operations are `ResolveEffectiveMenu`, `AddDraftItem`, `ChangeDraftItemSelection`, `ChangeDraftItemQuantity`, `RemoveDraftItem`, `RequoteDraft`, `AcceptRevisedQuote`, and `ConfirmOrder`. Presentation supplies identifiers, quantities, notes, expected versions and idempotency identities; it never supplies an authoritative Price, component amount or total. Exact routes, DTO names and error codes remain Gate B candidates.
 
+`ResolveEffectiveMenu` uses one deterministic logical selection order:
+
+1. take only a trusted Brand/Branch binding and explicit `dine_in` or `takeaway` channel;
+2. use one server-controlled decision instant for the complete resolution;
+3. require eligible Active Category, Product and persisted Variant identity plus effective Branch availability;
+4. select a published immutable Price Version whose half-open effective interval contains that instant, preferring an applicable Branch override over the chain default under `ODB-CAT-07`;
+5. require exactly one applicable result for the selected scope and currency; and
+6. fail closed on missing, overlapping or ambiguous configuration without substituting another Product, Variant, Branch or Price.
+
+The result carries the decision instant and Price-version evidence used for later revalidation. Overlap is a configuration error, not a tie to resolve arbitrarily. Dine-in/takeaway does not imply channel-specific pricing; no such Price policy is approved in this slice.
+
 CORE-01 invariants are:
 
 - every accepted Draft line names one persisted Variant and one bound Price Version;
@@ -170,6 +181,17 @@ CORE-01 invariants are:
 The exact re-quote command shape, review token, lock order, database isolation and Price-publication race mechanism remain `TECHNICAL_PROPOSAL` pending Gate A review and Gate B authorization. The semantic requirement is stable: unrelated Draft edits never silently reprice, explicit revalidation exposes every changed commercial term, and confirmation cannot bypass the required review.
 
 The current `Orders::CreateDraft` accepts `total_amount` from its caller (`backend/app/domains/orders/create_draft.rb:7-27`). `CORE-01` must replace that trust boundary for the public operational flow; it must not silently change the existing command before Gate B approval.
+
+The remediated logical Payment-target lifecycle is:
+
+- Draft calculation and re-quote results are Ordering-owned quote facts and never establish or mutate an authoritative Payment target.
+- `ConfirmOrder` is owned by Ordering Application. It validates the expected Draft/re-quote version, revalidates Catalog/Pricing facts, freezes the complete sold snapshot set and authoritative Order total, then requests Payment-target establishment through an Ordering Application-owned outbound port implemented by an Infrastructure adapter calling the Payment Application public contract.
+- The semantic success boundary is: confirmed Order plus complete sold snapshots plus exactly one Payment target equal to the confirmed total and currency, or none of those confirmation effects becomes authoritative.
+- A retry with the same idempotency identity and input locates the same confirmed Order/Payment result; reuse with different input conflicts. Response loss is recovered by querying that identity and never creates a second target.
+- Failure before semantic success leaves the Order Draft and exposes no accepted Payment target. A partial or mismatched target is a reconciliation failure and cannot permit cash confirmation or Dispatch.
+- Exact-balance cash confirmation consumes the stored authoritative target and currency. Payment never re-resolves Catalog facts or recalculates the Order.
+
+This defines semantic atomicity, not a database transaction, lock order, isolation level, schema or physical recovery mechanism. Those remain Gate B design choices.
 
 ```text
 Operator selects Product/Variant and Branch
@@ -204,6 +226,8 @@ Tax treatment and rounding remain `OWNER_DEFERRED — OWNER_INPUT_REQUIRED`. Ser
 - Successful eligible settlement, Payment aggregate update, pending Dispatch, Outbox Event and audit commit together (`backend/app/domains/payments/confirm.rb:40-98,177-234`).
 - Dispatch delivery and kitchen ticket creation are `CORE-02`, not `CORE-01`.
 - Held/Expired late success records a review case and never automatically dispatches.
+
+Every CORE-01 command requires a trusted server-derived actor/session binding, authoritative persisted Branch/Brand scope, exact operation capability, target/correlation identity, idempotency identity and expected aggregate/quote version. Missing, expired, revoked, mismatched or insufficient evidence fails closed before protected lookup or mutation. Audit attribution preserves actor, Branch, operation, target, correlation/idempotency identity, logical before/result versions, outcome and event time without secrets or cross-scope disclosure. This is a logical Gate A dependency only: CORE-03/P1 implementation, capability assignment and Identity Milestone 2B remain separately unauthorized.
 
 ### 3.8 Failure, retry and concurrency acceptance matrix
 
@@ -249,16 +273,19 @@ Candidate future source areas include `backend/app/domains/catalog/`, `backend/a
 
 ### 4.2 Candidate state model
 
-The three state axes remain distinct:
+The logical state axes remain distinct (`TECHNICAL_PROPOSAL`):
 
 ```text
 PreparationDispatch business state: pending → dispatched
 Outbox delivery state: pending → published
 Preparation Ticket execution state (proposal): queued → in_progress → completed
-                                                    ↘ cancellation_or_exception_review
+                                          queued → cancelled
+Preparation Item state: queued → in_progress → completed
+Handover evidence: absent → recorded (only after whole-Ticket completion)
+Exception state: open → escalated | resolved
 ```
 
-Outbox delivery never substitutes for Dispatch or Ticket state. `PreparationDispatch.dispatched` may be recorded only after the idempotent acceptance outcome has established or located the one Ticket for that Dispatch; the exact persistence/transport mechanism remains unselected. Rejected ticket semantics, progress granularity, partial completion/handover, cancellation after dispatch, remake/deviation and terminal failure remain Owner decisions. A generic mutable status endpoint is prohibited; named commands request transitions.
+Outbox delivery never substitutes for Dispatch or Ticket state. `PreparationDispatch.dispatched` may be recorded only after the idempotent acceptance outcome has established or located the one Ticket for that Dispatch; the exact persistence/transport mechanism remains unselected. Item-level progress is confirmed; quantity-level progress, partial Ticket completion and partial handover are prohibited initially. A queued Ticket may become cancelled only when an authoritative same-decision-point check proves no Item started. In-progress or completed cancellation never rewinds/deletes work; it creates or links a durable exception and preserves evidence. Historical `partially_ready`, quantity-progress and generic `ready` proposals in the State Machines document are not authoritative states for this bounded slice. A generic mutable status endpoint is prohibited; named commands request transitions.
 
 ```text
 delivery carries existing Dispatch identity
@@ -270,6 +297,10 @@ delivery carries existing Dispatch identity
 ```
 
 This sequence states semantic recovery only. It selects no broker, worker, lease, index, transaction isolation, storage object or deployment topology.
+
+Acceptance outcomes are `Accepted` or `AlreadyAccepted` with the same Ticket identity, `RetryableFailure` with no accepted result, `Rejected` with safe reason and a linked/open exception, or `Uncertain` requiring lookup by Dispatch identity. Response loss retries the same identity. A Ticket found without acknowledgement is reconciled by linking the existing Ticket/acceptance evidence; it is never recreated. A pending Dispatch with no Ticket remains retryable.
+
+Each exception has a stable identity correlated to Order, Dispatch, Ticket and optionally Item; status `open`, `escalated` or `resolved`; Branch, actor, reason, observed stage/version, idempotency/correlation identity and event time; and immutable resolution evidence. An open or escalated exception blocks closure. A rejected resolution remains recorded and leaves the exception open/escalated. Only a separately authorized outcome may resolve it; exception handling never authorizes Refund, rewrites Payment/Ticket history or invents resolver authority.
 
 ### 4.3 Proposed responsibilities and invariants
 
@@ -288,7 +319,7 @@ This sequence states semantic recovery only. It selects no broker, worker, lease
 - duplicate/out-of-order outbox delivery;
 - worker crash before and after Ticket commit;
 - concurrent accept/start/complete/cancel;
-- multi-item and proposed partial-item schedules;
+- multi-item schedules proving Item-level progress while Ticket completion and handover remain whole-Ticket only;
 - cancellation race against start;
 - failure/audit rollback;
 - cross-Branch non-disclosure;
@@ -307,7 +338,7 @@ Cancellation policy evaluates each operational stage without collapsing request 
 | Preparation completed, not handed over | After-start Owner approval applies; completed-Order exception authority may additionally apply depending on Ordering state. | Preserve completion and custody evidence and route to exception handling. | Completion does not prove handover or terminal closure. | Cancellation neither authorizes nor executes Refund. | Completion evidence, absence of handover, requester/approval/reason and linked exception evidence. |
 | Handed over | If terminally completed, `ODB-OP-14` requires the separate exception process; otherwise after-start Owner approval still cannot be bypassed. | Preserve immutable completion/handover evidence. | No reopening or automatic closure follows from cancellation. | Post-fulfillment Refund/remedy remains separately governed. | Completion/handover facts, current Order state, requester/approval/reason and linked exception evidence. |
 
-Preparation completion, customer handover and terminal Order closure are three separate facts. The Owner must decide the completion and handover semantics; Ordering closure remains separately governed and cannot be derived automatically from either one.
+Preparation completion, customer handover and terminal Order closure are three separate facts. Confirmed `CORE-OD-10A/B` require every required Item complete at Item granularity with actor/time/version evidence and a later explicit whole-Ticket handover event. `CORE-OD-10C` supplies the bounded initial-slice minimum eligibility guard—settled Payment, completed Preparation, handover evidence and no open exception—but does not resolve the universal/final closure matrix deferred under `P1A-OD-07`, authorize an automatic closure command, decide Delivery or Refund obligations, or define completed-service exception consequences.
 
 ## 5. CORE-04 — Cash and Operating Day closure assessment
 
@@ -316,10 +347,10 @@ Preparation completion, customer handover and terminal Order closure are three s
 | Canonical source | Preserved policy | Still unresolved |
 |---|---|---|
 | `ODB-CASH-01`–`07` | One shared physical drawer retains individual actor evidence; one 2,000,000 VND Operating Day float carries across shifts without automatic reset/top-up; opening checks sufficiency; close counts/verifies; shortages and discrepancies preserve accountability and notify the Owner. No discrepancy tolerance is approved. | Exact escalation timing, correction flow and operational representation. |
-| `ODB-CASH-12` | Operating Day uses explicit Branch timezone and cutoff. | Exact timezone/cutoff, chain vs Branch configuration, exceptional days. |
+| `ODB-CASH-12` | Operating Day uses an explicit Branch timezone and cutoff. The first Hoi An Branch uses `Asia/Ho_Chi_Minh`; every Branch is independently configured without MVP inheritance; exceptional days require explicit effective evidence and never rewrite a closed Day. | Exact local cutoff remains deferred under `CORE-OD-11B`. |
 | `ODB-CASH-13` | Separate Branch-scoped Open, Count, Handover and Close capabilities; generic Staff/Shift/Assignment grants none. | Assignees, delegation/revocation, separation, emergency behavior. |
 | `ODB-CASH-14` | Post-close correction is a linked fact; closed evidence is never reopened/rewritten. | Permitted operations, initiator/approver, reason/evidence and reporting consequences. |
-| `ODB-CASH-15` | Handover records outgoing/incoming actors, count, variance, reason and acknowledgement; acknowledgement is not approval; prior accountability remains; no new float is allocated. | Approval, disagreement/escalation and Session transition. |
+| `ODB-CASH-15` | Handover records outgoing/incoming actors, count, variance, reason and acknowledgement; acknowledgement is not approval; prior accountability remains; no new float is allocated. Disagreement/refusal escalates to Owner; acknowledgement does not close the outgoing Session, and Close is separate. | Detailed disagreement resolution authority remains unresolved; Close capability assignment remains deferred. |
 | `P2B-CASH-OD-07` | Owner authorization is mandatory for every top-up; a separately authorized capability holder may execute an approved top-up with actor/source evidence. | Executor assignment, capability/delegation, source classes and accounting. |
 | `P2B-CASH-OD-08` | Reconcile every Cash Session and Operating Day before authoritative reporting. | Unresolved-case disposition, hold/release, escalation and consequences. |
 
@@ -336,7 +367,11 @@ Operating Day: open → reconciliation_pending → reconciled | exception_open
 Cash Session: open → handover_pending/close_pending → closed
 ```
 
-No executable transition matrix can be approved until the handover, discrepancy and reporting-release questions in §9 are decided.
+This logical vocabulary is reviewable, but no executable transition matrix or implementation may be authorized until the applicable cutoff, capability, correction, discrepancy-disposition and reporting-release questions in §9 are decided and a later Gate B selects physical mechanisms.
+
+The lifecycle preserves these distinct logical facts/outcomes: Operating Day assignment; Session Open; append-only operational movement; Count; handover evidence; durable disagreement hold; capability-controlled Session Close; Operating Day close; reconciliation result; discrepancy disposition; and authoritative-report eligibility/release. Acknowledgement is neither approval nor Close. Session Close is not reconciliation. Discrepancy resolution does not grant report release. A linked correction never rewrites a closed fact.
+
+Until `CORE-OD-11B` is decided, the cutoff package asks one question: what exact local `HH:MM` cutoff applies to the first Hoi An Branch? Evidence must cover actual trading hours, after-midnight activity, close/count/handover duration, accounting/report expectations, exceptional days and boundary-time transactions. Viable categories are local midnight, a fixed evidence-supported post-midnight/early-morning time, or another explicit fixed local time. No option is selected here. The logical interval will be half-open `[D at cutoff, D+1 at cutoff)` in the Branch IANA timezone; an event exactly at cutoff belongs to the new Day. Exceptional overrides require Branch, effective interval, reason, actor and approval evidence and cannot reassign closed facts.
 
 Expected Cash and counted Cash are separate facts. The proposed expected balance is derived from the approved Opening/Daily Float evidence plus immutable Cash movements and separately authorized linked corrections; actual Cash is independently counted. Closing records expected amount, actual amount, variance, actor and evidence without rewriting any source movement.
 
@@ -350,6 +385,8 @@ The following movement taxonomy is source-grounded design vocabulary, not approv
 | Expense outflow | Expense supplies an approved/executed Expense fact; Cash owns the movement. | Expense policy and Cash posting remain distinct. |
 | Linked correction | Cash owns a separately attributable correction fact under `ODB-CASH-14`. | Closed evidence is never reopened; exact operations and authority remain unresolved. |
 
+Only the exact-balance cash-sale source is included in the initial contract. `ExactCashPaymentSettled` carries a stable source/idempotency identity; Order, Payment and successful Payment Attempt references; Branch; authoritative amount and currency; confirmed actor/time; and correlation evidence. Cash resolves the eligible same-Branch Session from Cash-owned state, then creates or locates exactly one `cash_sale_inflow` keyed by source identity and bound to Branch, Operating Day and Session. Identical replay returns the same result; conflicting replay fails closed. Missing, ambiguous or ineligible Session produces an unresolved reconciliation/exception outcome and never changes Payment truth. Refund, Expense, float/top-up, manual bank and post-close correction sources are excluded until separately governed.
+
 ### 5.3 Independent Cash decision dimensions
 
 - **Handover evidence and acknowledgement:** `ODB-CASH-15` already requires outgoing actor, incoming actor, count, variance, reason and acknowledgement. Acknowledgement confirms receipt/participation evidence only and is never approval.
@@ -357,6 +394,10 @@ The following movement taxonomy is source-grounded design vocabulary, not approv
 - **Cash Session transition:** acknowledgement does not close the outgoing Session. `CORE-OD-14B` requires a separate Close action with its corresponding capability; capability assignment remains deferred under `CORE-OD-12`.
 - **Discrepancy investigation/resolution:** every nonzero discrepancy remains recorded, reasoned and Owner-notified with no tolerance. Investigation classes, linked-correction operations and resolution authority remain unresolved.
 - **Reporting hold/release:** `P2B-CASH-OD-08` already makes reconciliation a prerequisite, so unreconciled facts are not eligible for authoritative reporting. Unresolved-case disposition, escalation, any exception treatment and release authority remain separate Reporting/Cash policy questions. Resolution does not automatically grant report-release authority.
+
+The handover disagreement contract (`TECHNICAL_PROPOSAL`) records one idempotent case identity, Branch, Operating Day, outgoing Session, handover evidence, outgoing/proposed incoming actors, count, variance, acknowledgement/refusal actor/time/reason/evidence, status and Owner-escalation/linkage evidence. Replay locates the same case; conflicting replay fails closed. While unresolved it preserves outgoing custody/accountability and cannot acknowledge, approve, close, transfer custody or release reports. Detailed resolution authority remains deferred and is not inferred here.
+
+The deferred capability/correction package must obtain independently: eligible holder for Open, operate, Count, Handover, Close, reconcile, discrepancy resolution and report release; delegation/revocation and Branch scope; requester/executor/reviewer separation and emergency rules; exact permitted linked post-close actions; correction requester/approver/executor; mandatory reason/evidence; and reconciliation/report-hold consequences. No human, role title or default authority is selected by this package.
 
 ## 6. CORE-03 — Operator Identity and Authorization design
 
@@ -494,9 +535,9 @@ The register contains 34 unique local references: 27 `OWNER_CONFIRMED` and seven
 
 | Workstream | Design completeness | Owner-policy closure | External/qualified input | Gate A readiness | Next gate |
 |---|---|---|---|---|---|
-| CORE-01 Core Sale | Commercial baseline, cash-only payment baseline, logical contracts, sequence/failure model and Gate B candidate manifest prepared | `CORE-OD-05`–`07` and `17A`–`17C` confirmed; `CORE-OD-03/04` deferred; `CORE-OD-01` remains confirmed | Qualified tax/rounding input and exact Product/Variant Price transcription remain needed | `READY_FOR_INDEPENDENT_GATE_A_REVIEW — NOT_READY_FOR_GATE_A_APPROVAL` | Independent review now; close review findings and blocking input before requesting Gate A. |
-| CORE-02 Preparation | Boundary, separate Dispatch/Outbox/Ticket states, scenario matrix and evidence plan prepared | `CORE-OD-08A`–`10C` confirmed; Refund amount/allocation/method/authority and exception mechanics remain separate | Technical review and exact implementation design remain needed | `POLICY_DIRECTION_SUBSTANTIALLY_CLOSED — NO_GATE_GRANTED` | Review bounded design; separate Gate A/B mandatory. |
-| CORE-04 Cash | Approved policy reconciled; acknowledgement, approval, transition, discrepancy and reporting dimensions separated | `CORE-OD-11A/C/D`, `14A/B`, `15A/B` confirmed; `11B`, `12`, `13` deferred; discrepancy/release detail remains open | Cash/Accounting/Reporting input needed | `NOT_READY — POLICY_AND_EVIDENCE_REQUIRED` | Resolve cutoff, authority, correction and remaining discrepancy/release detail before Gate A. |
+| CORE-01 Core Sale | Deterministic resolution, Payment-target lifecycle, port/orchestration and trusted-command contracts remediated at the logical level | `CORE-OD-05`–`07` and `17A`–`17C` confirmed; `CORE-OD-03/04` deferred; `CORE-OD-01` remains confirmed | Qualified tax/rounding input and exact Product/Variant Price transcription remain needed | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED` | Close exact Price evidence and deferred qualified-input decisions, then independent re-review. |
+| CORE-02 Preparation | Dispatch/Outbox/Ticket/Item/Handover/Exception axes, acceptance/replay and bounded closure contracts remediated logically | `CORE-OD-08A`–`10C` confirmed; broader `P1A-OD-07`, Refund and resolver authority remain separate | Fresh independent review required; physical design remains Gate B | `READY_FOR_SUBSEQUENT_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED` | Independent review of the remediated bounded design; separate Gate A/B mandatory. |
+| CORE-04 Cash | Confirmed policy synchronized; lifecycle, disagreement hold and initial exact-cash source contracts remediated logically | `CORE-OD-11A/C/D`, `14A/B`, `15A/B` confirmed; `11B`, `12`, `13` deferred; disposition/release authority open | Owner Cash/Accounting/Reporting input needed | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — DEFERRED_INPUT_BLOCKED` | Resolve cutoff, authority, correction and remaining disposition/release detail before independent review. |
 | CORE-03 Operator access | Bounded trust/capability contract prepared | Assignments and bank/Cash authority unresolved | Security evidence and ADR-0006/Milestone governance required | `NOT_READY — IDENTITY MILESTONE UNAUTHORIZED` | Separate Identity Gate A and Gate B. |
 | CORE-05 Reporting | Staged source-lineage is approved only for authoritative Order, Payment and pending-Dispatch facts; integrated reporting awaits Order Item, Preparation, Cash and reconciliation facts | `CORE-OD-16A/C/D/E` confirmed; `16B/F` deferred; no read, export, delivery, recipient, schedule, retention or legal-hold authority is granted | Authoritative upstream facts and governance/privacy input remain required | `NOT_READY — UPSTREAM_DEPENDENCIES` | Review bounded lineage only; no reporting implementation or authority follows. |
 
@@ -564,11 +605,11 @@ Current classifications remain:
 - Catalog Package B and Order/Payment Phase 1: merged bounded foundations, not authority for new work;
 - Identity I1: Gate A/B/C approved only for ancestry;
 - Identity Milestone 2B: unauthorized;
-- CORE-01: ready for independent Gate A review, but not Gate A approval; blocking policy/evidence remains;
-- CORE-02: policy direction substantially closed, but design review and applicable Gate A/B remain mandatory;
+- CORE-01: logical remediation recorded, but exact Price evidence and deferred qualified tax/rounding input keep it not ready for Owner Gate A review;
+- CORE-02: bounded logical remediation recorded and ready only for a subsequent independent Gate A review; no Gate is granted;
 - CORE-04: confirmed directions coexist with deferred cutoff, capability and correction policy plus open discrepancy/release details;
 - CORE-05: staged lineage direction only; read, export, retention, recipient and delivery authority remain absent;
 - CORE-03: remains outside this closure and unauthorized for implementation;
 - Inventory: deferred from this milestone, with future boundaries preserved.
 
-**Final status:** `OWNER_REVIEW_RECORDED — CORE_01_INDEPENDENT_GATE_A_REVIEW_CANDIDATE_PREPARED — CORE_02_POLICY_DIRECTION_SUBSTANTIALLY_CLOSED — CORE_04_05_DEPENDENCIES_REMAIN — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.
+**Final status:** `OWNER_REVIEW_RECORDED — DESIGN_REMEDIATION_RECORDED — CORE_01_INPUT_BLOCKED — CORE_02_READY_FOR_SUBSEQUENT_INDEPENDENT_REVIEW — CORE_04_05_DEPENDENCIES_REMAIN — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.
