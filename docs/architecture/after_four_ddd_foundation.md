@@ -201,7 +201,7 @@ The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_
 - **Allowed dependencies:** Payment reference for cash tender; Workforce/Identity actor context; Reporting as downstream projection.
 - **Forbidden dependencies:** treating top-up as revenue; silently editing closed evidence; allowing Payment to own drawer state.
 - **Failure owner:** Cash Management owns drawer/session reconciliation and handover recovery.
-- **Current state:** logical design only. Operating Day boundary and discrepancy correction flow remain unresolved; no discrepancy tolerance is approved.
+- **Current state:** logical design only. The initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone; future cutoff configuration/enforcement and the discrepancy correction flow remain unresolved. No discrepancy tolerance is approved.
 
 ### 3.7 Workforce/Shift
 
@@ -222,7 +222,7 @@ The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_
 - **Synchronous/asynchronous boundary:** business transactions emit committed facts/outbox intents; projection and Telegram delivery run after commit and retry idempotently.
 - **Idempotency:** report scope + period + version; delivery destination identity without exposing sensitive recipient data.
 - **Failure owner:** Reporting owns generation/delivery retry and operator visibility, never source reconciliation.
-- **Current state:** Owner Dashboard and daily Telegram are approved directions but unimplemented. Time, recipients, Operating Day cutoff, formulas, Branch scope, privacy, and escalation remain unresolved.
+- **Current state:** Owner Dashboard and daily Telegram are approved directions but unimplemented. Reporting follows the approved Branch-local Operating Day boundary; delivery time, recipients, formulas, Branch scope, privacy, and escalation remain unresolved.
 
 ### 3.9 Identity/Authorization
 

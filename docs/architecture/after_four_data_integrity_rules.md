@@ -282,7 +282,7 @@ Receipt never edits dispatch movements. Cancelled dispatched stock requires retu
 - `OWNER_CONFIRMED` The shared 2,000,000 VND float belongs to one Operating Day and carries across shift Cash Sessions. A Session opening count is not another float allocation; no automatic mid-day reset/top-up is permitted.
 - Float top-up requires Owner authorization and amount/source/executor/approver/time evidence; Staff may request it. It is a Cash Transaction/funding movement, not revenue, and no fixed frequency limit is approved.
 - Shift close and handover preserve actual count, actor/session accountability, discrepancy reason, and Owner notification. No discrepancy tolerance is approved.
-- Delegated Expenses require positive amount and purpose/recipient/executor evidence plus receipt or explanation. A single amount above 200,000 VND or cumulative delegated amount above 500,000 VND per Operating Day requires Owner approval. Self-approval and splitting to evade limits are forbidden. Values are configurable; the Operating Day boundary and database enforcement shape remain unresolved.
+- Delegated Expenses require positive amount and purpose/recipient/executor evidence plus receipt or explanation. A single amount above 200,000 VND or cumulative delegated amount above 500,000 VND per Operating Day requires Owner approval. Self-approval and splitting to evade limits are forbidden. Values are configurable; the initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone, while future cutoff configuration and database enforcement remain unresolved.
 
 ### 10.2 Payroll
 
