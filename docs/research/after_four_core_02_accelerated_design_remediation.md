@@ -53,7 +53,7 @@ The following axes are distinct. A transition on one never proves a transition o
 | Ticket execution | `queued → in_progress → completed`; `queued → cancelled` | Whole-Ticket completion; no rewind/delete after work starts. |
 | Ticket Item | `queued → in_progress → completed` | Item-level progress only; quantity progress is excluded. |
 | Handover acknowledgement evidence | `absent → acknowledged / refused / disputed` | `acknowledged` records acknowledgement/observation only; `refused` records explicit refusal; `disputed` records disagreement/disputed observation. None proves approval, resolution, transfer or closure. |
-| Customer custody-transfer evidence | `absent → transferred`; `absent → transfer_evidence_unresolved` | Only `transferred`, supported by independently sufficient actual-release evidence after whole-Ticket completion, establishes custody transfer. Missing/stale/conflicting/mismatched/unavailable/unverifiable/insufficient evidence remains fail-closed and preserves evidence. |
+| Customer custody-transfer evidence | `absent → transfer_evidence_unresolved → transferred`; or direct `absent → transferred` | `transfer_evidence_unresolved` is nonterminal within the same stable attempt. Only `transferred`, supported by independently sufficient actual-release evidence and authorized disposition of every conflict/dispute after whole-Ticket completion, establishes custody transfer. Missing/stale/conflicting/mismatched/unavailable/unverifiable/insufficient evidence remains fail-closed and preserves evidence. |
 | Exception | `open → escalated / resolved` | Open/escalated blocks bounded closure; resolution authority is separate. |
 
 Preparation completion, handover acknowledgement/refusal/dispute evidence, authoritative `transferred` custody evidence, Order closure, Cash Session closure, discrepancy resolution and Refund remain different business facts.
@@ -227,6 +227,8 @@ Validation completed for this authored remediation:
 ## 13. Subsequent Owner decision synchronization
 
 The historical validation above describes the reviewed remediation baseline. The subsequent Consolidated Owner Decision Session on 2026-11-24 confirmed `CORE02-FIR2-02` Model A: `transfer_evidence_unresolved` is nonterminal and fail-closed within the same stable handover attempt. Independently identifiable new evidence may be retained and evaluated on that attempt, but conflicting or disputed evidence remains held and cannot be silently superseded, erased or upgraded. `transferred` requires sufficient approved evidence and authorized disposition of every conflict/dispute, with evidence history, provenance, revisions, actors, timestamps and prior outcomes preserved. Replay, acknowledgement, transport success and repeated commands resolve no conflict.
+
+**Current-status clarification (2026-11-24):** the historical fresh-review readiness statement above is preserved as an as-of finding. After Model A synchronization, trusted evidence-source classes, attester authority, intended-recipient linkage and conflict/dispute disposition authority remain material inputs; CORE-02 is therefore `NOT_READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW`. No Gate or implementation authority follows.
 
 This decision does not resolve trusted evidence classes, attester authority, recipient-linkage validation or conflict-resolution authority and selects no physical mechanism. CORE-02 therefore remains `NOT_READY_FOR_OWNER_GATE_A_REVIEW`; no Gate or implementation authorization follows.
 

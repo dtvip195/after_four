@@ -396,7 +396,7 @@ States: `proposed → approved/rejected`; `proposed → cancelled` before decisi
 
 Guards: typed subject exists; policy/version and requester scope; approver capability; self-approval rule; not expired. Approval does not itself perform the subject command unless one named transaction explicitly coordinates both. Subject lifecycle remains authoritative.
 
-For delegated Expenses, `OWNER_CONFIRMED` self-approval and splitting to evade limits are forbidden. A single Expense above 200,000 VND or cumulative delegated Expenses above 500,000 VND in an Operating Day requires Owner approval. The values are configurable; the Operating Day boundary and enforcement design remain unresolved.
+For delegated Expenses, `OWNER_CONFIRMED` self-approval and splitting to evade limits are forbidden. A single Expense above 200,000 VND or cumulative delegated Expenses above 500,000 VND in an Operating Day requires Owner approval. The values are configurable; the initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone, while physical configuration and enforcement remain unresolved.
 
 ## 18. Print Job state machine
 
@@ -470,7 +470,7 @@ Guards: Branch scope, privacy-limited Customer/Order access, assigned owner for 
 6. Transfer valuation needs an accepted cost snapshot event.
 7. Tax invoice and statutory payroll states remain `LEGAL_VALIDATION`.
 8. Overpayment requires evidence and excess Refund, but its physical record/lifecycle and Refund method remain unresolved; exact-balance Phase 1 stays unchanged.
-9. Dashboard and daily Telegram reporting are confirmed directions; exact delivery time, recipients, Operating Day cutoff, formulas, Branch scope, privacy, and escalation remain unresolved.
+9. Dashboard and daily Telegram reporting are confirmed directions; reporting follows the approved Branch-local Operating Day boundary, while exact delivery time, recipients, formulas, Branch scope, privacy, and escalation remain unresolved.
 
 ### Forbidden cross-context shortcuts
 

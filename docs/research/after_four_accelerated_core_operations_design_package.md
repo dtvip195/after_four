@@ -522,7 +522,7 @@ Existing canonical Identity policy requires server sessions, revocation, Branch-
 - Historical reports use immutable sold/correction snapshots, not current Catalog joins.
 - Cash-dependent authoritative reporting waits for required Session and Operating Day reconciliation under `P2B-CASH-OD-08`.
 - Unresolved cases remain visible and cannot be treated as zero or success.
-- Cutoff uses the source domain's approved time boundary; exact Cash Operating Day boundary is unresolved.
+- Cutoff uses the source domain's approved time boundary: the initial Operating Day cutoff is `00:00` local time in each Branch's explicitly configured timezone. Future per-Branch configurability and its physical enforcement remain Gate B design concerns.
 - Reprocessing is deterministic and idempotent from versioned source facts.
 - Unsupported metrics must be omitted or marked unavailable, never estimated from demo/client data.
 - Report read/export authorization, privacy, retention, schedule and recipients require separate decisions and Gate review.
@@ -557,7 +557,7 @@ Synchronous/asynchronous labels above follow current patterns only where stated.
 
 ## 9. Consolidated Owner Decision Register
 
-`CORE-OD-01` remains approved by reference and `CORE-OD-02` remains retired without allocation. The Owner completed the consolidated review on 2026-11-24: 27 of the 34 local references below are `OWNER_CONFIRMED`, while seven are `OWNER_DEFERRED — OWNER_INPUT_REQUIRED`. Every reference remains local with `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved. Recorded business-policy outcomes do not approve this technical design or grant any Gate or implementation authority.
+`CORE-OD-01` remains approved by reference and `CORE-OD-02` remains retired without allocation. The Owner completed the consolidated review on 2026-11-24: 28 of the 34 local references below are `OWNER_CONFIRMED`, while six are `OWNER_DEFERRED — OWNER_INPUT_REQUIRED`. Every reference remains local with `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved. Recorded business-policy outcomes do not approve this technical design or grant any Gate or implementation authority.
 
 | Reference | Owner question | Recorded policy / remaining boundary | Owner status | Evidence | Dependency / consequence |
 |---|---|---|---|---|---|
@@ -604,7 +604,7 @@ The register contains 34 unique local references: 28 `OWNER_CONFIRMED` and six `
 |---|---|---|---|---|---|
 | CORE-01 Core Sale | Deterministic resolution, Payment-target lifecycle, port/orchestration and trusted-command contracts remediated at the logical level | `CORE-OD-05`–`07` and `17A`–`17C` confirmed; `CORE-OD-03/04` deferred; `CORE-OD-01` remains confirmed | Qualified tax/rounding input and exact Product/Variant Price transcription remain needed | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED` | Close exact Price evidence and deferred qualified-input decisions, then independent re-review. |
 | CORE-02 Preparation | Dispatch/Outbox/acceptance/Ticket/Item/acknowledgement/custody-transfer/Exception axes are distinct.<br>Terminal/held acceptance, Candidate Ticket quarantine and ADR-0011 contracts are explicit. | `CORE-OD-08A`–`10C` confirmed.<br>Acceptable actual-release evidence classes, attester policy and recipient-linkage validation remain unresolved Owner/qualified inputs.<br>Broader `P1A-OD-07`, Refund, Identity implementation and resolver authority remain separate. | Owner/qualified evidence-policy input is required before a coherent Gate A baseline.<br>Physical design remains Gate B. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` | Resolve the evidence-acceptance blocker, then independently review attempt identity/retry/quarantine and custody-transfer evidence.<br>Separate Owner Gate A and Gate B remain mandatory. |
-| CORE-04 Cash | Confirmed policy synchronized; lifecycle, disagreement hold and initial exact-cash source contracts remediated logically | `CORE-OD-11A/C/D`, `14A/B`, `15A/B` confirmed; `11B`, `12`, `13` deferred; disposition/release authority open | Owner Cash/Accounting/Reporting input needed | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — DEFERRED_INPUT_BLOCKED` | Resolve cutoff, authority, correction and remaining disposition/release detail before independent review. |
+| CORE-04 Cash | Confirmed policy synchronized; lifecycle, disagreement hold and initial exact-cash source contracts remediated logically | `CORE-OD-11A`–`11D`, `14A/B`, `15A/B` confirmed; `12`, `13` deferred; disposition/release authority open | Owner Cash/Accounting/Reporting input needed | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — DEFERRED_INPUT_BLOCKED` | Resolve authority, correction and remaining disposition/release detail before independent review; physical cutoff configuration remains Gate B design. |
 | CORE-03 Operator access | Bounded trust/capability contract prepared | Assignments and bank/Cash authority unresolved | Security evidence and ADR-0006/Milestone governance required | `NOT_READY — IDENTITY MILESTONE UNAUTHORIZED` | Separate Identity Gate A and Gate B. |
 | CORE-05 Reporting | Staged source-lineage is approved only for authoritative Order, Payment and pending-Dispatch facts; integrated reporting awaits Order Item, Preparation, Cash and reconciliation facts | `CORE-OD-16A/C/D/E` confirmed; `16B/F` deferred; no read, export, delivery, recipient, schedule, retention or legal-hold authority is granted | Authoritative upstream facts and governance/privacy input remain required | `NOT_READY — UPSTREAM_DEPENDENCIES` | Review bounded lineage only; no reporting implementation or authority follows. |
 
@@ -615,7 +615,7 @@ No Gate A is granted. A future request must pin an exact reviewed commit/documen
 ### Critical path
 
 1. Preserve the approved-by-reference `CORE-OD-01` menu baseline and the confirmed initial-slice exclusions; obtain the missing exact Product/Variant Price transcription and qualified input for deferred `CORE-OD-03/04`.
-2. Independently review CORE-01 now; request bounded Gate A only after review findings and blocking inputs are closed.
+2. Close the authoritative Variant/Price dataset and qualified `CORE-OD-03/04` inputs, then submit CORE-01 for fresh independent Gate A review; request bounded Gate A only after review findings close.
 3. After Gate A only, prepare an exact Gate B manifest for Catalog/Pricing reads, Order Items/snapshots/calculation, API endpoints, exact-cash settlement and POS integration while preserving Phase 1 Payment/Dispatch. Manual bank remains excluded unless its two prerequisites have closed.
 4. In parallel with step 1–3, close CORE-02 Preparation. Preserve CORE-03 as an external prerequisite without expanding Identity scope; neither implementation may start without its separately applicable Gate B.
 5. Implement Preparation execution only after its Gate A/B; then close end-to-end Order completion.
@@ -629,7 +629,7 @@ No Gate A is granted. A future request must pin an exact reviewed commit/documen
 | A — Core Sale | Freeze exact menu/Price transcription, obtain tax/rounding input and independently review the cash-only first-slice baseline | Blocking evidence and review findings closed, then Gate A approval plus exact Gate B authorization; manual bank requires separate prerequisite closure. |
 | B — Preparation | Reconcile the confirmed `CORE-OD-08A`–`10C` policy into the bounded technical baseline | Independent review, Gate A and Gate B; Refund and exception mechanics remain separately governed. |
 | C — Operator access | No new work in this closure; preserve the existing trust/capability dependency and I1 ancestry boundary | Separate Identity authorization and applicable Gate A/B; ADR-0006 and Milestone 2B status unchanged. |
-| D — Cash | Obtain cutoff/authority/correction and discrepancy-release evidence for deferred/open boundaries | Remaining policy closure, Gate A and Gate B. |
+| D — Cash | Preserve the confirmed initial `00:00` Branch-local cutoff; obtain authority/correction and discrepancy-release evidence for deferred/open boundaries | Remaining policy closure, Gate A and Gate B; future cutoff configuration is product direction only. |
 | E — Reporting | Reconcile confirmed staged lineage while obtaining read-scope and retention/legal-hold input | Upstream facts, deferred policy closure, Gate A and Gate B. |
 
 Promotion/Loyalty policy closure may continue outside this package but must not enter CORE-01 calculation until its formulas, ordering, allocation and authorization receive separate approval.
@@ -658,7 +658,7 @@ The consolidated Owner review is complete. The resulting follow-up sequence is:
 | CORE-01 channel/access | `CORE-OD-06`, `07` | Channel and cash-only direction are confirmed; manual bank still requires separately authorized capability/evidence support. CORE-03 remains unauthorized. |
 | CORE-02 progress/fulfillment | `CORE-OD-08A`–`08C`, `10A`–`10B` | Policy is confirmed; technical review and Gate A/B remain mandatory. |
 | CORE-02 cancellation/closure | `CORE-OD-09A`–`09D`, `10C` | Policy is confirmed within stated bounds; Refund and exception mechanics remain separate and no implementation follows. |
-| CORE-04 Cash | `CORE-OD-11A`–`15B` | Confirmed directions coexist with deferred cutoff/authority/correction and open discrepancy/release details; CORE-04 remains not ready for Gate A approval. |
+| CORE-04 Cash | `CORE-OD-11A`–`15B` | The initial `00:00` Branch-local cutoff is confirmed; deferred authority/correction and open discrepancy/release details keep CORE-04 not ready for Gate A approval. |
 | CORE-05 Reporting | `CORE-OD-16A`–`16F` | Staged lineage and exclusions are confirmed; implementation remains blocked by upstream facts and read/retention authority. |
 
 The Owner's selections record business policy only. They do not accept this technical design, grant Gate A, authorize Gate B preparation where otherwise prohibited, authorize implementation, or grant FOA/Production Authorization.
@@ -673,8 +673,8 @@ Current classifications remain:
 - Identity I1: Gate A/B/C approved only for ancestry;
 - Identity Milestone 2B: unauthorized;
 - CORE-01: logical remediation recorded, but exact Price evidence and deferred qualified tax/rounding input keep it not ready for Owner Gate A review;
-- CORE-02: all three second-review logical findings are remediated and the bounded design is ready only for fresh independent Gate A review; no independent review or Gate is granted;
-- CORE-04: confirmed directions coexist with deferred cutoff, capability and correction policy plus open discrepancy/release details;
+- CORE-02: Model A is synchronized, but evidence-source, attester, recipient-linkage and conflict/dispute disposition inputs keep it not ready for fresh independent Gate A review;
+- CORE-04: the initial `00:00` Branch-local cutoff is confirmed; deferred capability and correction policy plus open discrepancy/release details remain;
 - CORE-05: staged lineage direction only; read, export, retention, recipient and delivery authority remain absent;
 - CORE-03: remains outside this closure and unauthorized for implementation;
 - Inventory: deferred from this milestone, with future boundaries preserved.

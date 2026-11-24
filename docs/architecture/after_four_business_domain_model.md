@@ -486,7 +486,7 @@ Dispatch and receipt are independent confirmations by accountable actors. Receip
 
 Expenses have category, Branch/organization scope, amount, date, purpose, recipient, executor, approver, receipt or explanation, payment source, and correction history. Budget comparison does not itself authorize spending.
 
-`OWNER_CONFIRMED` Delegated Expense limits are 200,000 VND per Expense and 500,000 VND cumulatively per Operating Day. Exceeding either limit requires Owner approval. Self-approval and splitting Expenses to evade a limit are forbidden. Both limits are configurable rather than hard-coded (`ODB-EXP-01`–`ODB-EXP-07`). The Operating Day cutoff, configuration effective-time mechanics, detection/review implementation, and accounting/tax classification remain unresolved or require validation.
+`OWNER_CONFIRMED` Delegated Expense limits are 200,000 VND per Expense and 500,000 VND cumulatively per Operating Day. Exceeding either limit requires Owner approval. Self-approval and splitting Expenses to evade a limit are forbidden. Both limits are configurable rather than hard-coded (`ODB-EXP-01`–`ODB-EXP-07`). The initial Operating Day cutoff is `00:00` local time in each Branch's explicitly configured timezone; future cutoff configuration/effective-time mechanics, detection/review implementation, and accounting/tax classification remain unresolved or require validation.
 
 ## 11. Customers, loyalty, and promotions
 
@@ -540,7 +540,7 @@ Expenses have category, Branch/organization scope, amount, date, purpose, recipi
 | Refund/void outside confirmed cancellation boundary | Authorized actor | Threshold, role, time window open | `OPEN_DECISION` |
 | Branch price override | Authorized requester | Authority/threshold open | `OPEN_DECISION` |
 | Stock adjustment/transfer | Authorized warehouse actor | Configurable thresholds; exact policy open | `WORKSHOP_AGREED`, `OPEN_DECISION` |
-| Delegated Expense | Staff/requester; no self-approval | ≤200,000 VND each and ≤500,000 VND per Operating Day; otherwise Owner | `OWNER_CONFIRMED`; Operating Day boundary open |
+| Delegated Expense | Staff/requester; no self-approval | ≤200,000 VND each and ≤500,000 VND per Operating Day; otherwise Owner | `OWNER_CONFIRMED`; initial Operating Day cutoff is `00:00` Branch-local, while technical enforcement remains open |
 | Promotion publication | Authorized requester | Approval authority open | `WORKSHOP_AGREED`, `OPEN_DECISION` |
 
 No approver may be inferred solely from a job title where the matrix says open. Sensitive decisions preserve requester, reviewer, approver, decision, reason, policy version, scope, and time. Expense self-approval is forbidden; self-approval for other approval types remains an `OPEN_DECISION` unless another canonical decision says otherwise.
@@ -646,8 +646,8 @@ Reusing an idempotency identity with a different business payload is a conflict,
 | Loyalty and promotion values | Required before calculation can be deterministic. | Accrual/redemption/expiry rates; promotion types, limits, stacking, and refund allocation. | `OPEN_DECISION` |
 | Leave/overtime/payroll details | Required for correct and lawful payroll. | Leave categories/balances, rounding, breaks, overtime rates, deductions, reopening/correction policy. | `OPEN_DECISION`, `LEGAL_VALIDATION` |
 | Shift swap policy | Determines schedule accountability. | Eligibility, notice, employee acceptance, Branch Manager decision, and audit requirements. | `OPEN_DECISION` |
-| Operating Day and discrepancy handling details | Determines daily Expense aggregation, reporting, and escalation. | Define Operating Day cutoff/timezone, escalation timing, and correction handling. No discrepancy tolerance is currently approved; do not reopen confirmed float/top-up/Expense limits. | `OPEN_DECISION` |
-| Reporting delivery and formulas | Required for Dashboard and daily Telegram operation. | Decide exact time, recipients, Operating Day cutoff, metric formulas, Branch scope, privacy details, and failure escalation. The Dashboard and daily Telegram direction are already confirmed. | `OPEN_DECISION` |
+| Operating Day and discrepancy handling details | Determines daily Expense aggregation, reporting, and escalation. | Preserve the confirmed initial `00:00` cutoff in each Branch's explicit timezone; define future configuration/enforcement, escalation timing, and correction handling. No discrepancy tolerance is currently approved; do not reopen confirmed float/top-up/Expense limits. | `OPEN_DECISION` |
+| Reporting delivery and formulas | Required for Dashboard and daily Telegram operation. | Use the approved Operating Day boundary; decide exact delivery time, recipients, metric formulas, Branch scope, privacy details, and failure escalation. The Dashboard and daily Telegram direction are already confirmed. | `OPEN_DECISION` |
 | Reservation/table policy | Affects capacity, deposits, no-shows, table moves/merges/splits. | Approve MVP scope and lifecycle rules. | `OPEN_DECISION` |
 | Hardware and printer topology | Determines routing, fallback, monitoring, and on-site support. | Select devices/printers and document branch network/failure procedure. | `OPEN_DECISION` |
 | Offline operation beyond safe default | Unsafe offline payment/dispatch can duplicate work or money. | Safe default: never claim payment/dispatch success without authority; approve any additional offline commands/conflict policy. | `OPEN_DECISION` |
