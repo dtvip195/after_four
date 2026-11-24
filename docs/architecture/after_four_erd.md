@@ -311,6 +311,14 @@ erDiagram
 
 ```mermaid
 erDiagram
+  CASH_HANDOVER_ATTEMPTS {
+    string stable_attempt_identity
+    string disposition
+  }
+  CASH_HANDOVER_EVIDENCE {
+    string independently_identifiable_evidence
+    string revision
+  }
   BRANCHES ||--o{ CASH_SESSIONS : operates
   BRANCHES ||--o{ CASH_DRAWERS : contains
   CASH_DRAWERS ||--o{ CASH_SESSIONS : opens
@@ -335,6 +343,7 @@ erDiagram
 - `WORKSHOP_AGREED` Closed Cash Session totals are immutable; corrections are new Cash Transactions with reversal/adjustment links.
 - `WORKSHOP_AGREED` Cash settlement and bank/electronic settlement are distinct Payment Attempt methods.
 - `OWNER_CONFIRMED` Each handover keeps one stable attempt identity. `transfer_evidence_unresolved` is nonterminal and fail-closed; conflicting or disputed evidence remains held until sufficient approved evidence and an authorized disposition exist. Evidence revisions never erase or silently supersede prior assertions. Acknowledgement is not approval and does not close the outgoing Cash Session; Close is a separate capability-governed action (`ODB-CASH-15`, `CORE-OD-14A/B`, `CORE02-FIR2-02`). Exact records and enforcement remain logical proposals, not physical schema approval.
+- `UNRESOLVED` The two entity declarations intentionally expose only the already-defined stable attempt identity/disposition and independently identifiable evidence/revision concepts. Primary/foreign keys, evidence field decomposition, actor/recipient linkage, attester and conflict-resolution authority, constraints, indexes, storage, and enforcement remain undecided.
 - `OWNER_CONFIRMED` Float top-ups are Owner-authorized explicit Cash movements with amount, source, executor, approver, and time; Staff may request them, they are not revenue, and no fixed frequency limit is approved.
 - `OWNER_CONFIRMED` Delegated Expenses are limited to 200,000 VND each and 500,000 VND cumulatively per Operating Day. Exceeding either requires Owner approval; self-approval and splitting to evade limits are prohibited; limits are configurable.
 - `OWNER_CONFIRMED` The initial operating model has one shared drawer. `TECHNICAL_PROPOSAL` A Device may identify its counter/register; hardware selection and any future multi-drawer expansion require a later decision and do not weaken the initial shared-drawer rule.
