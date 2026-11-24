@@ -353,7 +353,9 @@ All references below remain local crosswalk references with `ID_PENDING_OWNER_GO
 | `CORE-OD-16B`, `CORE-OD-16F` | 2026-11-24 | `OWNER_DEFERRED — OWNER_INPUT_REQUIRED` | Report-read capability/scope and retention/disposal/legal-hold remain unresolved pending separate Identity and governance/privacy input. |
 | `CORE-OD-16C`, `CORE-OD-16D`, `CORE-OD-16E` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Excel export is deferred and excluded. Automatic Telegram or other external delivery is deferred pending approved recipients, schedule, privacy and failure escalation. Reporting cutoff follows the approved Operating Day; Cash-dependent facts become authoritative only after reconciliation. No read, export, recipient, schedule or external-delivery authority is granted. |
 
-The consolidated Core Operations register now reconciles to 29 confirmed and six deferred local references. The remaining deferred references are `CORE-OD-03`, `CORE-OD-04`, `CORE-OD-12`, `CORE-OD-13`, `CORE-OD-16B` and `CORE-OD-16F`. All retain `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved.
+The consolidated Core Operations register remains reconciled to 28 confirmed and six deferred local references. The remaining deferred references are `CORE-OD-03`, `CORE-OD-04`, `CORE-OD-12`, `CORE-OD-13`, `CORE-OD-16B` and `CORE-OD-16F`. All retain `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved.
+
+`CORE-OD-18` is recorded separately as a commercial CORE-01 costing-baseline decision. It is not part of the consolidated Core Operations 28-confirmed/six-deferred count and does not alter that reconciliation.
 
 **Sprint 3 custody-transfer attempt decision:**
 
