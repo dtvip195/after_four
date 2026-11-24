@@ -1,6 +1,6 @@
 # AFTER FOUR — Real Menu & Pricing Specification
 
-**Document status:** `OWNER_INPUT_DRAFT`
+**Document status:** `OWNER_CONFIRMED_COSTING_BASELINE_V1 — COST_INPUT_COLLECTION_OPEN`
 **Purpose:** Thu thập menu và quy tắc kinh doanh thực tế làm đầu vào cho Catalog/Pricing MVP.
 **Implementation authorization:** Không
 
@@ -8,7 +8,7 @@
 
 Tài liệu này áp dụng các quyết định Catalog/Pricing và Catalog Core `ODB-CAT-01` đến `ODB-CAT-26` theo đúng phạm vi riêng của từng quyết định trong [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp). Nó thu thập dữ liệu còn thiếu cho menu baseline đã được Owner xác nhận theo reference; không biến tên/option baseline thành canonical record, code, Variant applicability hoặc Price chưa được duyệt.
 
-[Proposed Launch Menu v3](after_four_proposed_launch_menu_v3.md) supplies the draft launch-menu baseline approved by reference under `CORE-OD-01`. Its 28 named Product rows, six menu groupings and presented option lists are accepted as baseline input; exact Product/Category/Variant records and codes, final Variant applicability/capacity, and exact individual Prices remain missing or unresolved. `ODB-CAT-11` through `ODB-CAT-13` continue to govern target scale, selective size policy and Signature designations within their exact scopes.
+[Proposed Launch Menu v3](after_four_proposed_launch_menu_v3.md) supplies the draft launch-menu baseline approved by reference under `CORE-OD-01`. Commercial Baseline V1 subsequently resolves the costing combinations and exact proposed VND selling-price inputs listed in §4 under `CORE-OD-18`. Exact canonical Product/Category/Variant records and codes, physical capacities, Recipes, costs, margins, publication and implementation remain missing, unresolved or separately governed. `ODB-CAT-11` through `ODB-CAT-13` continue to govern target scale, selective size policy and Signature designations within their exact scopes.
 
 ## 1. Branch và phạm vi menu
 
@@ -19,7 +19,8 @@ Tài liệu này áp dụng các quyết định Catalog/Pricing và Catalog Cor
 | Số Branch ban đầu | 1 |
 | Product identity dùng chung toàn Brand? | Có — `ODB-CAT-01` |
 | Effective menu có giống nhau giữa mọi Branch? | Chờ Owner xác nhận khi có thêm Branch; Branch availability override đã được hỗ trợ theo `ODB-CAT-06` |
-| Có hỗ trợ giá riêng theo Branch? | Có — `ODB-CAT-07`; chưa cần tạo Main Branch override nếu không sử dụng |
+| Phạm vi Commercial Baseline V1 | First Branch; first Price Version; dine-in và takeaway dùng cùng proposed price |
+| Chain default / Branch override trong V1 | Không áp dụng; chưa được quyết định cho baseline này |
 
 “Effective menu” ở đây là tập Variant thực tế có thể bán tại một Branch. Nó không tạo Product identity riêng cho Branch.
 
@@ -41,23 +42,52 @@ Mỗi Product là một sản phẩm kinh doanh Brand-global, không phải từ
 
 | Product code | Tên sản phẩm | Category | Mô tả | Trạng thái |
 |---|---|---|---|---|
-| PRD-001 |  |  |  | Draft |
-| PRD-002 |  |  |  | Draft |
-| PRD-003 |  |  |  | Draft |
+| TBD |  |  |  | Draft |
+| TBD |  |  |  | Draft |
+| TBD |  |  |  | Draft |
 
 Trạng thái hợp lệ theo `ODB-CAT-03`: Draft / Active / Inactive / Archived.
 
-## 4. Variant và giá cơ bản
+## 4. Commercial Baseline V1 for cost calculation
 
-Mỗi sản phẩm cần ít nhất một Variant có thể bán. Nếu khách không cần chọn Variant, sử dụng Variant mặc định ẩn theo `ODB-CAT-04`.
+Owner confirmed this costing baseline on 2026-11-24 under `CORE-OD-18`. Prices are VND. `Một cỡ` is one priced costing Variant; any hot/iced preparation choice for that Product is not a separate priced Variant. All rows apply to both dine-in and takeaway at the same proposed price and to the first Branch's first Price Version.
 
-| Product code | Variant code | Tên hiển thị | SKU | Variant mặc định ẩn? | Giá mặc định chuỗi (VND) |
-|---|---|---|---|---|---:|
-| PRD-001 | VAR-001 |  |  |  |  |
-| PRD-001 | VAR-002 |  |  |  |  |
-| PRD-002 | VAR-003 |  |  |  |  |
+`Product code` and `Variant code` are business identifiers, not UUID primary keys. No canonical V1 business-code values have been assigned. `TBD` therefore preserves the required fields without inventing codes. For S/M/L rows, the three Variant-code positions map in order to S, M and L and remain independently `TBD`.
 
-Ví dụ minh họa: Latte có Variant 350 ml và 500 ml. Đây chỉ là ví dụ, không phải menu đã được Owner xác nhận.
+| Product code | Product | Variant code | Approved costing Variant | Proposed V1 selling price (VND) |
+|---|---|---|---|---:|
+| TBD | Cà phê đen | TBD | Một cỡ | 23,000 |
+| TBD | Cà phê sữa | TBD | Một cỡ | 29,000 |
+| TBD | Bạc xỉu | TBD | Một cỡ | 33,000 |
+| TBD | Cà phê muối | TBD | Một cỡ | 43,000 |
+| TBD | Cà phê dừa | TBD | Một cỡ | 43,000 |
+| TBD | Latte | TBD | Một cỡ | 43,000 |
+| TBD | Trà đào cam sả | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Trà vải | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Trà chanh | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Trà tắc mật ong | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Trà chanh dây | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Nước chanh | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Chanh dây đá | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Cam ép | TBD / TBD / TBD | S / M / L | 39,000 / 45,000 / 49,000 |
+| TBD | Soda chanh | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Bơ xay dừa non | TBD / TBD / TBD | S / M / L | 43,000 / 46,000 / 49,000 |
+| TBD | Sinh tố xoài | TBD / TBD / TBD | S / M / L | 39,000 / 45,000 / 49,000 |
+| TBD | Sinh tố dâu | TBD / TBD / TBD | S / M / L | 43,000 / 46,000 / 49,000 |
+| TBD | Cà phê dừa đá xay | TBD | Một cỡ | 49,000 |
+| TBD | Matcha latte | TBD | Một cỡ | 43,000 |
+| TBD | Cacao sữa | TBD | Một cỡ | 39,000 |
+| TBD | Sữa chua trái cây | TBD | Một cỡ | 43,000 |
+| TBD | Bánh croissant | TBD | Một phần | 33,000 |
+| TBD | Cheesecake | TBD | Một phần | 43,000 |
+| TBD | Brownie chocolate | TBD | Một phần | 33,000 |
+| TBD | Muffin | TBD | Một cái | 29,000 |
+| TBD | Sandwich jambon phô mai | TBD | Một phần | 43,000 |
+| TBD | Khoai tây chiên | TBD | Một phần | 33,000 |
+
+This approval permits further cost calculation only. It does not publish a Price, authorize implementation, establish tax treatment or rounding, or prove any Recipe, supplier cost, unit cost or gross margin. Cost evidence must be collected in [`after_four_commercial_v1_costing_input.csv`](after_four_commercial_v1_costing_input.csv); repeat a Product/Variant row for each distinct ingredient or direct-cost line rather than combining inputs.
+
+**Canonical conflict requiring Owner clarification before publication or implementation:** `ODB-CAT-07` previously approved chain-level default Prices with explicit Branch overrides, while `CORE-OD-18` says Commercial Baseline V1 uses the first Branch's first Price Version without a chain default or Branch override. This document preserves the V1 costing scope exactly and does not silently supersede, narrow or reinterpret `ODB-CAT-07`. The relationship between those decisions must be explicitly reconciled before any Price publication or implementation.
 
 ## 5. Modifier Groups
 
@@ -85,16 +115,16 @@ Ví dụ chưa được Owner xác nhận:
 
 Nếu chưa biết giá, ghi `TBD`, không tự điền `0`. Việc Modifier có ảnh hưởng đến giá hay không vẫn là quyết định chưa được xác nhận, đang chờ menu và yêu cầu pricing thực tế.
 
-## 7. Quy tắc giá theo Branch
+## 7. Future chain/Branch pricing scope — not applied to V1
 
-Hiện tại chỉ có Main Branch trong kế hoạch khai trương. Giá mặc định chuỗi và khả năng Branch override đã được xác nhận bởi `ODB-CAT-07`; bảng này chỉ thu thập giá thực tế.
+`ODB-CAT-07` records the earlier approved direction for chain-default Prices and explicit Branch overrides. `CORE-OD-18` does not apply either mechanism to Commercial Baseline V1, which is scoped directly to the first Branch's first Price Version. The conflict identified in §4 must be resolved before this future table is used.
 
 | Product/Variant | Giá mặc định chuỗi | Main Branch override | Lý do |
 |---|---:|---:|---|
 |  |  |  |  |
 |  |  |  |  |
 
-Nếu giá Main Branch giống giá mặc định, để trống override. Mỗi giá được xuất bản sau này phải là một Price Version bất biến, có thời gian hiệu lực theo `ODB-CAT-08`.
+This table is retained only for the future `ODB-CAT-07` scope; it is not a V1 costing input. Any Price published after the governance conflict is resolved must still use immutable, effective-dated Price Versions under `ODB-CAT-08`.
 
 ## 8. Availability và tình trạng bán
 
@@ -154,8 +184,9 @@ Không điền theo suy đoán kỹ thuật. Cần Owner quyết định và xá
 | Variant data thực tế | Baseline option labels đã được xác nhận theo reference; exact persisted Variant records, applicability/capacity và codes còn thiếu |
 | Modifier Group policy | `OWNER_CONFIRMED` — `ODB-CAT-05` |
 | Modifier data thực tế | Baseline option lists đã được xác nhận theo reference; applicability, cardinality, quantity limits và pricing còn thiếu |
-| Pricing direction | `OWNER_CONFIRMED_BY_REFERENCE` — approximately VND 23,000 / 33,000 / 43,000–49,000; no individual Product/Variant mapping is recorded |
-| Exact base Prices | Evidence gap — no exact Product/Variant Price dataset is present in the repository |
+| Pricing direction | `OWNER_CONFIRMED_BY_REFERENCE` — approximately VND 23,000 / 33,000 / 43,000–49,000 under `CORE-OD-01` |
+| Commercial Baseline V1 | `OWNER_CONFIRMED` — exact costing combinations and proposed VND selling-price inputs in §4 under `CORE-OD-18`; same price for dine-in/takeaway; first Branch and first Price Version only; no chain-default or Branch override |
+| Price publication / implementation | `NOT_AUTHORIZED` — V1 approval permits cost calculation only |
 | Modifier prices / price effect | Chờ Owner quyết định và cung cấp |
 | Main Branch price overrides thực tế | Chờ Owner xác nhận nếu sử dụng |
 | Tax / Service Charge / Rounding | Chưa quyết định |
