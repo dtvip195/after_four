@@ -120,7 +120,7 @@ Completion is not handover. Handover acknowledgement is not approval. Handover d
 ### 7.1 Layer responsibilities
 
 - Preparation Domain owns framework-independent acceptance, Ticket, Item, exception, completion and handover concepts, invariants and state-transition rules.
-- Preparation Application owns acceptance and named mutation use cases, orchestration, transaction coordination at the logical boundary and every contract it requires.
+- Preparation Application owns acceptance and named mutation use cases, every contract they require, orchestration of the logical business consistency boundary and the resulting logical business consistency outcome. This ownership neither selects nor guarantees a physical database transaction boundary. Physical atomicity, transaction-coordination mechanisms, isolation, locking, uniqueness enforcement, persistence and concurrency controls remain Gate B design concerns.
 - Infrastructure implements persistence, audit, delivery and cross-context adapters behind Application-owned contracts.
 - Presentation authenticates/adapts inputs and invokes Application use cases; it owns no business transition and accesses no persistence record directly.
 - Composition root wires implementations to Application-owned abstractions only.
