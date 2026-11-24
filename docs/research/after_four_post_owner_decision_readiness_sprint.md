@@ -16,7 +16,7 @@ The merged Owner session confirms 28 of 34 local `CORE-OD-*` references and defe
 |---|---|---|
 | CORE-01 | `NOT_READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW` | Final sellable Variant applicability and exact Price/effective-period/scope evidence are each absent for all 28 approved Product rows; `CORE-OD-03/04` require qualified input. |
 | CORE-02 | `NOT_READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW` | Model A is logically synchronized, but trusted evidence-source classes, attester authority, intended-recipient linkage and conflict/dispute disposition authority remain unresolved. |
-| CORE-04 | `NOT_READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW` | The initial `00:00` Branch-local cutoff is closed, but capability, correction, disagreement-resolution, discrepancy disposition, reporting release, reader and retention boundaries remain material blockers. |
+| CORE-04 | `NOT_READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW` | The initial `00:00` Branch-local cutoff and Owner escalation for unresolved handover disagreement/refusal are confirmed, but capability, correction, handover-resolution workflow/consequences, discrepancy disposition, reporting release, reader and retention boundaries remain material blockers. |
 
 No conclusion above grants Gate A, Gate B, Gate C, implementation, Identity Milestone 2B, FOA, or Production Authorization.
 
@@ -69,7 +69,7 @@ Acknowledgement, refusal, disagreement and customer custody transfer remain dist
 | Operating Day | Hoi An uses `Asia/Ho_Chi_Minh`; each Branch is explicit; initial cutoff `00:00` local; no MVP inheritance; exceptional evidence cannot rewrite a closed day. | Physical configuration, effective-time and enforcement design are Gate B concerns. |
 | Cash capability | Operations remain distinct: Open, Count, Handover and Close. | `CORE-OD-12`: assignees, delegation, revocation, emergency paths and separation of duties. |
 | Post-close correction | Closed evidence is immutable; correction, if authorized, is a linked fact. | `CORE-OD-13`: permitted operations, initiator/approver, evidence and consequences. |
-| Handover | Acknowledgement/refusal/disagreement is evidence, not approval, custody transfer or Session closure; Close remains separate. | Detailed disagreement resolver/escalation and consequences; delegation depends on `CORE-OD-12`. |
+| Handover | Under confirmed `CORE-OD-14A`, disagreement/refusal remains unresolved and escalates to the Owner; acknowledgement is not approval. Under confirmed `CORE-OD-14B`, acknowledgement does not close the outgoing Session; Close is a separate capability-controlled action. | Resolution workflow and consequences beyond the confirmed Owner escalation remain open. Any delegation or Close-capability assignment depends on `CORE-OD-12`; no new resolver or authority is inferred. |
 | Discrepancy | Every nonzero discrepancy requires reason and Owner notification; no tolerance. | Classes, investigation, escalation, resolver/disposition and linked-correction details. |
 | Reporting release | Unreconciled data is withheld; discrepancy resolution does not grant release authority. | Authoritative reconciliation and release authority; `CORE-OD-16B` readers/scope; `CORE-OD-16F` retention/disposal/legal hold. |
 
