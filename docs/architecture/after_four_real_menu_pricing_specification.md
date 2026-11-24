@@ -6,9 +6,9 @@
 
 > Nguyên tắc: Ghi nhận đúng cách AFTER FOUR dự định kinh doanh. Không tự giả định sản phẩm, giá, thuế, phí hoặc quy tắc vận hành. Giá trị trống hoặc `TBD` không phải là quyết định đã được phê duyệt.
 
-Tài liệu này áp dụng các quyết định Catalog/Pricing và Catalog Core `ODB-CAT-01` đến `ODB-CAT-26` theo đúng phạm vi riêng của từng quyết định trong [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp). Nó thu thập dữ liệu menu và các quyết định còn mở; không mở lại quyết định đã được Owner xác nhận và không biến các Product đề xuất thành Product đã duyệt.
+Tài liệu này áp dụng các quyết định Catalog/Pricing và Catalog Core `ODB-CAT-01` đến `ODB-CAT-26` theo đúng phạm vi riêng của từng quyết định trong [Owner Decision Baseline §5](after_four_owner_decision_baseline.md#5-catalogpricing-mvp). Nó thu thập dữ liệu còn thiếu cho menu baseline đã được Owner xác nhận theo reference; không biến tên/option baseline thành canonical record, code, Variant applicability hoặc Price chưa được duyệt.
 
-[Proposed Launch Menu v3](after_four_proposed_launch_menu_v3.md) supplies a 28-Product proposal. Only its target scale, selective size policy, and three Signature Product designations are Owner-confirmed as `ODB-CAT-11` through `ODB-CAT-13`; individual Product rows remain pending final approval.
+[Proposed Launch Menu v3](after_four_proposed_launch_menu_v3.md) supplies the draft launch-menu baseline approved by reference under `CORE-OD-01`. Its 28 named Product rows, six menu groupings and presented option lists are accepted as baseline input; exact Product/Category/Variant records and codes, final Variant applicability/capacity, and exact individual Prices remain missing or unresolved. `ODB-CAT-11` through `ODB-CAT-13` continue to govern target scale, selective size policy and Signature designations within their exact scopes.
 
 ## 1. Branch và phạm vi menu
 
@@ -146,15 +146,16 @@ Không điền theo suy đoán kỹ thuật. Cần Owner quyết định và xá
 
 | Nội dung | Trạng thái |
 |---|---|
-| Real menu | Proposed Launch Menu v3 có 28 Product rows; từng Product vẫn chờ final approval |
+| Real menu | `OWNER_CONFIRMED_BY_REFERENCE` — Proposed Launch Menu v3 supplies the 28 named Product rows and presented options under `CORE-OD-01`; exact persisted records/codes and individual Price mapping remain unresolved |
 | Launch menu target | `OWNER_CONFIRMED` — 28 Products (`ODB-CAT-11`) |
 | Size policy | `OWNER_CONFIRMED` — S/M/L chỉ cho Product phù hợp (`ODB-CAT-12`) |
 | Signature Products | `OWNER_CONFIRMED` — Bơ xay dừa non, Trà đào cam sả, Cà phê muối (`ODB-CAT-13`) |
 | Variant policy | `OWNER_CONFIRMED` — `ODB-CAT-04` |
-| Variant data thực tế | Chờ dữ liệu menu |
+| Variant data thực tế | Baseline option labels đã được xác nhận theo reference; exact persisted Variant records, applicability/capacity và codes còn thiếu |
 | Modifier Group policy | `OWNER_CONFIRMED` — `ODB-CAT-05` |
-| Modifier data thực tế | Chờ dữ liệu menu |
-| Base prices | Chờ Owner cung cấp |
+| Modifier data thực tế | Baseline option lists đã được xác nhận theo reference; applicability, cardinality, quantity limits và pricing còn thiếu |
+| Pricing direction | `OWNER_CONFIRMED_BY_REFERENCE` — approximately VND 23,000 / 33,000 / 43,000–49,000; no individual Product/Variant mapping is recorded |
+| Exact base Prices | Evidence gap — no exact Product/Variant Price dataset is present in the repository |
 | Modifier prices / price effect | Chờ Owner quyết định và cung cấp |
 | Main Branch price overrides thực tế | Chờ Owner xác nhận nếu sử dụng |
 | Tax / Service Charge / Rounding | Chưa quyết định |

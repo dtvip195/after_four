@@ -1,13 +1,13 @@
 # AFTER FOUR — Proposed Launch Menu v3
 
 **Target:** 28 Products (`OWNER_CONFIRMED`, `ODB-CAT-11`)
-**Menu status:** `PROPOSED_NOT_APPROVED` — individual Products pending final approval
-**Pricing:** `TBD`
+**Menu status:** `OWNER_CONFIRMED_BY_REFERENCE` — draft launch-menu baseline under `CORE-OD-01`
+**Pricing direction:** entry-level around VND 23,000; mid-tier around VND 33,000; premium around VND 43,000–49,000. Individual Product/Variant Price mapping remains `TBD`.
 **Size policy:** S/M/L only for suitable Products (`OWNER_CONFIRMED`, `ODB-CAT-12`)
 **Signature Products:** Bơ xay dừa non, Trà đào cam sả, Cà phê muối (`OWNER_CONFIRMED`, `ODB-CAT-13`)
 **Implementation authorization:** Không
 
-> The target scale, selective size policy, and three Signature Product designations are Owner-confirmed only within the boundaries stated above. Every Product row, code, Variant assignment, Modifier, Recipe, Price, and operational rule below remains proposed or `TBD` until separately approved.
+> On 2026-11-24 the Owner approved this document's 28 named Product rows, six menu groupings, presented Variant-option labels, and presented Modifier-option lists as the draft launch-menu baseline by reference (`CORE-OD-01`). This does not approve the displayed artifact codes as canonical Product/Category/Variant codes, resolve actual Variant applicability/capacity, or assign an exact Price to any Product/Variant. Recipes, Modifier applicability/cardinality/pricing, tax, rounding, Service Charge, complimentary/zero-price behavior, availability, and implementation remain unresolved or separately governed.
 
 ## 1. Cà phê — 6 sản phẩm đề xuất
 
@@ -79,7 +79,7 @@
 | Bánh ngọt và đồ ăn nhẹ | 6 |
 | **Total** | **28** |
 
-The totals satisfy the approved 28-Product target. They do not constitute approval of the six proposed Categories or their individual contents.
+The totals satisfy the approved 28-Product target. `CORE-OD-01` accepts these six groupings and named contents as the draft menu baseline; exact Category records, codes, ordering, lifecycle state, and implementation data remain unapproved.
 
 ## 8. Proposed Modifier Groups
 
@@ -103,7 +103,7 @@ The totals satisfy the approved 28-Product target. They do not constitute approv
 - Extra espresso shot, sữa, kem béo, dừa non.
 - Chỉ gắn với Product tương ứng.
 
-Modifier pricing: `TBD`. Modifier Group applicability, cardinality for each Product/Variant, individual options, quantity limits, and Price effects remain unapproved.
+The displayed Modifier option lists are part of the approved-by-reference draft menu baseline. Modifier pricing, Product/Variant applicability, Group cardinality, quantity limits, and Price effects remain `TBD` and unapproved.
 
 ## 9. Variant rules
 
@@ -114,7 +114,7 @@ The following rules apply from the existing Owner-confirmed Catalog/Pricing base
 - Draft Product có thể tạm thời chưa có Variant hoặc Default Variant (`ODB-CAT-19`). Với Active Product, Default hợp lệ phải có `is_default = true` và status Active; `customer_visible` độc lập nên hidden Active vẫn hợp lệ, còn Inactive/Archived thì không (`ODB-CAT-20`, `ODB-CAT-28`).
 - Category/Product/Variant dùng ba Brand-scoped Code namespace riêng; cùng một Code có thể xuất hiện một lần ở mỗi entity type nhưng không được trùng trong cùng type/Brand (`ODB-CAT-16`, `ODB-CAT-27`). SKU là optional và Brand-unique khi có; các identifier này không được tái sử dụng sau archive (`ODB-CAT-17`, `ODB-CAT-18`). Các code trong bảng đề xuất vẫn chưa được duyệt thành dữ liệu thực tế.
 - S/M/L chỉ áp dụng cho Product phù hợp (`ODB-CAT-12`).
-- Nóng/Đá là proposed Variant choice khi cần phân biệt cấu hình bán hàng; applicability per Product remains unapproved.
+- Nóng/Đá and S/M/L labels shown in the menu are approved-by-reference option inputs; exact persisted Variant records, Product applicability, capacity and codes remain unresolved.
 - Không tạo Modifier trùng nghĩa với Variant choice.
 - Dung tích thực tế của S/M/L: `TBD`.
 - Giá từng Variant: `TBD`.
@@ -131,9 +131,9 @@ Công thức, định lượng, cách trình bày, Product codes, Variants, avai
 
 ## 11. Unresolved — TBD
 
-- Final approval of each proposed Product and Product code.
-- Final Category names, codes, ordering, and Product membership.
-- Giá bán từng Product/Variant.
+- Transcription of the approved-by-reference named Products into exact Product records and canonical Product codes.
+- Exact Category records, codes, ordering, and membership implementation from the six approved-by-reference menu groupings.
+- Exact Price for each Product/Variant and mapping to the approved approximate tiers.
 - Dung tích S/M/L và Product applicability.
 - Nóng/Đá applicability per Product.
 - Công thức và định lượng nguyên liệu.
@@ -151,17 +151,15 @@ Công thức, định lượng, cách trình bày, Product codes, Variants, avai
 - target launch-menu scale of 28 Products (`ODB-CAT-11`);
 - selective S/M/L policy for suitable Products (`ODB-CAT-12`);
 - Signature Product designations: Bơ xay dừa non, Trà đào cam sả, and Cà phê muối (`ODB-CAT-13`).
+- by reference under `CORE-OD-01`: the 28 named Product rows, six menu groupings, displayed Variant-option labels, displayed Modifier-option lists, dine-in/takeaway scope, and approximate price-tier direction.
 
-`PROPOSED_NOT_APPROVED`:
+`NOT_APPROVED` / `TBD`:
 
-- the individual 28 Product rows and codes;
-- the six Category groupings;
-- Variant applicability, including Nóng/Đá and S/M/L per Product;
-- all proposed Modifier Groups and options.
-
-`OPEN` / `TBD`:
-
-- Recipes, quantities, presentation, prices, tax, service charge, rounding, free-item policy, inventory, and detailed availability.
+- canonical Product/Category/Variant codes and exact persisted records;
+- actual Variant applicability/capacity, including final Nóng/Đá and S/M/L mapping per Product;
+- Modifier applicability, cardinality, quantity limits and Price effects;
+- exact individual Prices and tier mapping;
+- Recipes, quantities, presentation, tax, Service Charge, rounding, free-item policy, Inventory and detailed availability.
 
 No part of this document authorizes implementation, schema, API, frontend, Payment lifecycle, or Identity changes.
 

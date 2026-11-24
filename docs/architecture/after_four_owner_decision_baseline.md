@@ -318,6 +318,14 @@ The following reporting details are explicitly `UNRESOLVED`: exact delivery time
 | `ODB-CAT-12` | Use S/M/L sizes only for suitable Products. | `OWNER_CONFIRMED` | Not implemented. | Product applicability, actual capacities, Variant codes, and per-size Prices remain unresolved. Products that do not need a visible size still use the confirmed hidden-default Variant policy. |
 | `ODB-CAT-13` | The selected signature products are Bơ xay dừa non, Trà đào cam sả, and Cà phê muối. | `OWNER_CONFIRMED` | Not implemented. | The signature designation is approved; it does not approve Product records/codes, Variants, Recipes, quantities, presentation, availability, or Prices. |
 
+**Accelerated Core Operations menu-baseline decision:**
+
+**Source:** Owner's explicit Accelerated Core Operations Design Closure direction on 2026-11-24. The approval is by reference because the repository contains the detailed menu/options artifact but no exact Product/Variant Price mapping or retained transcript assigning the three approximate tiers to individual rows.
+
+| Reference | Decision date | Status | Owner-confirmed decision | Canonical ID / remaining boundary |
+|---|---|---|---|---|
+| `CORE-OD-01` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED_BY_REFERENCE` | The Owner approves the 28 named Product rows, six menu groupings, presented Variant-option labels, and presented Modifier-option lists in [Proposed Launch Menu v3](after_four_proposed_launch_menu_v3.md) as the draft launch-menu baseline. Dine-in and takeaway are in scope. The approved pricing direction is approximate: entry-level around VND 23,000, mid-tier around VND 33,000, and premium around VND 43,000–49,000. | `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved. Repository evidence does not contain an approved mapping from any individual Product/Variant to an exact Price, so the three bands are not exact SKU Prices. Product/Category/Variant codes, actual Variant applicability and capacities, Recipes, Modifier applicability/cardinality/pricing, tax, rounding, Service Charge, complimentary/zero-price behavior, availability, and implementation remain unresolved or separately governed. This decision grants no Gate or implementation authorization. |
+
 **Source for `ODB-CAT-14` through `ODB-CAT-21`:** Owner's explicit confirmation in the Catalog Core Owner Decisions task.
 
 | ID | Owner-confirmed decision | Status | Implementation | Repository evidence / remaining boundary |
