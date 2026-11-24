@@ -4,13 +4,13 @@
 
 **Verified baseline:** `main` at `0423cf3c2f38871f105a82fdce04bfbb7383713b`
 
-**Status:** `READY_WITH_QUALIFIED_INPUT_DEPENDENCIES — NO_DECISION_RECORDED`
+**Status:** `OWNER_DECISIONS_RECORDED — QUALIFIED_INPUT_DEPENDENCIES_REMAIN — NO_GATE_GRANTED`
 
 ## 1. How to use this ballot
 
 This is a self-contained ballot for unresolved CORE-01, CORE-02 and CORE-04 inputs. Supporting sources are the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md) and Sprint 3 [CORE-01](after_four_core_01_blocker_closure_sprint_3.md), [CORE-02](after_four_core_02_blocker_closure_sprint_3.md), and [CORE-04](after_four_core_04_blocker_closure_sprint_3.md) reports, but the Owner does not need to open them to understand the choices below.
 
-For each item, the Owner may select an available option, defer, or approve with a written condition. `RECOMMENDED` and `RECOMMENDATION_NOT_ESTABLISHED` are proposals, not decisions. Items marked `QUALIFIED_INPUT_FIRST` or `EVIDENCE_FIRST` are not ready for substantive selection; deferral keeps them fail-closed. This package asks for no reapproval of confirmed policy and grants no Gate or implementation authority.
+The subsequent Consolidated Owner Decision Session recorded `CORE02-FIR2-02` Model A and the `CORE-OD-11B` initial cutoff. Every other item retains its stated unresolved status and qualified-input dependency; approval of this consolidated handling does not select those policies. `RECOMMENDED` and `RECOMMENDATION_NOT_ESTABLISHED` remain proposals, not decisions. Items marked `QUALIFIED_INPUT_FIRST` or `EVIDENCE_FIRST` are not ready for substantive selection; deferral keeps them fail-closed. This package asks for no reapproval of confirmed policy and grants no Gate or implementation authority.
 
 ## 2. CORE-01 — Commercial and pricing ballot
 
@@ -95,10 +95,10 @@ Already confirmed and not reopened: acknowledgement, refusal and dispute are not
 - **Reference and exact question:** `CORE02-FIR2-02`. After `transfer_evidence_unresolved`, does sufficient later evidence resolve the same attempt or require a separately authorized new attempt?
 - **Approved constraints:** Evidence is append-only; exact replay returns the prior result; no acknowledgement/replay/transport/authentication establishes transfer; conflicts fail closed; no silent new attempt; only `transferred` satisfies `CORE-OD-10C`.
 - **Distinguishable options:** **A — same-attempt resolution:** unresolved is nonterminal; independently identifiable new evidence/resolution action may establish one transfer under the same attempt. **B — terminal unresolved/new attempt:** prior attempt is terminal; a separately authorized, cross-referenced new attempt requires handled prior basis and revalidated eligibility. **Defer:** no progression.
-- **Recommendation and rationale:** **A is `RECOMMENDED`, `PROPOSED_NOT_APPROVED`** because one actual release remains one attempt and delayed proof does not invent a second business event.
+- **Owner decision and rationale:** **Model A is `OWNER_DECIDED — OWNER_CONFIRMED`**. One actual release remains one attempt, and delayed proof does not invent a second business event.
 - **Operational consequence / deferral:** A requires precise replay-versus-new-evidence and resolution authority. B adds supersession/new-attempt authority and audit complexity. Deferral keeps the attempt held and closure blocked.
 - **Required input, dependency and authority:** Owner business-policy decision. Evidence criteria, attester authority and recipient linkage remain separate dependencies. Physical uniqueness/concurrency is Gate B.
-- **Session status:** `DECIDABLE_NOW`, subject to the conflict boundary below.
+- **Session status:** `OWNER_DECIDED`, subject to the conflict boundary below. Evidence classes, attester authority, recipient linkage and conflict-resolution authority remain unresolved.
 
 #### Mandatory Model A conflict/dispute boundary
 
@@ -110,13 +110,12 @@ Confirmed and not reopened: explicit Branch timezone/cutoff direction; first Hoi
 
 ### 4.1 `CORE-OD-11B` — Operating Day cutoff
 
-- **Reference and exact question:** `CORE-OD-11B`. What fixed local `HH:MM` cutoff applies to the first Branch?
+- **Reference and decision:** `CORE-OD-11B`. The initial cutoff is `00:00` local time per Branch. The first Hoi An Branch therefore uses `00:00 Asia/Ho_Chi_Minh` under `CORE-OD-11A`.
 - **Approved constraints:** `Asia/Ho_Chi_Minh`; explicit Branch cutoff; no inheritance; exceptional-day evidence never rewrites closed days.
-- **Distinguishable options:** Local midnight; fixed post-midnight/early-morning cutoff supported by evidence; another fixed evidence-supported local time; or defer. Moving “when close” and chain-wide substitution are excluded.
-- **Recommendation and rationale:** `RECOMMENDATION_NOT_ESTABLISHED`; operating hours, after-midnight activity, count/handover duration and Accounting/Reporting boundary examples are absent.
-- **Operational consequence / deferral:** Selection completes Operating Day policy. Deferral leaves daily limits and reporting cutoff incomplete.
-- **Required input, dependency and authority:** Branch operations plus Accounting/Reporting evidence, then Owner decision. Scheduling/storage is Gate B.
-- **Session status:** `EVIDENCE_FIRST`.
+- **Owner direction:** `00:00` is the initial policy, not a permanent restriction. Future per-Branch configurable cutoff is an approved product direction; it does not authorize implementation now.
+- **Operational consequence:** The initial Operating Day boundary is closed at policy level. Future configuration behavior, storage and exceptional-day mechanisms remain technical design.
+- **Required input, dependency and authority:** No further Owner choice is required for the initial cutoff. Future changes remain separately governed; scheduling/storage is Gate B.
+- **Session status:** `OWNER_DECIDED — OWNER_CONFIRMED`.
 
 ### 4.2 `CORE-OD-12` — capability source
 
@@ -220,4 +219,4 @@ Confirmed and not reopened: explicit Branch timezone/cutoff direction; first Hoi
 
 CORE-01 commercial evidence, CORE-02 qualified policy inputs and CORE-04 operational/control evidence can be collected in parallel. `CORE-OD-12` constrains dependent authority assignments in `CORE-OD-13`, `CORE-OD-14A/B` detailed resolution and `CORE-OD-15A`. `CORE-OD-15B` depends on reconciliation truth but is a separate release decision. Deferral creates no default Price, applicability, transfer fact, Cash authority, tolerance, correction, report release, reader or implementation authorization.
 
-The consolidated register remains 27 confirmed / 7 deferred. All applicable references remain `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved. CORE-03/Identity Milestone 2B remains unauthorized, Inventory remains deferred, and Refund, Promotions, Loyalty and manual bank remain outside the bounded initial scope.
+The consolidated CORE-OD register is now 28 confirmed / 6 deferred. The remaining deferred references are `CORE-OD-03`, `CORE-OD-04`, `CORE-OD-12`, `CORE-OD-13`, `CORE-OD-16B` and `CORE-OD-16F`. `CORE02-FIR2-02` is separately Owner-confirmed under its stable finding reference and is not counted as a CORE-OD reference. All applicable references remain `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved. CORE-03/Identity Milestone 2B remains unauthorized, Inventory remains deferred, and Refund, Promotions, Loyalty and manual bank remain outside the bounded initial scope.

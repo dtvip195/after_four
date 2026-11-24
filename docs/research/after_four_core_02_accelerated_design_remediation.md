@@ -210,7 +210,7 @@ CORE-01 remains `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED`. CORE-04 r
 
 ## 12. Validation and final boundary
 
-The documentation change must preserve 27 confirmed and seven deferred consolidated CORE references, add no canonical `ODB-*` ID, change no Owner decision and modify no application, test, schema, migration, database, dependency, configuration or runtime artifact.
+At the authored remediation baseline, the documentation change preserved 27 confirmed and seven deferred consolidated CORE references, added no canonical `ODB-*` ID, changed no Owner decision and modified no application, test, schema, migration, database, dependency, configuration or runtime artifact.
 
 Validation completed for this authored remediation:
 
@@ -220,8 +220,14 @@ Validation completed for this authored remediation:
 - Markdown tables and fenced blocks are structurally valid;
 - all local Markdown link targets in the changed documents exist;
 - whitespace validation passes;
-- the canonical decision register remains 27 confirmed / seven deferred references;
+- at that reviewed baseline, the canonical decision register remained 27 confirmed / seven deferred references;
 - changed paths are limited to the intended `docs/research/` documents; and
 - no application test, build, service or database command was run.
+
+## 13. Subsequent Owner decision synchronization
+
+The historical validation above describes the reviewed remediation baseline. The subsequent Consolidated Owner Decision Session on 2026-11-24 confirmed `CORE02-FIR2-02` Model A: `transfer_evidence_unresolved` is nonterminal and fail-closed within the same stable handover attempt. Independently identifiable new evidence may be retained and evaluated on that attempt, but conflicting or disputed evidence remains held and cannot be silently superseded, erased or upgraded. `transferred` requires sufficient approved evidence and authorized disposition of every conflict/dispute, with evidence history, provenance, revisions, actors, timestamps and prior outcomes preserved. Replay, acknowledgement, transport success and repeated commands resolve no conflict.
+
+This decision does not resolve trusted evidence classes, attester authority, recipient-linkage validation or conflict-resolution authority and selects no physical mechanism. CORE-02 therefore remains `NOT_READY_FOR_OWNER_GATE_A_REVIEW`; no Gate or implementation authorization follows.
 
 **Final status:** `CORE_02_CUSTODY_TRANSFER_CONTRACT_EXPLICIT — OWNER_QUALIFIED_INPUT_BLOCKED — NOT_READY_FOR_OWNER_GATE_A_REVIEW — NO_GATE_GRANTED — NO_IMPLEMENTATION_AUTHORIZED`

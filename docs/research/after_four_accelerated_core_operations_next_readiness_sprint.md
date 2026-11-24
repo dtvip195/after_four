@@ -17,10 +17,10 @@ This sprint ran three independent readiness tracks against the current merged Co
 | Track | Result | Immediate consequence |
 |---|---|---|
 | CORE-01 exact commercial input | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED` | The 28 approved-by-reference Product rows are fully traceable, but exact Product/Variant Prices, final Variant applicability and qualified Tax/Accounting constraints remain absent. |
-| CORE-02 Preparation execution | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` | Attempt identity/retry/quarantine is explicit, and the custody-transfer contract now distinguishes actual release from acknowledgement. Acceptable evidence classes, attester policy and recipient-linkage validation remain unresolved Owner/qualified inputs. |
-| CORE-04 Cash and reconciliation | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_INPUT_REQUIRED` | Six independently answerable Owner policy areas remain open. Evidence and decision questions are prepared below without selecting policy for the Owner. |
+| CORE-02 Preparation execution | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` | Attempt identity/retry/quarantine and Owner-confirmed same-attempt Model A are explicit, and the custody-transfer contract distinguishes actual release from acknowledgement. Acceptable evidence classes, attester policy, recipient-linkage validation and conflict-resolution authority remain unresolved Owner/qualified inputs. |
+| CORE-04 Cash and reconciliation | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_AND_QUALIFIED_INPUT_REQUIRED` | `CORE-OD-11B` is decided at `00:00` local time per Branch. Five independently answerable policy areas remain open; their evidence and decision questions remain prepared below. |
 
-No track has Gate A approval. CORE-02 is not ready for Owner Gate A review: the evidence-acceptance properties are explicit, but the Owner/qualified inputs governing evidence classes, attesters and recipient linkage must be resolved first. In parallel, obtain the exact CORE-01 commercial and qualified evidence and conduct the bounded CORE-04 Owner decision session. No application, schema, migration, database, dependency or runtime work is authorized.
+No track has Gate A approval. CORE-02 is not ready for Owner Gate A review: the attempt model is decided and evidence-acceptance properties are explicit, but the Owner/qualified inputs governing evidence classes, attesters, recipient linkage and conflict disposition must be resolved first. In parallel, obtain the exact CORE-01 commercial and qualified evidence and close the remaining bounded CORE-04 decisions after their required input. No application, schema, migration, database, dependency or runtime work is authorized.
 
 This sprint preserves the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), accepted [ADR-0011](../architecture/adr/0011-project-wide-layered-ddd.md), the [Accelerated Core Operations Design Package](after_four_accelerated_core_operations_design_package.md), its [Design Remediation](after_four_accelerated_core_operations_design_remediation.md), the [Independent Design Review](after_four_core_operations_independent_design_review.md), and the [Development Readiness Assessment](after_four_accelerated_core_operations_readiness_assessment.md).
 
@@ -179,6 +179,8 @@ Acceptance requires trusted evidence binding the exact Dispatch, eligible confir
 
 Preparation completion, acknowledgement evidence, approval, authoritative customer custody transfer and Order closure eligibility are distinct. Handover acknowledgement uses independent `acknowledged`, `refused` and `disputed` evidence outcomes; none establishes transfer. Customer custody-transfer evidence independently records only `transferred` or fail-closed `transfer_evidence_unresolved`. `transferred` requires a positive actual-release assertion, approved trusted-source attribution/accountable attester, exact Order/Ticket/Branch/command binding, authoritative time, completion/version evidence and verifiable intended-recipient linkage. Missing/stale/conflicting/mismatched/unavailable/unverifiable/insufficient evidence preserves its unresolved reason, creates no transfer fact and blocks closure eligibility. Replay cannot upgrade acknowledgement to transfer without new authoritative evidence. No physical mechanism or authority holder is selected.
 
+Owner-confirmed `CORE02-FIR2-02` selects Model A: `transfer_evidence_unresolved` remains nonterminal within the same stable handover attempt. Independently identifiable new evidence may be retained and evaluated on that attempt. A conflict, dispute or challenged assertion remains held and fail-closed; later evidence cannot silently supersede, erase or upgrade it. Transition to `transferred` requires sufficient approved evidence and authorized disposition of every conflict/dispute, while history, provenance, revisions, actors, timestamps and prior outcomes remain auditable. Replay, acknowledgement, transport success and repeated commands resolve no conflict. Evidence classes, attester authority, recipient linkage and conflict-resolution authority remain unresolved.
+
 Under `CORE-OD-10C`, closure eligibility requires settled Payment, completed Preparation, the authoritative custody-transfer fact and no open exception. Acknowledgement/refusal/disagreement or uncertain transfer evidence does not satisfy the handover guard. Even valid transfer does not close the Order; Ordering owns that separate decision and universal `P1A-OD-07` remains deferred.
 
 These are logical semantics only. Physical persistence, uniqueness enforcement, transaction/isolation, locks, broker behavior, transport and retry scheduling remain later Gate B design decisions.
@@ -203,19 +205,11 @@ The fresh-review findings do not reopen Owner policy. `CORE02-FIR-01` has author
 
 Every item below is independently answerable. Recommendations are `PROPOSED_NOT_APPROVED`. An approval, deferral or written condition on one item does not decide another.
 
-### 5.1 `CORE-OD-11B` — exact first-Branch cutoff
+### 5.1 `CORE-OD-11B` — initial cutoff Owner decision
 
-**Owner question:** What fixed local `HH:MM` cutoff applies to the first Hoi An Branch using `Asia/Ho_Chi_Minh`?
+**Owner decision:** `OWNER_DECIDED — OWNER_CONFIRMED`. The initial cutoff is `00:00` local time per Branch. The first Hoi An Branch therefore uses `00:00 Asia/Ho_Chi_Minh` under `CORE-OD-11A`.
 
-Already fixed: each Branch uses an explicit timezone and cutoff; there is no MVP inheritance; exceptional days require explicit effective evidence; closed Operating Days are not rewritten. Chain-wide timezone substitution and a moving “when close” cutoff are not valid options.
-
-| Source-supported direction | Benefit | Trade-off |
-|---|---|---|
-| Local midnight | Simple and calendar-aligned. | May split late service and reconciliation work. |
-| A fixed post-midnight/early-morning time supported by operational evidence | Can group late service into one Operating Day. | Delays close/report and complicates boundary transactions. |
-| Another explicit fixed local time supported by evidence | Can match actual operating practice. | Requires disciplined configuration and exceptional-day control. |
-
-**Recommendation:** `RECOMMENDATION_NOT_ESTABLISHED`. Obtain hours, after-midnight traffic, close/count/handover duration, boundary examples and Accounting/Reporting expectations first.
+Each Branch continues to use an explicit timezone and cutoff; there is no MVP inheritance; exceptional days require explicit effective evidence; closed Operating Days are not rewritten. `00:00` is the initial policy, not a permanent restriction. Future per-Branch configurable cutoff is an approved product direction, but this decision selects no configuration, persistence, scheduling, schema or migration mechanism and grants no implementation authority.
 
 ### 5.2 `CORE-OD-12` — capability, delegation and separation policy
 
@@ -281,9 +275,9 @@ Already fixed: recording actor, timestamp, reason and handover/session reference
 
 ### 5.7 Sequencing
 
-`CORE-OD-11B` can be decided independently after Branch-operations and Accounting evidence. `CORE-OD-12` Cash-capability principles affect the Cash-authority portions of `CORE-OD-13`, handover resolution and `CORE-OD-15A`, but review can proceed in parallel where the dependency is explicit. `CORE-OD-13` and `CORE-OD-15A` should be reviewed together while remaining separate decisions. Handover resolution is independent unless it dispositions a discrepancy. `CORE-OD-15B` follows reconciliation/disposition evidence but remains a separate report-hold/release policy decision; `CORE-OD-16B` separately governs report-reader capability and scope.
+`CORE-OD-11B` is decided independently and no longer blocks the initial Operating Day policy boundary. `CORE-OD-12` Cash-capability principles affect the Cash-authority portions of `CORE-OD-13`, handover resolution and `CORE-OD-15A`, but review can proceed in parallel where the dependency is explicit. `CORE-OD-13` and `CORE-OD-15A` should be reviewed together while remaining separate decisions. Handover resolution is independent unless it dispositions a discrepancy. `CORE-OD-15B` follows reconciliation/disposition evidence but remains a separate report-hold/release policy decision; `CORE-OD-16B` separately governs report-reader capability and scope.
 
-**CORE-04 readiness:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_INPUT_REQUIRED`.
+**CORE-04 readiness:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_AND_QUALIFIED_INPUT_REQUIRED`. The cutoff is decided, but capability, correction, discrepancy/release, reader and retention inputs remain open.
 
 ## 6. Cross-workstream consistency and critical path
 
@@ -306,7 +300,7 @@ Recommended parallel next actions:
 
 ## 7. Decision and governance reconciliation
 
-- The consolidated Core Operations record remains 34 unique local references: 27 Owner-confirmed and seven deferred (`CORE-OD-03`, `CORE-OD-04`, `CORE-OD-11B`, `CORE-OD-12`, `CORE-OD-13`, `CORE-OD-16B`, `CORE-OD-16F`).
+- The consolidated Core Operations record remains 34 unique local references: 28 Owner-confirmed and six deferred (`CORE-OD-03`, `CORE-OD-04`, `CORE-OD-12`, `CORE-OD-13`, `CORE-OD-16B`, `CORE-OD-16F`). `CORE02-FIR2-02` is separately Owner-confirmed under its stable finding reference and is not counted as a CORE-OD reference.
 - All local references retain `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated here.
 - `CORE-OD-01` remains approved by reference; its 28 rows, six groupings and option labels are not reopened.
 - Identity Milestone 2B and broader P1/P2/P3, Package C, Gate A/B/C, Control Acceptance, FOA and Production Authorization remain unchanged and ungranted where previously ungranted.
@@ -316,7 +310,7 @@ Recommended parallel next actions:
 ## 8. Validation record
 
 - The transcription contains exactly 28 unique artifact-labelled Product rows and reconciles to six source groupings; no exact Price is asserted.
-- The canonical consolidated review table reconciles to 27 confirmed and seven deferred local decision references; `CORE-OD-01` remains the separately recorded approved-by-reference menu decision and `CORE-OD-02` remains retired.
+- The canonical consolidated review table reconciles to 28 confirmed and six deferred local decision references; `CORE-OD-01` remains the separately recorded approved-by-reference menu decision and `CORE-OD-02` remains retired.
 - Markdown table column counts and fenced-block balance pass.
 - Every local Markdown link target in this report exists.
 - Whitespace validation passes for the new document.

@@ -35,7 +35,7 @@ The chain-level enterprise that owns Brands, Users, and Employees. Initial deplo
 **Branch**: A physical cafe location belonging to a Brand.
 
 **Operating Day**:  
-The business reporting and limit period used for daily cash, Expense, and reporting rules. Its exact cutoff and timezone are not yet defined.  
+The business reporting and limit period used for daily cash, Expense, and reporting rules. Each Branch uses its explicitly configured timezone and cutoff. The initial cutoff is `00:00` local time; the first Hoi An Branch uses `Asia/Ho_Chi_Minh`. Future per-Branch cutoff configurability is an approved product direction, not implementation authorization.
 _Avoid_: assuming calendar day, shift
 
 **Product**: A Brand-global menu identity assigned to its original Category for the initial MVP, while Branch availability and pricing may vary. An Active Product belongs to an Active Category and has exactly one Active Default Variant.

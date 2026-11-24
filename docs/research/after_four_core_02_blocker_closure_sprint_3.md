@@ -110,3 +110,9 @@ A reviewer who did not author the remediation must verify:
 **Outcome:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW`.
 
 `CORE02-FIR2-02` is now decision-ready but not decided. `CORE02-FIR2-01` remains a material policy blocker. CORE-02 may return to fresh independent review only after the Owner/qualified inputs close all three custody-transfer acceptance questions, the Owner selects the unresolved-attempt model, the logical design is synchronized, and the resulting evidence is independently verifiable.
+
+## 9. Subsequent Owner decision status
+
+The Consolidated Owner Decision Session on 2026-11-24 subsequently selected Model A for `CORE02-FIR2-02`. `transfer_evidence_unresolved` is nonterminal and fail-closed within the same stable handover attempt; new evidence may be retained and evaluated on that attempt, but conflict/dispute remains held until sufficient approved evidence and authorized disposition exist. Later evidence cannot silently supersede, erase or upgrade conflicting evidence, and replay, acknowledgement, transport success or repeated command resolves no conflict.
+
+This closes the attempt-model choice only. `CORE02-FIR2-01` evidence classes, attester authority and recipient-linkage validation remain unresolved, as does conflict-resolution authority. CORE-02 remains `NOT_READY_FOR_OWNER_GATE_A_REVIEW`; no Gate or implementation authorization follows.
