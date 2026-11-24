@@ -299,6 +299,12 @@ Keys/indexes: UQ `(preparation_dispatch_id, attempt_number)`; index `(status, st
 
 Implementation note: Phase 1 contains the physical table and `PreparationDispatchAttempt` model, but contains no writer for this record. The reserved physical subset adds `idempotency_key` and `actor_id` plus uniqueness support and does not yet implement the proposed `safe_error_detail` field above. `Preparation::RetryDispatch` only resets the existing Outbox Event and appends an Audit Event. Numbered delivery-attempt creation is deferred with the outbox consumer/Preparation Ticket implementation; the schema's presence is not evidence that retry attempts are currently recorded.
 
+### Semantic acceptance and customer custody-transfer attempts (`OWNER_CONFIRMED` semantics; logical shape unresolved)
+
+The Preparation acceptance attempt has its own stable semantic identity and is not a `preparation_dispatch_attempt`, Outbox delivery attempt, or transport retry. Candidate Ticket/Ticket Item state remains quarantined until the acceptance attempt has one authoritative terminal outcome; missing, conflicting, or ambiguous evidence fails closed.
+
+Customer custody transfer is a later, separate Preparation/Ordering fact. Under Owner-selected Model A, `transfer_evidence_unresolved` is nonterminal within the same stable custody-transfer attempt. Append-only evidence may be retained and evaluated, but acknowledgement alone is not transfer, conflicting or disputed assertions cannot be silently superseded, and `transferred` requires approved evidence criteria plus authorized disposition of every conflict. Intended-recipient linkage, attester and conflict authority, evidence decomposition, exact relations, physical keys, constraints, storage, and enforcement remain unresolved.
+
 ### `preparation_stations`, `preparation_tickets`, `preparation_items`
 
 | Table | Specific fields | Constraints, indexes, history |
@@ -378,9 +384,9 @@ Keys/indexes: UQ `(inventory_position_id, idempotency_key)`; indexes position/ti
 
 `OWNER_CONFIRMED` One shared drawer uses a configurable 2,000,000 VND float per Operating Day, carried across shift Cash Sessions. There is no automatic mid-day reset/top-up and no fixed top-up frequency limit. Exact configuration/effective-date and Operating Day schema remain proposals.
 
-### Cash handover attempt and evidence (`OWNER_CONFIRMED` semantics; logical shape unresolved)
+### Cash Session handover evidence (`OWNER_CONFIRMED` semantics; logical shape unresolved)
 
-A Cash handover uses one stable attempt identity and append-only evidence revisions. Required handover evidence includes outgoing actor, incoming actor, count, variance, reason, and acknowledgement. `transfer_evidence_unresolved` is a nonterminal, fail-closed disposition: later evidence may be retained and evaluated, but conflicting or disputed assertions cannot be erased, silently superseded, or upgraded. Transition to `transferred` requires sufficient approved evidence and authorized disposition of every conflict/dispute. Acknowledgement is not approval and never closes the outgoing Cash Session; Close is separate. Attester authority, recipient linkage, conflict-resolution authority, detailed disagreement disposition, and physical representation remain unresolved.
+Cash Session handover records outgoing actor, incoming actor, count, variance, reason, and acknowledgement or disagreement. Unresolved disagreement/refusal escalates to the Owner. Acknowledgement is not approval and never closes the outgoing Cash Session; Close is a separate capability-governed action. Exact record decomposition, authority assignments, disagreement handling beyond the confirmed escalation, discrepancy disposition, report-release authority, and physical representation remain unresolved. Customer custody-transfer Model A, `transfer_evidence_unresolved`, intended-recipient evidence, and `transferred` semantics do not describe this Cash process.
 
 ### `expense_categories`, `expenses`, `budgets`
 
