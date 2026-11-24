@@ -1,8 +1,8 @@
 # AFTER FOUR — Owner Decision Baseline
 
-**Status:** Canonical source of truth for Owner-confirmed business decisions  
-**Date recorded:** 2026-11-14  
-**Latest decision update:** 2026-11-23
+**Status:** Canonical source of truth for Owner-confirmed business decisions
+**Date recorded:** 2026-11-14
+**Latest decision update:** 2026-11-24
 **Scope:** Owner-confirmed business, planning and project-wide architecture decisions that constrain later implementation
 
 This baseline records Owner decisions supplied after the earlier repository consistency audit. It does not claim that these decisions were already present in the repository before this document was created.
@@ -325,6 +325,32 @@ The following reporting details are explicitly `UNRESOLVED`: exact delivery time
 | Reference | Decision date | Status | Owner-confirmed decision | Canonical ID / remaining boundary |
 |---|---|---|---|---|
 | `CORE-OD-01` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED_BY_REFERENCE` | The Owner approves the 28 named Product rows, six menu groupings, presented Variant-option labels, and presented Modifier-option lists in [Proposed Launch Menu v3](after_four_proposed_launch_menu_v3.md) as the draft launch-menu baseline. Dine-in and takeaway are in scope. The approved pricing direction is approximate: entry-level around VND 23,000, mid-tier around VND 33,000, and premium around VND 43,000–49,000. | `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved. Repository evidence does not contain an approved mapping from any individual Product/Variant to an exact Price, so the three bands are not exact SKU Prices. Product/Category/Variant codes, actual Variant applicability and capacities, Recipes, Modifier applicability/cardinality/pricing, tax, rounding, Service Charge, complimentary/zero-price behavior, availability, and implementation remain unresolved or separately governed. This decision grants no Gate or implementation authorization. |
+
+**Accelerated Core Operations consolidated Owner review decisions:**
+
+**Source:** Owner's explicit approval of all recommendations in the Consolidated Owner Review on 2026-11-24, with every row marked `DEFER` or `OWNER INPUT REQUIRED` remaining deferred/unresolved.
+
+All references below remain local crosswalk references with `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID is allocated or reserved. `CORE-OD-02` remains retired without allocation. These are business-policy decisions only and grant no technical-design acceptance, Gate A/B/C, implementation, schema, migration, database, Identity Milestone 2B, Control Acceptance, FOA, or Production Authorization.
+
+| Local reference(s) | Decision date | Status | Owner-confirmed policy / preserved unresolved boundary |
+|---|---|---|---|
+| `CORE-OD-03`, `CORE-OD-04` | 2026-11-24 | `OWNER_DEFERRED — OWNER_INPUT_REQUIRED` | Tax treatment/display and monetary precision/rounding policy and boundary remain unresolved pending qualified Tax/commercial/Accounting input. Integer VND representation is preserved; no rounding behavior is inferred. |
+| `CORE-OD-05` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Service Charge is excluded from the initial Core Sale slice. This does not decide future Service Charge policy. |
+| `CORE-OD-06` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Initial Order creation requires explicit `dine_in` or `takeaway` channel identity. A Table Session is not mandatory; table/session functionality remains separately scoped. |
+| `CORE-OD-07` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | The initial implementation payment path is exact-balance cash only. Manual bank is excluded from the initial slice, not permanently rejected, and may be reconsidered only after separate Branch-scoped capability and evidence prerequisites are resolved. |
+| `CORE-OD-17A`, `CORE-OD-17B`, `CORE-OD-17C` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | The initial slice excludes price-changing Modifiers and complimentary/zero-price Order Items. Direct operator-entered sold-price override is prohibited; published Price Versions and existing Branch Price Version policy remain authoritative. |
+| `CORE-OD-08A`, `CORE-OD-08B`, `CORE-OD-08C` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Preparation progress is recorded at Order Item level; quantity-level progress is excluded. Partial Ticket completion and partial Ticket handover are prohibited; handover follows whole-Ticket completion. |
+| `CORE-OD-09A`, `CORE-OD-09B`, `CORE-OD-09C`, `CORE-OD-09D` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Preserve existing cancellation authority: Staff before Preparation starts, Owner approval after start, and separate completed-Order exception handling; never cancel automatically. Before Dispatch, block Dispatch; after Dispatch but before start, record Ticket cancellation; in progress, preserve work and route to exception handling; after completion or handover, preserve evidence. Cancellation, hold/exception, completion and closure remain distinct, and cancellation neither authorizes nor executes Refund. |
+| `CORE-OD-10A`, `CORE-OD-10B`, `CORE-OD-10C` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Preparation completes only when every required item is complete at the approved granularity, with actor, time and version evidence. Handover is a separate explicit post-completion event. Order closure requires settled Payment, completed Preparation, handover evidence and no open exception. Refund amount/allocation/method/authority remain separately governed. |
+| `CORE-OD-11A` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | The first Hoi An Branch uses `Asia/Ho_Chi_Minh`; every Branch retains its own explicit actual timezone. |
+| `CORE-OD-11B` | 2026-11-24 | `OWNER_DEFERRED — OWNER_INPUT_REQUIRED` | Exact Branch Operating Day cutoff remains unresolved. Midnight, closing time or any other value must not be assumed. |
+| `CORE-OD-11C`, `CORE-OD-11D` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | MVP uses no timezone/cutoff inheritance; configure each Branch independently. Exceptional days require explicit effective evidence and never silently rewrite a closed Operating Day. |
+| `CORE-OD-12`, `CORE-OD-13` | 2026-11-24 | `OWNER_DEFERRED — OWNER_INPUT_REQUIRED` | Cash capability assignments/delegation/separation of duties and post-close correction operations/authority remain unresolved. No human appointment, generic-role inference or post-close correction feature is authorized. |
+| `CORE-OD-14A`, `CORE-OD-14B` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Handover disagreement/refusal is escalated to Owner; detailed resolution remains unresolved. Acknowledgement is not approval and does not automatically close the outgoing Cash Session; a separate Close action with its own capability is required. |
+| `CORE-OD-15A`, `CORE-OD-15B` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Every nonzero discrepancy requires recording, reason and Owner notification; no tolerance is permitted. Unreconciled data is held from authoritative reporting. Discrepancy classes, linked corrections, escalation, resolution authority, disposition authority and release authority remain unresolved; resolution does not itself grant report release. |
+| `CORE-OD-16A` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Initial source-lineage is limited to authoritative Order, Payment and pending Preparation Dispatch facts. Product/Variant sales, Preparation progress/handover, Cash balance/discrepancy/reconciliation, Refund/net sales, Expenses/float/top-ups, Promotions and Loyalty are excluded. |
+| `CORE-OD-16B`, `CORE-OD-16F` | 2026-11-24 | `OWNER_DEFERRED — OWNER_INPUT_REQUIRED` | Report-read capability/scope and retention/disposal/legal-hold remain unresolved pending separate Identity and governance/privacy input. |
+| `CORE-OD-16C`, `CORE-OD-16D`, `CORE-OD-16E` | 2026-11-24 | `OWNER_DECIDED — OWNER_CONFIRMED` | Excel export is deferred and excluded. Automatic Telegram or other external delivery is deferred pending approved recipients, schedule, privacy and failure escalation. Reporting cutoff follows the approved Operating Day; Cash-dependent facts become authoritative only after reconciliation. No read, export, recipient, schedule or external-delivery authority is granted. |
 
 **Source for `ODB-CAT-14` through `ODB-CAT-21`:** Owner's explicit confirmation in the Catalog Core Owner Decisions task.
 

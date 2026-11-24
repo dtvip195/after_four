@@ -24,9 +24,11 @@ The operational slice is still broken at both ends:
 - Orders store only an aggregate `total_amount`; there are no Order Item, sold Price snapshot, Price Version, Modifier, Refund, Cash Session, Preparation Ticket/Item, Promotion, Loyalty or operational-reporting records in `backend/db/structure.sql`.
 - Trusted authentication/authorization needed for real operators is absent. Only I1 ancestry has Gate A/B/C approval; Identity Milestone 2B remains unauthorized ([Foundation Decisions §5](../architecture/after_four_foundation_decisions.md#5-milestone-2--identity-branch-scope-and-authorization); [AF-OWNER-002 §4](../architecture/security-reviews/owner-led/af-owner-002-i1-organization-scope-gate-c-decision.md#4-governance-consequences)).
 
-The fastest safe path is a **bounded Core Sale Slice** covering authoritative menu/Price reads, Order Items and sold snapshots, Draft/Confirm, exact-balance cash confirmation, and creation of the existing pending Preparation Dispatch. Manual-bank confirmation remains implemented Phase 1 evidence but is conditionally excluded from the initial scope until `CORE-OD-07` and the separately governed trusted operator/capability prerequisite close. This is a bounded scope condition, not permanent policy. The slice must first receive its own Gate A design-baseline approval and Gate B implementation authorization with an exact manifest. Inventory is not a prerequisite.
+The fastest safe path is a **bounded Core Sale Slice** covering authoritative menu/Price reads, Order Items and sold snapshots, Draft/Confirm, exact-balance cash confirmation, and creation of the existing pending Preparation Dispatch. Confirmed `CORE-OD-07` excludes manual-bank confirmation from the initial scope without permanently rejecting it; reconsideration requires separately governed Branch-scoped capability and evidence prerequisites. The slice must first receive its own Gate A design-baseline approval and Gate B implementation authorization with an exact manifest. Inventory is not a prerequisite.
 
 The Owner has now confirmed `CORE-OD-01` by reference: dine-in plus takeaway, the 28 named Product rows and presented options in [Proposed Launch Menu v3](../architecture/after_four_proposed_launch_menu_v3.md), and approximate price directions of 23,000 / 33,000 / 43,000–49,000 VND. This is recorded with `ID_PENDING_OWNER_GOVERNANCE`; no canonical `ODB-*` ID was allocated. The repository still lacks an exact Product/Variant-to-Price mapping, so the approximate bands are not executable Price rows.
+
+The consolidated Owner review on 2026-11-24 additionally confirms 27 local `CORE-OD-*` policy directions and defers seven (`CORE-OD-03`, `04`, `11B`, `12`, `13`, `16B`, `16F`). All retain `ID_PENDING_OWNER_GOVERNANCE`. These decisions narrow business policy only: they do not approve a technical baseline, grant a Gate or authorize implementation.
 
 ## 2. Evidence and authorization method
 
@@ -57,9 +59,9 @@ No application or database command was run for this assessment. Specs listed bel
 
 ### A. Select Product → create Order → calculate amount → pay → confirm Payment
 
-**Current evidence:** demo Product selection and local calculation exist only in React; backend can create an aggregate-total Draft, confirm it, and settle exact-balance cash or locally confirmed manual bank. There is no API joining them and no authoritative Product/Variant/Price/Order Item path. This historical manual-bank behavior is preserved, but it is not included in the bounded first-slice implementation scope while its policy and trusted-operator prerequisites remain open.
+**Current evidence:** demo Product selection and local calculation exist only in React; backend can create an aggregate-total Draft, confirm it, and settle exact-balance cash or locally confirmed manual bank. There is no API joining them and no authoritative Product/Variant/Price/Order Item path. This historical manual-bank behavior is preserved, but confirmed `CORE-OD-07` excludes it from the bounded first slice pending separate Branch-scoped capability/evidence prerequisites.
 
-**Missing critical links:** exact transcription of Product/Variant records and individual Prices from the approved-by-reference baseline; Catalog read contract; effective Price resolution; Order Items and sold snapshots; server calculation; table/takeaway context; Presentation endpoints; trusted operator context; frontend API integration. A Draft line must bind one Price version, unrelated Draft edits must not silently reprice it, and any changed authoritative Price requires explicit re-quote/revalidation and review before confirmation under `ODB-CAT-09`. The exact concurrency mechanism remains a Gate B proposal. The existing `Orders::CreateDraft` accepts client-provided `total_amount` (`backend/app/domains/orders/create_draft.rb:7-27`), which is unsuitable as the final authoritative sales calculation boundary.
+**Missing critical links:** exact transcription of Product/Variant records and individual Prices from the approved-by-reference baseline; qualified tax/rounding input under deferred `CORE-OD-03/04`; Catalog read contract; effective Price resolution; Order Items and sold snapshots; server calculation; Presentation endpoints; trusted operator context; frontend API integration. `CORE-OD-06` now fixes explicit `dine_in`/`takeaway` identity without mandatory Table Session. `CORE-OD-05`, `17A` and `17B` exclude Service Charge, price-changing Modifiers and complimentary/zero-price items; `17C` prohibits direct sold-price override. A Draft line must bind one Price version, unrelated Draft edits must not silently reprice it, and any changed authoritative Price requires explicit re-quote/revalidation and review before confirmation under `ODB-CAT-09`. The exact concurrency mechanism remains a Gate B proposal. The existing `Orders::CreateDraft` accepts client-provided `total_amount` (`backend/app/domains/orders/create_draft.rb:7-27`), which is unsuitable as the final authoritative sales calculation boundary.
 
 **Readiness:** `READY_FOR_INDEPENDENT_GATE_A_REVIEW — NOT_READY_FOR_GATE_A_APPROVAL`. Calculation policy and exact Price transcription remain blockers; implementation then needs Gate B.
 
@@ -67,17 +69,21 @@ No application or database command was run for this assessment. Specs listed bel
 
 **Current:** full eligible payment creates a pending dispatch and outbox event atomically. No consumer turns it into a kitchen ticket. Frontend delivery status changes are local demo state and explicitly do not update Order/Payment/kitchen data (`frontend/src/features/upstairs-delivery/components/delivery-detail-content.tsx:85-118`).
 
-**Missing critical links:** outbox consumer contract; Preparation Ticket/Item aggregate; queue/read API; started/completed/handover transitions; actor/capability rules; failure/retry evidence; idempotent Order/Preparation linkage; fulfillment-to-Order closure rule. PreparationDispatch business state, Outbox delivery state and Ticket execution state must remain separate; duplicate delivery must resolve to one Ticket and never duplicate Ticket Items. Progress granularity, partial completion and partial handover are separate Owner questions.
+**Confirmed policy direction:** Order Item-level progress; no quantity-level progress, partial Ticket completion or partial Ticket handover; stage-specific cancellation consequences; explicit post-completion handover; and terminal closure only after settled Payment, completed Preparation, handover evidence and no open exception. Cancellation does not automatically close the Order or authorize Refund.
 
-**Readiness:** `DESIGN_AND_AUTHORIZATION_REQUIRED`.
+**Missing critical links:** outbox consumer contract; Preparation Ticket/Item aggregate; queue/read API; started/completed/handover transitions; actor/capability rules; failure/retry evidence; idempotent Order/Preparation linkage; exception mechanics and separately governed Refund policy. PreparationDispatch business state, Outbox delivery state and Ticket execution state must remain separate; duplicate delivery must resolve to one Ticket and never duplicate Ticket Items.
+
+**Readiness:** `POLICY_DIRECTION_SUBSTANTIALLY_CLOSED — DESIGN_REVIEW_AND_AUTHORIZATION_REQUIRED`. No Gate A/B or implementation authority follows.
 
 ### C. Open Cash Session → movements → count → handover → close → Operating Day reconciliation
 
 **Current:** no executable Cash lifecycle exists. Payment cash confirmation is not a Cash Session or drawer ledger.
 
-**Missing critical links:** actual Branch timezone and explicit cutoff; configuration/inheritance and exceptional-day behavior; capability assignees and separation; discrepancy classification/authority; movement taxonomy; session transition matrix; handover acknowledgement versus approval/disagreement; correction operations; discrepancy resolution, unresolved-case disposition and report-release authority; physical register/device scope. Reconciliation already precedes authoritative reporting under `P2B-CASH-OD-08`. No chain-wide timezone may substitute for the Branch timezone required by `ODB-CASH-12`.
+**Confirmed policy direction:** first Hoi An Branch uses `Asia/Ho_Chi_Minh`; each Branch has an explicit timezone with no MVP inheritance; exceptional days require explicit effective evidence; acknowledgement is not approval and does not close a Session; separate Close is required; every nonzero discrepancy requires reason and Owner notification with no tolerance; unreconciled data is held from authoritative reporting.
 
-**Readiness:** `OWNER_AND_TECHNICAL_CLOSURE_REQUIRED`, followed by Gate A/B.
+**Missing critical links:** exact Branch cutoff (`CORE-OD-11B`); capability assignments/delegation/separation (`CORE-OD-12`); post-close correction operations/authority (`CORE-OD-13`); detailed handover disagreement resolution; discrepancy classes, linked corrections, escalation/resolution/disposition/release authority; movement taxonomy and physical register/device scope.
+
+**Readiness:** `NOT_READY_FOR_GATE_A_APPROVAL — DEFERRED_POLICY_AND_EVIDENCE_REMAIN`, followed by separate Gate A/B.
 
 ### D. Apply Promotion / Loyalty
 
@@ -91,9 +97,11 @@ No application or database command was run for this assessment. Specs listed bel
 
 **Current:** raw Order/Payment/Audit records could support narrow engineering diagnostics, not authoritative operational reporting.
 
-**Missing critical links:** item and component provenance; Preparation completion; Refund; Cash reconciliation; report definitions; source-of-truth and correction semantics; access control; retention/export governance; read models and APIs.
+**Confirmed policy direction:** staged source-lineage is limited to authoritative Order, Payment and pending Preparation Dispatch facts. Excel export and automatic external delivery remain deferred/excluded; Cash-dependent facts are authoritative only after reconciliation.
 
-**Readiness:** `UPSTREAM_FACTS_AND_AUTHORIZATION_REQUIRED`.
+**Missing critical links:** item and component provenance for later integrated reporting; Preparation completion; Refund; Cash reconciliation; report definitions; source-of-truth and correction semantics; report-read capability/scope (`CORE-OD-16B`); retention/disposal/legal hold (`CORE-OD-16F`); read models and APIs. No export, recipient, schedule or delivery authority exists.
+
+**Readiness:** `STAGED_LINEAGE_DIRECTION_APPROVED — UPSTREAM_FACTS_AND_AUTHORIZATION_REQUIRED`.
 
 ## 5. Authorization matrix
 
@@ -129,11 +137,11 @@ FOA, production authorization, deployment, production database roles and product
 
 | Package | Objective and deliverables | Exact repository scope candidate | Dependencies / existing authority | Tests and acceptance evidence | Start now? |
 |---|---|---|---|---|---|
-| `CORE-01` Core Sale Gate A package | Approved-by-reference commercial baseline; API/Application/Domain contracts; Draft Price-version binding and explicit re-quote/review; Order Item/snapshot/calculation model; dine-in/takeaway rules; exact-cash baseline; Inventory/Promo/Loyalty exclusions; Gate B candidate manifest. | Documentation only; no source/schema. | `CORE-OD-01`, `ODB-CAT-01`–`13`, Phase 1 evidence and ADR-0011; exact Price transcription and calculation policy still needed. Manual bank additionally depends on `CORE-OD-07` and trusted operator/capability authorization. | Traceability, no-silent-repricing, deactivation/Branch/race/failure cases, cash-only boundary and independent design review. | **Independent Gate A review can start for the cash-only scope.** Approval remains blocked; Gate B required. |
-| `CORE-02` Preparation execution design | Separate Dispatch/Outbox/Ticket lifecycles; idempotent acceptance and duplicate delivery; progress granularity; partial completion/handover; queue contract, retries and Order closure dependency. | Documentation only; future candidate paths under `backend/app/domains/preparation/` and specs must not be created yet. | Existing pending dispatch; P1A-OD-07 deferred closure guards. Needs Owner decisions for completion/handover/closure where absent. | State/sequence tests, duplicate/out-of-order delivery, one-Ticket invariant, crash/retry, cross-Branch isolation and closure races. | **Yes, design/policy preparation only.** Implementation Gate B required. |
+| `CORE-01` Core Sale Gate A package | Approved-by-reference commercial baseline; confirmed channel/cash-only/exclusion policy; Draft Price-version binding and explicit re-quote/review; Order Item/snapshot/calculation model; Inventory/Promo/Loyalty exclusions; Gate B candidate manifest. | Documentation only; no source/schema. | `CORE-OD-01`, confirmed `05`–`07`/`17A`–`17C`, `ODB-CAT-01`–`13`, Phase 1 evidence and ADR-0011; exact Price transcription and deferred tax/rounding input still needed. | Traceability, no-silent-repricing, deactivation/Branch/race/failure cases, cash-only boundary and independent design review. | **Independent Gate A review can start for the cash-only scope.** Not ready for Gate A approval; Gate B required. |
+| `CORE-02` Preparation execution design | Separate Dispatch/Outbox/Ticket lifecycles; confirmed Item-level progress, whole-Ticket completion/handover, cancellation consequences and closure guards; idempotent acceptance and duplicate delivery. | Documentation only; future candidate paths under `backend/app/domains/preparation/` and specs must not be created yet. | Existing pending dispatch and confirmed `CORE-OD-08A`–`10C`; Refund and exception mechanics remain separate. | State/sequence tests, duplicate/out-of-order delivery, one-Ticket invariant, crash/retry, cross-Branch isolation and closure races. | **Design review may proceed.** No Gate A/B or implementation authority is granted. |
 | `CORE-03` Core operator Identity/Authorization | Preserve the existing operator/session/Branch/capability dependency without expanding it in this closure. | No new repository scope in this task. | I1 approved only for ancestry; ADR-0006 Proposed; Milestone 2B unauthorized. | Future separately authorized threat/fail-closed and security evidence. | **No new work in this closure.** Separate authorization and Gate A/B mandatory. |
-| `CORE-04` Cash closure | Resolve remaining Cash decisions and prepare Cash Session/Operating Day design with immutable linked corrections and reconciliation. | Cash research/design documents only. | `ODB-CASH-12`–`15`; CASH-03/05/07/08 unresolved/conditional. | Lifecycle, capability, discrepancy, handover, close/reconcile and reporting-hold acceptance matrix. | **Policy/design preparation yes; implementation no.** |
-| `CORE-05` Reporting contract | Define minimum operational reports and source-evidence lineage without building projections. | Reporting design/research only. | Requires item, Preparation, Refund/Cash facts; NW-OR-01 governance/discovery only. | Field/source lineage, correction/reconciliation semantics, access and retention review. | **Partial design can start; implementation blocked.** |
+| `CORE-04` Cash closure | Preserve confirmed timezone/configuration/handover/discrepancy/report-hold directions and close remaining cutoff, capability, correction and release details. | Cash research/design documents only. | `ODB-CASH-12`–`15`; deferred `CORE-OD-11B/12/13`; remaining discrepancy/release detail. | Lifecycle, capability, discrepancy, handover, close/reconcile and reporting-hold acceptance matrix. | **Policy/evidence preparation only.** Not ready for Gate A approval; implementation prohibited. |
+| `CORE-05` Reporting contract | Preserve approved staged Order/Payment/pending-Dispatch lineage while keeping metrics/read/export/delivery/cutoff/retention dimensions separate. | Reporting design/research only. | Confirmed `CORE-OD-16A/C/D/E`; deferred `16B/F`; later integrated reporting requires upstream facts. | Field/source lineage, correction/reconciliation semantics, access and retention review. | **Bounded lineage review only.** No read/export/delivery or implementation authority. |
 | `CORE-06` Promotion/Loyalty policy closure | Resolve calculation, eligibility, sequencing, allocation/reversal and authority needed for a later optional slice. | Existing P2A research/governance documents only. | Numerous conditional/dependency-blocked Owner candidates; no implementation authority. | Candidate-by-candidate policy acceptance and future Gate A prerequisites. | **Yes in parallel as policy work; not on Core Sale implementation path.** |
 
 After Gate B, the largest safe implementation parallelism is narrower than the design parallelism: Catalog/Pricing + Order snapshot/calculation must establish the contract before frontend integration; Preparation can implement behind the stable dispatch contract; operator Identity must be integrated before any operational acceptance; Reporting can build only after source facts stabilize.
@@ -165,19 +173,18 @@ This deferral does not reverse existing Inventory Owner decisions; it removes In
 
 1. Do not reopen the approved `CORE-OD-01` menu. Freeze a traceable transcription into exact Product/Variant records and individual Prices; the approximate bands alone remain insufficient executable pricing facts.
 2. Submit the cohesive `CORE-01` package for independent Gate A review; resolve review findings and blocking calculation inputs before requesting Owner Gate A approval.
-3. In parallel, close the `CORE-02` and `CORE-04` Owner ballots and keep `CORE-05` limited to source lineage. Do not expand `CORE-03`; Identity Milestone 2B remains unauthorized. Keep `CORE-06` outside the first transaction slice.
+3. In parallel, reconcile confirmed `CORE-02` policy into design review, close deferred/open `CORE-04` boundaries, and keep `CORE-05` limited to approved staged source lineage. Do not expand `CORE-03`; Identity Milestone 2B remains unauthorized. Keep `CORE-06` outside the first transaction slice.
 4. Request explicit Gate A decisions separately for Core Sale, Preparation execution and Cash after their prerequisites close. Operator Identity/Authorization remains a separately governed prerequisite, not part of this closure.
 5. Only after each Gate A approval, submit an exact Gate B manifest. No source/schema work should begin from this assessment.
 
 ### Owner decisions and evidence still required for the immediate path
 
 - **Evidence/data gap, not a renewed menu decision:** exact transcription of Product/Variant records and individual Prices from the approved-by-reference baseline, including price-per-size mapping and effective date/time.
-- Minimum dine-in table/service context and takeaway identification required at Order creation.
-- Core Sale calculation components: tax display/treatment, rounding, Service Charge existence or explicit exclusion, Modifier price effects, complimentary/zero-price behavior and manual sold-price override exclusion/policy.
-- Preparation progress granularity, partial completion, partial handover, stage-specific cancellation consequences, completion evidence, handover evidence and independently governed Order closure guards.
-- Bounded operator capabilities/assignees for Order, Payment and Preparation pending the separately governed Identity design. Until `CORE-OD-07` and trusted operator/capability prerequisites close, manual bank remains outside the cash-only first slice.
-- Cash Session discrepancy investigation/resolution, correction authority, handover acknowledgement versus approval, Session transition, close/reconciliation and separately governed reporting hold/release details.
-- Reporting metrics/source scope, read and Branch scope, export, recipients/delivery, cutoff and retention as independent decisions; none grants another authority implicitly.
+- Deferred tax display/treatment and rounding policy/boundary (`CORE-OD-03/04`) with qualified input.
+- Bounded operator capabilities/assignees for Order, Payment and Preparation pending separately governed Identity design. Manual bank remains excluded from the initial slice pending separate capability/evidence prerequisites.
+- Exact Cash cutoff, capability assignments/delegation/separation, post-close correction policy/authority, handover-disagreement detail, and discrepancy classes/linked corrections/escalation/resolution/disposition/release authority.
+- Reporting read/Branch-scope capability matrix and retention/disposal/legal-hold policy. Source-lineage approval grants no read, export, recipient, schedule or delivery authority.
+- Technical design review and applicable Gate A/B for every implementation scope, including the now-confirmed Preparation direction.
 
 Refund/provider reconciliation, Promotions, Loyalty and full Reporting remain follow-on decision sets and must not be silently pulled into the first Core Sale package.
 
@@ -189,4 +196,4 @@ Refund/provider reconciliation, Promotions, Loyalty and full Reporting remain fo
 - No production/staging environment, deployed service, runtime role, operational data or external provider was inspected.
 - “Can start” means documentation/design preparation under an existing authorization boundary, never implementation authority.
 
-**Final assessment:** `CORE_OPERATIONS_NOT_IMPLEMENTATION_READY — CORE_01_READY_FOR_INDEPENDENT_GATE_A_REVIEW — GATE_A_APPROVAL_NOT_GRANTED — INVENTORY_DEFERRED_FROM_CRITICAL_PATH — NO_NEW_AUTHORIZATION`.
+**Final assessment:** `OWNER_REVIEW_RECORDED — CORE_OPERATIONS_NOT_IMPLEMENTATION_READY — CORE_01_READY_FOR_INDEPENDENT_GATE_A_REVIEW — GATE_A_APPROVAL_NOT_GRANTED — INVENTORY_DEFERRED_FROM_CRITICAL_PATH — NO_NEW_AUTHORIZATION`.
