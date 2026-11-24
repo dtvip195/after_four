@@ -161,7 +161,8 @@ Audit evidence preserves actor, non-secret Session/evidence reference, Branch, t
 | Acceptance attempt | `absent → held_unresolved → accepted / rejected_terminal`; or direct `absent → accepted / rejected_terminal` | Held is non-terminal and fail-closed. Exactly one immutable terminal outcome may be recorded per attempt. |
 | Ticket | `queued → in_progress → completed`; `queued → cancelled` | Whole-Ticket completion only; no rewind/delete after work starts. |
 | Item | `queued → in_progress → completed` | Item-level progress; no quantity progress initially. |
-| Handover | `absent → recorded` | Only after whole-Ticket completion; no partial handover. |
+| Handover acknowledgement evidence | `absent → acknowledged / refused / disputed` | Records acknowledgement/observation, explicit refusal or disagreement as distinct evidence outcomes. None proves approval, resolution, transfer or closure. |
+| Customer custody-transfer evidence | `absent → transferred`; `absent → transfer_evidence_unresolved` | Only `transferred`, supported by independently sufficient actual-release evidence after whole-Ticket completion, establishes custody transfer. Missing/stale/conflicting/mismatched/unavailable/unverifiable/insufficient evidence remains fail-closed and preserves evidence. |
 | Exception | `open → escalated / resolved` | Open/escalated blocks closure; only separately authorized resolution may close it. |
 
 Historical `partially_ready`, quantity progress and generic `ready` proposals are excluded from this bounded slice. Preparation completion, handover and terminal Order closure are distinct facts.
@@ -175,6 +176,8 @@ Historical `partially_ready`, quantity progress and generic `ready` proposals ar
 - `held_unresolved` is a non-terminal, fail-closed disposition for missing, stale, conflicting, ambiguous, mismatched, incomplete or unavailable evidence/result. It creates no Ticket. The same attempt may reach one terminal outcome only after corrected authoritative evidence and a separately authorized resolver action.
 
 The two terminal outcomes are mutually exclusive. Response loss or unknown result reconciles by the same Dispatch plus acceptance-attempt identities: return the proven terminal outcome or remain held. Timeout, delivery failure and uncertainty cannot create a replacement attempt. If held reconciliation locates a candidate Ticket or Candidate Ticket Items without a proven accepted binding for those exact identities, the candidate set is quarantined/non-executable: it cannot start, progress, complete or hand over and cannot serve as acceptance evidence. Resolution preserves all candidate/conflict evidence, creates no duplicates and releases the candidate only after corrected authoritative evidence plus separately authorized resolution proves the identity and accepted binding. Otherwise it remains quarantined; a terminal rejection preserves rather than deletes or silently binds the candidate. Physical broker, worker, persistence, transaction/isolation, locks and retry scheduling remain Gate B.
+
+The handover evidence axes are independent. Acknowledgement, refusal or dispute may be recorded while custody transfer remains `absent` or `transfer_evidence_unresolved`. Only sufficient actual-release evidence records `transferred`. A command, transport success or authentication changes neither axis by itself. Replay returns the same evidence outcome and cannot upgrade acknowledgement into transfer; new authoritative evidence must independently satisfy the transfer contract. This design does not make refusal/dispute permanently terminal for every future attempt.
 
 ### 4.3 Exception contract
 
@@ -285,7 +288,7 @@ Cash Refund, Expense, float/top-up, post-close correction and manual bank are ex
 | Relationship | Consistent contract | Remaining dependency |
 |---|---|---|
 | CORE-01 → CORE-02 | Only eligible settled Payment creates the existing Dispatch; Ticket uses immutable sold-item facts and cannot rewrite Payment. | Ticket implementation requires Gate A/B and trusted capability implementation. |
-| CORE-02 → Ordering closure | Completion, handover and no-open-exception are separate evidence under bounded `CORE-OD-10C`. | Broader `P1A-OD-07` remains deferred. |
+| CORE-02 → Ordering closure | Completion, authoritative `transferred` custody evidence and no-open-exception are separate evidence under bounded `CORE-OD-10C`; acknowledgement/refusal/dispute or unresolved transfer evidence does not satisfy the handover guard. | Broader `P1A-OD-07` remains deferred. |
 | CORE-01 → CORE-04 | Exact-cash source uses the same authoritative Order, Payment target and successful Attempt; Cash failure cannot rewrite Payment. | Cash Session implementation and capability assignment remain unauthorized. |
 | CORE-04 → Reporting | Reconciled Cash facts only; disposition and release remain separate. | Cutoff, release authority and Reporting read/retention decisions remain open. |
 | CORE-03/P1 → all | Logical commands require actor/session/Branch/exact capability evidence and fail closed. | Identity Milestone 2B and assignments remain unauthorized. |

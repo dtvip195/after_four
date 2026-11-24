@@ -52,11 +52,13 @@ The following axes are distinct. A transition on one never proves a transition o
 | Acceptance attempt | `absent → held_unresolved → accepted / rejected_terminal`; or direct terminal outcome | Held is non-terminal and fail-closed. One immutable terminal outcome per attempt. |
 | Ticket execution | `queued → in_progress → completed`; `queued → cancelled` | Whole-Ticket completion; no rewind/delete after work starts. |
 | Ticket Item | `queued → in_progress → completed` | Item-level progress only; quantity progress is excluded. |
-| Handover acknowledgement evidence | `absent → recorded / refused / disputed` | Preserves an actor response/observation; it is not approval or customer custody transfer. |
-| Customer custody transfer | `absent → recorded` | Explicit fact only after whole-Ticket completion and trusted evidence of actual release; no partial handover. |
+| Handover acknowledgement evidence | `absent → acknowledged / refused / disputed` | `acknowledged` records acknowledgement/observation only; `refused` records explicit refusal; `disputed` records disagreement/disputed observation. None proves approval, resolution, transfer or closure. |
+| Customer custody-transfer evidence | `absent → transferred`; `absent → transfer_evidence_unresolved` | Only `transferred`, supported by independently sufficient actual-release evidence after whole-Ticket completion, establishes custody transfer. Missing/stale/conflicting/mismatched/unavailable/unverifiable/insufficient evidence remains fail-closed and preserves evidence. |
 | Exception | `open → escalated / resolved` | Open/escalated blocks bounded closure; resolution authority is separate. |
 
-Preparation completion, handover, Order closure, Cash Session closure, discrepancy resolution and Refund remain different business facts.
+Preparation completion, handover acknowledgement/refusal/dispute evidence, authoritative `transferred` custody evidence, Order closure, Cash Session closure, discrepancy resolution and Refund remain different business facts.
+
+The two handover axes are independent. Acknowledgement, refusal or dispute may exist while custody transfer remains absent or unresolved. Acknowledgement and `transferred` may coexist only when each has independently identifiable evidence. Command invocation, transport success and actor authentication cannot create `transferred`; replay returns the same evidence outcomes and cannot upgrade acknowledgement without new authoritative actual-release evidence. Refusal/dispute is not declared terminal for every future business attempt by this design.
 
 ## 5. Dispatch acceptance contract
 

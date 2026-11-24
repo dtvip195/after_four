@@ -78,6 +78,15 @@ The remediated design keeps these facts separate:
 
 Acknowledgement records an actor response or observation. It does not prove transfer, grant approval or establish closure eligibility. Invoking a command or confirming that a prompt was read also proves none of those facts.
 
+The logical state model therefore uses two independent evidence axes:
+
+| Evidence axis | Outcomes | Meaning |
+|---|---|---|
+| Handover acknowledgement evidence | `absent → acknowledged / refused / disputed` | `acknowledged` records acknowledgement/observation only; `refused` records explicit refusal; `disputed` records disagreement/disputed observation. None establishes transfer, approval, resolution or closure. |
+| Customer custody-transfer evidence | `absent → transferred`; `absent → transfer_evidence_unresolved` | Only `transferred` establishes custody transfer after sufficient actual-release evidence. Missing/stale/conflicting/mismatched/unavailable/unverifiable/insufficient evidence remains fail-closed, preserves evidence and creates no transfer fact. |
+
+Acknowledgement, refusal or dispute may exist without custody transfer. Acknowledgement and `transferred` may coexist only when evidence for each fact is independently identifiable. Command invocation, transport success or actor authentication creates neither transfer nor an upgrade between axes. Replay returns the same evidence outcome; new authoritative actual-release evidence satisfying the acceptance contract is required before `transferred` may be recorded. This design does not make refusal or dispute terminal for every future business attempt.
+
 ### 3.3 Custody-transfer evidence contract
 
 The authoritative custody-transfer fact may be accepted only from evidence that positively establishes that the completed whole Ticket was actually released to the intended customer or the customer's recipient. At the logical level sufficient evidence must:
@@ -167,6 +176,7 @@ The final checkpoint validates:
 - Dispatch-plus-attempt identity across replay, lookup, reconciliation and new-attempt rules;
 - Candidate Ticket/Item quarantine and non-executable behavior before accepted binding;
 - separation of acknowledgement from customer custody transfer, approval and Order closure eligibility;
+- consistency of the independent acknowledgement and custody-transfer evidence axes;
 - consistent readiness statements and 27 confirmed / seven deferred references;
 - Markdown tables, fences, local links and anchors;
 - `git diff --check` and `git show --check`; and
