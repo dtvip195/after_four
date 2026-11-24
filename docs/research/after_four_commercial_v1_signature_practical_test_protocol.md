@@ -113,39 +113,69 @@ Commercial V1 retains S/M/L for Trà đào cam sả, but no approved vessel capa
 | Trà đào cam sả | L | `OWNER_INPUT_REQUIRED` | R12 | `PLANNED` |
 | Trà đào cam sả | L | `OWNER_INPUT_REQUIRED` | R13 | `PLANNED` |
 
-## 5. Practical measurement worksheet
+## 5. Field execution records
+
+These records are for physical data capture. Source formulations remain benchmarks, not approved AFTER FOUR Recipes. All cells under actual measurement, test identity, sensory observation, and Owner disposition are intentionally blank until the field session. A completed record must retain its Run ID and parent track; never combine R04 with R05 or R12 with R13.
+
+### 5.1 Cà phê muối — independent R04 and R05 records
+
+Salt must be evaluated only with its complete parent foam composition. Do not compare or transfer a salt result independently of the R04 or R05 foam system.
+
+| Run ID | Parent track | Exact source formulation retained | Ingredient identity and actual SKU/brand | Actual weighed/measured quantities | Equipment and preparation settings | Coffee input and extracted output | Foam composition and foam output | Ice quantity | Vessel identity and measured capacity | Final serving output | Preparation time | Waste/loss | Sensory observations | Tester / date / repeat number | Owner disposition |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `CM-R04-01` | R04 | 20 g Vietnamese robusta; 100 ml water at 90–96°C; about 80 ml reported brew output; 20 ml condensed milk; foam of 60 ml whipping cream plus 0.75–1.5 g fine sea salt; glass two-thirds full of ice. |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `CM-R05-01` | R05 | 20 g phin coffee; 80 ml water at 92–96°C; 15–20 ml condensed milk; foam of 50 ml cream, 20 ml fresh milk, 10 ml condensed milk and approximately 0.5 g salt; full glass ice; optional unquantified cocoa pinch. |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
+If another salt or condensed-milk value inside a published range is tested, assign a distinct repeat/candidate identifier and record the selected source-range value. Do not overwrite the parent record.
+
+### 5.2 Trà đào cam sả — six independent size/source records
+
+The six records remain available for staged testing. The Owner may prioritize one actual serving size for the first session; testing all six records in that session is not required. Deferring the other sizes does not approve scaling. Each later size remains an independent record with `OWNER_INPUT_REQUIRED` vessel capacity.
+
+| Run ID | Intended Variant | Parent track | Exact source formulation retained | First-round selection | Tea identity/SKU, dose and brewing parameters | Actual filtered tea output | Peach liquid and peach Ingredient specification/quantity | Orange quantity | Lime quantity | Lemongrass identity/quantity | Syrup identity/quantity | Ice mass | Vessel identity/measured capacity | Final output/loss | Preparation time | Sensory observations | Tester/date/repeat number | Owner disposition |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `TDCS-S-R12-01` | S | R12 | Source 500 ml benchmark: tea base from 4 g black tea in 250 ml water at 95°C for 5 minutes, stated as enough for two glasses; 120 ml tea base; 40 ml orange juice; 30 ml peach-preserving liquid; 2–3 peach pieces; 15–20 ml sugar syrup; one bruised lemongrass stalk; 5 ml lime juice; glass full of ice. No S scaling is implied. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `TDCS-S-R13-01` | S | R13 | Source 500 ml benchmark: 150 ml tea base; 20 ml peach liquid; 25–30 ml orange juice; 15–20 ml sugar syrup; 2–3 peach slices; one bruised lemongrass stalk; full glass ice. Tea identity, dry dose and brewing method are absent from the source and remain blank pending explicit input; no R12 value or S scaling is implied. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `TDCS-M-R12-01` | M | R12 | Source 500 ml benchmark: tea base from 4 g black tea in 250 ml water at 95°C for 5 minutes, stated as enough for two glasses; 120 ml tea base; 40 ml orange juice; 30 ml peach-preserving liquid; 2–3 peach pieces; 15–20 ml sugar syrup; one bruised lemongrass stalk; 5 ml lime juice; glass full of ice. No M scaling is implied. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `TDCS-M-R13-01` | M | R13 | Source 500 ml benchmark: 150 ml tea base; 20 ml peach liquid; 25–30 ml orange juice; 15–20 ml sugar syrup; 2–3 peach slices; one bruised lemongrass stalk; full glass ice. Tea identity, dry dose and brewing method are absent from the source and remain blank pending explicit input; no R12 value or M scaling is implied. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `TDCS-L-R12-01` | L | R12 | Source 500 ml benchmark: tea base from 4 g black tea in 250 ml water at 95°C for 5 minutes, stated as enough for two glasses; 120 ml tea base; 40 ml orange juice; 30 ml peach-preserving liquid; 2–3 peach pieces; 15–20 ml sugar syrup; one bruised lemongrass stalk; 5 ml lime juice; glass full of ice. No L scaling is implied. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `TDCS-L-R13-01` | L | R13 | Source 500 ml benchmark: 150 ml tea base; 20 ml peach liquid; 25–30 ml orange juice; 15–20 ml sugar syrup; 2–3 peach slices; one bruised lemongrass stalk; full glass ice. Tea identity, dry dose and brewing method are absent from the source and remain blank pending explicit input; no R12 value or L scaling is implied. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
+For every R13 record, the tea identity, dry dose, water, temperature, time, and preparation method remain blank until measured under an explicitly identified trial basis or separately decided. R12 values must never be copied into R13 silently.
+
+## 6. Supplementary practical measurement worksheet
 
 Duplicate the following rows for every Ingredient and every run. Blank cells must remain blank until measured or supplied; use `TO_BE_MEASURED` or `OWNER_INPUT_REQUIRED` rather than invented values.
 
-### 5.1 Ingredient inputs
+### 6.1 Ingredient inputs
 
 | Run ID | Ingredient/component | Function (main/topping/garnish/optional) | Exact specification/SKU | Preparation state | Source quantity/unit | Actual quantity/unit | Evidence/classification | Notes |
 |---|---|---|---|---|---|---|---|---|
 |  |  |  |  |  |  |  |  |  |
 |  |  |  |  |  |  |  |  |  |
 
-### 5.2 Equipment and settings
+### 6.2 Equipment and settings
 
 | Run ID | Equipment | Make/model or specification | Setting | Temperature | Time | Calibration/check evidence | Notes |
 |---|---|---|---|---|---|---|---|
 |  |  |  |  |  |  |  |  |
 |  |  |  |  |  |  |  |  |
 
-### 5.3 Batch/component preparation
+### 6.3 Batch/component preparation
 
 | Run ID | Component | Inputs/reference | Start mass/volume | Filtered/usable output | Leftover/loss | Number of intended servings | Allocation basis | Notes |
 |---|---|---|---|---|---|---|---|---|
 |  |  |  |  |  |  |  |  |  |
 |  |  |  |  |  |  |  |  |  |
 
-### 5.4 Ice, vessel, finished output, and loss
+### 6.4 Ice, vessel, finished output, and loss
 
 | Run ID | Ice mass | Vessel identity | Vessel capacity | Finished mass | Finished volume | Foam/component output | Leftover/loss | Measurement method |
 |---|---|---|---|---|---|---|---|---|
 |  |  |  |  |  |  |  |  |  |
 |  |  |  |  |  |  |  |  |  |
 
-### 5.5 Sensory evaluation and acceptance fields
+### 6.5 Sensory evaluation and acceptance fields
 
 No numerical sensory threshold is approved. Where a target is required, record `OWNER_INPUT_REQUIRED`.
 
@@ -154,19 +184,39 @@ No numerical sensory threshold is approved. Where a target is required, record `
 |  |  |  |  |  |  |  |  |  |  |
 |  |  |  |  |  |  |  |  |  |  |
 
-### 5.6 Repeat comparison and operator observations
+### 6.6 Repeat comparison and operator observations
 
 | Candidate ID | Run IDs compared | Variables held constant | Variables changed | Output variance | Sensory variance | Repeatability observation | Operator notes |
 |---|---|---|---|---|---|---|---|
 |  |  |  |  |  |  |  |  |
 
-### 5.7 Owner disposition record
+### 6.7 Owner disposition record
 
 | Candidate ID | Current test status | Owner disposition | Decision date | Rationale/conditions | Further evidence/test required | Costing-BOM admission separately approved? |
 |---|---|---|---|---|---|---|
 |  | `OWNER_REVIEW_REQUIRED` |  |  |  |  | No |
 
-## 6. Ingredient purchasing boundary
+## 7. First-round input readiness
+
+| Input class | Required for the first practical round | Boundary |
+|---|---|---|
+| Owner must identify or approve | Actual Ingredient identities/SKUs to test; available equipment; the actual serving vessel for Cà phê muối; one prioritized Trà đào cam sả serving size and its actual vessel; whether an R13 tea-base trial may proceed and, if so, its explicitly recorded trial basis; which values inside published source ranges will be run first. | This selects test inputs only. It does not approve an Ingredient, Recipe, BOM, supplier, or commercial standard. |
+| Physically measurable during the test | Ingredient masses/volumes; water temperature and time; extracted/filtered output; foam output; fruit/peach/lemongrass mass; ice mass; measured vessel capacity; finished output; preparation time; leftovers/loss; repeatability and sensory observations. | Measurements are test evidence, not approved Recipe or costing inputs. |
+| Supplier/document evidence required | SKU label/specification, package/unit evidence, lot or best-before information where available, and provenance for each actual Ingredient used. | Accepted quotation, invoice, landed cost, supplier approval, tax evidence, and purchase terms are not prerequisites for a bounded sensory/yield test, but remain required before evidence-backed costing or procurement approval. |
+| Not yet needed for the first practical round | Remaining Trà đào cam sả sizes not selected for the first session; approved S/M/L scaling; Dine-in/Takeaway packaging allocation; waste/remake policy; purchase price; unit cost; gross margin; tax and rounding treatment. | Deferral must not be interpreted as approval or as permission to copy the first-size result to another Variant. |
+
+Practical testing remains blocked only where the selected first-round run lacks an identifiable Ingredient, usable equipment, a measurable vessel, safe handling information, or an explicit trial basis for a source gap such as R13 tea preparation. Future S/M/L work does not block R04/R05 or one accurately bounded first-size R12/R13 comparison.
+
+## 8. Minimum first-round execution sequence
+
+1. Confirm the actual Ingredient SKUs/specifications and equipment available for the session; record documentary labels and unresolved substitutions.
+2. Identify and measure the actual vessels, including the one Owner-prioritized Trà đào cam sả serving size. Do not infer capacities from S/M/L labels.
+3. Run R04 and R05 independently with their complete parent formulations and separate records; do not compare salt outside its foam system.
+4. Run R12 and R13 independently at the Owner-selected first serving size. R13 may proceed only with its tea-base trial basis explicitly recorded; do not import R12's tea dose or brewing method.
+5. Record outputs, losses, preparation times, sensory observations, and repeat identity; identify which candidates merit a controlled repeat without selecting a winner.
+6. Defer the remaining tea sizes until the first-round evidence has been reviewed. No scaling or cross-size adoption follows automatically.
+
+## 9. Ingredient purchasing boundary
 
 Candidate supplier references come only from the existing [external Ingredient/supplier research](after_four_commercial_v1_external_ingredient_supplier_research.md). They are leads, not selected suppliers or SKUs; public prices are not purchase costs.
 
@@ -175,13 +225,13 @@ Candidate supplier references come only from the existing [external Ingredient/s
 
 Do not contact suppliers, send RFQs, select a supplier, or treat a public listing as actual cost under this protocol.
 
-## 7. Bơ xay dừa non — research gap blocker
+## 10. Bơ xay dừa non — research gap blocker
 
 Bơ xay dừa non is excluded from this protocol's test execution. No test worksheet, Recipe, or quantity is authorized for it. R18 is an avocado/coconut-syrup/ice-cream comparator; R19 is an avocado/strawberry comparator. Neither establishes young-coconut identity or quantity.
 
 Before a future protocol can be designed, evidence must define whether young coconut means flesh, coconut water, both, or a specified purchased preparation; the exact Ingredient specification and availability; and the intended flavor, texture, sweetness, ice, and serving characteristics. These are missing inputs, not decisions made by this document.
 
-## 8. Completion and governance boundary
+## 11. Completion and governance boundary
 
 A test is complete only when its source identity, exact inputs, equipment/settings, actual output/loss, sensory observations, repeat result, and unresolved deviations are recorded. `TESTED` does not mean approved. Owner review and separate Recipe/BOM admission remain mandatory.
 
