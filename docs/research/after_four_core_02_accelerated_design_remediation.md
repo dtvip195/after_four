@@ -1,6 +1,6 @@
 # AFTER FOUR — CORE-02 Accelerated Design Remediation
 
-**Status:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW`
+**Current status:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW`
 
 **Base commit:** `4c0856b0d9786e7009e9d49ff6889ba006efc474`
 
