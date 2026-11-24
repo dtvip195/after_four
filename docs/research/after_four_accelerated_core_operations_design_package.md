@@ -1,6 +1,6 @@
 # AFTER FOUR — Accelerated Core Operations Design Package
 
-**Package status:** `OWNER_REVIEW_RECORDED — DESIGN_REMEDIATION_RECORDED — CORE_01_04_INPUT_BLOCKED — CORE_02_READY_FOR_SUBSEQUENT_INDEPENDENT_REVIEW_ONLY`
+**Package status:** `OWNER_REVIEW_RECORDED — CORE_02_LOGICAL_REMEDIATION_COMPLETE — CORE_01_04_INPUT_BLOCKED — CORE_02_READY_FOR_FRESH_INDEPENDENT_REVIEW_ONLY`
 
 **Repository baseline:** `main` / `origin/main` at `d1d8807faa1234fc7924bd522fa26363d1e3a414`
 
@@ -322,23 +322,24 @@ Preparation Ticket execution state (proposal): queued → in_progress → comple
                                           queued → cancelled
 Preparation Item state: queued → in_progress → completed
 Handover evidence: absent → recorded (only after whole-Ticket completion)
+Acceptance disposition: absent → held_unresolved → accepted | rejected_terminal
+                        absent → accepted | rejected_terminal
 Exception state: open → escalated | resolved
 ```
 
 Outbox delivery never substitutes for Dispatch or Ticket state. `PreparationDispatch.dispatched` may be recorded only after the idempotent acceptance outcome has established or located the one Ticket for that Dispatch; the exact persistence/transport mechanism remains unselected. Item-level progress is confirmed; quantity-level progress, partial Ticket completion and partial handover are prohibited initially. A queued Ticket may become cancelled only when an authoritative same-decision-point check proves no Item started. In-progress or completed cancellation never rewinds/deletes work; it creates or links a durable exception and preserves evidence. Historical `partially_ready`, quantity-progress and generic `ready` proposals in the State Machines document are not authoritative states for this bounded slice. A generic mutable status endpoint is prohibited; named commands request transitions.
 
-```text
-delivery carries existing Dispatch identity
-  → consumer checks prior acceptance result
-  → if absent, establish Ticket + Items + durable acceptance as one semantic outcome
-  → if already accepted, return the same Ticket identity
-  → response loss retries the same Dispatch identity
-  → reconciliation detects pending Dispatch/no Ticket or Ticket/missing acceptance evidence
-```
+Acceptance uses stable Dispatch identity plus a stable acceptance-attempt identity. Required trusted evidence binds the exact eligible pending Dispatch, confirmed Order and immutable sold Items, authoritative eligible settled Payment, exact Branch, applicable evidence versions and absence of a blocking exception. Delivery acknowledgement, Outbox publication, timeout, transport success/failure and caller assertion are never business acceptance evidence.
 
-This sequence states semantic recovery only. It selects no broker, worker, lease, index, transaction isolation, storage object or deployment topology.
+| Acceptance disposition/outcome | Meaning and terminality | Replay, retry and transition rule |
+|---|---|---|
+| `accepted` | Terminal outcome for the attempt after every required guard passes. It establishes or locates exactly one Ticket identity and its required Ticket Items. | Duplicate delivery, same-attempt retry and result lookup return the same immutable outcome and Ticket identity. It never returns to undecided or becomes rejected. |
+| `rejected_terminal` | Terminal authoritative rejection for the attempt, with safe reason and linked exception evidence. | Duplicate delivery, same-attempt retry and lookup return the same immutable rejection. The same attempt can never accept or create Ticket facts. A new business attempt requires a separately authorized use case, resolved rejection basis, revalidated Dispatch eligibility, retained rejection evidence and a new attempt identity. |
+| `held_unresolved` | Non-terminal, fail-closed disposition where evidence or authoritative result is missing, stale, conflicting, ambiguous, mismatched, incomplete or unavailable. It is neither acceptance nor rejection. | Same-attempt delivery/lookup returns held. The same attempt may receive exactly one terminal outcome only after corrected authoritative evidence and a separately authorized resolver action validate it. Timeout, delivery failure or uncertainty cannot create a replacement attempt. |
 
-Acceptance outcomes are `Accepted` or `AlreadyAccepted` with the same Ticket identity, `RetryableFailure` with no accepted result, `Rejected` with safe reason and a linked/open exception, or `Uncertain` requiring lookup by Dispatch identity. Response loss retries the same identity. A Ticket found without acknowledgement is reconciled by linking the existing Ticket/acceptance evidence; it is never recreated. A pending Dispatch with no Ticket remains retryable.
+The two terminal outcomes are mutually exclusive and immutable. A held, rejected or conflicting attempt creates no new Ticket or Ticket Items. Only the first proven `accepted` terminal outcome may establish Ticket facts; duplicate or out-of-order delivery locates that same Ticket. If held reconciliation locates a candidate Ticket without a proven acceptance result, it creates nothing: separately authorized resolution must either prove and bind that exact Ticket to `accepted` or record `rejected_terminal` while preserving the conflicting evidence. It never recreates Ticket Items. Conflicting Ticket/outcome identity fails closed into `held_unresolved`. Response loss and unknown result reconcile by the same identities: a proven outcome is returned, otherwise the disposition is held. A held-case resolution records resolver identity, trusted capability evidence, reason, corrected evidence references, time and resulting terminal outcome; this contract grants no resolver authority and defines no automatic recovery.
+
+This is a logical semantic boundary only. It selects no broker, worker, lease, index, database object, transaction/isolation, lock, storage or deployment topology.
 
 Each exception has a stable identity correlated to Order, Dispatch, Ticket and optionally Item; status `open`, `escalated` or `resolved`; Branch, actor, reason, observed stage/version, idempotency/correlation identity and event time; and immutable resolution evidence. An open or escalated exception blocks closure. A rejected resolution remains recorded and leaves the exception open/escalated. Only a separately authorized outcome may resolve it; exception handling never authorizes Refund, rewrites Payment/Ticket history or invents resolver authority.
 
@@ -350,11 +351,26 @@ Each exception has a stable identity correlated to Order, Dispatch, Ticket and o
 - A retry or redelivery cannot create a second Ticket or duplicate Ticket Items. This is an acceptance invariant, not a selected index, transaction, worker or transport implementation.
 - Ticket Items use confirmed sold-item references and quantities; they do not query current Catalog descriptions/Prices to reconstruct history.
 - Start/complete/cancel commands require trusted actor, Branch scope, exact capability, expected version and audit evidence.
+- Explicit handover is a separate named Application command after whole-Ticket completion. It requires trusted actor identity, valid authenticated Session evidence, exact Ticket and Branch binding, the operation-specific handover capability, stable command/idempotency identity, expected Ticket version and authoritative whole-Ticket completion evidence. Missing, stale, conflicting or mismatched identity, scope, capability, version or completion evidence fails closed without handover.
+- Successful handover records actor, non-secret Session reference, Branch, Ticket, command identity, authoritative time, reason where required, prior/resulting Ticket or handover version and resulting state. Exact duplicate replay returns the same handover result; stale version or conflicting replay fails closed and creates no second handover fact.
+- Preparation completion is not handover. Handover acknowledgement is not approval; handover neither closes a Cash Session, resolves a discrepancy, authorizes Refund nor closes an Order by itself.
 - Completion cannot imply Order closure until the separate Ordering closure guards are approved (`P1A-OD-07` remains deferred).
 - Preparation failure/cancellation cannot rewrite Payment success.
 - Inventory postings are absent; future Inventory consumes separately approved facts asynchronously and cannot gate completion in this milestone.
 
-### 4.4 Required future evidence
+### 4.4 ADR-0011 dependency and contract ownership
+
+| Interaction | Contract owner and caller | Port / adapter direction | Protected invariant and logical failure |
+|---|---|---|---|
+| Dispatch acceptance | Preparation Application owns the acceptance use case and required inbound acceptance contract; the composition-boundary delivery adapter calls it. | Infrastructure implements delivery and cross-context evidence adapters behind Preparation Application-owned required contracts. Composition root wires them. | Domain rules permit one terminal outcome per attempt and one Ticket per accepted Dispatch. Missing/mismatched evidence fails held; no Ticket advances. |
+| Order/Payment eligibility evidence | Preparation Application owns the evidence it requires; it calls explicit Ordering/Payment Application contracts through Preparation-owned consumer ports. | Infrastructure adapters invoke the published upstream Application contracts; Preparation never reads another context's Infrastructure records. | Preparation cannot reinterpret commercial or settlement truth. Unavailable, stale or conflicting evidence fails closed. |
+| Ticket execution and completion | Preparation Application owns named start/complete/cancel orchestration and invokes Preparation Domain behavior. | Presentation authenticates/adapts a request and delegates; Infrastructure persists/maps only behind required contracts. | Domain owns valid transitions, Item-level progress and whole-Ticket completion. Invalid/stale commands fail without mutation. |
+| Trusted operator checks | Preparation Application owns the authorization evidence contract it requires and invokes it before mutation. | An Infrastructure or composition-boundary adapter calls the approved Identity Application public contract; no Preparation dependency on Identity Infrastructure exists. | Actor, Session, exact Branch and exact operation capability must match. Missing or invalid evidence fails closed and is non-disclosing. |
+| Handover | Preparation Application owns the named handover command and audit requirements; it invokes Preparation Domain eligibility rules. | Presentation delegates; Infrastructure implements persistence/audit ports; composition root supplies implementations. | Whole-Ticket completion, expected version and no prior handover are mandatory. Replay is idempotent; conflict/staleness fails closed. |
+
+Preparation Domain owns framework-independent Ticket/Item, acceptance, exception, completion and handover concepts and invariants. Preparation Application owns use-case orchestration and every required contract. Infrastructure may depend on Domain and the Application contracts it implements; neither Domain nor Application depends on Active Record, provider SDKs, transport or another context's Infrastructure. Presentation owns request/response adaptation only. No empty layer, generic repository, command bus or new service boundary is required.
+
+### 4.5 Required future evidence
 
 - duplicate/out-of-order outbox delivery;
 - worker crash before and after Ticket commit;
@@ -366,7 +382,7 @@ Each exception has a stable identity correlated to Order, Dispatch, Ticket and o
 - Payment remains unchanged under every Preparation failure;
 - reconciliation of pending Dispatch without Ticket and Ticket without acknowledged delivery.
 
-### 4.5 Cancellation and completion decision axes
+### 4.6 Cancellation and completion decision axes
 
 Cancellation policy evaluates each operational stage without collapsing request authority, approval authority, Preparation consequence, Ordering consequence/closure, Refund consequence or required evidence. Existing authority is preserved: Staff may cancel with reason before Preparation starts; after Preparation starts, Owner approval is required; completed Orders use a separate exception process (`ODB-OP-12`–`14`). `CORE-OD-09A`–`09D` confirm the consequences below; they authorize neither a cancellation implementation nor Refund execution.
 
@@ -576,7 +592,7 @@ The register contains 34 unique local references: 27 `OWNER_CONFIRMED` and seven
 | Workstream | Design completeness | Owner-policy closure | External/qualified input | Gate A readiness | Next gate |
 |---|---|---|---|---|---|
 | CORE-01 Core Sale | Deterministic resolution, Payment-target lifecycle, port/orchestration and trusted-command contracts remediated at the logical level | `CORE-OD-05`–`07` and `17A`–`17C` confirmed; `CORE-OD-03/04` deferred; `CORE-OD-01` remains confirmed | Qualified tax/rounding input and exact Product/Variant Price transcription remain needed | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED` | Close exact Price evidence and deferred qualified-input decisions, then independent re-review. |
-| CORE-02 Preparation | Dispatch/Outbox/Ticket/Item/Handover/Exception axes, acceptance/replay and bounded closure contracts remediated logically | `CORE-OD-08A`–`10C` confirmed; broader `P1A-OD-07`, Refund and resolver authority remain separate | Fresh independent review required; physical design remains Gate B | `READY_FOR_SUBSEQUENT_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED` | Independent review of the remediated bounded design; separate Gate A/B mandatory. |
+| CORE-02 Preparation | Dispatch/Outbox/acceptance/Ticket/Item/Handover/Exception axes, terminal/held acceptance, trusted handover and ADR-0011 contracts remediated logically | `CORE-OD-08A`–`10C` confirmed; broader `P1A-OD-07`, Refund, Identity implementation and resolver authority remain separate | Fresh independent review required; physical design remains Gate B | `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED` | Independently review the remediated bounded design; separate Owner Gate A and Gate B remain mandatory. |
 | CORE-04 Cash | Confirmed policy synchronized; lifecycle, disagreement hold and initial exact-cash source contracts remediated logically | `CORE-OD-11A/C/D`, `14A/B`, `15A/B` confirmed; `11B`, `12`, `13` deferred; disposition/release authority open | Owner Cash/Accounting/Reporting input needed | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — DEFERRED_INPUT_BLOCKED` | Resolve cutoff, authority, correction and remaining disposition/release detail before independent review. |
 | CORE-03 Operator access | Bounded trust/capability contract prepared | Assignments and bank/Cash authority unresolved | Security evidence and ADR-0006/Milestone governance required | `NOT_READY — IDENTITY MILESTONE UNAUTHORIZED` | Separate Identity Gate A and Gate B. |
 | CORE-05 Reporting | Staged source-lineage is approved only for authoritative Order, Payment and pending-Dispatch facts; integrated reporting awaits Order Item, Preparation, Cash and reconciliation facts | `CORE-OD-16A/C/D/E` confirmed; `16B/F` deferred; no read, export, delivery, recipient, schedule, retention or legal-hold authority is granted | Authoritative upstream facts and governance/privacy input remain required | `NOT_READY — UPSTREAM_DEPENDENCIES` | Review bounded lineage only; no reporting implementation or authority follows. |
@@ -646,10 +662,10 @@ Current classifications remain:
 - Identity I1: Gate A/B/C approved only for ancestry;
 - Identity Milestone 2B: unauthorized;
 - CORE-01: logical remediation recorded, but exact Price evidence and deferred qualified tax/rounding input keep it not ready for Owner Gate A review;
-- CORE-02: bounded logical remediation recorded and ready only for a subsequent independent Gate A review; no Gate is granted;
+- CORE-02: all three second-review logical findings are remediated and the bounded design is ready only for fresh independent Gate A review; no independent review or Gate is granted;
 - CORE-04: confirmed directions coexist with deferred cutoff, capability and correction policy plus open discrepancy/release details;
 - CORE-05: staged lineage direction only; read, export, retention, recipient and delivery authority remain absent;
 - CORE-03: remains outside this closure and unauthorized for implementation;
 - Inventory: deferred from this milestone, with future boundaries preserved.
 
-**Final status:** `OWNER_REVIEW_RECORDED — DESIGN_REMEDIATION_RECORDED — CORE_01_INPUT_BLOCKED — CORE_02_READY_FOR_SUBSEQUENT_INDEPENDENT_REVIEW — CORE_04_05_DEPENDENCIES_REMAIN — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.
+**Final status:** `OWNER_REVIEW_RECORDED — CORE_02_LOGICAL_REMEDIATION_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_READY_FOR_FRESH_INDEPENDENT_REVIEW — CORE_04_05_DEPENDENCIES_REMAIN — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.

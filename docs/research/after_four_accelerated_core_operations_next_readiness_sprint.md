@@ -1,6 +1,6 @@
 # AFTER FOUR — Accelerated Core Operations Next Readiness Sprint
 
-**Sprint status:** `EVIDENCE_AND_REVIEW_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_DESIGN_CORRECTION_REQUIRED — CORE_04_OWNER_INPUT_REQUIRED`
+**Sprint status:** `EVIDENCE_AND_REVIEW_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_REMEDIATED_FOR_FRESH_INDEPENDENT_REVIEW — CORE_04_OWNER_INPUT_REQUIRED`
 
 **Repository baseline:** `main` / local `origin/main` at `87437e8153311a1b8c551fafebfb490f733381ed`
 
@@ -17,10 +17,10 @@ This sprint ran three independent readiness tracks against the current merged Co
 | Track | Result | Immediate consequence |
 |---|---|---|
 | CORE-01 exact commercial input | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED` | The 28 approved-by-reference Product rows are fully traceable, but exact Product/Variant Prices, final Variant applicability and qualified Tax/Accounting constraints remain absent. |
-| CORE-02 Preparation execution | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — DESIGN_CORRECTION_REQUIRED` | The post-remediation design is substantially coherent, but three technical-design gaps remain: fail-closed rejected/uncertain acceptance, trusted handover-command guards and ADR-0011 dependency contracts. |
+| CORE-02 Preparation execution | `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED` | The three technical-design findings are remediated in the canonical design and [CORE-02 Accelerated Design Remediation](after_four_core_02_accelerated_design_remediation.md). A fresh independent review remains mandatory. |
 | CORE-04 Cash and reconciliation | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_INPUT_REQUIRED` | Six independently answerable Owner policy areas remain open. Evidence and decision questions are prepared below without selecting policy for the Owner. |
 
-No track is honestly ready for Gate A presentation. The fastest safe next work is parallel: correct and independently re-review CORE-02; obtain the exact CORE-01 commercial and qualified evidence; and conduct the bounded CORE-04 Owner decision session. No application, schema, migration, database, dependency or runtime work is authorized.
+No track has Gate A approval. CORE-02 is ready only to enter fresh independent review; it is not yet ready for Owner Gate A presentation until that review confirms closure. In parallel, obtain the exact CORE-01 commercial and qualified evidence and conduct the bounded CORE-04 Owner decision session. No application, schema, migration, database, dependency or runtime work is authorized.
 
 This sprint preserves the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), accepted [ADR-0011](../architecture/adr/0011-project-wide-layered-ddd.md), the [Accelerated Core Operations Design Package](after_four_accelerated_core_operations_design_package.md), its [Design Remediation](after_four_accelerated_core_operations_design_remediation.md), the [Independent Design Review](after_four_core_operations_independent_design_review.md), and the [Development Readiness Assessment](after_four_accelerated_core_operations_readiness_assessment.md).
 
@@ -147,7 +147,7 @@ The Owner must eventually confirm the exact canonical Product/Variant transcript
 
 **CORE-01 readiness:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED`.
 
-## 4. CORE-02 — Independent post-remediation design review
+## 4. CORE-02 — Independent-review findings and remediation status
 
 ### 4.1 Review result
 
@@ -155,13 +155,13 @@ The review assessed implemented-versus-proposed separation, Dispatch/Outbox/Tick
 
 | Stable finding | Severity | Result and required correction |
 |---|---|---|
-| `CORE02-IR2-01` | `BLOCKER` | `Rejected` and held/unresolved acceptance lack separate durable fail-closed logical outcomes. A pending Dispatch with no Ticket is otherwise retryable. Define the distinct accepted, rejected-terminal and held/unresolved semantics in §4.2, including attempt identity, replay, lost-response lookup and separately authorized resolution; do not select persistence, transaction, locking or transport mechanisms. |
-| `CORE02-IR2-02` | `MAJOR` | The explicit handover command lacks the trusted actor, exact Branch, operation-specific capability, idempotency identity, expected-version and audit guards applied to other Preparation mutations. Add the fail-closed command contract without assigning a capability holder or authorizing CORE-03. |
-| `CORE02-IR2-03` | `MAJOR` | CORE-02 lacks an explicit ADR-0011 dependency contract. Document Preparation Application ownership of acceptance/use-case contracts, Infrastructure adapter implementation, Presentation delegation where applicable and composition-root wiring, without selecting files, framework, transport or persistence. |
+| `CORE02-IR2-01` | `BLOCKER — REMEDIATED, INDEPENDENT_REVIEW_PENDING` | Canonical design now defines distinct immutable `accepted` / `rejected_terminal` outcomes and non-terminal fail-closed `held_unresolved`, including stable identities, replay, lost-result reconciliation, new-attempt boundaries and authorized held resolution without selecting physical mechanisms. |
+| `CORE02-IR2-02` | `MAJOR — REMEDIATED, INDEPENDENT_REVIEW_PENDING` | Canonical design now requires trusted actor, Session, exact Branch, exact handover capability, stable command identity, expected version, completion evidence and audit result; missing/conflicting evidence fails closed. No holder or Identity implementation is authorized. |
+| `CORE02-IR2-03` | `MAJOR — REMEDIATED, INDEPENDENT_REVIEW_PENDING` | Canonical design now assigns Domain/Application/Infrastructure/Presentation/composition responsibilities and Application-owned ports for acceptance, upstream evidence, operator checks, execution and handover under ADR-0011. |
 
 ### 4.2 Required acceptance outcome model
 
-The correction for `CORE02-IR2-01` must preserve Dispatch business state, Outbox delivery state, Ticket state and Ticket Item state as separate axes. An Outbox delivery result is not an acceptance decision, and repeated delivery does not create a new business attempt.
+The remediated contract for `CORE02-IR2-01` preserves Dispatch business state, Outbox delivery state, Ticket state and Ticket Item state as separate axes. An Outbox delivery result is not an acceptance decision, and repeated delivery does not create a new business attempt.
 
 | Logical acceptance outcome | Meaning and terminality | Permitted transition | Prohibited transition |
 |---|---|---|---|
@@ -191,9 +191,9 @@ These are logical semantics only. Physical persistence, uniqueness enforcement, 
 - Inventory and Refund remain outside the bounded design.
 - No Gate or implementation authority is implied.
 
-The three findings are technical-design corrections. They do not require reopening Owner business policy. Because a blocker and two major gaps remain, no Owner Gate A brief is produced in this sprint.
+The three findings are technical-design corrections and do not reopen Owner policy. The authored remediation is complete, but it is not an independent review. A fresh reviewer must confirm each closure before any Owner Gate A package is prepared.
 
-**CORE-02 readiness:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW — DESIGN_CORRECTION_REQUIRED`.
+**CORE-02 readiness:** `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`.
 
 ## 5. CORE-04 — Consolidated Owner decision session package
 
@@ -294,7 +294,7 @@ Already fixed: recording actor, timestamp, reason and handover/session reference
 
 Recommended parallel next actions:
 
-1. Correct the three CORE-02 design findings and run a fresh independent review.
+1. Run a fresh independent review of the three remediated CORE-02 findings; correct any new finding before Owner Gate A preparation.
 2. Freeze the 28-row CORE-01 transcription without turning artifact labels into canonical codes; obtain final Variant applicability and exact Price/scope/effective-time input.
 3. Commission qualified Vietnamese Tax/Accounting input for `CORE-OD-03/04` without treating professional advice as the Owner decision.
 4. Present the six CORE-04 decision areas to the Owner, preserving their independent answerability and evidence prerequisites.
@@ -316,9 +316,9 @@ Recommended parallel next actions:
 - Markdown table column counts and fenced-block balance pass.
 - Every local Markdown link target in this report exists.
 - Whitespace validation passes for the new document.
-- The complete change set contains this documentation file only; no application, test, schema, migration, dependency, configuration or runtime file is changed.
+- The original sprint checkpoint contained this documentation file only. The later CORE-02 remediation synchronizes the canonical design and related readiness documents without changing any application, test, schema, migration, dependency, configuration or runtime file.
 - No application test, service or database command was run.
 
 ## 9. Sprint completion status
 
-`READINESS_SPRINT_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_DESIGN_CORRECTION_REQUIRED — CORE_04_OWNER_INPUT_REQUIRED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`
+`READINESS_SPRINT_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_READY_FOR_FRESH_INDEPENDENT_REVIEW — CORE_04_OWNER_INPUT_REQUIRED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`
