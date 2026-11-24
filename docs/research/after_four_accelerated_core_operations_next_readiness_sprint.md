@@ -155,11 +155,31 @@ The review assessed implemented-versus-proposed separation, Dispatch/Outbox/Tick
 
 | Stable finding | Severity | Result and required correction |
 |---|---|---|
-| `CORE02-IR2-01` | `BLOCKER` | `Rejected`, conflicting and unresolved acceptance lack a durable fail-closed logical disposition. A pending Dispatch with no Ticket is otherwise retryable. Define a logical held/rejected acceptance disposition and require separately authorized resolution before later acceptance can advance; do not select persistence or transport. |
+| `CORE02-IR2-01` | `BLOCKER` | `Rejected` and held/unresolved acceptance lack separate durable fail-closed logical outcomes. A pending Dispatch with no Ticket is otherwise retryable. Define the distinct accepted, rejected-terminal and held/unresolved semantics in §4.2, including attempt identity, replay, lost-response lookup and separately authorized resolution; do not select persistence, transaction, locking or transport mechanisms. |
 | `CORE02-IR2-02` | `MAJOR` | The explicit handover command lacks the trusted actor, exact Branch, operation-specific capability, idempotency identity, expected-version and audit guards applied to other Preparation mutations. Add the fail-closed command contract without assigning a capability holder or authorizing CORE-03. |
 | `CORE02-IR2-03` | `MAJOR` | CORE-02 lacks an explicit ADR-0011 dependency contract. Document Preparation Application ownership of acceptance/use-case contracts, Infrastructure adapter implementation, Presentation delegation where applicable and composition-root wiring, without selecting files, framework, transport or persistence. |
 
-### 4.2 Dimensions that remain sound
+### 4.2 Required acceptance outcome model
+
+The correction for `CORE02-IR2-01` must preserve Dispatch business state, Outbox delivery state, Ticket state and Ticket Item state as separate axes. An Outbox delivery result is not an acceptance decision, and repeated delivery does not create a new business attempt.
+
+| Logical acceptance outcome | Meaning and terminality | Permitted transition | Prohibited transition |
+|---|---|---|---|
+| `accepted` | Authoritative acceptance for the identified Dispatch acceptance attempt after every required evidence check and guard passes. Terminal for that attempt. | Idempotently return the same accepted result and the same Ticket identity on duplicate delivery, replay or result lookup. | Must not create another Ticket or duplicate Ticket Items, return to undecided, or accept a different/mismatched Dispatch under the same attempt. |
+| `rejected_terminal` | Authoritative decision that the identified acceptance attempt is rejected. Terminal for that attempt; it is not a transient delivery failure. | Idempotently return the same rejection for same-attempt retry, duplicate delivery, replay or result lookup. A new business attempt is permitted only through a separately authorized use case after the rejection basis is resolved, Dispatch eligibility is revalidated and a new attempt identity is issued while retaining the rejected evidence. | The rejected attempt must never become accepted, create a Ticket/Ticket Items, be silently retried as a new attempt, or be overwritten by a later delivery. |
+| `held_unresolved` | Acceptance cannot safely be decided because required evidence is missing, stale, conflicting, ambiguous, mismatched or incomplete, or because the authoritative result cannot be established. Not accepted and not rejected; non-terminal as a case, but fail-closed for execution. | Same-attempt delivery or lookup may return the same held result. Resolution may occur only after required evidence is supplied and a separately authorized resolver action validates that evidence for the same Dispatch and attempt; the explicit resolution then records accepted or rejected-terminal outcome. | Must not create a Ticket/Ticket Items, advance Ticket execution, infer rejection, silently become accepted, or create a replacement attempt merely because of timeout, delivery failure or uncertainty. |
+
+Same-attempt retry means replay or result lookup using the same stable Dispatch and acceptance-attempt identity; it never means creating new business facts. A new attempt after `rejected_terminal` is a distinct, separately authorized business action with a new attempt identity. A held case remains the same attempt until an authorized resolution records its explicit outcome; no automatic recovery authority exists.
+
+If a response is lost or the result is unknown, the caller must query/reconcile by the same stable identities. A proven recorded `accepted` or `rejected_terminal` outcome is returned idempotently. Missing, conflicting or unavailable authoritative result evidence yields `held_unresolved`; network success/failure, timeout, Outbox delivery status or caller assertion cannot select an acceptance outcome.
+
+Acceptance requires trusted evidence binding the exact Dispatch, eligible confirmed Order/Payment facts, expected Branch, attempt identity and applicable version/guard facts. Resolving a held case requires the missing or corrected authoritative evidence plus a separately authorized resolver action whose identity, capability, reason and audit evidence are recorded. This requirement does not identify the resolver, grant the capability or choose a recovery workflow.
+
+Exactly one logical acceptance outcome may govern an attempt. Ticket creation is allowed only as the consequence of the first proven `accepted` outcome, under a stable one-Dispatch/one-Ticket identity rule; replay returns that Ticket. Rejected or held outcomes create no Ticket or Ticket Items. A conflicting outcome or identity fails closed into the unresolved-case path rather than advancing any state.
+
+These are logical semantics only. Physical persistence, uniqueness enforcement, transaction/isolation, locks, broker behavior, transport and retry scheduling remain later Gate B design decisions.
+
+### 4.3 Dimensions that remain sound
 
 - Current pending Dispatch/Outbox implementation is separated from proposed Ticket execution.
 - Dispatch business state, Outbox delivery state, Ticket state and Ticket Item state are distinct.
@@ -197,19 +217,19 @@ Already fixed: each Branch uses an explicit timezone and cutoff; there is no MVP
 
 The Owner questions remain separate:
 
-- `12A`: which accountable capability source/holder model applies to Open, Count, Handover, Close, reconcile, discrepancy disposition and reporting release?
+- `12A`: which accountable capability source/holder model applies to each explicitly defined Cash operation, including Open, Count, Handover, Close, Cash reconciliation and discrepancy disposition?
 - `12B`: what delegation, revocation and emergency boundaries apply?
 - `12C`: what separation-of-duties and conflict rules apply?
 
-Already fixed: Open, Count, Handover and Close are separate Branch-scoped capabilities. Generic Staff status, Employee Shift or Branch Assignment grants none.
+Already fixed: Open, Count, Handover and Close are separate Branch-scoped capabilities. Generic Staff status, Employee Shift or Branch Assignment grants none. `CORE-OD-12` governs Cash operations only; it does not grant authoritative-report release, report reading, export, recipient or delivery authority.
 
 | Policy model for Owner consideration | Benefit | Trade-off |
 |---|---|---|
 | Strict distinct actors | Strong separation. | May be operationally infeasible in a small Branch. |
-| Risk-tiered separation | Separates higher-risk correction, disposition and release while permitting bounded operations. | Needs precise risk and exception rules. |
+| Risk-tiered separation | Separates higher-risk Cash correction and discrepancy disposition while permitting bounded Cash operations. | Needs precise risk and exception rules. |
 | Same actor only for explicitly enumerated operations under explicit authority/evidence | More operable with small staffing. | Greater abuse/conflict risk; requires tighter evidence and escalation. |
 
-**Recommendation:** confirm only operation-specific, Branch-scoped, fail-closed capability principles now. `RECOMMENDATION_NOT_ESTABLISHED` for actual assignees, delegation and separation until Cash operations plus Accounting/Reporting control evidence exists. No human appointment or technical enforcement is in this ballot.
+**Recommendation:** confirm only operation-specific, Branch-scoped, fail-closed Cash capability principles now. `RECOMMENDATION_NOT_ESTABLISHED` for actual assignees, delegation and separation until Cash operations plus Accounting control evidence exists. No human appointment, reporting authority or technical enforcement is in this ballot.
 
 ### 5.3 `CORE-OD-13` — linked post-close correction operations and authority
 
@@ -245,7 +265,7 @@ Already fixed: recording actor, timestamp, reason and handover/session reference
 
 ### 5.6 Authoritative-report hold and release
 
-`CORE-OD-15B` remains independent from discrepancy resolution. The Owner must decide what constitutes reconciled/authoritative evidence, who dispositions unresolved cases, whether any exception release exists, who may release it and with what evidence/limitations. Discrepancy resolution never grants report-release authority.
+`CORE-OD-15B` remains independent from Cash capability assignment and discrepancy resolution. The Owner must decide what constitutes reconciled/authoritative evidence, who dispositions unresolved cases, whether any exception release exists, who may release it and with what evidence/limitations. Neither Cash reconciliation authority nor discrepancy disposition grants report-release authority. Reporting reader capability and scope remain separately deferred under `CORE-OD-16B`; release never grants read, export, recipient or delivery authority.
 
 | Option | Benefit | Trade-off |
 |---|---|---|
@@ -257,7 +277,7 @@ Already fixed: recording actor, timestamp, reason and handover/session reference
 
 ### 5.7 Sequencing
 
-`CORE-OD-11B` can be decided independently after Branch-operations and Accounting evidence. `CORE-OD-12` principles affect the authority portions of `CORE-OD-13`, handover resolution and `CORE-OD-15`, but review can proceed in parallel where the dependency is explicit. `CORE-OD-13` and `CORE-OD-15A` should be reviewed together while remaining separate decisions. Handover resolution is independent unless it dispositions a discrepancy. `CORE-OD-15B` follows reconciliation/disposition evidence and remains a separate authority decision.
+`CORE-OD-11B` can be decided independently after Branch-operations and Accounting evidence. `CORE-OD-12` Cash-capability principles affect the Cash-authority portions of `CORE-OD-13`, handover resolution and `CORE-OD-15A`, but review can proceed in parallel where the dependency is explicit. `CORE-OD-13` and `CORE-OD-15A` should be reviewed together while remaining separate decisions. Handover resolution is independent unless it dispositions a discrepancy. `CORE-OD-15B` follows reconciliation/disposition evidence but remains a separate report-hold/release policy decision; `CORE-OD-16B` separately governs report-reader capability and scope.
 
 **CORE-04 readiness:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_INPUT_REQUIRED`.
 
@@ -269,7 +289,7 @@ Already fixed: recording actor, timestamp, reason and handover/session reference
 | CORE-01 → CORE-04 | Exact cash settlement is not a Cash Session movement model. Cash requires its own authoritative movement and reconciliation facts. |
 | CORE-02 → CORE-04/05 | Preparation execution facts may become later reconciliation/reporting inputs only after their own accepted design and implementation. |
 | CORE-03 → all operator mutations | Trusted actor, Session, exact Branch and operation-specific capability remain a prerequisite; this sprint does not authorize Identity Milestone 2B. |
-| CORE-04 → CORE-05 | Unreconciled Cash facts remain held from authoritative reporting. Discrepancy resolution does not imply report release. |
+| CORE-04 → CORE-05 | Unreconciled Cash facts remain held from authoritative reporting. Cash reconciliation or discrepancy-disposition authority does not imply report release; `CORE-OD-15B` governs hold/release policy and deferred `CORE-OD-16B` separately governs report-reader capability/scope. Neither grants export, recipient or delivery authority. |
 | Inventory | Inventory implementation remains deferred and is not required to create, pay, prepare or hand over an Order. No stock logic is embedded in Ordering, Payment or Preparation. |
 
 Recommended parallel next actions:
