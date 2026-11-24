@@ -91,7 +91,7 @@ Only Ordering Application may record a terminal outcome, and `confirmed_terminal
 | Payment-owned state | Meaning | Permitted next logical outcome |
 |---|---|---|
 | `absent` | No target for the confirmation attempt. | Create/locate one matching `provisional` target. |
-| `provisional` | Proposed amount/currency and snapshot digest are correlated to the Order confirmation attempt, but are not payable. | Activate only after verified matching Order confirmation; otherwise cancel or hold for reconciliation. |
+| `provisional` | Proposed amount/currency and snapshot digest are correlated to the Order confirmation attempt, but are not payable while confirmation is pending, delayed, failed locally, unavailable or ambiguous. | Activate only after matching trusted `confirmed_terminal` evidence. Cancel only after matching trusted `aborted_terminal` evidence and terminal revision prove the Ordering fence. Missing/unavailable/stale/conflicting/mismatched evidence retains or holds the target for reconciliation. |
 | `authoritative` | Payment Application verified matching authoritative Order confirmation and activated the single matching target. | Exact-cash settlement may proceed if all other guards pass. |
 | `cancelled` | Payment validated trusted Ordering `aborted_terminal` evidence for the same attempt and tombstoned its provisional target. | Terminal for that target; never reused or reactivated. |
 | `reconciliation_required` | Duplicate, mismatch, partial observation or context disagreement is held. | Separately authorized reconciliation only; no settlement/Dispatch/completion. |
@@ -110,7 +110,7 @@ The protocol is:
 
 Failure and retry outcomes:
 
-- Provisional creation followed by delayed/failed/unknown Ordering outcome leaves non-payable evidence. Payment never cancels from absence; it requires matching `aborted_terminal` evidence whose fence prevents later confirmation of that attempt.
+- Provisional creation followed by pending, delayed, locally failed, unavailable or ambiguous Ordering outcome leaves non-payable evidence. Absence, timeout, transport failure and caller/adapter assertions never permit cancellation. Payment independently obtains matching `aborted_terminal` evidence and terminal revision from the trusted Ordering Application contract and validates its Ordering-owned fence before cancelling; missing, stale, conflicting or mismatched evidence retains/holds the target for reconciliation.
 - Ordering confirmation followed by failed/unknown activation holds payment eligibility. Retry/reconciliation uses the same attempt and activates the matching target or records `reconciliation_required`; it never creates another payable target.
 - Activation followed by response loss is replayed by the same identity and returns the prior authoritative result.
 - Multiple targets, multiple authoritative candidates, mismatched digest/amount/currency/version or context disagreement enter `reconciliation_required`; automatic selection, merge or rewrite is prohibited.
@@ -233,7 +233,7 @@ Invalid implications are explicit: acknowledgement is not approval or Close; Ses
 
 ### 5.4 Disagreement hold (`CORE04-M01`)
 
-One idempotent case records Branch, Day, outgoing Session, handover evidence, outgoing/proposed incoming actors, count, variance, acknowledgement/refusal/disagreement/observation actor, timestamp, reason and evidence, status, Owner escalation and linked resolution evidence. Recording an acknowledgement, refusal, disagreement or observation is evidence capture needed to create and investigate the case. It does not approve handover, transfer custody, close either Session, resolve a discrepancy or release a report. Replay locates the same case; conflicting replay fails closed. While unresolved it preserves outgoing custody/accountability and remains held/escalated under the approved Owner direction. Detailed resolver authority remains deferred and cannot be inferred from the evidence recorder or captured evidence.
+One idempotent case records Branch, Day, outgoing Session, handover evidence, outgoing/proposed incoming actors, count, variance, acknowledgement/refusal/disagreement/observation actor, timestamp, reason and relevant handover/Session references, status, Owner escalation and linked resolution evidence. Recording and preserving an acknowledgement, refusal, disagreement or observation is evidence capture needed to create and investigate the unresolved case. It does not approve, resolve or complete the handover; transfer custody; close either Session; disposition a discrepancy; or release a report. Acknowledgement/refusal evidence cannot silently advance the disputed handover lifecycle. Replay locates the same case; conflicting replay fails closed. While unresolved it preserves outgoing custody/accountability and remains held/escalated under the approved Owner direction. Resolution and every consequential authority remain subject to the existing separately governed Owner/capability decisions and cannot be inferred from the evidence recorder or captured evidence.
 
 ### 5.5 Initial exact-cash source (`CORE04-M02`)
 
