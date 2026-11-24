@@ -30,7 +30,7 @@ Detailed outputs: [CORE-01](after_four_core_01_blocker_closure_sprint_3.md), [CO
 | `CORE02-FIR2-01` | `UNRESOLVED — BLOCKER` | Approve trusted evidence classes, attester authority and recipient-linkage validation. | Owner and appropriate qualified input |
 | `CORE02-FIR2-02` | `PARTIALLY_CLOSED — OWNER_DECISION_REQUIRED` | Owner selects same-attempt resolution, terminal-new-attempt semantics or deferral; design is synchronized. | Owner business policy |
 | CORE-04 Operating Day | Open | Owner selects exact first-Branch cutoff from operating/Accounting/Reporting evidence. | Owner after evidence |
-| CORE-04 authority/corrections/disagreement | Open | Owner selects capability, delegation, separation, bounded correction and disagreement-resolution policies. | Owner after Cash/Accounting/control input |
+| CORE-04 authority/corrections/`CORE-OD-14A/B` disagreement | Open | Owner selects capability, delegation, separation, bounded correction and detailed disagreement-resolution policies without reopening confirmed Owner escalation or the separate Close action. | Owner after Cash/Accounting/control input |
 | CORE-04 discrepancy/release | Open | Source-supported disposition/release options exist and Owner selects them without tolerance or inferred release. | Qualified Accounting/Reporting, then Owner |
 | CORE-04 reader/retention | Open | Identity/governance and qualified retention inputs exist; Owner selects bounded policy. | Qualified input, then Owner |
 

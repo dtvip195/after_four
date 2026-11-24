@@ -65,6 +65,8 @@ The repository consistently treats uncertainty as fail-closed rather than as an 
 
 This recommendation is `PROPOSED_NOT_APPROVED`. Owner confirmation remains required because it determines whether later evidence resolves the same business attempt. Until confirmed, the current state stays unresolved and cannot satisfy closure.
 
+Under Model A, `transfer_evidence_unresolved` may remain nonterminal on the same stable attempt only while valid evidence is missing, incomplete, being obtained or being verified. That progression does not permit later evidence to override a conflict, dispute or challenged prior assertion. Conflicting or disputed custody evidence keeps the attempt held and fail-closed until the conflict is resolved through a separately authorized disposition under policy that remains unresolved. Later evidence is retained and may be evaluated, but it cannot silently supersede, erase or upgrade any conflicting evidence. Recording `transferred` requires both the approved actual-release evidence criteria and authorized resolution of every conflict or dispute. Evidence identities, provenance, revisions, actors, authoritative times and prior outcomes remain auditable. Replay, acknowledgement, transport results and repeated commands resolve no conflict, and no new attempt may be created silently to bypass unresolved evidence. This clarification selects neither a resolver nor Model A itself.
+
 ### 5.1 Exact Owner question
 
 Choose one:
