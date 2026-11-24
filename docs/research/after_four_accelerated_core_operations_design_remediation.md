@@ -17,8 +17,8 @@ This package remediates the logical design findings in the [Independent Core Ope
 | Workstream | Logical remediation result | Remaining blocker | Gate A readiness |
 |---|---|---|---|
 | CORE-01 | Payment-target lifecycle, deterministic menu/Price resolution, Application-owned ports, orchestration and trusted-command/audit contracts are now explicit. | Exact Product/Variant Prices do not exist; tax and rounding remain deferred pending qualified input and Owner decisions. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
-| CORE-02 | Dispatch/Outbox/acceptance/Ticket/Item/acknowledgement/custody-transfer/Exception axes are distinct.<br>Terminal/held outcomes, Candidate Ticket quarantine and ADR-0011 ownership contracts are explicit. | Acceptable actual-release evidence classes, attester policy and recipient-linkage validation remain unresolved Owner/qualified inputs.<br>Broader universal closure, Identity implementation, exception resolver authority, Refund and physical mechanisms remain separate. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
-| CORE-04 | Confirmed policy, distinct lifecycle outcomes, durable disagreement hold and initial exact-cash source contract are explicit. | Exact cutoff, capability assignments, post-close correction policy and disposition/release authority remain deferred. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
+| CORE-02 | Dispatch/Outbox/acceptance/Ticket/Item/acknowledgement/custody-transfer/Exception axes are distinct.<br>Terminal/held outcomes, Candidate Ticket quarantine, Owner-confirmed same-attempt Model A and ADR-0011 ownership contracts are explicit. | Acceptable actual-release evidence classes, attester policy, recipient-linkage validation and conflict-resolution authority remain unresolved Owner/qualified inputs.<br>Broader universal closure, Identity implementation, Refund and physical mechanisms remain separate. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
+| CORE-04 | Confirmed policy, initial `00:00` local Branch cutoff, distinct lifecycle outcomes, durable disagreement hold and initial exact-cash source contract are explicit. | Capability assignments, post-close correction policy and disposition/release authority remain deferred. | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` |
 
 No logical closure below creates a table, migration, lock, transaction, broker, worker, API, capability assignment or implementation authorization.
 
@@ -26,7 +26,7 @@ No logical closure below creates a table, migration, lock, transaction, broker, 
 
 Controlling sources:
 
-- [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), including 27 confirmed and seven deferred `CORE-OD-*` references;
+- [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), including 28 confirmed and six deferred `CORE-OD-*` references;
 - [ADR-0011](../architecture/adr/0011-project-wide-layered-ddd.md);
 - [Accelerated Core Operations Design Package](after_four_accelerated_core_operations_design_package.md);
 - [Accelerated Core Operations Readiness Assessment](after_four_accelerated_core_operations_readiness_assessment.md);
@@ -177,7 +177,7 @@ Historical `partially_ready`, quantity progress and generic `ready` proposals ar
 
 The two terminal outcomes are mutually exclusive. Response loss or unknown result reconciles by the same Dispatch plus acceptance-attempt identities: return the proven terminal outcome or remain held. Timeout, delivery failure and uncertainty cannot create a replacement attempt. If held reconciliation locates a candidate Ticket or Candidate Ticket Items without a proven accepted binding for those exact identities, the candidate set is quarantined/non-executable: it cannot start, progress, complete or hand over and cannot serve as acceptance evidence. Resolution preserves all candidate/conflict evidence, creates no duplicates and releases the candidate only after corrected authoritative evidence plus separately authorized resolution proves the identity and accepted binding. Otherwise it remains quarantined; a terminal rejection preserves rather than deletes or silently binds the candidate. Physical broker, worker, persistence, transaction/isolation, locks and retry scheduling remain Gate B.
 
-The handover evidence axes are independent. Acknowledgement, refusal or dispute may be recorded while custody transfer remains `absent` or `transfer_evidence_unresolved`. Only sufficient actual-release evidence records `transferred`. A command, transport success or authentication changes neither axis by itself. Replay returns the same evidence outcome and cannot upgrade acknowledgement into transfer; new authoritative evidence must independently satisfy the transfer contract. This design does not make refusal/dispute permanently terminal for every future attempt.
+The handover evidence axes are independent. Acknowledgement, refusal or dispute may be recorded while custody transfer remains `absent` or `transfer_evidence_unresolved`. Under Owner-confirmed `CORE02-FIR2-02` Model A, unresolved custody-transfer evidence remains a nonterminal, fail-closed disposition within the same stable handover attempt. Independently identifiable new evidence may be retained and evaluated on that attempt, but conflicting or disputed evidence remains held: later evidence cannot silently supersede, erase or upgrade it. Only sufficient approved actual-release evidence plus authorized disposition of every conflict/dispute records `transferred`. A command, transport success or authentication changes neither axis by itself; replay, acknowledgement and repeated command resolve no conflict. Evidence history, provenance, revisions, actors, timestamps and prior outcomes remain auditable. Evidence classes, attester authority, recipient-linkage validation and conflict-resolution authority remain unresolved.
 
 ### 4.3 Exception contract
 
@@ -245,9 +245,9 @@ Domain remains framework-independent. Application owns orchestration and require
 
 ### 5.1 Operating Day decision package
 
-Confirmed policy remains: first Hoi An Branch `Asia/Ho_Chi_Minh`; explicit per-Branch values; no MVP inheritance; explicit effective exceptional-day evidence; no silent rewrite of a closed Day. `CORE-OD-11B` remains deferred.
+Confirmed policy is now: first Hoi An Branch `Asia/Ho_Chi_Minh`; initial cutoff `00:00` local time per Branch; explicit per-Branch values; no MVP inheritance; explicit effective exceptional-day evidence; no silent rewrite of a closed Day. `CORE-OD-11B` is `OWNER_DECIDED — OWNER_CONFIRMED`. The future per-Branch configurable-cutoff direction selects no implementation, configuration, schema or migration.
 
-Owner question: **What exact local `HH:MM` cutoff applies to the first Hoi An Branch?** Evidence required: actual trading hours, after-midnight activity, count/handover duration, accounting/report expectations, exceptional days and boundary-time transactions. Viable categories are midnight, an evidence-supported fixed post-midnight/early-morning time, or another explicit fixed local time. No option is recommended or selected.
+For the bounded initial design, the first Hoi An Operating Day uses the half-open local interval `[D at 00:00, D+1 at 00:00)`. Future configurable-cutoff behavior and its physical representation remain later design concerns and do not reopen `CORE-OD-11C/D`.
 
 Once selected, the logical Day is `[D at cutoff, D+1 at cutoff)` in the Branch IANA timezone; the boundary event belongs to the new Day. Future DST-observing Branches need explicit invalid/ambiguous local-time treatment.
 
@@ -325,7 +325,7 @@ Result: `NOT_READY_FOR_OWNER_GATE_A_REVIEW`.
 
 ### CORE-04
 
-- [ ] Exact cutoff decided (`CORE-OD-11B`).
+- [x] Exact initial cutoff decided (`CORE-OD-11B`); implementation remains unauthorized.
 - [ ] Capability/separation policy decided (`CORE-OD-12`).
 - [ ] Post-close correction policy decided (`CORE-OD-13`).
 - [x] Confirmed policy synchronized.
@@ -352,6 +352,6 @@ Explicit exclusions remain: manual bank; Refund execution; Service Charge; price
 
 ## 10. Authorization statement
 
-This remediation preserves `CORE-OD-01`, retired `CORE-OD-02`, all 27 confirmed and seven deferred decisions, all `ID_PENDING_OWNER_GOVERNANCE` references, Refund separation, Inventory deferral, manual-bank exclusion, CORE-03/Identity Milestone 2B non-authorization, Reporting restrictions and all Gate boundaries.
+This remediation preserves `CORE-OD-01`, retired `CORE-OD-02`, all 28 confirmed and six deferred decisions, all `ID_PENDING_OWNER_GOVERNANCE` references, Refund separation, Inventory deferral, manual-bank exclusion, CORE-03/Identity Milestone 2B non-authorization, Reporting restrictions and all Gate boundaries.
 
-**Final status:** `CORE_01_INPUT_BLOCKED — CORE_02_OWNER_QUALIFIED_INPUT_BLOCKED — CORE_04_OWNER_INPUT_BLOCKED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.
+**Final status:** `CORE_01_INPUT_BLOCKED — CORE_02_OWNER_QUALIFIED_INPUT_BLOCKED — CORE_04_OWNER_QUALIFIED_INPUT_BLOCKED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`.

@@ -60,3 +60,12 @@ Detailed outputs: [CORE-01](after_four_core_01_blocker_closure_sprint_3.md), [CO
 The Core Operations register remains 34 local references: 27 confirmed and seven deferred (`CORE-OD-03`, `CORE-OD-04`, `CORE-OD-11B`, `CORE-OD-12`, `CORE-OD-13`, `CORE-OD-16B`, `CORE-OD-16F`). Existing `ID_PENDING_OWNER_GOVERNANCE` statuses remain; no canonical `ODB-*` ID is created or reserved.
 
 CORE-03/Identity Milestone 2B remains unauthorized. Inventory remains deferred. Refund, Promotions, Loyalty and manual bank remain outside the bounded initial scope. No schema, migration, database, runtime, code, dependency, configuration, Gate A/B/C, implementation, Control Acceptance, FOA or Production Authorization is granted.
+
+## 7. Subsequent Owner decision status
+
+The Consolidated Owner Decision Session on 2026-11-24 subsequently confirmed two prepared decisions without rewriting the historical Sprint 3 findings above:
+
+- `CORE02-FIR2-02` Model A is `OWNER_DECIDED — OWNER_CONFIRMED`: `transfer_evidence_unresolved` remains nonterminal and fail-closed within the same stable handover attempt. Conflict/dispute remains held until sufficient approved evidence and authorized disposition exist. Evidence classes, attester authority, recipient-linkage validation and conflict-resolution authority remain unresolved.
+- `CORE-OD-11B` is `OWNER_DECIDED — OWNER_CONFIRMED`: the initial cutoff is `00:00` local time per Branch, with the first Hoi An Branch using `Asia/Ho_Chi_Minh`. Future per-Branch configurable cutoff is product direction only and grants no implementation, schema or migration authority.
+
+The CORE-OD register now reconciles to 28 confirmed and six deferred references: `CORE-OD-03`, `CORE-OD-04`, `CORE-OD-12`, `CORE-OD-13`, `CORE-OD-16B` and `CORE-OD-16F` remain deferred. CORE-01, CORE-02 and CORE-04 remain not ready for Owner Gate A review because their other documented commercial, qualified-input and authority blockers remain. No Gate or implementation authorization follows.

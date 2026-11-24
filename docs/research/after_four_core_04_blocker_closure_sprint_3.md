@@ -85,3 +85,9 @@ Nothing in this report adds metrics, readers, export, recipients, schedules, del
 **Outcome:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW — CONSOLIDATED_OWNER_AND_QUALIFIED_INPUT_REQUIRED`.
 
 The decision dimensions and dependency order are explicit enough for one consolidated Owner session after the identified evidence is supplied. They are not closed enough for a coherent Gate A baseline. No recommendation above is an Owner decision, and no Gate, human appointment, Identity implementation, correction operation, report authority or runtime behavior is authorized.
+
+## 8. Subsequent Owner decision status
+
+The Consolidated Owner Decision Session on 2026-11-24 subsequently confirmed `CORE-OD-11B`: the initial cutoff is `00:00` local time per Branch, with the first Hoi An Branch using `Asia/Ho_Chi_Minh` under `CORE-OD-11A`. Future per-Branch configurable cutoff is an approved product direction only; it grants no implementation, configuration, schema or migration authority and does not alter `CORE-OD-11C/D`.
+
+The historical ballot and closure criteria above remain evidence of the pre-decision review. `CORE-OD-12`, `CORE-OD-13`, detailed `CORE-OD-14A/B` resolution, `CORE-OD-15A/B` authority, `CORE-OD-16B` and `CORE-OD-16F` remain unresolved within their recorded boundaries. CORE-04 remains `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_AND_QUALIFIED_INPUT_REQUIRED`; no Gate or implementation authorization follows.
