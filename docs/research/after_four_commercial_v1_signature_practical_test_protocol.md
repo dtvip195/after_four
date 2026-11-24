@@ -37,6 +37,8 @@ This protocol is the execution index for the existing canonical data-capture fil
 
 All actual measurements, purchase evidence, unit costs and margins remain blank. Status values such as `MISSING_INPUT`, `INPUT_CONFIRMATION_REQUIRED`, `NOT_APPLICABLE`, `BLOCKED_INGREDIENT_IDENTITY`, and `NOT_CALCULABLE_MISSING_EVIDENCE` describe evidence state only. They are not measurements or commercial approvals.
 
+The costing input records quoted price and actual invoiced/purchased price as separate evidence classes, each with its own evidence type and source reference. A quotation never proves a purchase transaction. When all required inputs and the relevant selling-price basis are valid, `gross_margin_amount_vnd` records the VND difference produced by the stated calculation basis, while `gross_margin_percentage` records the separately identified percentage produced by that basis. `gross_margin_calculation_basis` must identify the exact selling-price and unit-cost inputs used. No amount or percentage may be calculated while either input is incomplete, and no VAT, tax, monetary precision, rounding, or accounting treatment may be inferred by this template.
+
 ### 1.2 Execution order and parallelism
 
 1. Start with actual Ingredient/SKU, equipment and vessel identification. This can proceed independently for every unblocked Product and does not approve a Recipe or supplier.
