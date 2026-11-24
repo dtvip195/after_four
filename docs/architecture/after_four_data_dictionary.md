@@ -186,6 +186,8 @@ Keys/indexes: index `(branch_id, product_variant_id, effective_from)`; non-overl
 Fields: `product_variant_id uuid R FK`; `branch_id uuid O FK`; `amount bigint R`; `currency_code char(3) R`; `effective_from timestamptz R`; `effective_to timestamptz O`; `created_by_user_id uuid R FK`; `approval_request_id uuid O FK`; immutable.  
 Keys/indexes: index `(product_variant_id, branch_id, effective_from)`; non-overlap per nullable Branch scope; check amount non-negative. Null Branch means chain default; an effective Branch row explicitly overrides it. Price versions are immutable. Zero/free pricing, Price composition, publication authority, and manual sold-price overrides remain unresolved, so `amount >= 0` is a structural proposal rather than an approved free-item policy.
 
+`OWNER_CONFIRMED`, `UNRESOLVED_RECONCILIATION` `CORE-OD-18` records 52 exact Commercial V1 costing inputs scoped to the first Branch/first Price Version with no chain default or Branch override. Those inputs are not published `product_prices`. Their relationship to the earlier `ODB-CAT-07` chain-default-plus-explicit-override policy must be explicitly reconciled by the Owner before Price publication, schema finalization, or implementation.
+
 ### `modifier_groups`, `modifiers`, `product_modifier_groups`
 
 | Table / purpose | Specific fields | Constraints, indexes, history |
@@ -203,6 +205,12 @@ Keys/indexes: index `(product_variant_id, branch_id, effective_from)`; non-overl
 | `recipes` | `product_variant_id uuid R FK`; `code varchar(50) R`; `status varchar(40) R`; mutable common | UQ `product_variant_id` for one version family per Variant; archive/status only. |
 | `recipe_versions` | `recipe_id uuid R FK`; `version integer R`; `yield_quantity numeric(18,6) R`; `effective_from timestamptz R`; `effective_to timestamptz O`; `status varchar(40) R`; `approved_by_user_id uuid O FK`; immutable after effective | UQ `(recipe_id, version)`; non-overlap effective interval; positive yield. |
 | `recipe_items` | `recipe_version_id uuid R FK`; `ingredient_id uuid R FK`; `quantity numeric(18,6) R`; `unit_id uuid R FK`; `waste_factor numeric(18,8) O`; timestamps | UQ `(recipe_version_id, ingredient_id)` unless repeats need line number; positive quantity; unit dimension matches Ingredient. |
+
+These rows are candidate logical shapes, not approved Recipe/BOM facts. The Commercial V1 MAKE matrix covers 24 Products and 48 priced combinations but leaves Ingredient, Recipe, quantity, unit conversion, yield, waste/remake, substitution, and channel-packaging fields empty. It does not establish one Recipe per Variant, permit Recipe sharing, or approve any effective Recipe Version. Product-versus-Variant Recipe scope and cross-Product/Variant sharing remain unresolved; historical cost reproducibility requires retaining the exact approved Recipe Version and source price evidence if those concepts are later approved.
+
+### Commercial costing and BUY_FINISHED evidence (`DESIGN_INPUT_ONLY`)
+
+The Commercial V1 costing CSV is a 52-combination evidence-collection structure, not a ledger or physical schema. The four BUY_FINISHED rows require logical separation among finished-product specification, supplier candidate, public listed/wholesale evidence, accepted quotation, actual purchase transaction, delivery/landed-cost evidence, source-stated tax treatment, storage/shelf-life evidence, and waste evidence. None is currently populated or approved. A future relationship from purchased finished goods to a sellable Product/Variant must preserve the sellable identity and historical source evidence without making public research a supplier selection or purchase fact. Inventory implementation remains deferred.
 
 ## 6. Customers, loyalty, and promotions
 
@@ -260,7 +268,7 @@ Keys/indexes: UQ `(payment_id, idempotency_key)`; UQ `(id, payment_id)` as the r
 
 Historical terminology/enrichment: older logical proposals named this record `payment_transactions` and proposed additional `kind`, request fingerprint, provider/reference, cash tender/change, initiating User, and provider timing fields. No `PaymentTransaction` model or `payment_transactions` physical table exists. Those additions remain deferred provider/cash-design proposals; they do not define a second implemented entity and must not be read as Phase 1 columns.
 
-Owner-confirmed manual bank-transfer boundary: the Owner bank QR identifies the transfer destination; a speaker amount announcement is an alert only and not Payment proof. Cashier comparison/confirmation is manual and no automatic bank API matching is approved for MVP. A mismatch/excess does not become a succeeded exact-balance Attempt by default.
+Initial-slice boundary (`CORE-OD-07`): exact-balance cash is the only approved initial implementation path. Manual bank behavior remains historical Phase 1 evidence but is excluded from the initial slice until separately governed capability and evidence prerequisites are resolved. No provider adapter, automatic bank matching, or Refund authority is approved.
 
 ### `payment_provider_events` — provider replay evidence (`TECHNICAL_PROPOSAL`)
 
@@ -297,7 +305,9 @@ Implementation note: Phase 1 contains the physical table and `PreparationDispatc
 |---|---|---|
 | `preparation_stations` | `branch_id uuid R FK`; `code varchar(50) R`; `name varchar(150) R`; `status varchar(40) R`; `archived_at timestamptz O`; mutable common | UQ `(branch_id, code)`; active index. |
 | `preparation_tickets` | `preparation_dispatch_id uuid R FK`; `preparation_station_id uuid R FK`; `branch_id uuid R FK`; `ticket_number varchar(50) R`; `sequence integer R`; `status varchar(40) R`; `queued_at timestamptz R`; `started_at timestamptz O`; `ready_at timestamptz O`; `completed_at timestamptz O`; mutable common | UQ `(preparation_dispatch_id, preparation_station_id, sequence)`; UQ `(branch_id, ticket_number)`; queue index. Same Branch enforced. |
-| `preparation_items` | `preparation_ticket_id uuid R FK`; `order_item_id uuid R FK`; `recipe_version_id uuid O FK`; `name_snapshot varchar(200) R`; `requested_quantity integer R`; `started_quantity integer R default 0`; `ready_quantity integer R default 0`; `completed_quantity integer R default 0`; `cancelled_quantity integer R default 0`; `status varchar(40) R`; timestamps | UQ allocation key `(preparation_ticket_id, order_item_id)` unless split stations approved; quantity bounds; index Order Item. |
+| `preparation_items` | `preparation_ticket_id uuid R FK`; `order_item_id uuid R FK`; `recipe_version_id uuid O FK`; `name_snapshot varchar(200) R`; `requested_quantity integer R`; `status varchar(40) R`; `last_transition_actor_id uuid O`; `last_transition_at timestamptz O`; `version integer R`; timestamps | UQ allocation key `(preparation_ticket_id, order_item_id)` unless split stations are separately approved; index Order Item. Progress is Item-level only. Quantity-level progress counters are excluded from the initial slice. |
+
+`OWNER_CONFIRMED` A Ticket completes only when every required Item is complete; partial Ticket completion and partial Ticket handover are prohibited. Completion and handover are separate events. Handover requires explicit actor/time/version evidence, and neither completion nor Payment success alone closes the Order. Cancellation, hold/exception, completion, handover, and Order closure remain distinct. A nullable Recipe Version reference is required only when an approved Recipe Version actually governs preparation.
 
 ### `preparation_deviations` — remake/waste/cancellation record (`WORKSHOP_AGREED`)
 
@@ -368,6 +378,10 @@ Keys/indexes: UQ `(inventory_position_id, idempotency_key)`; indexes position/ti
 
 `OWNER_CONFIRMED` One shared drawer uses a configurable 2,000,000 VND float per Operating Day, carried across shift Cash Sessions. There is no automatic mid-day reset/top-up and no fixed top-up frequency limit. Exact configuration/effective-date and Operating Day schema remain proposals.
 
+### Cash handover attempt and evidence (`OWNER_CONFIRMED` semantics; logical shape unresolved)
+
+A Cash handover uses one stable attempt identity and append-only evidence revisions. Required handover evidence includes outgoing actor, incoming actor, count, variance, reason, and acknowledgement. `transfer_evidence_unresolved` is a nonterminal, fail-closed disposition: later evidence may be retained and evaluated, but conflicting or disputed assertions cannot be erased, silently superseded, or upgraded. Transition to `transferred` requires sufficient approved evidence and authorized disposition of every conflict/dispute. Acknowledgement is not approval and never closes the outgoing Cash Session; Close is separate. Attester authority, recipient linkage, conflict-resolution authority, detailed disagreement disposition, and physical representation remain unresolved.
+
 ### `expense_categories`, `expenses`, `budgets`
 
 | Table | Specific fields | Constraints, indexes, history |
@@ -406,7 +420,7 @@ Keys/indexes: UQ `(inventory_position_id, idempotency_key)`; indexes position/ti
 
 Future reporting records retain one idempotent report generation identity for report kind, scope, period, and definition version, plus separate delivery history/attempts for Dashboard/Telegram outputs. Reporting reads committed business facts/projections and never mutates Orders, Payments, Refunds, Cash Transactions, Expenses, or source audit evidence. Telegram payloads exclude sensitive information.
 
-`OWNER_CONFIRMED` Dashboard views support daily, weekly, monthly, custom ranges, and comparisons; automatic daily Telegram delivery is required; Excel export is deferred. Exact delivery time, recipients, Operating Day cutoff, metric formulas, Branch scope, privacy details, retention, and failure escalation remain `OPEN_DECISION`. No physical table shape is selected here.
+`OWNER_CONFIRMED` Initial authoritative source lineage is limited to Order, Payment, and pending Preparation Dispatch facts (`CORE-OD-16A`). Product/Variant sales, Preparation progress/handover, Cash balance/discrepancy/reconciliation, Refund/net sales, Expenses/float/top-ups, Promotions, and Loyalty are excluded until separately approved. Excel export is deferred. Telegram or other automatic external delivery is also deferred pending recipients, schedule, privacy, and failure-escalation decisions. Cash-dependent facts must remain withheld while reconciliation or any nonzero discrepancy is unresolved; resolution does not itself grant report-release authority. Reader scope and retention/legal hold remain deferred. No physical reporting table or delivery authority is selected here.
 
 ### `devices`, `printers`, `print_jobs`, `print_attempts`
 
