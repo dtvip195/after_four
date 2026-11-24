@@ -51,9 +51,19 @@ The retained source IDs are component/category leads only and do not establish a
 - `MEASURED_OPERATIONAL_RESULT`: a dated, traceable result measured from AFTER FOUR preparation/handling under a stated Product/Variant, batch, and method.
 - `SUPPLIER_SPECIFICATION`: a supplier-stated property retained with its source/date. It is not an AFTER FOUR measured result.
 
-Unit cost may be calculated only when the required cost path has: evidenced ingredient identity and purchase SKU/package; documentary purchase-to-preparation conversion; Owner-approved Recipe/BOM quantity for the exact Variant; correctly classified yield/waste/remake evidence; explicit shared/batch allocation basis; channel-correct packaging identity, quantity, and allocation; and supported purchase/landed cost. A BUY_FINISHED row additionally requires an approved finished-product specification and actual purchase/landed-cost evidence.
+### Planning cost estimate
 
-Public listing prices, unapproved planning assumptions, supplier specifications presented as operational results, and missing components are not actual cost. Gross margin must remain uncalculated whenever a required cost component is missing or supported only by an assumption not explicitly approved for that costing purpose.
+An `OWNER_APPROVED_PLANNING_ASSUMPTION` may support only the purpose explicitly approved by the Owner. Any resulting calculation must be labelled `ESTIMATE`, state every assumption and missing evidence, and state its permitted use. It is not actual purchase cost, a measured operational result, or an evidence-backed unit cost. A planning estimate alone does not establish a commercially authoritative margin.
+
+### Evidence-backed unit cost
+
+Evidence-backed unit cost may be recorded only when the complete required cost path has: evidenced ingredient identity and purchase SKU/package; documentary purchase-to-preparation conversion; Owner-approved Recipe/BOM quantity for the exact Product/Variant; properly classified and supported yield/waste/remake evidence; explicit shared/batch allocation basis; channel-correct packaging identity, quantity, and allocation; and supported purchase/landed cost. A BUY_FINISHED row additionally requires an approved finished-product specification and actual purchase/landed-cost evidence. Planning assumptions do not automatically replace any of these required evidence elements.
+
+### Gross margin
+
+Gross margin may be calculated only from a cost basis suitable for the stated margin purpose. No authoritative or evidence-backed gross margin may be recorded while a required cost component is missing. A planning cost estimate cannot be presented as actual gross margin. Any future planning margin estimate must be separately labelled `ESTIMATE`, identify its Owner-approved purpose and basis, disclose assumptions and gaps, and must not replace actual margin.
+
+Public listing prices, unapproved planning assumptions, supplier specifications presented as operational results, and missing components are not actual cost.
 
 VAT/tax information may be copied exactly from a quotation, invoice, or other source as documentary evidence. It does not decide tax applicability, tax treatment, accounting treatment, monetary precision, or rounding. `CORE-OD-03` and `CORE-OD-04` remain deferred, and qualified Accounting/Tax input remains required for professional conclusions.
 

@@ -44,7 +44,13 @@ Any proposed terminal non-transfer outcome remains `PROPOSED_NOT_APPROVED` and c
 
 ### Dispatch/acceptance lifecycle — confirmed, not a new ballot
 
-Acceptance uses stable Dispatch plus acceptance-attempt identity. `accepted` and `rejected_terminal` are mutually exclusive immutable terminal outcomes; `held_unresolved` is nonterminal. A candidate Ticket/Item set without proven exact accepted binding cannot start, progress, complete, or hand over. Releasing candidate quarantine requires authoritative evidence that proves the exact accepted binding plus a separately authorized disposition; it does not reopen, modify, or replace an immutable terminal acceptance outcome. Resolver authority remains `RECOMMENDATION_NOT_ESTABLISHED`. See [CORE-02 remediation §5](../research/after_four_core_02_accelerated_design_remediation.md#5-dispatch-acceptance-contract).
+Acceptance uses stable Dispatch plus acceptance-attempt identity. `accepted` and `rejected_terminal` are mutually exclusive immutable terminal outcomes; `held_unresolved` is nonterminal. A candidate Ticket/Item set without proven exact accepted binding cannot start, progress, complete, or hand over.
+
+- **`accepted`:** Candidate Ticket/Items may leave quarantine only when authoritative evidence proves the exact accepted binding under the confirmed acceptance policy. An arbitrary disposition cannot substitute for that binding.
+- **`held_unresolved`:** Candidate Ticket/Items remain quarantined. Release may be considered only after authoritative evidence and the applicable separately authorized resolution/disposition establish the exact accepted binding. Retry, transport success, or late evidence alone does not turn the attempt into `accepted`.
+- **`rejected_terminal`:** Candidate Ticket/Items remain quarantined for that attempt. New evidence cannot release them by reopening, rewriting, superseding, or silently replacing the terminal outcome. Any new business request requires a separately Owner/governance-approved policy; this worksheet creates no retry or bypass mechanism.
+
+Resolver authority remains `RECOMMENDATION_NOT_ESTABLISHED`. See [CORE-02 remediation §5](../research/after_four_core_02_accelerated_design_remediation.md#5-dispatch-acceptance-contract).
 
 ### Customer custody-transfer lifecycle — confirmed, not a new ballot
 
