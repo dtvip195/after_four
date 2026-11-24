@@ -106,9 +106,12 @@ Commercial V1 retains S/M/L for Trà đào cam sả, but no approved vessel capa
 | Product | Intended Variant | Vessel identity/capacity | Parent source track | Status |
 |---|---|---|---|---|
 | Cà phê muối | Một cỡ | `OWNER_INPUT_REQUIRED` | R04 / R05 | `PLANNED` |
-| Trà đào cam sả | S | `OWNER_INPUT_REQUIRED` | R12 / R13 | `PLANNED` |
-| Trà đào cam sả | M | `OWNER_INPUT_REQUIRED` | R12 / R13 | `PLANNED` |
-| Trà đào cam sả | L | `OWNER_INPUT_REQUIRED` | R12 / R13 | `PLANNED` |
+| Trà đào cam sả | S | `OWNER_INPUT_REQUIRED` | R12 | `PLANNED` |
+| Trà đào cam sả | S | `OWNER_INPUT_REQUIRED` | R13 | `PLANNED` |
+| Trà đào cam sả | M | `OWNER_INPUT_REQUIRED` | R12 | `PLANNED` |
+| Trà đào cam sả | M | `OWNER_INPUT_REQUIRED` | R13 | `PLANNED` |
+| Trà đào cam sả | L | `OWNER_INPUT_REQUIRED` | R12 | `PLANNED` |
+| Trà đào cam sả | L | `OWNER_INPUT_REQUIRED` | R13 | `PLANNED` |
 
 ## 5. Practical measurement worksheet
 
@@ -174,7 +177,7 @@ Do not contact suppliers, send RFQs, select a supplier, or treat a public listin
 
 ## 7. Bơ xay dừa non — research gap blocker
 
-No test Recipe or quantity is authorized. R18 is an avocado/coconut-syrup/ice-cream comparator; R19 is an avocado/strawberry comparator. Neither establishes young-coconut identity or quantity.
+Bơ xay dừa non is excluded from this protocol's test execution. No test worksheet, Recipe, or quantity is authorized for it. R18 is an avocado/coconut-syrup/ice-cream comparator; R19 is an avocado/strawberry comparator. Neither establishes young-coconut identity or quantity.
 
 Before a future protocol can be designed, evidence must define whether young coconut means flesh, coconut water, both, or a specified purchased preparation; the exact Ingredient specification and availability; and the intended flavor, texture, sweetness, ice, and serving characteristics. These are missing inputs, not decisions made by this document.
 
