@@ -182,16 +182,33 @@ The exact re-quote command shape, review token, lock order, database isolation a
 
 The current `Orders::CreateDraft` accepts `total_amount` from its caller (`backend/app/domains/orders/create_draft.rb:7-27`). `CORE-01` must replace that trust boundary for the public operational flow; it must not silently change the existing command before Gate B approval.
 
-The remediated logical Payment-target lifecycle is:
+The remediated logical Payment-target protocol uses these Payment-owned states:
 
-- Draft calculation and re-quote results are Ordering-owned quote facts and never establish or mutate an authoritative Payment target.
-- `ConfirmOrder` is owned by Ordering Application. It validates the expected Draft/re-quote version, revalidates Catalog/Pricing facts, freezes the complete sold snapshot set and authoritative Order total, then requests Payment-target establishment through an Ordering Application-owned outbound port implemented by an Infrastructure adapter calling the Payment Application public contract.
-- The semantic success boundary is: confirmed Order plus complete sold snapshots plus exactly one Payment target equal to the confirmed total and currency, or none of those confirmation effects becomes authoritative.
-- A retry with the same idempotency identity and input locates the same confirmed Order/Payment result; reuse with different input conflicts. Response loss is recovered by querying that identity and never creates a second target.
-- Failure before semantic success leaves the Order Draft and exposes no accepted Payment target. A partial or mismatched target is a reconciliation failure and cannot permit cash confirmation or Dispatch.
-- Exact-balance cash confirmation consumes the stored authoritative target and currency. Payment never re-resolves Catalog facts or recalculates the Order.
+```text
+absent → provisional → authoritative
+                    ↘ cancelled
+any inconsistent observation → reconciliation_required (held outcome)
+```
 
-This defines semantic atomicity, not a database transaction, lock order, isolation level, schema or physical recovery mechanism. Those remain Gate B design choices.
+- `absent`: no target exists for the confirmation attempt.
+- `provisional`: Payment has recorded the proposed amount/currency, confirmed-snapshot digest and stable confirmation-attempt identity, but the target is not payable and cannot support settlement or Dispatch.
+- `authoritative`: Payment Application has independently verified matching authoritative Order-confirmation evidence and activated exactly that provisional target.
+- `cancelled`: an unactivated provisional target is tombstoned after authoritative reconciliation proves the Order confirmation did not succeed. It is never reused for another attempt.
+- `reconciliation_required`: a held outcome for duplicate, mismatched, partially observed or otherwise inconsistent state. It grants no payable authority.
+
+`ConfirmOrder` is owned by Ordering Application and uses one stable confirmation-attempt/idempotency identity. Ordering first validates the Draft/re-quote version and constructs the complete sold-snapshot digest and proposed total/currency. Through an Ordering Application-owned outbound port, an Infrastructure adapter asks the Payment Application public contract to create or locate a matching `provisional` target keyed by Order and confirmation attempt. Same identity and same digest/amount/currency returns the same target; changed input conflicts.
+
+Ordering then makes the Order confirmation and complete sold snapshots authoritative with the attempt and provisional-target references. Payment Application alone may transition `provisional → authoritative`, and only after validating trusted Ordering confirmation evidence through the applicable public contract: Order identity, confirmation attempt, confirmed version, snapshot digest, total and currency must all match. Neither the client, Ordering Infrastructure nor a provisional-target creation response can activate the target.
+
+The logical protocol handles partial outcomes as follows:
+
+- If provisional creation succeeds but Ordering confirmation fails, the target stays non-payable. A cancellation request may tombstone it; reconciliation independently verifies that no matching authoritative confirmation exists before `cancelled` is recorded.
+- If Ordering confirmation succeeds but activation fails or its outcome is unknown, the Order remains authoritative but payment eligibility is held. Retry/reconciliation uses the same attempt identity and either activates the single matching target or records `reconciliation_required`; it never creates another payable target.
+- If activation succeeds but the response is lost, replay locates the same `authoritative` target and returns the prior result.
+- Duplicate targets, multiple authoritative candidates, mismatched amount/currency/digest/version, or disagreement between Ordering and Payment are held as `reconciliation_required`. Automatic selection, merging or repair is prohibited; a separately authorized recovery may link a correction without rewriting confirmed facts.
+- A provisional/cancelled/held/mismatched target, or an authoritative target lacking matching confirmed Order evidence, prohibits cash settlement, Preparation Dispatch and Order-completion eligibility.
+
+Thus an orphan target may exist only as non-payable provisional evidence; it cannot become an authoritative obligation without matching Ordering confirmation evidence. This is a logical cross-context protocol, not an assumption of database atomicity. Physical transactions, storage, locks, isolation, outbox/saga, broker, transport and reconciliation execution remain Gate B choices.
 
 ```text
 Operator selects Product/Variant and Branch
@@ -242,10 +259,13 @@ Every CORE-01 command requires a trusted server-derived actor/session binding, a
 | Request Branch differs from the persisted Order or resolved Catalog target | Reject without mutation and without disclosing out-of-scope Catalog facts. | Trusted target and cross-Brand/Branch authorization depend on separately governed Identity/Application contracts. |
 | Concurrent line edits | One accepted version; stale writer receives conflict and safe current version. | `TECHNICAL_PROPOSAL`; deterministic concurrency tests required. |
 | Confirmation races Price publication | Either confirmed snapshot binds the old still-effective version valid at the linearization point, or confirmation fails/requotes; never a mixed snapshot. | Transaction/lock protocol unresolved. |
-| Any calculated component or sold snapshot fails to persist | No partial confirmation, Payment target or mixed snapshot survives; the complete confirmation mutation rolls back. | Existing commands use transactions; new item/snapshot evidence needs failure injection. |
+| Calculated component or sold snapshot fails before Order confirmation | Order remains Draft; any already-created target remains non-payable `provisional` until cancelled/reconciled. | Logical protocol defined; physical recovery/failure injection remain Gate B. |
+| Order confirms but Payment activation fails or is unknown | Preserve confirmed Order/snapshots, hold payment eligibility and reconcile the same attempt; never create another payable target. | Logical protocol defined; physical mechanism remains Gate B. |
+| Provisional target exists but Order never confirms | Target cannot settle or dispatch and is cancelled only after reconciliation proves no matching confirmation. | Logical protocol defined; cancellation/reconciliation implementation remains Gate B. |
+| Duplicate or mismatched target is observed | Enter `reconciliation_required`; prohibit settlement, Dispatch and completion; do not select or merge automatically. | Logical protocol defined; authorized repair remains separate. |
 | Payment mismatch | Record safe mismatch evidence; do not settle or dispatch. | Implemented/test artifacts exist. |
 | Payment result is ambiguous or provider-originated | Do not treat it as success, retry blindly or dispatch. Preserve the local attempt outcome and route through separately approved reconciliation. | Provider notification/query handling is absent and excluded; current local exact-balance commands are not provider adapters. |
-| Commit succeeds, response is lost | Retry returns committed result without duplicate charge/dispatch. | Phase 1 idempotency pattern exists; API evidence required. |
+| Confirmation/activation response is lost | Retry with the same attempt locates the existing confirmed Order and matching authoritative/provisional target, then safely completes or reports reconciliation; no duplicate target, charge or Dispatch. | Phase 1 idempotency is evidence; cross-context protocol implementation remains Gate B. |
 | Successful Payment followed by dispatch/outbox delivery failure | Payment stays authoritative; the same pending Dispatch/Outbox identity remains recoverable without recharging or creating a second Dispatch. | Pending dispatch/retry exists; worker acceptance is CORE-02. |
 
 ### 3.9 Gate B candidate manifest and acceptance evidence
@@ -395,7 +415,7 @@ Only the exact-balance cash-sale source is included in the initial contract. `Ex
 - **Discrepancy investigation/resolution:** every nonzero discrepancy remains recorded, reasoned and Owner-notified with no tolerance. Investigation classes, linked-correction operations and resolution authority remain unresolved.
 - **Reporting hold/release:** `P2B-CASH-OD-08` already makes reconciliation a prerequisite, so unreconciled facts are not eligible for authoritative reporting. Unresolved-case disposition, escalation, any exception treatment and release authority remain separate Reporting/Cash policy questions. Resolution does not automatically grant report-release authority.
 
-The handover disagreement contract (`TECHNICAL_PROPOSAL`) records one idempotent case identity, Branch, Operating Day, outgoing Session, handover evidence, outgoing/proposed incoming actors, count, variance, acknowledgement/refusal actor/time/reason/evidence, status and Owner-escalation/linkage evidence. Replay locates the same case; conflicting replay fails closed. While unresolved it preserves outgoing custody/accountability and cannot acknowledge, approve, close, transfer custody or release reports. Detailed resolution authority remains deferred and is not inferred here.
+The handover disagreement contract (`TECHNICAL_PROPOSAL`) records one idempotent case identity, Branch, Operating Day, outgoing Session, handover evidence, outgoing/proposed incoming actors, count, variance, acknowledgement/refusal/disagreement/observation actor, timestamp, reason and evidence, status and Owner-escalation/linkage evidence. Recording any of those observations is evidence capture and is permitted for case creation and investigation. It does not approve the handover, transfer custody, close either Cash Session, resolve a discrepancy or release a report. Replay locates the same case; conflicting replay fails closed. While unresolved the case preserves outgoing custody/accountability and remains held/escalated under the approved Owner direction. Detailed resolution authority remains deferred and is not inferred from evidence capture.
 
 The deferred capability/correction package must obtain independently: eligible holder for Open, operate, Count, Handover, Close, reconcile, discrepancy resolution and report release; delegation/revocation and Branch scope; requester/executor/reviewer separation and emergency rules; exact permitted linked post-close actions; correction requester/approver/executor; mandatory reason/evidence; and reconciliation/report-hold consequences. No human, role title or default authority is selected by this package.
 

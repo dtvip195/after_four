@@ -74,18 +74,35 @@ No alternative is selected here. Technical representation remains a later Gate B
 
 ### 3.3 Payment target lifecycle and semantic boundary
 
-The remediated `TECHNICAL_PROPOSAL` is:
+The remediated `TECHNICAL_PROPOSAL` does not assume cross-context database atomicity.
 
-1. Draft calculation/re-quote evidence is Ordering-owned and creates no authoritative Payment target.
-2. Ordering Application owns `ConfirmOrder` and the outbound Payment-target establishment port it consumes.
-3. Confirmation revalidates trusted Branch, sellability and Price bindings, then freezes complete sold snapshots and one authoritative total/currency.
-4. An Infrastructure/composition-boundary adapter invokes the Payment Application public contract; Payment does not implement or depend on the Ordering-owned port.
-5. Confirmed Order, complete sold snapshots and exactly one matching Payment target form one semantic success boundary: all become authoritative or none do.
-6. Same-identity/same-input replay returns the same Order/Payment result; changed input conflicts.
-7. Failure before success leaves Draft retryable with no accepted target. Response loss locates the prior result. Partial/mismatched target state blocks confirmation, cash settlement and Dispatch pending reconciliation.
-8. Exact-cash confirmation consumes the stored target and currency; Payment never recalculates commercial terms.
+| Payment-owned state | Meaning | Permitted next logical outcome |
+|---|---|---|
+| `absent` | No target for the confirmation attempt. | Create/locate one matching `provisional` target. |
+| `provisional` | Proposed amount/currency and snapshot digest are correlated to the Order confirmation attempt, but are not payable. | Activate only after verified matching Order confirmation; otherwise cancel or hold for reconciliation. |
+| `authoritative` | Payment Application verified matching authoritative Order confirmation and activated the single matching target. | Exact-cash settlement may proceed if all other guards pass. |
+| `cancelled` | Reconciliation proved the attempt did not produce matching authoritative Order confirmation; provisional evidence is tombstoned. | Terminal for that attempt; never reused. |
+| `reconciliation_required` | Duplicate, mismatch, partial observation or context disagreement is held. | Separately authorized reconciliation only; no settlement/Dispatch/completion. |
 
-Physical transaction, lock order, isolation, persistence and migration from legacy Draft-created Payments remain Gate B concerns.
+The protocol is:
+
+1. Draft calculation/re-quote evidence is Ordering-owned and creates no authoritative target.
+2. Ordering Application owns `ConfirmOrder` and a stable confirmation-attempt/idempotency identity.
+3. Ordering validates the Draft/re-quote version and constructs the complete proposed sold-snapshot digest, total and currency.
+4. Through an Ordering Application-owned outbound port, its Infrastructure adapter asks the Payment Application public contract to create/locate a matching `provisional` target keyed by Order and attempt. Same identity/input returns the same target; changed input conflicts.
+5. Ordering records authoritative confirmation and complete sold snapshots with the attempt and target references.
+6. Payment Application alone may activate the target, after independently validating trusted Ordering confirmation evidence: Order, attempt, confirmed version, snapshot digest, total and currency must all match.
+7. Activation yields the single `authoritative` target. Client input, Ordering Infrastructure and provisional creation cannot authorize activation.
+
+Failure and retry outcomes:
+
+- Provisional creation followed by Ordering failure leaves non-payable evidence. It becomes `cancelled` only after reconciliation proves no matching authoritative confirmation.
+- Ordering confirmation followed by failed/unknown activation holds payment eligibility. Retry/reconciliation uses the same attempt and activates the matching target or records `reconciliation_required`; it never creates another payable target.
+- Activation followed by response loss is replayed by the same identity and returns the prior authoritative result.
+- Multiple targets, multiple authoritative candidates, mismatched digest/amount/currency/version or context disagreement enter `reconciliation_required`; automatic selection, merge or rewrite is prohibited.
+- A provisional, cancelled, held or mismatched target—or an authoritative target lacking matching confirmed Order evidence—cannot support cash settlement, Preparation Dispatch or Order-completion eligibility.
+
+An orphan target can therefore exist only as non-payable provisional evidence. Physical transactions, storage, locks, isolation, outbox/saga, broker, transport and reconciliation execution remain Gate B concerns.
 
 ### 3.4 Deterministic menu and Price resolution
 
@@ -200,7 +217,7 @@ Invalid implications are explicit: acknowledgement is not approval or Close; Ses
 
 ### 5.4 Disagreement hold (`CORE04-M01`)
 
-One idempotent case records Branch, Day, outgoing Session, handover evidence, outgoing/proposed incoming actors, count, variance, acknowledgement/refusal actor/time/reason/evidence, status, Owner escalation and linked resolution evidence. Replay locates the same case; conflicting replay fails closed. While unresolved it preserves outgoing custody/accountability and cannot acknowledge, approve, Close, transfer custody or release reports. Detailed resolver authority remains deferred.
+One idempotent case records Branch, Day, outgoing Session, handover evidence, outgoing/proposed incoming actors, count, variance, acknowledgement/refusal/disagreement/observation actor, timestamp, reason and evidence, status, Owner escalation and linked resolution evidence. Recording an acknowledgement, refusal, disagreement or observation is evidence capture needed to create and investigate the case. It does not approve handover, transfer custody, close either Session, resolve a discrepancy or release a report. Replay locates the same case; conflicting replay fails closed. While unresolved it preserves outgoing custody/accountability and remains held/escalated under the approved Owner direction. Detailed resolver authority remains deferred and cannot be inferred from the evidence recorder or captured evidence.
 
 ### 5.5 Initial exact-cash source (`CORE04-M02`)
 
