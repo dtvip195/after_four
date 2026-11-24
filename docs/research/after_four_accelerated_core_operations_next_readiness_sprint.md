@@ -1,6 +1,6 @@
 # AFTER FOUR — Accelerated Core Operations Next Readiness Sprint
 
-**Sprint status:** `EVIDENCE_AND_REVIEW_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_REMEDIATED_FOR_FRESH_INDEPENDENT_REVIEW — CORE_04_OWNER_INPUT_REQUIRED`
+**Current sprint status:** `EVIDENCE_AND_REVIEW_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_CUSTODY_TRANSFER_INPUT_BLOCKED — CORE_04_OWNER_INPUT_REQUIRED`
 
 **Repository baseline:** `main` / local `origin/main` at `87437e8153311a1b8c551fafebfb490f733381ed`
 
@@ -17,10 +17,10 @@ This sprint ran three independent readiness tracks against the current merged Co
 | Track | Result | Immediate consequence |
 |---|---|---|
 | CORE-01 exact commercial input | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — INPUT_BLOCKED` | The 28 approved-by-reference Product rows are fully traceable, but exact Product/Variant Prices, final Variant applicability and qualified Tax/Accounting constraints remain absent. |
-| CORE-02 Preparation execution | `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED` | The three technical-design findings are remediated in the canonical design and [CORE-02 Accelerated Design Remediation](after_four_core_02_accelerated_design_remediation.md). A fresh independent review remains mandatory. |
+| CORE-02 Preparation execution | `NOT_READY_FOR_OWNER_GATE_A_REVIEW` | Attempt identity/retry/quarantine is explicit, and the custody-transfer contract now distinguishes actual release from acknowledgement. Acceptable evidence classes, attester policy and recipient-linkage validation remain unresolved Owner/qualified inputs. |
 | CORE-04 Cash and reconciliation | `NOT_READY_FOR_OWNER_GATE_A_REVIEW — OWNER_INPUT_REQUIRED` | Six independently answerable Owner policy areas remain open. Evidence and decision questions are prepared below without selecting policy for the Owner. |
 
-No track has Gate A approval. CORE-02 is ready only to enter fresh independent review; it is not yet ready for Owner Gate A presentation until that review confirms closure. In parallel, obtain the exact CORE-01 commercial and qualified evidence and conduct the bounded CORE-04 Owner decision session. No application, schema, migration, database, dependency or runtime work is authorized.
+No track has Gate A approval. CORE-02 is not ready for Owner Gate A review: the evidence-acceptance properties are explicit, but the Owner/qualified inputs governing evidence classes, attesters and recipient linkage must be resolved first. In parallel, obtain the exact CORE-01 commercial and qualified evidence and conduct the bounded CORE-04 Owner decision session. No application, schema, migration, database, dependency or runtime work is authorized.
 
 This sprint preserves the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), accepted [ADR-0011](../architecture/adr/0011-project-wide-layered-ddd.md), the [Accelerated Core Operations Design Package](after_four_accelerated_core_operations_design_package.md), its [Design Remediation](after_four_accelerated_core_operations_design_remediation.md), the [Independent Design Review](after_four_core_operations_independent_design_review.md), and the [Development Readiness Assessment](after_four_accelerated_core_operations_readiness_assessment.md).
 
@@ -155,9 +155,9 @@ The review assessed implemented-versus-proposed separation, Dispatch/Outbox/Tick
 
 | Stable finding | Severity | Result and required correction |
 |---|---|---|
-| `CORE02-IR2-01` | `BLOCKER — REMEDIATED, INDEPENDENT_REVIEW_PENDING` | Canonical design now defines distinct immutable `accepted` / `rejected_terminal` outcomes and non-terminal fail-closed `held_unresolved`, including stable identities, replay, lost-result reconciliation, new-attempt boundaries and authorized held resolution without selecting physical mechanisms. |
-| `CORE02-IR2-02` | `MAJOR — REMEDIATED, INDEPENDENT_REVIEW_PENDING` | Canonical design now requires trusted actor, Session, exact Branch, exact handover capability, stable command identity, expected version, completion evidence and audit result; missing/conflicting evidence fails closed. No holder or Identity implementation is authorized. |
-| `CORE02-IR2-03` | `MAJOR — REMEDIATED, INDEPENDENT_REVIEW_PENDING` | Canonical design now assigns Domain/Application/Infrastructure/Presentation/composition responsibilities and Application-owned ports for acceptance, upstream evidence, operator checks, execution and handover under ADR-0011. |
+| `CORE02-IR2-01` / `CORE02-FIR-01` | `BLOCKER — REMEDIATED, FRESH_INDEPENDENT_RE_REVIEW_REQUIRED` | Canonical design now scopes acceptance to stable Dispatch plus attempt identity, removes blanket pending/retryable semantics, defines outcome-specific replay/new-attempt rules and quarantines Candidate Ticket/Items until an authoritative accepted binding is proved. |
+| `CORE02-IR2-02` / `CORE02-FIR-02` | `MAJOR — LOGICAL_CONTRACT_EXPLICIT, OWNER_QUALIFIED_INPUT_BLOCKED` | Canonical design separates acknowledgement from actual transfer and defines positive, insufficient, negative and uncertain evidence outcomes. Acceptable evidence classes, attester policy and recipient-linkage validation remain unresolved; no holder, physical mechanism or Identity implementation is authorized. |
+| `CORE02-IR2-03` | `INDEPENDENTLY_VERIFIED_RESOLVED` | The PR #86 review verified Domain/Application/Infrastructure/Presentation/composition responsibilities and Application-owned ports under ADR-0011. |
 
 ### 4.2 Required acceptance outcome model
 
@@ -175,7 +175,11 @@ If a response is lost or the result is unknown, the caller must query/reconcile 
 
 Acceptance requires trusted evidence binding the exact Dispatch, eligible confirmed Order/Payment facts, expected Branch, attempt identity and applicable version/guard facts. Resolving a held case requires the missing or corrected authoritative evidence plus a separately authorized resolver action whose identity, capability, reason and audit evidence are recorded. This requirement does not identify the resolver, grant the capability or choose a recovery workflow.
 
-`held_unresolved` is a fail-closed, non-terminal disposition, not a terminal acceptance outcome. After authoritative evidence and separately authorized resolution, that same attempt may receive exactly one terminal outcome: `accepted` or `rejected_terminal`. The two terminal outcomes are mutually exclusive and immutable; once either is recorded, replay and result lookup return that same outcome, and the attempt can never record the other. A held attempt cannot be replaced by a new attempt merely because of timeout, delivery failure or uncertainty. Ticket creation is allowed only as the consequence of the first proven `accepted` terminal outcome, under a stable one-Dispatch/one-Ticket identity rule; replay returns that Ticket. A rejected-terminal or held disposition creates no Ticket or Ticket Items. A conflicting outcome or identity fails closed into the unresolved-case path rather than advancing any state.
+`held_unresolved` is a fail-closed, non-terminal disposition, not a terminal acceptance outcome. After authoritative evidence and separately authorized resolution, that same attempt may receive exactly one terminal outcome: `accepted` or `rejected_terminal`. The two terminal outcomes are mutually exclusive and immutable; once either is recorded, replay and result lookup return that same outcome, and the attempt can never record the other. A held attempt cannot be replaced by a new attempt merely because of timeout, delivery failure or uncertainty. Ticket creation is allowed only as the consequence of the first proven `accepted` terminal outcome, under stable Dispatch plus attempt identity and one-Dispatch/one-Ticket rules; replay returns that Ticket. A rejected-terminal or held disposition creates no new Ticket or Ticket Items. Any Candidate Ticket/Items discovered while held but lacking that exact accepted binding remains quarantined/non-executable: it cannot start, progress, complete or hand over, is not acceptance evidence and is released only after separately authorized resolution proves the binding. Conflicting outcome or identity fails closed without deleting candidate evidence or advancing any state.
+
+Preparation completion, acknowledgement evidence, approval, authoritative customer custody transfer and Order closure eligibility are distinct. Handover acknowledgement uses independent `acknowledged`, `refused` and `disputed` evidence outcomes; none establishes transfer. Customer custody-transfer evidence independently records only `transferred` or fail-closed `transfer_evidence_unresolved`. `transferred` requires a positive actual-release assertion, approved trusted-source attribution/accountable attester, exact Order/Ticket/Branch/command binding, authoritative time, completion/version evidence and verifiable intended-recipient linkage. Missing/stale/conflicting/mismatched/unavailable/unverifiable/insufficient evidence preserves its unresolved reason, creates no transfer fact and blocks closure eligibility. Replay cannot upgrade acknowledgement to transfer without new authoritative evidence. No physical mechanism or authority holder is selected.
+
+Under `CORE-OD-10C`, closure eligibility requires settled Payment, completed Preparation, the authoritative custody-transfer fact and no open exception. Acknowledgement/refusal/disagreement or uncertain transfer evidence does not satisfy the handover guard. Even valid transfer does not close the Order; Ordering owns that separate decision and universal `P1A-OD-07` remains deferred.
 
 These are logical semantics only. Physical persistence, uniqueness enforcement, transaction/isolation, locks, broker behavior, transport and retry scheduling remain later Gate B design decisions.
 
@@ -191,9 +195,9 @@ These are logical semantics only. Physical persistence, uniqueness enforcement, 
 - Inventory and Refund remain outside the bounded design.
 - No Gate or implementation authority is implied.
 
-The three findings are technical-design corrections and do not reopen Owner policy. The authored remediation is complete, but it is not an independent review. A fresh reviewer must confirm each closure before any Owner Gate A package is prepared.
+The fresh-review findings do not reopen Owner policy. `CORE02-FIR-01` has authored logical remediation; `CORE02-FIR-02` now has an explicit evidence-acceptance contract but remains blocked by unresolved Owner/qualified inputs. After those inputs are resolved, a fresh independent reviewer must confirm closure before any Owner Gate A package is prepared.
 
-**CORE-02 readiness:** `READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW — NO_GATE_GRANTED`.
+**CORE-02 readiness:** `NOT_READY_FOR_OWNER_GATE_A_REVIEW`.
 
 ## 5. CORE-04 — Consolidated Owner decision session package
 
@@ -321,4 +325,4 @@ Recommended parallel next actions:
 
 ## 9. Sprint completion status
 
-`READINESS_SPRINT_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_READY_FOR_FRESH_INDEPENDENT_REVIEW — CORE_04_OWNER_INPUT_REQUIRED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`
+`READINESS_SPRINT_COMPLETE — CORE_01_INPUT_BLOCKED — CORE_02_OWNER_QUALIFIED_INPUT_BLOCKED — CORE_04_OWNER_INPUT_REQUIRED — ZERO_GATES_GRANTED — ZERO_IMPLEMENTATION_AUTHORIZED`
