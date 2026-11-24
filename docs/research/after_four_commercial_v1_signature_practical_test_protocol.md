@@ -25,6 +25,30 @@ Allowed test statuses are `PLANNED`, `IN_PROGRESS`, `TESTED`, `OWNER_REVIEW_REQU
 | Source formulation URL/reference |  |
 | Explicit changes from parent source |  |
 
+### 1.1 Commercial V1 costing execution pack
+
+This protocol is the execution index for the existing canonical data-capture files. It does not replace the source-specific controls in §§2–10.
+
+| Workstream | Canonical capture file | Coverage and use |
+|---|---|---|
+| MAKE measurement | [Commercial V1 MAKE Recipe/BOM input](../architecture/after_four_commercial_v1_make_recipe_bom_input.csv) | 24 `MAKE_IN_HOUSE` Products / 48 priced combinations. Each row is one exact Product/Variant measurement starting point. Duplicate a row for each actual Ingredient or controlled run, retain its Product/Variant/Price identity, leave `measurement_line_reference` blank until real evidence exists, and then assign a traceable reference. S/M/L rows remain independent; never copy or linearly scale measurements. |
+| BUY procurement | [Commercial V1 BUY finished-product procurement input](../architecture/after_four_commercial_v1_buy_finished_procurement_input.csv) | Four `BUY_FINISHED` Products / four combinations. Records exact finished-product specification, purchase unit, supplier documents, quotation versus actual purchase evidence, delivery, handling, saleable portions and measured loss. No listed supplier or public price becomes an approved supplier, quotation or purchase cost. |
+| Cost and margin reconciliation | [Commercial V1 costing input](../architecture/after_four_commercial_v1_costing_input.csv) | All 28 Products / 52 priced combinations. The initial row for every combination is a blank reconciliation row. Add separately evidenced direct-cost lines only when the Ingredient/finished-product identity, quantity, unit, source and applicable allocation are known. A blank is never zero or free. |
+
+All actual measurements, purchase evidence, unit costs and margins remain blank. Status values such as `MISSING_INPUT`, `INPUT_CONFIRMATION_REQUIRED`, `NOT_APPLICABLE`, `BLOCKED_INGREDIENT_IDENTITY`, and `NOT_CALCULABLE_MISSING_EVIDENCE` describe evidence state only. They are not measurements or commercial approvals.
+
+### 1.2 Execution order and parallelism
+
+1. Start with actual Ingredient/SKU, equipment and vessel identification. This can proceed independently for every unblocked Product and does not approve a Recipe or supplier.
+2. Run the already bounded Cà phê muối tracks `CM-R04-01` and `CM-R05-01` independently once their actual inputs, equipment and vessel are identified.
+3. Run one Owner-prioritized Trà đào cam sả size under `R12`; run its corresponding `R13` record only after the missing tea identity, dose and brewing basis is explicitly recorded. Retain all six S/M/L records for later independent testing.
+4. Capture shared Ingredient purchase documents once per exact SKU/package and reference that evidence from each affected Product/Variant. Shared evidence does not create a shared Recipe quantity or allocation.
+5. Measure each S/M/L Variant independently. Shared batch preparation may reduce repeated work only when the actual batch, output, allocation and loss are all measured and retained.
+6. Run the four BUY procurement evidence rows in parallel. Public listings remain candidate leads; supplier contact, RFQ, quotation acceptance and purchase require separate authority.
+7. Keep Bơ xay dừa non blocked until the actual young-coconut Ingredient identity is resolved. This blocker does not stop unrelated Product measurement.
+
+For the remaining MAKE Products, the first executable action is to record the actual Ingredient specifications and a controlled test basis in the MAKE matrix. Public formulations may guide test planning but do not make a Product costable. No cost calculation may proceed from a reference formulation alone.
+
 ## 2. Cà phê muối — independent benchmark tracks
 
 Sources and limitations are documented in [Recipe Research §3.3](after_four_commercial_v1_recipe_quantity_research.md#33-cà-phê-muối--một-cỡ). Track A and Track B have different foam denominators and must not be merged.
