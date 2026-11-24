@@ -59,7 +59,7 @@ No application or database command was run for this assessment. Specs listed bel
 
 **Current:** demo Product selection and local calculation exist only in React; backend can create an aggregate-total Draft, confirm it, and settle exact-balance cash/manual bank. There is no API joining them and no authoritative Product/Variant/Price/Order Item path.
 
-**Missing critical links:** approved menu rows/prices; Catalog read contract; effective Price resolution; Order Items and sold snapshots; server calculation; table/takeaway context; Presentation endpoints; trusted operator context; frontend API integration. The existing `Orders::CreateDraft` accepts client-provided `total_amount` (`backend/app/domains/orders/create_draft.rb:7-27`), which is unsuitable as the final authoritative sales calculation boundary.
+**Missing critical links:** approved menu rows/prices; Catalog read contract; effective Price resolution; Order Items and sold snapshots; server calculation; table/takeaway context; Presentation endpoints; trusted operator context; frontend API integration. A Draft line must bind one Price version, unrelated Draft edits must not silently reprice it, and any changed authoritative Price requires explicit re-quote/revalidation and review before confirmation under `ODB-CAT-09`. The exact concurrency mechanism remains a Gate B proposal. The existing `Orders::CreateDraft` accepts client-provided `total_amount` (`backend/app/domains/orders/create_draft.rb:7-27`), which is unsuitable as the final authoritative sales calculation boundary.
 
 **Readiness:** `BLOCKED_BEFORE_GATE_A` until the bounded calculation/snapshot contract and menu input are reviewable; implementation then needs Gate B.
 
@@ -67,7 +67,7 @@ No application or database command was run for this assessment. Specs listed bel
 
 **Current:** full eligible payment creates a pending dispatch and outbox event atomically. No consumer turns it into a kitchen ticket. Frontend delivery status changes are local demo state and explicitly do not update Order/Payment/kitchen data (`frontend/src/features/upstairs-delivery/components/delivery-detail-content.tsx:85-118`).
 
-**Missing critical links:** outbox consumer contract; Preparation Ticket/Item aggregate; queue/read API; started/completed/handover transitions; actor/capability rules; failure/retry evidence; idempotent Order/Preparation linkage; fulfillment-to-Order closure rule.
+**Missing critical links:** outbox consumer contract; Preparation Ticket/Item aggregate; queue/read API; started/completed/handover transitions; actor/capability rules; failure/retry evidence; idempotent Order/Preparation linkage; fulfillment-to-Order closure rule. PreparationDispatch business state, Outbox delivery state and Ticket execution state must remain separate; duplicate delivery must resolve to one Ticket and never duplicate Ticket Items. Progress granularity, partial completion and partial handover are separate Owner questions.
 
 **Readiness:** `DESIGN_AND_AUTHORIZATION_REQUIRED`.
 
@@ -75,7 +75,7 @@ No application or database command was run for this assessment. Specs listed bel
 
 **Current:** no executable Cash lifecycle exists. Payment cash confirmation is not a Cash Session or drawer ledger.
 
-**Missing critical links:** exact timezone/cutoff/configuration; capability assignees and separation; discrepancy classification/authority; movement taxonomy; session transition matrix; handover transition; correction operations; reconciliation hold/release; Reporting consequences; physical register/device scope.
+**Missing critical links:** actual Branch timezone and explicit cutoff; configuration/inheritance and exceptional-day behavior; capability assignees and separation; discrepancy classification/authority; movement taxonomy; session transition matrix; handover acknowledgement versus approval/disagreement; correction operations; discrepancy resolution versus reporting hold/release authority; physical register/device scope. No chain-wide timezone may substitute for the Branch timezone required by `ODB-CASH-12`.
 
 **Readiness:** `OWNER_AND_TECHNICAL_CLOSURE_REQUIRED`, followed by Gate A/B.
 
@@ -129,8 +129,8 @@ FOA, production authorization, deployment, production database roles and product
 
 | Package | Objective and deliverables | Exact repository scope candidate | Dependencies / existing authority | Tests and acceptance evidence | Start now? |
 |---|---|---|---|---|---|
-| `CORE-01` Core Sale Gate A package | Exact menu/Price input; API/Application/Domain contracts; Order Item/snapshot/calculation model; dine-in/takeaway rules; Inventory/Promo/Loyalty exclusions; Gate B manifest candidate. | Documentation only under `docs/architecture/` plus an evidence manifest under `docs/research/`; no source/schema. | Owner policy `ODB-CAT-01`–`13`, Phase 1 evidence, ADR-0011; actual rows/prices still needed. NW-OR-01 permits design preparation only. | Traceability matrix; flow/failure cases; authorization boundary; migration/API/test manifest; independent design review. | **Yes, design only.** Gate A decision then Gate B required. |
-| `CORE-02` Preparation execution design | Ticket/Item lifecycle, queue contract, outbox consumer, retries, completion/handover and Order closure dependency. | Documentation only; future candidate paths under `backend/app/domains/preparation/` and specs must not be created yet. | Existing pending dispatch; P1A-OD-07 deferred closure guards. Needs Owner decisions for completion/handover/closure where absent. | State/sequence tests, duplicate delivery, crash/retry, atomic ticket creation, cross-Branch isolation, closure race scenarios. | **Yes, design/policy preparation only.** Implementation Gate B required. |
+| `CORE-01` Core Sale Gate A package | Exact menu/Price input; API/Application/Domain contracts; Draft Price-version binding and explicit re-quote/review; Order Item/snapshot/calculation model; dine-in/takeaway rules; Inventory/Promo/Loyalty exclusions; Gate B manifest candidate. | Documentation only under `docs/architecture/` plus an evidence manifest under `docs/research/`; no source/schema. | Owner policy `ODB-CAT-01`–`13`, Phase 1 evidence, ADR-0011; actual rows/prices still needed. NW-OR-01 permits design preparation only. | Traceability matrix; no-silent-repricing and Price-publication race cases; flow/failure cases; authorization boundary; migration/API/test manifest; independent design review. | **Yes, design only.** Gate A decision then Gate B required. |
+| `CORE-02` Preparation execution design | Separate Dispatch/Outbox/Ticket lifecycles; idempotent acceptance and duplicate delivery; progress granularity; partial completion/handover; queue contract, retries and Order closure dependency. | Documentation only; future candidate paths under `backend/app/domains/preparation/` and specs must not be created yet. | Existing pending dispatch; P1A-OD-07 deferred closure guards. Needs Owner decisions for completion/handover/closure where absent. | State/sequence tests, duplicate/out-of-order delivery, one-Ticket invariant, crash/retry, cross-Branch isolation and closure races. | **Yes, design/policy preparation only.** Implementation Gate B required. |
 | `CORE-03` Core operator Identity/Authorization | Bounded operator/session/Branch/capability contract for Catalog read, Order, Payment and Preparation operations; exclude full Workforce scheduling. | P1/Identity design documents only initially. | I1 approved only for ancestry; ADR-0006 Proposed; Milestone 2B unauthorized. | Threat/fail-closed matrix, session/CSRF/capability tests and exact dependency manifest. | **Design review preparation only.** Separate Gate A/B mandatory. |
 | `CORE-04` Cash closure | Resolve remaining Cash decisions and prepare Cash Session/Operating Day design with immutable linked corrections and reconciliation. | Cash research/design documents only. | `ODB-CASH-12`–`15`; CASH-03/05/07/08 unresolved/conditional. | Lifecycle, capability, discrepancy, handover, close/reconcile and reporting-hold acceptance matrix. | **Policy/design preparation yes; implementation no.** |
 | `CORE-05` Reporting contract | Define minimum operational reports and source-evidence lineage without building projections. | Reporting design/research only. | Requires item, Preparation, Refund/Cash facts; NW-OR-01 governance/discovery only. | Field/source lineage, correction/reconciliation semantics, access and retention review. | **Partial design can start; implementation blocked.** |
@@ -174,9 +174,10 @@ This deferral does not reverse existing Inventory Owner decisions; it removes In
 - Exact initial Product/Variant rows and actual Prices; whether the supplied bands are fixed tiers, targets or examples; price-per-size mapping and effective date/time.
 - Minimum dine-in table/service context and takeaway identification required at Order creation.
 - Core Sale calculation components: tax display/treatment, rounding, Service Charge existence or explicit exclusion, Modifier price effects, complimentary/zero-price behavior.
-- Preparation lifecycle, completion/handover evidence and Order closure guards.
+- Preparation progress granularity, partial completion, partial handover, stage-specific cancellation consequences, completion evidence, handover evidence and independently governed Order closure guards.
 - Bounded operator capabilities/assignees for Order, Payment and Preparation pending the separately governed Identity design.
-- Cash Session discrepancy, correction authority, handover transition, close/reconciliation and reporting-hold details.
+- Cash Session discrepancy investigation/resolution, correction authority, handover acknowledgement versus approval, Session transition, close/reconciliation and separately governed reporting hold/release details.
+- Reporting metrics/source scope, read and Branch scope, export, recipients/delivery, cutoff and retention as independent decisions; none grants another authority implicitly.
 
 Refund/provider reconciliation, Promotions, Loyalty and full Reporting remain follow-on decision sets and must not be silently pulled into the first Core Sale package.
 
