@@ -42,9 +42,9 @@ Mỗi Product là một sản phẩm kinh doanh Brand-global, không phải từ
 
 | Product code | Tên sản phẩm | Category | Mô tả | Trạng thái |
 |---|---|---|---|---|
-| PRD-001 |  |  |  | Draft |
-| PRD-002 |  |  |  | Draft |
-| PRD-003 |  |  |  | Draft |
+| TBD |  |  |  | Draft |
+| TBD |  |  |  | Draft |
+| TBD |  |  |  | Draft |
 
 Trạng thái hợp lệ theo `ODB-CAT-03`: Draft / Active / Inactive / Archived.
 
@@ -52,36 +52,38 @@ Trạng thái hợp lệ theo `ODB-CAT-03`: Draft / Active / Inactive / Archived
 
 Owner confirmed this costing baseline on 2026-11-24 under `CORE-OD-18`. Prices are VND. `Một cỡ` is one priced costing Variant; any hot/iced preparation choice for that Product is not a separate priced Variant. All rows apply to both dine-in and takeaway at the same proposed price and to the first Branch's first Price Version.
 
-| Product | Approved costing Variant | Proposed V1 selling price (VND) |
-|---|---|---:|
-| Cà phê đen | Một cỡ | 23,000 |
-| Cà phê sữa | Một cỡ | 29,000 |
-| Bạc xỉu | Một cỡ | 33,000 |
-| Cà phê muối | Một cỡ | 43,000 |
-| Cà phê dừa | Một cỡ | 43,000 |
-| Latte | Một cỡ | 43,000 |
-| Trà đào cam sả | S / M / L | 33,000 / 39,000 / 45,000 |
-| Trà vải | S / M / L | 33,000 / 39,000 / 45,000 |
-| Trà chanh | S / M / L | 29,000 / 35,000 / 39,000 |
-| Trà tắc mật ong | S / M / L | 29,000 / 35,000 / 39,000 |
-| Trà chanh dây | S / M / L | 33,000 / 39,000 / 45,000 |
-| Nước chanh | S / M / L | 29,000 / 35,000 / 39,000 |
-| Chanh dây đá | S / M / L | 33,000 / 39,000 / 45,000 |
-| Cam ép | S / M / L | 39,000 / 45,000 / 49,000 |
-| Soda chanh | S / M / L | 29,000 / 35,000 / 39,000 |
-| Bơ xay dừa non | S / M / L | 43,000 / 46,000 / 49,000 |
-| Sinh tố xoài | S / M / L | 39,000 / 45,000 / 49,000 |
-| Sinh tố dâu | S / M / L | 43,000 / 46,000 / 49,000 |
-| Cà phê dừa đá xay | Một cỡ | 49,000 |
-| Matcha latte | Một cỡ | 43,000 |
-| Cacao sữa | Một cỡ | 39,000 |
-| Sữa chua trái cây | Một cỡ | 43,000 |
-| Bánh croissant | Một phần | 33,000 |
-| Cheesecake | Một phần | 43,000 |
-| Brownie chocolate | Một phần | 33,000 |
-| Muffin | Một cái | 29,000 |
-| Sandwich jambon phô mai | Một phần | 43,000 |
-| Khoai tây chiên | Một phần | 33,000 |
+`Product code` and `Variant code` are business identifiers, not UUID primary keys. No canonical V1 business-code values have been assigned. `TBD` therefore preserves the required fields without inventing codes. For S/M/L rows, the three Variant-code positions map in order to S, M and L and remain independently `TBD`.
+
+| Product code | Product | Variant code | Approved costing Variant | Proposed V1 selling price (VND) |
+|---|---|---|---|---:|
+| TBD | Cà phê đen | TBD | Một cỡ | 23,000 |
+| TBD | Cà phê sữa | TBD | Một cỡ | 29,000 |
+| TBD | Bạc xỉu | TBD | Một cỡ | 33,000 |
+| TBD | Cà phê muối | TBD | Một cỡ | 43,000 |
+| TBD | Cà phê dừa | TBD | Một cỡ | 43,000 |
+| TBD | Latte | TBD | Một cỡ | 43,000 |
+| TBD | Trà đào cam sả | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Trà vải | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Trà chanh | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Trà tắc mật ong | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Trà chanh dây | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Nước chanh | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Chanh dây đá | TBD / TBD / TBD | S / M / L | 33,000 / 39,000 / 45,000 |
+| TBD | Cam ép | TBD / TBD / TBD | S / M / L | 39,000 / 45,000 / 49,000 |
+| TBD | Soda chanh | TBD / TBD / TBD | S / M / L | 29,000 / 35,000 / 39,000 |
+| TBD | Bơ xay dừa non | TBD / TBD / TBD | S / M / L | 43,000 / 46,000 / 49,000 |
+| TBD | Sinh tố xoài | TBD / TBD / TBD | S / M / L | 39,000 / 45,000 / 49,000 |
+| TBD | Sinh tố dâu | TBD / TBD / TBD | S / M / L | 43,000 / 46,000 / 49,000 |
+| TBD | Cà phê dừa đá xay | TBD | Một cỡ | 49,000 |
+| TBD | Matcha latte | TBD | Một cỡ | 43,000 |
+| TBD | Cacao sữa | TBD | Một cỡ | 39,000 |
+| TBD | Sữa chua trái cây | TBD | Một cỡ | 43,000 |
+| TBD | Bánh croissant | TBD | Một phần | 33,000 |
+| TBD | Cheesecake | TBD | Một phần | 43,000 |
+| TBD | Brownie chocolate | TBD | Một phần | 33,000 |
+| TBD | Muffin | TBD | Một cái | 29,000 |
+| TBD | Sandwich jambon phô mai | TBD | Một phần | 43,000 |
+| TBD | Khoai tây chiên | TBD | Một phần | 33,000 |
 
 This approval permits further cost calculation only. It does not publish a Price, authorize implementation, establish tax treatment or rounding, or prove any Recipe, supplier cost, unit cost or gross margin. Cost evidence must be collected in [`after_four_commercial_v1_costing_input.csv`](after_four_commercial_v1_costing_input.csv); repeat a Product/Variant row for each distinct ingredient or direct-cost line rather than combining inputs.
 
