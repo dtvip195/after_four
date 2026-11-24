@@ -49,6 +49,8 @@ The costing input records quoted price and actual invoiced/purchased price as se
 6. Run the four BUY procurement evidence rows in parallel. Public listings remain candidate leads; supplier contact, RFQ, quotation acceptance and purchase require separate authority.
 7. Keep Bơ xay dừa non blocked until the actual young-coconut Ingredient identity is resolved. This blocker does not stop unrelated Product measurement.
 
+The 2026-11-25 public-evidence delta is recorded as `CE-COM-015` through `CE-COM-018` in the [Comprehensive Evidence Register](after_four_comprehensive_evidence_register.csv). Shared dairy, tea, packaging, and BUY-product evidence may be referenced from multiple candidate assessments without copying or altering the original record. A shared source reference does not establish Product applicability, Recipe quantity, packaging assignment, quotation, transaction, or cost.
+
 For the remaining MAKE Products, the first executable action is to record the actual Ingredient specifications and a controlled test basis in the MAKE matrix. Public formulations may guide test planning but do not make a Product costable. No cost calculation may proceed from a reference formulation alone.
 
 ## 2. Cà phê muối — independent benchmark tracks
