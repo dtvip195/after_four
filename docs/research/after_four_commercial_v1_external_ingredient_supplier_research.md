@@ -11,7 +11,7 @@ This review found usable public evidence from seven first-party ingredient-suppl
 
 The research captured 37 distinct ingredient SKUs relevant to the candidate menu. Thirty-six have an unambiguous displayed price; one Monin Lychee SKU has conflicting first-party/crawl prices and is therefore `UNVERIFIED` for exact current price. Packaging evidence comprises two independently identifiable priced SKUs, one priced configuration/service line and one historical/reference price range. The report also records five manufacturer recipe references. These records are useful for comparison and evidence-request preparation, but none is an invoice, accepted quotation or `ACTUAL_PURCHASE_COST`. No public source establishes AFTER FOUR's Recipe/BOM, serving quantity, yield, waste, approved substitute, packaging assignment, tax treatment or direct-cost allocation. Consequently, unit cost and gross margin remain uncalculable for all 28 Products.
 
-Coverage is uneven: 13 Products have at least one exact priced-ingredient lead, one has an exact ingredient specification without price, 10 have only ingredient-category or generic supplier leads, three have packaging-only evidence, and one has no usable research lead. Reference recipes overlap three of those Products and do not change their evidence class. Coffee beans, fresh fruit, dairy, yogurt, ham/cheese, bread, potatoes, frying oil and Product-specific packaging remain materially incomplete.
+Coverage is uneven: 11 Products have at least one exact priced-ingredient lead, two food Products have only conditional priced-component leads because buy-versus-make and Recipe remain unresolved, one has an exact ingredient specification without price, 10 have only ingredient-category or generic supplier leads, three have packaging-only evidence, and one has no usable research lead. Reference recipes overlap three of those Products and do not change their evidence class. Coffee beans, fresh fruit, dairy, yogurt, ham/cheese, bread, potatoes, frying oil and Product-specific packaging remain materially incomplete.
 
 ## 2. Method and evidence controls
 
@@ -28,12 +28,15 @@ Coverage is uneven: 13 Products have at least one exact priced-ingredient lead, 
 |---|---|
 | `PUBLIC_LISTED_PRICE` | A first-party page displays a product, explicit package and price. It is not an accepted supplier price. |
 | `PUBLIC_WHOLESALE_PRICE` | A first-party page explicitly identifies a wholesale/tier price. None of the ingredient pages reviewed provided a usable accepted wholesale price. |
+| `HISTORICAL_REFERENCE_PRICE` | A dated or historical first-party price guide retained for context. It is not represented as a current public price or procurement evidence. |
 | `PUBLIC_PRODUCT_SPECIFICATION` | A first-party page establishes product/category/package or supplier capability, but not a usable price. |
 | `REFERENCE_RECIPE` | A manufacturer/professional source gives quantities or method. Never an AFTER FOUR BOM. |
 | `SUPPLIER_QUOTE_NOT_OBTAINED` | The source offers the category or asks for contact/quotation, but no quotation was requested or received. |
 | `OWNER_PROVIDED_EVIDENCE` | Reserved for evidence supplied by the Owner. No external finding was assigned this class. |
 | `UNVERIFIED` | A relevant claim lacks enough first-party detail, currency or package specificity. |
 | `MISSING` | The required evidence was not found. |
+
+`PUBLIC_LISTED_PRICE` in this report means a public retail/listed comparison value unless the source explicitly states wholesale terms. A public listing is not an accepted supplier quotation. An accepted quotation would still remain distinct from `ACTUAL_PURCHASE_COST`, which requires actual procurement evidence. No record in this report is an accepted quotation or actual purchase cost.
 
 ## 3. Supplier landscape and geographic relevance
 
@@ -100,7 +103,7 @@ These listings do not establish fresh-fruit equivalence, usable solids, dilution
 | Hunufa PET cup | 700 ml / 24 oz, rim 98 mm, 1,000 cups/carton | 226/cup | SRC-22 | Exact product SKU; page says website price is referential/quantity-dependent. Lid, Hoi An delivery, Variant suitability and landed cost are not established. | `PUBLIC_LISTED_PRICE` |
 | Hunufa printed PP cup | 500 ml, tier table shown | 585 down to 565/cup depending on tier | SRC-23 | Priced print configuration/service line, not an independently identified SKU. Tier quantities, setup and lid pairing require confirmation; not assigned to S/M/L. | `PUBLIC_LISTED_PRICE` |
 | Ly Giấy Việt Nam printed paper cup | 16 oz / 480 ml, PE-coated paper, product code LGIS-16OZ | 950/cup | SRC-24 | Exact product SKU shown in stock. Shipping, lid and applicability to hot/cold Product are not established. | `PUBLIC_LISTED_PRICE` |
-| Ly Giấy Việt Nam takeaway paper cup range | 16 oz / 480 ml | 710–1,246/cup depending on quantity/design | SRC-25 | Historical 2024 quantity/design-dependent reference guide, not a distinct exact SKU or accepted quotation. | `PUBLIC_LISTED_PRICE` |
+| Ly Giấy Việt Nam takeaway paper cup range | 16 oz / 480 ml | 710–1,246/cup depending on quantity/design | SRC-25 | Historical 2024 quantity/design-dependent reference guide, not a current price, distinct exact SKU or accepted quotation. | `HISTORICAL_REFERENCE_PRICE` |
 | Dine-in glassware/crockery | No Product/Variant-specific evidence found | — | — | Reuse life, breakage, washing and allocation absent | `MISSING` |
 | Food takeaway packaging | No Product-specific croissant/cake/sandwich/fries package evidence found | — | — | Dimensions, grease barrier, cutlery, bag and delivery fit absent | `MISSING` |
 
@@ -120,7 +123,7 @@ The Torani summer recipes are from a 2021 manufacturer campaign PDF and are hist
 
 ## 7. Twenty-eight Product research matrix
 
-“Candidate evidence” identifies research leads only. It is not a BOM, substitute approval or Ingredient allocation.
+“Candidate evidence” identifies research leads only. Every evidence class in this matrix is a candidate external-evidence class, not a BOM, substitute approval or Ingredient allocation. For food Products, an ingredient or bakery-category lead does not decide whether AFTER FOUR buys a finished Product, uses a pre-prepared Product or prepares it in-house. For beverages, a listed syrup, puree, tea or powder is not evidence that AFTER FOUR uses it in the Product.
 
 | # | Product | Approved costing Variant(s) | Candidate external evidence found | Critical missing evidence | Evidence class |
 |---:|---|---|---|---|---|
@@ -146,9 +149,9 @@ The Torani summer recipes are from a 2021 manufacturer campaign PDF and are hist
 | 20 | Matcha latte | Một cỡ | Exact Pomona matcha 800 g listing and dairy categories | Approved matcha/milk, quantities, yield, hot/iced packaging | `EXACT_PRICED_INGREDIENT_LEAD` |
 | 21 | Cacao sữa | Một cỡ | Two exact public cocoa listings and dairy categories | Approved cocoa/milk, quantities, yield, hot/iced packaging | `EXACT_PRICED_INGREDIENT_LEAD` |
 | 22 | Sữa chua trái cây | Một cỡ | Exact Pomona yogurt-powder and fruit-preparation listings | Whether fresh yogurt/powder, approved fruit form, quantities/yield, container | `EXACT_PRICED_INGREDIENT_LEAD` |
-| 23 | Bánh croissant | Một phần | Exact public butter listing plus Xuân Hà baking/cream categories | Buy-versus-make, recipe or finished SKU, serving yield, remaining prices, packaging | `EXACT_PRICED_INGREDIENT_LEAD` |
+| 23 | Bánh croissant | Một phần | Public butter price plus generic Xuân Hà baking/cream categories; neither source establishes that AFTER FOUR makes the Croissant or uses this butter | Buy-versus-make, recipe or finished SKU, serving yield, all applicable prices, packaging | `CONDITIONAL_PRICED_COMPONENT_LEAD — BUY_VS_MAKE/RECIPE_UNRESOLVED` |
 | 24 | Cheesecake | Một phần | Xuân Hà Rich's cheesecake/baking categories | Recipe or finished SKU, portion yield, exact cold-chain price, packaging | `INGREDIENT_CATEGORY_OR_GENERIC_LEAD` |
-| 25 | Brownie chocolate | Một phần | Exact cocoa/butter prices plus Xuân Hà chocolate/baking categories | Recipe or finished SKU, portion yield, remaining prices, packaging | `EXACT_PRICED_INGREDIENT_LEAD` |
+| 25 | Brownie chocolate | Một phần | Public cocoa/butter prices plus Xuân Hà chocolate/baking categories; none establishes that AFTER FOUR makes the Brownie or uses those SKUs | Buy-versus-make, recipe or finished SKU, portion yield, all applicable prices, packaging | `CONDITIONAL_PRICED_COMPONENT_LEAD — BUY_VS_MAKE/RECIPE_UNRESOLVED` |
 | 26 | Muffin | Một cái | Xuân Hà identifies Rich's chocolate/vanilla muffin mixes without a usable public price | Approved flavour/recipe or finished SKU, batch yield, price, packaging | `EXACT_INGREDIENT_SPECIFICATION_NO_PRICE` |
 | 27 | Sandwich jambon phô mai | Một phần | Local suppliers list dairy/cheese categories | Bread, ham, cheese identities/quantities/prices, prep loss, packaging | `INGREDIENT_CATEGORY_OR_GENERIC_LEAD` |
 | 28 | Khoai tây chiên | Một phần | No qualified Product-specific public input found | Potato/frozen SKU, oil allocation, portion, fryer yield/waste, packaging | `MISSING` |
@@ -241,10 +244,10 @@ All sources were accessed 2026-11-24 unless otherwise stated.
 | SRC-19 | [Xuân Hà official anti-fraud/contact notice](https://xuanhafood.com.vn/canh-bao-trang-website-gia-mao-lua-dao-ban-hang-duoi-ten-thuong-hieu-cua-chung-toi-banh-mien-trung/) | First-party business/address context | Not a price source |
 | SRC-20 | [Déli contact and delivery](https://shop.deli-fnb.vn/vi/lien-he/) | Da Nang-area branch; carrier and Viettel Post methods | No SKU price or Hoi An delivered terms |
 | SRC-21 | [Hân Hân Drinks introduction](https://nguyenlieuphachedanang.com/gioi-thieu/) | Da Nang location and ingredient categories | No accepted quote |
-| SRC-22 | [Hunufa PET 700 ml cup](https://hunufa.vn/ly-nhua-pet-700ml) | 700 ml/24 oz, 1,000/carton, 226/cup | Lid/delivery excluded |
-| SRC-23 | [Hunufa printed plastic-cup pricing](https://hunufa.vn/in-ly-nhua-in-coc-nhua?language=vie) | Size/tier price table | Printing setup and exact tier conditions require verification |
+| SRC-22 | [Hunufa PET 700 ml cup](https://hunufa.vn/ly-nhua-pet-700ml) | 700 ml/24 oz, 1,000/carton, 226/cup | Website price is referential/quantity-dependent; lid and delivery excluded |
+| SRC-23 | [Hunufa printed plastic-cup pricing](https://hunufa.vn/in-ly-nhua-in-coc-nhua?language=vie) | Size/tier configuration price table | Configuration/service line rather than exact SKU; website prices are referential/quantity-dependent |
 | SRC-24 | [Ly Giấy Việt Nam 16 oz printed cup](https://lygiayvietnam.vn/ly-giay-to-giay/ly-coc-giay-in-san-thiet-ke-16oz-480ml.html) | 480 ml specification, 950/cup | Shipping/lid excluded |
-| SRC-25 | [Ly Giấy Việt Nam takeaway cup price guide](https://lygiayvietnam.vn/bang-gia-ly-giay-cafe-take-away-2021-341.html) | 16 oz range 710–1,246/cup; invoice statement | Page says price is referential and quantity-dependent |
+| SRC-25 | [Ly Giấy Việt Nam takeaway cup price guide](https://lygiayvietnam.vn/bang-gia-ly-giay-cafe-take-away-2021-341.html) | Historical 2024 guide: 16 oz range 710–1,246/cup; invoice statement | `HISTORICAL_REFERENCE_PRICE`; quantity/design-dependent and not a current exact SKU price |
 | SRC-26 | [Torani Strawberry Diamond Smoothie](https://www.torani.com/strawberry-diamond-smoothie.html) | Manufacturer recipe quantities/method | Promotional reference, not BOM |
 | SRC-27 | [Torani Frozen Strawberry Nebula Lemonade](https://www.torani.com/frozen-strawberry-nebula-lemonade.html) | Manufacturer recipe quantities/method | Promotional reference, not BOM |
 | SRC-28 | [Torani Summer 2021 recipe guide](https://www.torani.com/media/pdfs/TOR107_SummerTrends2021-DigitalPourcast_FINAL_1_.pdf) | Shaken Lychee Palmer, Lychee Lemonade Splash, Mango Agua formulas | Historical campaign PDF; not BOM |
@@ -260,6 +263,6 @@ All sources were accessed 2026-11-24 unless otherwise stated.
 - Distinct ingredient SKUs tabulated: **37**. Of these, **36** have an unambiguous displayed price and **1** has a conflicting exact price classified `UNVERIFIED`.
 - Packaging evidence: **2 exact priced SKUs**, **1 priced configuration/service line**, and **1 historical/reference price range**. These are not four distinct packaging SKUs.
 - Public manufacturer recipe references tabulated: **5**.
-- Commercial V1 evidence coverage: **13/28** with an exact priced-ingredient lead; **1/28** with an exact unpriced ingredient specification; **10/28** with only ingredient-category/generic supplier leads; **3/28** with packaging-only evidence; **1/28** with no usable research lead. Reference recipes overlap three Products.
+- Commercial V1 evidence coverage: **11/28** with an exact priced-ingredient lead; **2/28** with conditional priced-component leads because buy-versus-make/Recipe is unresolved; **1/28** with an exact unpriced ingredient specification; **10/28** with only ingredient-category/generic supplier leads; **3/28** with packaging-only evidence; **1/28** with no usable research lead. Reference recipes overlap three Products.
 - Commercial V1 Products with reliable unit cost and gross margin: **0/28**.
 - Hoi An opportunity: a credible Da Nang/Điện Bàn supplier shortlist exists; actual Hoi An delivery, current availability, accepted price, tax and MOQ remain unverified.
