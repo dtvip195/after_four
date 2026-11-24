@@ -76,12 +76,24 @@ No alternative is selected here. Technical representation remains a later Gate B
 
 The remediated `TECHNICAL_PROPOSAL` does not assume cross-context database atomicity.
 
+Ordering owns the confirmation-attempt lifecycle:
+
+| Attempt state | Meaning and terminality |
+|---|---|
+| `open` | Nonterminal attempt bound to Order, expected Draft version and stable idempotency identity. |
+| `confirmation_in_progress` | Nonterminal validation/confirmation attempt; same-identity retry locates this attempt. |
+| `confirmed_terminal` | Immutable terminal evidence binds confirmed Order version, snapshot digest, amount, currency and target reference. |
+| `aborted_terminal` | Immutable terminal evidence records reason/time/revision and an Ordering-owned fence rejecting all later confirmation for this attempt. |
+| `reconciliation_required` | Nonterminal held observation until reconciliation records exactly one terminal outcome. |
+
+Only Ordering Application may record a terminal outcome, and `confirmed_terminal` and `aborted_terminal` are mutually exclusive. Absence of observed confirmation is not terminal evidence. A terminal attempt cannot be retried. After `aborted_terminal`, a later business retry requires an explicit new attempt identity and current Draft version, and only while the Order remains Draft/eligible; it uses a new provisional target. No new attempt may replace `confirmed_terminal`.
+
 | Payment-owned state | Meaning | Permitted next logical outcome |
 |---|---|---|
 | `absent` | No target for the confirmation attempt. | Create/locate one matching `provisional` target. |
 | `provisional` | Proposed amount/currency and snapshot digest are correlated to the Order confirmation attempt, but are not payable. | Activate only after verified matching Order confirmation; otherwise cancel or hold for reconciliation. |
 | `authoritative` | Payment Application verified matching authoritative Order confirmation and activated the single matching target. | Exact-cash settlement may proceed if all other guards pass. |
-| `cancelled` | Reconciliation proved the attempt did not produce matching authoritative Order confirmation; provisional evidence is tombstoned. | Terminal for that attempt; never reused. |
+| `cancelled` | Payment validated trusted Ordering `aborted_terminal` evidence for the same attempt and tombstoned its provisional target. | Terminal for that target; never reused or reactivated. |
 | `reconciliation_required` | Duplicate, mismatch, partial observation or context disagreement is held. | Separately authorized reconciliation only; no settlement/Dispatch/completion. |
 
 The protocol is:
@@ -90,16 +102,20 @@ The protocol is:
 2. Ordering Application owns `ConfirmOrder` and a stable confirmation-attempt/idempotency identity.
 3. Ordering validates the Draft/re-quote version and constructs the complete proposed sold-snapshot digest, total and currency.
 4. Through an Ordering Application-owned outbound port, its Infrastructure adapter asks the Payment Application public contract to create/locate a matching `provisional` target keyed by Order and attempt. Same identity/input returns the same target; changed input conflicts.
-5. Ordering records authoritative confirmation and complete sold snapshots with the attempt and target references.
-6. Payment Application alone may activate the target, after independently validating trusted Ordering confirmation evidence: Order, attempt, confirmed version, snapshot digest, total and currency must all match.
-7. Activation yields the single `authoritative` target. Client input, Ordering Infrastructure and provisional creation cannot authorize activation.
+5. Ordering records `confirmed_terminal`, authoritative confirmation and complete sold snapshots with the attempt and target references.
+6. Payment Application obtains evidence from a trusted Ordering Application public contract. The evidence binds Order, attempt, terminal outcome/revision, confirmed version, snapshot digest, total and currency; client input, caller assertions and Infrastructure adapter claims are never substitutes.
+7. Missing, unavailable, stale, conflicting or mismatched Ordering evidence fails closed and keeps the target provisional/held.
+8. Payment Application alone may activate the target after all `confirmed_terminal` evidence matches.
+9. Activation yields the single `authoritative` target. Provisional creation cannot authorize activation.
 
 Failure and retry outcomes:
 
-- Provisional creation followed by Ordering failure leaves non-payable evidence. It becomes `cancelled` only after reconciliation proves no matching authoritative confirmation.
+- Provisional creation followed by delayed/failed/unknown Ordering outcome leaves non-payable evidence. Payment never cancels from absence; it requires matching `aborted_terminal` evidence whose fence prevents later confirmation of that attempt.
 - Ordering confirmation followed by failed/unknown activation holds payment eligibility. Retry/reconciliation uses the same attempt and activates the matching target or records `reconciliation_required`; it never creates another payable target.
 - Activation followed by response loss is replayed by the same identity and returns the prior authoritative result.
 - Multiple targets, multiple authoritative candidates, mismatched digest/amount/currency/version or context disagreement enter `reconciliation_required`; automatic selection, merge or rewrite is prohibited.
+- Ordinary retry/delayed confirmation after `aborted_terminal` is rejected. A new eligible business attempt requires a new identity and target.
+- Unexpected confirmed evidence after target cancellation preserves both the authoritative Order/snapshots and cancelled target, enters `reconciliation_required`, prohibits settlement/Dispatch/completion and requires separately authorized recovery. The cancelled target is never reactivated.
 - A provisional, cancelled, held or mismatched target—or an authoritative target lacking matching confirmed Order evidence—cannot support cash settlement, Preparation Dispatch or Order-completion eligibility.
 
 An orphan target can therefore exist only as non-payable provisional evidence. Physical transactions, storage, locks, isolation, outbox/saga, broker, transport and reconciliation execution remain Gate B concerns.

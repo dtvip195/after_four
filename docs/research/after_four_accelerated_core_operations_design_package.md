@@ -1,6 +1,6 @@
 # AFTER FOUR — Accelerated Core Operations Design Package
 
-**Package status:** `OWNER_REVIEW_RECORDED — DESIGN_REMEDIATION_RECORDED — CORE_01_02_04_NOT_READY_FOR_OWNER_GATE_A_REVIEW`
+**Package status:** `OWNER_REVIEW_RECORDED — DESIGN_REMEDIATION_RECORDED — CORE_01_04_INPUT_BLOCKED — CORE_02_READY_FOR_SUBSEQUENT_INDEPENDENT_REVIEW_ONLY`
 
 **Repository baseline:** `main` / `origin/main` at `d1d8807faa1234fc7924bd522fa26363d1e3a414`
 
@@ -175,12 +175,27 @@ CORE-01 invariants are:
 - The server returns the calculated result, every bound Price-version reference and a Draft/revalidation version; the client displays but does not author them.
 - Confirmation locks/revalidates the Order and affected authoritative Price facts using a separately reviewed concurrency protocol.
 - If a bound Price is no longer the authoritative Price at confirmation, confirmation does not succeed. It returns or creates a revised quote, and a separate explicit operator review/acceptance of that revision is required before a later confirmation attempt (`ODB-CAT-09`).
-- Successful confirmation freezes sold snapshots and opens the existing Payment window atomically.
+- Ordering confirmation makes the Order and complete sold snapshots authoritative. The Payment target remains non-payable until Payment Application independently validates matching Ordering evidence and activates it; payment eligibility therefore opens only after activation, not atomically with Ordering confirmation.
 - Confirmed items and amounts are immutable; later correction/cancellation uses linked facts and approved workflows, never overwrite.
 
 The exact re-quote command shape, review token, lock order, database isolation and Price-publication race mechanism remain `TECHNICAL_PROPOSAL` pending Gate A review and Gate B authorization. The semantic requirement is stable: unrelated Draft edits never silently reprice, explicit revalidation exposes every changed commercial term, and confirmation cannot bypass the required review.
 
 The current `Orders::CreateDraft` accepts `total_amount` from its caller (`backend/app/domains/orders/create_draft.rb:7-27`). `CORE-01` must replace that trust boundary for the public operational flow; it must not silently change the existing command before Gate B approval.
+
+Ordering owns a stable confirmation attempt with these mutually exclusive logical outcomes:
+
+```text
+open → confirmation_in_progress → confirmed_terminal
+  └─────────────────────────────→ aborted_terminal
+ambiguous/inconsistent observation → reconciliation_required
+```
+
+- `open` and `confirmation_in_progress` are nonterminal. Retry uses the same attempt identity and expected Draft/version.
+- `confirmed_terminal` binds the authoritative Order version, snapshot digest, total, currency, target reference and terminal evidence revision.
+- `aborted_terminal` records a reason, authoritative Ordering decision time and terminal evidence revision, and installs an Ordering-owned fence that rejects every later or replayed confirm command for that attempt.
+- `reconciliation_required` is nonterminal unless reconciliation records exactly one of the two terminal outcomes. Absence of a currently observed confirmation is never terminal evidence.
+
+Only Ordering Application owns the terminal decision. The same attempt cannot move between terminal outcomes or be retried after terminality. A new attempt may be created only explicitly, with a new identity and current expected Draft version, after the prior attempt is `aborted_terminal` and the Order remains Draft/eligible. It never reuses or reactivates the prior Payment target. No new attempt may replace `confirmed_terminal`.
 
 The remediated logical Payment-target protocol uses these Payment-owned states:
 
@@ -193,19 +208,21 @@ any inconsistent observation → reconciliation_required (held outcome)
 - `absent`: no target exists for the confirmation attempt.
 - `provisional`: Payment has recorded the proposed amount/currency, confirmed-snapshot digest and stable confirmation-attempt identity, but the target is not payable and cannot support settlement or Dispatch.
 - `authoritative`: Payment Application has independently verified matching authoritative Order-confirmation evidence and activated exactly that provisional target.
-- `cancelled`: an unactivated provisional target is tombstoned after authoritative reconciliation proves the Order confirmation did not succeed. It is never reused for another attempt.
+- `cancelled`: an unactivated provisional target is tombstoned only after Payment validates trusted Ordering `aborted_terminal` evidence for the same attempt. It is never reused or reactivated.
 - `reconciliation_required`: a held outcome for duplicate, mismatched, partially observed or otherwise inconsistent state. It grants no payable authority.
 
 `ConfirmOrder` is owned by Ordering Application and uses one stable confirmation-attempt/idempotency identity. Ordering first validates the Draft/re-quote version and constructs the complete sold-snapshot digest and proposed total/currency. Through an Ordering Application-owned outbound port, an Infrastructure adapter asks the Payment Application public contract to create or locate a matching `provisional` target keyed by Order and confirmation attempt. Same identity and same digest/amount/currency returns the same target; changed input conflicts.
 
-Ordering then makes the Order confirmation and complete sold snapshots authoritative with the attempt and provisional-target references. Payment Application alone may transition `provisional → authoritative`, and only after validating trusted Ordering confirmation evidence through the applicable public contract: Order identity, confirmation attempt, confirmed version, snapshot digest, total and currency must all match. Neither the client, Ordering Infrastructure nor a provisional-target creation response can activate the target.
+Ordering then records `confirmed_terminal`, making the Order confirmation and complete sold snapshots authoritative with the attempt and provisional-target references. Payment Application obtains evidence through a trusted Ordering Application public contract; it does not accept the client, caller assertions or an Infrastructure adapter's statement as evidence. The contract returns the Order identity, attempt identity, terminal outcome/revision, confirmed Order version, snapshot digest, total and currency. Missing, unavailable, stale, conflicting or mismatched evidence fails closed and keeps the target provisional/held. Payment Application alone may transition `provisional → authoritative` after every field matches `confirmed_terminal` evidence.
 
 The logical protocol handles partial outcomes as follows:
 
-- If provisional creation succeeds but Ordering confirmation fails, the target stays non-payable. A cancellation request may tombstone it; reconciliation independently verifies that no matching authoritative confirmation exists before `cancelled` is recorded.
+- If provisional creation succeeds but confirmation is delayed, failed locally or unknown, the target stays non-payable. Payment does not cancel from absence. Cancellation is permitted only after the trusted Ordering contract returns matching `aborted_terminal` evidence whose terminal fence prevents later confirmation of that attempt.
 - If Ordering confirmation succeeds but activation fails or its outcome is unknown, the Order remains authoritative but payment eligibility is held. Retry/reconciliation uses the same attempt identity and either activates the single matching target or records `reconciliation_required`; it never creates another payable target.
 - If activation succeeds but the response is lost, replay locates the same `authoritative` target and returns the prior result.
 - Duplicate targets, multiple authoritative candidates, mismatched amount/currency/digest/version, or disagreement between Ordering and Payment are held as `reconciliation_required`. Automatic selection, merging or repair is prohibited; a separately authorized recovery may link a correction without rewriting confirmed facts.
+- An ordinary retry or delayed request after `aborted_terminal` is rejected by Ordering and returns that terminal outcome. A later business retry, if still eligible, requires an explicit new attempt and new provisional target.
+- Unexpected `confirmed_terminal` evidence observed after the matching target was cancelled is an invariant violation: preserve the authoritative Order/snapshots and cancelled target, hold both contexts in `reconciliation_required`, prohibit settlement/Dispatch/completion, and require separately authorized recovery. Never reactivate the cancelled target or discard confirmed evidence.
 - A provisional/cancelled/held/mismatched target, or an authoritative target lacking matching confirmed Order evidence, prohibits cash settlement, Preparation Dispatch and Order-completion eligibility.
 
 Thus an orphan target may exist only as non-payable provisional evidence; it cannot become an authoritative obligation without matching Ordering confirmation evidence. This is a logical cross-context protocol, not an assumption of database atomicity. Physical transactions, storage, locks, isolation, outbox/saga, broker, transport and reconciliation execution remain Gate B choices.
@@ -218,8 +235,9 @@ Operator selects Product/Variant and Branch
   → explicit re-quote returns changed lines, if any
   → operator explicitly accepts the revised quote
   → confirmation revalidates sellability, Branch and Price
-  → Ordering atomically freezes sold snapshots and confirmed total
-  → existing Payment flow receives that exact target
+  → Ordering makes sold snapshots and confirmed total authoritative for the attempt
+  → Payment independently validates trusted Ordering evidence
+  → Payment activates the single matching target and only then opens payment eligibility
 ```
 
 ### 3.6 Monetary sequence and precision
@@ -261,7 +279,9 @@ Every CORE-01 command requires a trusted server-derived actor/session binding, a
 | Confirmation races Price publication | Either confirmed snapshot binds the old still-effective version valid at the linearization point, or confirmation fails/requotes; never a mixed snapshot. | Transaction/lock protocol unresolved. |
 | Calculated component or sold snapshot fails before Order confirmation | Order remains Draft; any already-created target remains non-payable `provisional` until cancelled/reconciled. | Logical protocol defined; physical recovery/failure injection remain Gate B. |
 | Order confirms but Payment activation fails or is unknown | Preserve confirmed Order/snapshots, hold payment eligibility and reconcile the same attempt; never create another payable target. | Logical protocol defined; physical mechanism remains Gate B. |
-| Provisional target exists but Order never confirms | Target cannot settle or dispatch and is cancelled only after reconciliation proves no matching confirmation. | Logical protocol defined; cancellation/reconciliation implementation remains Gate B. |
+| Provisional target exists while confirmation is absent/unknown | Target cannot settle or dispatch. Absence never permits cancellation; Payment requires matching trusted `aborted_terminal` evidence with an Ordering-owned terminal fence. | Logical protocol defined; cancellation/reconciliation implementation remains Gate B. |
+| Delayed confirm arrives after attempt abort | Ordering rejects it with the same terminal outcome; any later eligible business retry uses a new attempt/target. | Logical protocol defined; enforcement mechanism remains Gate B. |
+| Confirmed evidence is unexpectedly observed after target cancellation | Preserve Order/snapshots and cancelled target, enter reconciliation hold, and prohibit settlement/Dispatch/completion; never reactivate or discard evidence. | Invariant-violation recovery requires separate authorization and Gate B design. |
 | Duplicate or mismatched target is observed | Enter `reconciliation_required`; prohibit settlement, Dispatch and completion; do not select or merge automatically. | Logical protocol defined; authorized repair remains separate. |
 | Payment mismatch | Record safe mismatch evidence; do not settle or dispatch. | Implemented/test artifacts exist. |
 | Payment result is ambiguous or provider-originated | Do not treat it as success, retry blindly or dispatch. Preserve the local attempt outcome and route through separately approved reconciliation. | Provider notification/query handling is absent and excluded; current local exact-balance commands are not provider adapters. |
