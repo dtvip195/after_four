@@ -26,7 +26,7 @@ For each of the 48 MAKE combinations, evidence is sufficient only when all appli
 | Approved Recipe/BOM | Exact ingredient or approved substitute; quantity and preparation unit per Variant; reusable component allocation | None unless the Recipe relies on a supplier specification. |
 | Purchase identity and price | Accept or reject the exact commercial ingredient specification | Exact SKU/package, purchase quantity/unit, accepted quotation or invoice/actual price, currency, stated tax, discount, delivery, and effective date. |
 | Unit conversion | Approve operational preparation unit and Recipe usage | Package/net-content evidence needed to support purchase-to-preparation conversion. |
-| Yield and batch allocation | Batch size, usable output, serving allocation, waste/remake assumption | Supplier yield/specification only where the business relies on it. |
+| Yield and batch allocation | Owner may approve a clearly labelled planning assumption for planning-only costing; it is not a measured operational result. Actual batch size, measured usable output, measured waste/remake, and allocation basis must retain their evidence class. | Supplier-provided yield/specification may be recorded as supplier evidence only; it is not an AFTER FOUR measured result. |
 | Packaging | Dine-in and Takeaway packaging identity, quantity, and allocation per Variant | Accepted packaging quote/invoice, pack size, delivery and actual price. |
 
 Existing public research supplies candidate leads only. It establishes no Owner-approved BOM, accepted quotation, invoice, actual purchase cost, approved yield/waste, or approved packaging allocation. See [External Research §§2.1, 8 and 10](after_four_commercial_v1_external_ingredient_supplier_research.md#21-evidence-classifications).
@@ -40,15 +40,27 @@ This applies independently to Bánh croissant, Cheesecake, Brownie chocolate, an
 | Finished-product specification | Acceptance specification and whether the item is procured finished; no bake-off inference | Exact offered product/SKU and conformance evidence. |
 | Commercial unit | Accept purchase/serving relationship | Purchase unit, pack size, unit conversion and MOQ. |
 | Price and landed cost | Accept quotation | Supplier, accepted quotation or invoice, actual purchase price, discount, delivery to first Branch, currency and effective date. |
-| Tax and handling | Approve operational handling after evidence | VAT/tax as stated on source, storage, shelf life and delivery conditions. |
+| Tax and handling | Approve operational handling after evidence; no tax/accounting treatment is inferred. | Record VAT/tax information exactly as shown by quotation/invoice, plus storage, shelf life and delivery conditions. Documentary VAT text does not establish applicability or accounting treatment. |
 | Waste and packaging | Approved waste assumption and Dine-in/Takeaway packaging allocation | Supplier shelf-life/packaging facts and packaging quote where applicable. |
 
 The retained source IDs are component/category leads only and do not establish a finished-product supplier, accepted terms, or actual purchase cost.
 
-## 4. Collection sequence
+## 4. Evidence classifications and calculation threshold
+
+- `OWNER_APPROVED_PLANNING_ASSUMPTION`: an explicit Owner-approved value usable only for the stated planning purpose. It is not an observed yield, waste, remake, or actual cost.
+- `MEASURED_OPERATIONAL_RESULT`: a dated, traceable result measured from AFTER FOUR preparation/handling under a stated Product/Variant, batch, and method.
+- `SUPPLIER_SPECIFICATION`: a supplier-stated property retained with its source/date. It is not an AFTER FOUR measured result.
+
+Unit cost may be calculated only when the required cost path has: evidenced ingredient identity and purchase SKU/package; documentary purchase-to-preparation conversion; Owner-approved Recipe/BOM quantity for the exact Variant; correctly classified yield/waste/remake evidence; explicit shared/batch allocation basis; channel-correct packaging identity, quantity, and allocation; and supported purchase/landed cost. A BUY_FINISHED row additionally requires an approved finished-product specification and actual purchase/landed-cost evidence.
+
+Public listing prices, unapproved planning assumptions, supplier specifications presented as operational results, and missing components are not actual cost. Gross margin must remain uncalculated whenever a required cost component is missing or supported only by an assumption not explicitly approved for that costing purpose.
+
+VAT/tax information may be copied exactly from a quotation, invoice, or other source as documentary evidence. It does not decide tax applicability, tax treatment, accounting treatment, monetary precision, or rounding. `CORE-OD-03` and `CORE-OD-04` remain deferred, and qualified Accounting/Tax input remains required for professional conclusions.
+
+## 5. Collection sequence
 
 1. Owner/culinary closes Product/Variant Recipe or finished-product specification first.
-2. Owner records ingredient/substitute, serving/batch/yield/waste, and channel-packaging choices in the existing MAKE/BUY templates.
+2. Owner records ingredient/substitute, serving/batch, correctly classified yield/waste/remake evidence, and channel-packaging choices in the existing MAKE/BUY templates.
 3. Only after explicit authorization, obtain supplier evidence for the exact approved specifications; public listing prices remain separate from accepted quotations and actual purchase costs.
 4. Record conversions and effective dates from documentary evidence.
 5. Copy evidence-backed lines into the canonical 52-combination costing CSV and calculate unit cost only when every required component is supported.
