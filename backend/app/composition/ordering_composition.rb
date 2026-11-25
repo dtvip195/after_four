@@ -1,7 +1,6 @@
 module OrderingComposition
   Dependencies = Data.define(
     :order_repository,
-    :order_settlement_gateway,
     :payment_gateway,
     :audit_log,
     :unit_of_work
@@ -12,7 +11,6 @@ module OrderingComposition
   def dependencies
     Dependencies.new(
       order_repository: Orders::Infrastructure::Persistence::ActiveRecordOrderRepository.new,
-      order_settlement_gateway: Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway.new,
       payment_gateway: Payments::Infrastructure::Adapters::OrderingPaymentGateway.new,
       audit_log: Orders::Infrastructure::Adapters::ActiveRecordAuditLog.new,
       unit_of_work: Orders::Infrastructure::Persistence::ActiveRecordUnitOfWork.new

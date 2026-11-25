@@ -460,15 +460,24 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       ])
   end
 
-  it "wires the Payment adapter only at the application composition root" do
+  it "keeps Ordering composition limited to dependencies consumed by Ordering use cases" do
     dependencies = OrderingComposition.dependencies
 
     expect(dependencies.payment_gateway)
       .to be_a(Payments::Infrastructure::Adapters::OrderingPaymentGateway)
     expect(dependencies.order_repository)
       .to be_a(Orders::Infrastructure::Persistence::ActiveRecordOrderRepository)
-    expect(dependencies.order_settlement_gateway)
-      .to be_a(Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway)
+    expect(dependencies).not_to respond_to(:order_settlement_gateway)
+  end
+
+  it "keeps production independent of the removed global TrustedActor helper" do
+    removed_path = Rails.root.join("app/domains/trusted_actor.rb")
+    production_files = Dir[Rails.root.join("app/**/*.rb")].sort
+
+    expect(removed_path).not_to exist
+    production_files.each do |path|
+      expect(scan(path).constant_paths).not_to include("TrustedActor"), relative(path)
+    end
   end
 
   it "keeps production independent of removed Payment facades and legacy Active Record models" do

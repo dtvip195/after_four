@@ -250,7 +250,7 @@ Approved target application seam under `OPP-ARCH-07`: a Payment Application coor
 
 Do not replace this local atomic boundary with an uncoordinated asynchronous event chain. The Outbox carries post-commit delivery; it does not decide whether Dispatch may exist.
 
-Under `OPP-ARCH-08`, Preparation owns Dispatch and its integration contract. `OPP-ARCH-10` permitted compatibility facades during incremental extraction; the Ordering and Payment facades were subsequently removed after their callers and tests moved to their Application Use Cases, while separately governed Preparation compatibility commands remain. Context-local Money and identifier Value Objects introduce no shared kernel (`OPP-ARCH-11`), and the remediation requires no schema change (`OPP-ARCH-12`). These are approved technical architecture boundaries; the completed migrations were separately authorized and grant no broader implementation authority.
+Under `OPP-ARCH-08`, Preparation owns Dispatch and its integration contract. `OPP-ARCH-10` permitted compatibility facades during incremental extraction; the Ordering, Payment, and Preparation facades were subsequently removed after their callers and tests moved to their Application Use Cases. Context-local Money and identifier Value Objects introduce no shared kernel (`OPP-ARCH-11`), and the remediation requires no schema change (`OPP-ARCH-12`). These are approved technical architecture boundaries; the completed migrations were separately authorized and grant no broader implementation authority.
 
 The completed Ordering Phase 1 extraction uses an Ordering consumer-owned Payment interface for target creation/reference and a locked funding-status snapshot. A Payment-owned Infrastructure adapter implements it, and the top-level application composition root wires the contexts; Ordering Domain, Application and Infrastructure do not reference Payment Infrastructure. Payment Phase 2 implements the `OPP-ARCH-07` coordinating use case as `Payments::Application::UseCases::ConfirmSettlement`. `PaymentComposition` supplies the narrow Ordering-owned `OrderSettlementGateway`, Payment repository/audit/review contracts, and Preparation-owned settlement-Dispatch contract inside one ambient transaction. Preparation Phase 3 implements that contract with `RecordSettlementDispatch`, while `RequestDispatch` and `RetryDispatch` preserve the recovery and requeue workflows through Preparation-owned repositories, Outbox/Audit ports and the ambient unit of work. Ordering and Payment adapters answer their own eligibility rules after lock acquisition; Preparation Application does not reproduce those rules. Namespaced `DispatchRecord` and `DispatchAttemptRecord` retain the existing tables, while the latter remains reserved scaffolding with no writer. No cross-context Active Record association is used. This bounded implementation preserves current Payment-target creation and therefore does not decide `OPP-ARCH-15`; it introduces no Ticket/Ticket Item model and therefore does not decide `OPP-ARCH-16`.
 
@@ -300,7 +300,7 @@ The following implemented constraints are mandatory inputs to later design:
 - Outbox/Audit rollback with the business transaction;
 - database-level Audit Event update/delete protection, without claiming protection from a production database owner/superuser;
 - public mutation routes remain disabled;
-- TrustedActor UUID validation is not authentication or Branch authorization.
+- Context-local actor UUID-format validation is not authentication or Branch authorization.
 
 ## 7. Implementation sequencing boundary
 
