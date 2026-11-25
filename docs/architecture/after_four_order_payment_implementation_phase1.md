@@ -91,6 +91,12 @@ The implemented transaction graph remains unchanged. Draft creation atomically c
 
 This conformance result covers only implemented workflows. It does not implement an Outbox publisher, delivery-attempt writer, Preparation Ticket, semantic acceptance or custody-transfer workflow, and it does not resolve `OPP-ARCH-13` through `OPP-ARCH-16`. The architecture scanner is static source evidence rather than proof against arbitrary runtime reflection; reflective constant lookup, `eval` and runtime monkey-patching are absent from the inspected contexts and remain prohibited review risks.
 
+### 3.5 Phase 5 final legacy cleanup
+
+The final backend-wide inventory found no remaining obsolete Ordering, Payment, or Preparation service implementation, command facade, top-level Domain Active Record model, duplicate repository, callback, job, or production caller. Phase 5 removed only two proven leftovers: the unused `OrderSettlementGateway` exposure from `OrderingComposition::Dependencies` (the required adapter remains wired by `PaymentComposition`) and the global `TrustedActor` helper after Preparation adopted context-owned input validation with unchanged error semantics. Architecture guards reject either dependency from returning.
+
+`ApplicationRecord`, `AuditEvent`, and `OutboxEvent` remain shared Rails technical persistence records. Namespaced Ordering, Payment, and Preparation records remain required Infrastructure. `DispatchAttemptRecord` remains reserved physical scaffolding with no production writer; deleting or activating it would exceed this cleanup and the deferred worker/Ticket boundaries. Existing payment integration specs under `spec/services/payments` and persistence specs under `spec/models` remain test-only regression evidence that invokes canonical composition/Application entry points rather than removed production services.
+
 ## 4. Atomic safety boundary
 
 For an eligible settlement, one PostgreSQL transaction:

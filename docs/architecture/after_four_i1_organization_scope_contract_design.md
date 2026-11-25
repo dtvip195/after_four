@@ -725,7 +725,7 @@ This wiring list assumes no diagnostic component. Gate B must separately identif
 
 I1 has no authorized runtime consumer, controller, job, or public endpoint. Consequently, this bounded slice proposes no production Composition Root file or initializer. Contract and integration specs compose the object graph explicitly. A later P1/Identity implementation authorization must name its real Composition Root and wire this adapter there; wiring must not be hidden in either Application layer or in Active Record models.
 
-No existing A1 entity or persistence record needs modification. `BrandRecord` remains an Infrastructure detail used only by the new Organization reader. The existing global `TrustedActor` helper is not reused: it carries actor semantics, accepts a narrower UUID-version pattern, and is not a context-owned ancestry reference.
+No existing A1 entity or persistence record needs modification. `BrandRecord` remains an Infrastructure detail used only by the new Organization reader. The then-existing global `TrustedActor` helper was not reused: it carried actor semantics, accepted a narrower UUID-version pattern, and was not a context-owned ancestry reference. Phase 5 subsequently removed that helper after its only remaining consumer adopted context-owned validation.
 
 ### 14.3 Exact proposed test files
 

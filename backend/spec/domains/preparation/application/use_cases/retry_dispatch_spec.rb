@@ -87,4 +87,28 @@ RSpec.describe Preparation::Application::UseCases::RetryDispatch do
     expect(result.replayed).to be(true)
     expect(outbox.requeues).to be_empty
   end
+
+  it "rejects an invalid actor before loading or mutating a Dispatch" do
+    repository = InMemoryPreparationDispatchRepository.new([ dispatch ])
+    outbox = RetryPreparationOutbox.new
+    use_case = described_class.new(
+      dispatch_repository: repository,
+      outbox: outbox,
+      audit_log: RetryPreparationAuditLog.new,
+      unit_of_work: InMemoryPreparationUnitOfWork.new
+    )
+
+    expect do
+      use_case.call(
+        preparation_dispatch_id: dispatch.id.to_s,
+        actor_id: "invalid",
+        idempotency_key: "retry-1",
+        now: now
+      )
+    end.to raise_error(DomainError) { |error|
+      expect(error).to have_attributes(code: "trusted_actor_required", details: {})
+    }
+
+    expect(outbox.requeues).to be_empty
+  end
 end

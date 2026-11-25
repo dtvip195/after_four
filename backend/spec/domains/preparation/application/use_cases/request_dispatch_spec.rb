@@ -181,6 +181,16 @@ RSpec.describe Preparation::Application::UseCases::RequestDispatch do
     expect(audit_log.requests.one?).to be(true)
   end
 
+  it "rejects an invalid actor through Preparation-owned input validation" do
+    expect do
+      use_case.call(order_id: order_id, actor_id: "invalid", idempotency_key: "recover-dispatch")
+    end.to raise_error(DomainError) { |error|
+      expect(error).to have_attributes(code: "trusted_actor_required", details: {})
+    }
+
+    expect(order_gateway.lock_calls).to be_empty
+  end
+
   it "delegates Order and Payment eligibility to their owning context gateways" do
     ineligible_order = PreparationRequestOrderGateway.new(snapshot: order_snapshot, eligible: false)
     use_case = described_class.new(

@@ -15,7 +15,10 @@ module Preparation
       end
 
       def require_actor!(actor_id)
-        TrustedActor.require_id!(actor_id).to_s.downcase
+        canonical = actor_id.to_s.downcase
+        return canonical if canonical.match?(UUID_FORMAT)
+
+        raise DomainError.new("trusted_actor_required", "A trusted actor context is required")
       end
 
       def require_idempotency_key!(idempotency_key)

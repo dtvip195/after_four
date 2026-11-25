@@ -86,6 +86,9 @@ RSpec.describe "Ordering, Payment, and Preparation composition contracts" do
     ordering = OrderingComposition.dependencies
     preparation = PreparationComposition.dependencies
 
+    expect(OrderingComposition::Dependencies.members).to eq(
+      %i[order_repository payment_gateway audit_log unit_of_work]
+    )
     expect(ordering).to have_attributes(
       order_repository: an_instance_of(Orders::Infrastructure::Persistence::ActiveRecordOrderRepository),
       payment_gateway: an_instance_of(Payments::Infrastructure::Adapters::OrderingPaymentGateway)
