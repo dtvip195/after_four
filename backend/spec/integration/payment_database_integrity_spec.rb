@@ -5,7 +5,7 @@ RSpec.describe "payment database integrity" do
     payment = payment_for(create_order)
 
     expect do
-      Payment.transaction(requires_new: true) do
+      Payments::Infrastructure::Persistence::PaymentRecord.transaction(requires_new: true) do
         payment.update_columns(funding_status: "fully_paid", successful_amount: 0)
         ActiveRecord::Base.connection.execute("SET CONSTRAINTS ALL IMMEDIATE")
       end
@@ -18,7 +18,7 @@ RSpec.describe "payment database integrity" do
     payment = payment_for(create_order(total_amount: 80_000))
 
     expect do
-      Payment.transaction(requires_new: true) do
+      Payments::Infrastructure::Persistence::PaymentRecord.transaction(requires_new: true) do
         insert_attempt(payment, requested_amount: 40_000, confirmed_amount: 40_000)
         payment.update_columns(funding_status: "fully_paid", successful_amount: 40_000)
         enforce_deferred_constraints!
@@ -26,20 +26,20 @@ RSpec.describe "payment database integrity" do
     end.to raise_error(ActiveRecord::StatementInvalid)
 
     expect(payment.reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(payment.payment_attempts).to be_empty
+    expect(payment.payment_attempt_records).to be_empty
   end
 
   it "accepts exact fully paid funding with complete succeeded evidence" do
     payment = payment_for(create_order(total_amount: 80_000))
 
-    Payment.transaction(requires_new: true) do
+    Payments::Infrastructure::Persistence::PaymentRecord.transaction(requires_new: true) do
       insert_attempt(payment)
       payment.update_columns(funding_status: "fully_paid", successful_amount: 80_000)
       enforce_deferred_constraints!
     end
 
     expect(payment.reload).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
-    expect(payment.payment_attempts.where(status: "succeeded").sum(:confirmed_amount)).to eq(80_000)
+    expect(payment.payment_attempt_records.where(status: "succeeded").sum(:confirmed_amount)).to eq(80_000)
   ensure
     defer_constraints!
   end
@@ -59,18 +59,18 @@ RSpec.describe "payment database integrity" do
 
     missing_evidence.each do |override|
       expect do
-        PaymentAttempt.transaction(requires_new: true) { insert_attempt(payment, **override) }
+        Payments::Infrastructure::Persistence::PaymentAttemptRecord.transaction(requires_new: true) { insert_attempt(payment, **override) }
       end.to raise_error(ActiveRecord::StatementInvalid), "expected database rejection for #{override.keys.first}"
     end
 
-    expect(payment.payment_attempts).to be_empty
+    expect(payment.payment_attempt_records).to be_empty
   end
 
   it "rejects a succeeded Payment Attempt whose confirmed amount differs from requested amount" do
     payment = payment_for(create_order)
 
     expect do
-      PaymentAttempt.transaction(requires_new: true) do
+      Payments::Infrastructure::Persistence::PaymentAttemptRecord.transaction(requires_new: true) do
         insert_attempt(payment, requested_amount: 80_000, confirmed_amount: 79_999)
       end
     end.to raise_error(ActiveRecord::StatementInvalid)
@@ -100,26 +100,26 @@ RSpec.describe "payment database integrity" do
     other_order = create_order
 
     expect do
-      PaymentReviewCase.insert_all!([
+      Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.insert_all!([
         review_case_attributes(
           order: other_order,
           payment: payment_for(settled_order),
-          attempt: payment_for(settled_order).payment_attempts.find_by!(status: "succeeded")
+          attempt: payment_for(settled_order).payment_attempt_records.find_by!(status: "succeeded")
         )
       ])
     end.to raise_error(ActiveRecord::StatementInvalid)
   end
 
-  it "rejects a Payment Review Case whose attempt belongs to another Payment" do
+  it "rejects a Payment Review Case whose Attempt belongs to another Payment" do
     settled_order = settle_order
     other_settled_order = settle_order
 
     expect do
-      PaymentReviewCase.insert_all!([
+      Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.insert_all!([
         review_case_attributes(
           order: settled_order,
           payment: payment_for(settled_order),
-          attempt: payment_for(other_settled_order).payment_attempts.find_by!(status: "succeeded")
+          attempt: payment_for(other_settled_order).payment_attempt_records.find_by!(status: "succeeded")
         )
       ])
     end.to raise_error(ActiveRecord::StatementInvalid)
@@ -159,7 +159,7 @@ RSpec.describe "payment database integrity" do
       expected_version: order.lock_version,
       now: now
     )
-    Payments::ConfirmCash.call(
+    PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: order.total_amount,
@@ -188,7 +188,7 @@ RSpec.describe "payment database integrity" do
       updated_at: now
     }.merge(overrides)
 
-    PaymentAttempt.insert_all!([ attributes ])
+    Payments::Infrastructure::Persistence::PaymentAttemptRecord.insert_all!([ attributes ])
   end
 
   def dispatch_attributes(order, payment:, branch_id: order.branch_id)

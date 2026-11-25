@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Payments::ConfirmBankTransfer do
+RSpec.describe "bank-transfer payment confirmation" do
   it "records the cashier's explicit manual verification without bank credentials" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 10, 0, 0)
@@ -21,7 +21,7 @@ RSpec.describe Payments::ConfirmBankTransfer do
       now: now
     )
 
-    result = described_class.call(
+    result = PaymentComposition.confirm_bank_transfer(
       order_id: order.id,
       actor_id: actor_id,
       amount: 150_000,
@@ -37,6 +37,6 @@ RSpec.describe Payments::ConfirmBankTransfer do
       confirmed_at: now + 1.minute
     )
     expect(result.preparation_dispatch).to be_present
-    expect(result.payment_attempt.attributes.keys).not_to include("bank_credentials", "bank_notification")
+    expect(result.payment_attempt).not_to respond_to(:bank_credentials, :bank_notification)
   end
 end

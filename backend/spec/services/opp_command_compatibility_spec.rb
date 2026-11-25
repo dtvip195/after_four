@@ -2,18 +2,6 @@ require "rails_helper"
 
 RSpec.describe "Ordering, Payment, and Preparation command compatibility" do
   COMMAND_CONTRACTS = {
-    Payments::Confirm => {
-      parameters: [
-        [ :keyreq, :method ],
-        [ :keyreq, :order_id ],
-        [ :keyreq, :actor_id ],
-        [ :keyreq, :amount ],
-        [ :keyreq, :currency_code ],
-        [ :keyreq, :idempotency_key ],
-        [ :key, :clock ]
-      ],
-      result_members: %i[order payment payment_attempt preparation_dispatch review_case replayed]
-    },
     Preparation::RequestDispatch => {
       parameters: [
         [ :keyreq, :order_id ],
@@ -41,12 +29,7 @@ RSpec.describe "Ordering, Payment, and Preparation command compatibility" do
     end
   end
 
-  it "keeps the payment-method convenience commands as keyword-forwarding adapters" do
-    expect(Payments::ConfirmCash.method(:call).parameters).to eq([ [ :keyrest, :attributes ] ])
-    expect(Payments::ConfirmBankTransfer.method(:call).parameters).to eq([ [ :keyrest, :attributes ] ])
-  end
-
-  it "returns the same Payments::Confirm result contract through both payment-method adapters" do
+  it "returns the canonical Payment Application result through the composition root" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 16, 0, 0)
     order = create_order_draft_record(
@@ -66,7 +49,7 @@ RSpec.describe "Ordering, Payment, and Preparation command compatibility" do
       now: now
     )
 
-    result = Payments::ConfirmCash.call(
+    result = PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: order.total_amount,
@@ -75,7 +58,7 @@ RSpec.describe "Ordering, Payment, and Preparation command compatibility" do
       clock: -> { now + 1.minute }
     )
 
-    expect(result).to be_a(Payments::Confirm::Result)
-    expect(result.to_h.keys).to eq(Payments::Confirm::Result.members)
+    expect(result).to be_a(Payments::Application::UseCases::ConfirmSettlement::Result)
+    expect(result.to_h.keys).to eq(Payments::Application::UseCases::ConfirmSettlement::Result.members)
   end
 end

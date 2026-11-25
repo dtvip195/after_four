@@ -14,7 +14,7 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
     expect(results.map(&:payment_reference).uniq.one?).to be(true)
     expect(results.map(&:replayed)).to contain_exactly(false, true)
     expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id, creation_idempotency_key: "concurrent-same-payload").count).to eq(1)
-    expect(Payment.where(order_id: results.first.order.id.to_s).count).to eq(1)
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: results.first.order.id.to_s).count).to eq(1)
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(1)
   ensure
     cleanup_branch(branch_id)
@@ -33,11 +33,11 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
     expect(conflict&.code).to eq("idempotency_conflict")
     expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id, creation_idempotency_key: "concurrent-different-payload").count).to eq(1)
     winning_order = Orders::Infrastructure::Persistence::OrderRecord.find(winner.order.id.to_s)
-    winning_payment = Payment.find(winner.payment_reference)
+    winning_payment = Payments::Infrastructure::Persistence::PaymentRecord.find(winner.payment_reference)
     expect([ [ "takeaway", 125_000 ], [ "dine_in", 135_000 ] ])
       .to include([ winning_order.channel, winning_order.total_amount ])
     expect(winning_payment).to have_attributes(target_amount: winning_order.total_amount)
-    expect(Payment.where(order_id: winning_order.id).count).to eq(1)
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: winning_order.id).count).to eq(1)
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(1)
   ensure
     cleanup_branch(branch_id)
@@ -55,7 +55,7 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
     expect(results.map { |result| result.order.id }.uniq.length).to eq(2)
     expect(results.map(&:payment_reference).uniq.length).to eq(2)
     expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id).count).to eq(2)
-    expect(Payment.where(order_id: results.map { |result| result.order.id }).count).to eq(2)
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: results.map { |result| result.order.id }).count).to eq(2)
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(2)
   ensure
     cleanup_branch(branch_id)
@@ -143,10 +143,10 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
     return unless branch_id
 
     order_ids = Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id).pluck(:id)
-    payment_ids = Payment.where(order_id: order_ids).pluck(:id)
+    payment_ids = Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: order_ids).pluck(:id)
     delete_audit_events_as_database_owner(AuditEvent.where(branch_id: branch_id))
-    PaymentAttempt.where(payment_id: payment_ids).delete_all
-    Payment.where(id: payment_ids).delete_all
+    Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_ids).delete_all
+    Payments::Infrastructure::Persistence::PaymentRecord.where(id: payment_ids).delete_all
     Orders::Infrastructure::Persistence::OrderRecord.where(id: order_ids).delete_all
   end
 end

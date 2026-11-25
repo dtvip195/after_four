@@ -20,7 +20,7 @@ RSpec.describe Preparation::RetryDispatch do
       expected_version: order.lock_version,
       now: now
     )
-    dispatch = Payments::ConfirmCash.call(
+    dispatch = PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: 55_000,

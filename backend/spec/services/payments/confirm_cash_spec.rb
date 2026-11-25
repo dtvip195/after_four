@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Payments::ConfirmCash do
+RSpec.describe "cash payment confirmation" do
   it "records verified cash settlement and creates one pending preparation dispatch" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 10, 0, 0)
@@ -21,7 +21,7 @@ RSpec.describe Payments::ConfirmCash do
       now: now
     )
 
-    result = described_class.call(
+    result = PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: 120_000,
@@ -63,7 +63,7 @@ RSpec.describe Payments::ConfirmCash do
     )
 
     expect do
-      described_class.call(
+      PaymentComposition.confirm_cash(
         order_id: order.id,
         actor_id: actor_id,
         amount: 110_000,
@@ -74,7 +74,7 @@ RSpec.describe Payments::ConfirmCash do
     end.to raise_error(DomainError) { |error| expect(error.code).to eq("payment_amount_invalid") }
 
     expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(payment_for(order).payment_attempts.last).to have_attributes(
+    expect(payment_for(order).payment_attempt_records.last).to have_attributes(
       status: "failed",
       failure_code: "amount_mismatch",
       requested_amount: 110_000
@@ -86,7 +86,7 @@ RSpec.describe Payments::ConfirmCash do
     actor_id, now, order = create_confirmed_order("overpayment")
 
     expect do
-      described_class.call(
+      PaymentComposition.confirm_cash(
         order_id: order.id,
         actor_id: actor_id,
         amount: order.total_amount + 1,
@@ -102,7 +102,7 @@ RSpec.describe Payments::ConfirmCash do
     }
 
     expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(payment_for(order).payment_attempts.last).to have_attributes(
+    expect(payment_for(order).payment_attempt_records.last).to have_attributes(
       status: "failed",
       failure_code: "amount_mismatch",
       requested_amount: order.total_amount + 1
@@ -114,7 +114,7 @@ RSpec.describe Payments::ConfirmCash do
     actor_id, now, order = create_confirmed_order("currency-mismatch")
 
     expect do
-      described_class.call(
+      PaymentComposition.confirm_cash(
         order_id: order.id,
         actor_id: actor_id,
         amount: order.total_amount,
@@ -130,7 +130,7 @@ RSpec.describe Payments::ConfirmCash do
     }
 
     expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(payment_for(order).payment_attempts.last).to have_attributes(
+    expect(payment_for(order).payment_attempt_records.last).to have_attributes(
       status: "failed",
       failure_code: "amount_mismatch",
       currency_code: "USD"
@@ -167,11 +167,11 @@ RSpec.describe Payments::ConfirmCash do
     }
 
     2.times do
-      expect { described_class.call(**attributes) }
+      expect { PaymentComposition.confirm_cash(**attributes) }
         .to raise_error(DomainError) { |error| expect(error.code).to eq("payment_amount_invalid") }
     end
 
-    expect(payment_for(order).payment_attempts.where(idempotency_key: "cash-mismatch-replay").count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(idempotency_key: "cash-mismatch-replay").count).to eq(1)
   end
 
   it "replays the same confirmation without duplicating payment or dispatch" do
@@ -202,13 +202,13 @@ RSpec.describe Payments::ConfirmCash do
       clock: -> { now + 1.minute }
     }
 
-    first = described_class.call(**attributes)
-    replay = described_class.call(**attributes)
+    first = PaymentComposition.confirm_cash(**attributes)
+    replay = PaymentComposition.confirm_cash(**attributes)
 
     expect(replay.replayed).to be(true)
     expect(replay.payment_attempt.id).to eq(first.payment_attempt.id)
     expect(replay.preparation_dispatch.id).to eq(first.preparation_dispatch.id)
-    expect(payment_for(order).payment_attempts.count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.count).to eq(1)
     expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: first.preparation_dispatch.id).count).to eq(1)
   end
@@ -223,12 +223,12 @@ RSpec.describe Payments::ConfirmCash do
       idempotency_key: "semantic-replay-conflict",
       clock: -> { now + 1.minute }
     }
-    original = described_class.call(**attributes)
+    original = PaymentComposition.confirm_cash(**attributes)
 
     conflicting_calls = [
-      -> { Payments::ConfirmBankTransfer.call(**attributes) },
-      -> { described_class.call(**attributes.merge(amount: order.total_amount - 1)) },
-      -> { described_class.call(**attributes.merge(currency_code: "USD")) }
+      -> { PaymentComposition.confirm_bank_transfer(**attributes) },
+      -> { PaymentComposition.confirm_cash(**attributes.merge(amount: order.total_amount - 1)) },
+      -> { PaymentComposition.confirm_cash(**attributes.merge(currency_code: "USD")) }
     ]
 
     conflicting_calls.each do |call|
@@ -237,8 +237,8 @@ RSpec.describe Payments::ConfirmCash do
       }
     end
 
-    expect(payment_for(order).payment_attempts.count).to eq(1)
-    expect(payment_for(order).payment_attempts.first.id).to eq(original.payment_attempt.id)
+    expect(payment_for(order).payment_attempt_records.count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.first.id).to eq(original.payment_attempt.id.to_s)
     expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: original.preparation_dispatch.id).count).to eq(1)
   end
@@ -248,7 +248,7 @@ RSpec.describe Payments::ConfirmCash do
     payment_for(order).update!(attempt_activity: "reconciliation_required")
 
     expect do
-      described_class.call(
+      PaymentComposition.confirm_cash(
         order_id: order.id,
         actor_id: actor_id,
         amount: order.total_amount,
@@ -265,13 +265,13 @@ RSpec.describe Payments::ConfirmCash do
       attempt_activity: "reconciliation_required",
       successful_amount: 0
     )
-    expect(payment_for(order).payment_attempts).to be_empty
+    expect(payment_for(order).payment_attempt_records).to be_empty
     expect(preparation_dispatch_for(order)).to be_nil
   end
 
   it "rejects confirmation without a trusted actor context" do
     expect do
-      described_class.call(
+      PaymentComposition.confirm_cash(
         order_id: SecureRandom.uuid,
         actor_id: nil,
         amount: 50_000,

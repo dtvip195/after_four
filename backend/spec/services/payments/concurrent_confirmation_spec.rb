@@ -31,7 +31,7 @@ RSpec.describe "concurrent payment confirmation", :concurrency do
           ready << true
           start.pop
           begin
-            Payments::ConfirmCash.call(
+            PaymentComposition.confirm_cash(
               order_id: order.id,
               actor_id: actor_id,
               amount: 85_000,
@@ -49,23 +49,23 @@ RSpec.describe "concurrent payment confirmation", :concurrency do
     2.times { start << true }
     results = threads.map(&:value)
 
-    expect(results.count { |result| result.is_a?(Payments::Confirm::Result) }).to eq(1)
+    expect(results.count { |result| result.is_a?(Payments::Application::UseCases::ConfirmSettlement::Result) }).to eq(1)
     expect(results.grep(DomainError).map(&:code)).to contain_exactly("payment_already_fully_settled")
-    expect(PaymentAttempt.where(payment_id: payment_for(order).id, status: "succeeded").count).to eq(1)
+    expect(Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_for(order).id, status: "succeeded").count).to eq(1)
     expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested").count).to eq(1)
   ensure
     if order&.persisted?
-      Payment.transaction do
-        payment_ids = Payment.where(order_id: order.id).pluck(:id)
+      Payments::Infrastructure::Persistence::PaymentRecord.transaction do
+        payment_ids = Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: order.id).pluck(:id)
         dispatch_ids = PreparationDispatch.where(order_id: order.id).pluck(:id)
         delete_audit_events_as_database_owner(AuditEvent.where(branch_id: order.branch_id))
-        PaymentReviewCase.where(order_id: order.id).delete_all
+        Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.where(order_id: order.id).delete_all
         PreparationDispatchAttempt.where(preparation_dispatch_id: dispatch_ids).delete_all
         OutboxEvent.where(aggregate_type: "PreparationDispatch", aggregate_id: dispatch_ids).delete_all
         PreparationDispatch.where(id: dispatch_ids).delete_all
-        PaymentAttempt.where(payment_id: payment_ids).delete_all
-        Payment.where(id: payment_ids).delete_all
+        Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_ids).delete_all
+        Payments::Infrastructure::Persistence::PaymentRecord.where(id: payment_ids).delete_all
         Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all
       end
     end

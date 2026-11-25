@@ -142,6 +142,14 @@ module Orders
           :applied
         end
 
+        def payment_settlement_eligible?
+          %w[confirmed held expired].include?(status)
+        end
+
+        def preparation_dispatch_eligible?(at:)
+          status == "confirmed" && payment_expires_at && at < payment_expires_at
+        end
+
         private
 
         def canonical_uuid(value, label)

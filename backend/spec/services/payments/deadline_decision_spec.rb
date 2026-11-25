@@ -6,7 +6,7 @@ RSpec.describe "payment deadline decision time" do
     confirmed_at = Time.utc(2026, 11, 14, 9, 0, 0)
     order = create_confirmed_order(actor_id:, confirmed_at:, suffix: "before-deadline")
 
-    result = Payments::ConfirmCash.call(
+    result = PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: order.total_amount,
@@ -25,7 +25,7 @@ RSpec.describe "payment deadline decision time" do
     confirmed_at = Time.utc(2026, 11, 14, 10, 0, 0)
     order = create_confirmed_order(actor_id:, confirmed_at:, suffix: "at-deadline")
 
-    result = Payments::ConfirmCash.call(
+    result = PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: order.total_amount,
@@ -46,7 +46,7 @@ RSpec.describe "payment deadline decision time" do
     confirmed_at = Time.utc(2026, 11, 14, 10, 30, 0)
     order = create_confirmed_order(actor_id:, confirmed_at:, suffix: "after-deadline")
 
-    result = Payments::ConfirmBankTransfer.call(
+    result = PaymentComposition.confirm_bank_transfer(
       order_id: order.id,
       actor_id: actor_id,
       amount: order.total_amount,

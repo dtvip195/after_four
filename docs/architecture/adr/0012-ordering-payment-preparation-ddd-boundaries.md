@@ -91,6 +91,8 @@ Initial remediation may proceed only where these unresolved decisions are not pr
 
 The target architecture is explicit enough to prepare a bounded remediation manifest, but this ADR does not authorize that remediation. A future authorization must name the exact source/test scope and preserve the verified behavior constraints. Any future schema change, new business capability, event-version encoding, Payment Review Case aggregate decision, Payment-target timing change, or Ticket aggregate design requires its applicable decision and authorization.
 
+**Implementation note (2026-11-26):** separately authorized Ordering Phase 1 and Payment Phase 2 work now implement these boundaries for the current backend command foundation. Payment confirmation enters through `PaymentComposition` and `Payments::Application::UseCases::ConfirmSettlement`; pure Domain objects own Payment rules; namespaced Infrastructure records retain the unchanged schema; and the obsolete Payment command facades and top-level Active Record models have been removed. Broader Preparation extraction remains deferred. `OPP-ARCH-13` through `OPP-ARCH-16` remain unresolved exactly as recorded above, and this implementation note grants no public API, Gate, deployment, or Production Authorization.
+
 ## Authorization boundary
 
 This ADR records technical architecture only. It grants no code change, refactor, business API, business capability, schema, migration, Identity work, Pricing work, Order Item work, Ticket work, Gate A/B/C, FOA, deployment, or Production Authorization.
