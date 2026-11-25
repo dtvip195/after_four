@@ -283,6 +283,10 @@ Forbidden: Pending creation without full settlement; new Payment attempt to repa
 
 Forbidden: any Preparation work without Dispatch; quantities above requested; ticket completion with incomplete required items; print success as preparation completion.
 
+### Customer custody-transfer desired process
+
+`OWNER_CONFIRMED — DESIRED_PROCESS` for the not-yet-operated First Branch: whole-Ticket readiness precedes `pending_handover`; the stable Order/Ticket identity is retained; Staff establish the intended-customer or authorized-recipient relationship before release; the recipient confirms receipt; and the record preserves Order/Ticket reference, responsible actor, linkage basis, time and available supporting evidence. Transition to `transferred` occurs only when approved evidence criteria are satisfied. Otherwise Model A retains `transfer_evidence_unresolved` as nonterminal and fail-closed within the same attempt. No acknowledgement, authentication, transport result or absence of refusal is sufficient by itself; evidence classes, attester authority, positive threshold, conflict disposition and physical capture remain unresolved.
+
 ## 10. Refund state machine
 
 States: `requested`, `approval_required`, `approved`, `processing`, `unknown`, `succeeded`, `failed`, `rejected`, `cancelled`.
@@ -290,14 +294,16 @@ States: `requested`, `approval_required`, `approved`, `processing`, `unknown`, `
 | Transition | Guard / side effect |
 |---|---|
 | — → Requested | Original successful transaction, positive amount, reason, idempotency. |
-| Requested → Approval Required/Approved | Apply unresolved threshold/role policy; no provider call yet. |
-| Approval Required → Approved/Rejected | Authorized decision; audit actor/policy/reason. |
+| Requested → Approval Required | Every Refund requires Owner approval; no provider call yet. If Owner is unreachable, retain this pending state under `WS-REFUND-01`. |
+| Approval Required → Approved/Rejected | Owner decision; audit actor/policy/reason. Timeout, silence, receipt, acknowledgement or elapsed time is never a decision. |
 | Approved → Processing | Persist intent before provider call. |
 | Processing → Succeeded/Failed/Unknown | Apply authoritative outcome; Unknown blocks blind retry. |
 | Unknown → Succeeded/Failed | Reconciliation only. |
 | Succeeded → terminal | Update Payment refunded totals; revenue/loyalty/cash correction intents. |
 
-Forbidden: cumulative successful amount above refundable; editing original charge; provider call before required approval; interpreting timeout as failure. Exact partial/refund allocation is `OPEN_DECISION`.
+`OWNER_CONFIRMED` Under `WS-REFUND-01`, an otherwise eligible request received while the Owner is unreachable is recorded and acknowledged, keeps its eligibility/amount evidence, remains pending and unexecuted, is notified/escalated to Owner, and is communicated to the customer as pending. No automatic threshold or delegated emergency approver exists. Approval and execution remain distinct.
+
+Forbidden: cumulative successful amount above refundable; editing original charge; provider call before required Owner approval; interpreting timeout, silence, receipt, acknowledgement or elapsed time as approval or failure. Exact eligibility, amount/allocation, method, execution actor and accounting treatment remain `OPEN_DECISION`.
 
 ## 11. Stock Transfer state machine
 
@@ -335,6 +341,10 @@ Guards: active Supplier, positive lines, currency consistency, configurable appr
 `draft → posted`; `draft → cancelled`; `posted → corrected` only through linked reversal/correction receipt, never in-place edit.
 
 Posting atomically creates Lots, Stock Movements, Inventory updates, and weighted-average recalculation for accepted quantities. Quarantine/rejected quantities remain unavailable. Physical supplier documents are evidence, not transaction authority.
+
+## 12. Employee Shift Handover policy boundary
+
+`OWNER_CONFIRMED` Under `WS-OPS-01`, recorded custody remains explicit while an Employee Shift Handover is pending. The Owner may assign a named interim custodian where needed. If no valid custodian is available, the handover remains pending under controlled hold and custody-changing operations pause. Shift end does not transfer custody automatically to a Branch Manager or another role, and recorded accountability does not require the outgoing Employee to remain physically present or employed indefinitely. Employee Shift Handover is not CORE-02 customer custody transfer or Cash Session handover and grants no Cash, Expense, Refund, Inventory or other capability. The exact lifecycle representation, evidence, staffing application and enforcement remain unresolved.
 
 ## 13. Cash Session state machine
 
@@ -396,7 +406,7 @@ States: `proposed → approved/rejected`; `proposed → cancelled` before decisi
 
 Guards: typed subject exists; policy/version and requester scope; approver capability; self-approval rule; not expired. Approval does not itself perform the subject command unless one named transaction explicitly coordinates both. Subject lifecycle remains authoritative.
 
-For delegated Expenses, `OWNER_CONFIRMED` self-approval and splitting to evade limits are forbidden. A single Expense above 200,000 VND or cumulative delegated Expenses above 500,000 VND in an Operating Day requires Owner approval. The values are configurable; the initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone, while physical configuration and enforcement remain unresolved.
+For Operating Expenses, `OWNER_CONFIRMED` self-approval and splitting to evade limits are forbidden. The 200,000 VND per-Expense and 500,000 VND cumulative per-Operating-Day values remain configurable control thresholds, not approval exemptions. Employees may record and submit requests, but every Expense requires Owner approval before incurrence or execution; no emergency pre-approval exception exists. The initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone, while physical configuration, shift-crossing allocation, and enforcement remain unresolved.
 
 ## 18. Print Job state machine
 
@@ -465,7 +475,7 @@ Guards: Branch scope, privacy-limited Customer/Order access, assigned owner for 
 1. Payment uses accepted funding and attempt-activity axes; implementations must not reintroduce an aggregate `status` alias.
 2. Payment allocation data remains absent until split/check policy is approved; MVP is exact-balance-only.
 3. Staff-before-start and Owner-after-start cancellation authority is confirmed, but completed-order, Refund, stock, remake, compensation, and table-release outcomes remain open.
-4. Delegated Expense thresholds and no-self-approval are confirmed; purchase/transfer/refund and other approval transitions still need policy.
+4. Expense thresholds/no-self-approval and Owner-only Refund approval are confirmed. `WS-REFUND-01` fixes the Owner-unavailable request disposition as pending/no execution; purchase/transfer and remaining Refund eligibility, method, execution and accounting transitions still need policy.
 5. The initial one-shared-drawer rule is confirmed; Cash Session uniqueness representation and any future multi-drawer expansion still require physical design.
 6. Transfer valuation needs an accepted cost snapshot event.
 7. Tax invoice and statutory payroll states remain `LEGAL_VALIDATION`.

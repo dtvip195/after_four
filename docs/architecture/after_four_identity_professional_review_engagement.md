@@ -1,16 +1,25 @@
 # AFTER FOUR Identity Professional Review Engagement Package
 
-**Status:** Historical/contingency engagement package; ID-20 selects Owner-led review and no external engagement is planned  
+**Status:** Dormant contingency governance; under the Owner's 2026-11-25 public-source-only direction, no external professional contact, RFQ issuance, proposal/quotation request, consultant appointment or engagement is authorized or planned
 **Date:** 2026-11-14  
-**Scope:** Qualification, procurement, evidence, governance, and acceptance framework for fifteen pending reviews  
+**Scope:** Qualification, proposal evaluation, selection, disclosure, commissioning, evidence, governance, and acceptance framework for qualified professional reviews
 **Authority:** Documentation only. ADR-0006 remains Proposed and Milestone 2B remains unauthorized.  
-**Related:** [Owner-Led Review Protocol](after_four_identity_owner_led_review_protocol.md) · [Technical Design](after_four_identity_technical_design.md) · [Security Review Package](after_four_identity_security_review_package.md) · [Review Results](after_four_identity_security_review_results.md) · [Security Checklist](after_four_identity_security_review_checklist.md) · [Decision Register](after_four_identity_decision_register.md)
+**Related:** [Qualified Professional Review RFQ](after_four_qualified_professional_review_rfq.md) · [Owner-Led Review Protocol](after_four_identity_owner_led_review_protocol.md) · [Technical Design](after_four_identity_technical_design.md) · [Security Review Package](after_four_identity_security_review_package.md) · [Review Results](after_four_identity_security_review_results.md) · [Security Checklist](after_four_identity_security_review_checklist.md) · [Decision Register](after_four_identity_decision_register.md)
 
 ## 1. Purpose and engagement boundary
 
-This package was prepared to enable the Owner to identify reviewers, request comparable proposals, control evidence, record findings, and evaluate completion. ID-20 now records that no external security, infrastructure, cryptography, or legal/privacy reviewer is planned and that technical/security review will be Owner-led. The package and templates are retained as historical preparation and a contingency if governance changes; they are not the current execution path.
+This document is retained as the governance source that would apply only if a later Owner decision reactivated external professional procurement. The [Qualified Professional Review RFQ](after_four_qualified_professional_review_rfq.md) is dormant contingency material describing possible CORE-01, CORE-02/D02 and CORE-04/D04 review scopes. The current direction is public-source research only: the RFQ will not be issued, no provider will be contacted, and no proposal, quotation, consultant appointment, engagement, payment, evidence access or disclosure is authorized or planned.
+
+ID-20 continues to govern the separate Identity/Milestone 2B security-review portfolio: no external security, infrastructure, cryptography, or legal/privacy reviewer is planned for that portfolio, and its technical/security review remains Owner-led. Its review scopes and templates below are retained as historical preparation and a contingency if that governance changes. Preparing the qualified-review RFQ does not amend ID-20, authorize Identity Milestone 2B, or convert the historical portfolio into a current external-engagement path.
 
 The twenty-eight Owner-confirmed decisions remain the policy baseline. Technical proposals are review inputs, not executed evidence. Owner-led review follows the separate protocol and is explicitly non-independent. No Owner assessment can be described as professional certification or legal advice, and risk acceptance does not waive legal obligations.
+
+The division of responsibility is explicit:
+
+- **RFQ:** defines requested professional services, package-specific questions and deliverables, proposal contents, RFQ-stage disclosure limits, and proposal-level acceptance expectations.
+- **This engagement document:** governs qualification and due diligence, independence and conflicts, proposal comparison and selection, Owner approval, confidentiality and disclosure authorization, commissioning and contract approval, work commencement, deliverable review and acceptance, evidence handling, and separation of any later independent readiness review.
+
+Any provider or shortlist research remains research only. It is not verified qualification, provider selection, engagement authorization, or permission to issue the RFQ or disclose documents.
 
 Reusable templates:
 
@@ -228,7 +237,7 @@ These are not security findings. Professional reviewers may explain risk and con
 |---|---|---|---|---|
 | BA-01 | Inventory operations | Enumerate allowed actions by Owner/Branch Manager/Staff, assigned-Branch limits, quantity/value thresholds, approvals, reasons, self-approval, and emergency correction. | `inventory.operate` cannot safely authorize an umbrella write; technical design leaves Branch Manager/Staff blocked. | Security reviews segregation/IDOR/audit; legal/accounting may inform records. |
 | BA-02 | Procurement | Enumerate requisition/order/receipt/vendor actions, Branch scope, spending/quantity thresholds, approval levels, self-approval, and central versus Branch authority. | `procurement.operate` remains blocked for Branch Manager/Staff; approval workflow cannot be tested. | Security reviews approval bypass; finance/legal advises obligations. |
-| BA-03 | Refund and void authority | Decide eligible roles, amount/time thresholds, reasons/evidence, original-tender rules, self-approval/second approval, post-dispatch behavior, and exceptional recovery. | Every role, including Owner execution, remains policy-blocked; no identity reviewer may invent authority. | Security/fraud/accounting/legal input informs risk and records. |
+| BA-03 | Refund and void authority | Preserve mandatory Owner approval and `WS-REFUND-01`: an otherwise eligible request remains evidence-preserving, pending and unexecuted while the Owner is unreachable, with Owner escalation and customer pending-status communication. Decide request eligibility, execution roles, amount/time boundaries, reasons/evidence, original-tender rules, separation, post-dispatch behavior, and any future exceptional recovery. | Owner approval and the fail-closed unavailable-Owner disposition are confirmed, but no execution role, emergency delegate, threshold automation or implicit approval is authorized; no identity reviewer may invent authority. | Security/fraud/accounting/legal input informs risk and records. |
 | BA-04 | Cash authority | Decide ordinary tender versus drawer adjustment/expense/discrepancy actions, limits, dual control, evidence, close/reopen authority, and correction process. | `cash.adjust` remains blocked and Staff/Manager cash capabilities cannot be enumerated safely. | Security reviews fraud/segregation; finance/accounting/legal informs controls. |
 | BA-05 | Catalog administration | Decide who may create/change/archive products, prices, recipes, availability, modifiers, and Branch-local overrides; define effective dating, approval, and emergency rollback. | `catalog.change` is denied because no role/scope matrix exists. | Security reviews scope/change audit; business operations owns authority. |
 | BA-06 | Audit-reader permissions | Name eligible reader functions, event classes/fields, Organization/Branch scope, purpose, duration, self-investigation and second-review rules, and break-glass access. | ID-18 requires explicit authorization; `audit.read` remains blocked for all role templates. | Legal/privacy constrains visibility; security reviews reader enforcement. |
@@ -237,22 +246,41 @@ These are not security findings. Professional reviewers may explain risk and con
 
 Each approved business decision must be recorded through the established Owner decision process, synchronized into canonical domain/API documents, versioned in the capability catalog, and covered by authorization/audit tests. It must not be recorded as a reviewer finding or inferred from a proposal.
 
-## 8. Contingency engagement assembly and evaluation process
+## 8. Proposal, engagement and evaluation process
 
-The steps below are inactive under ID-20. Use them only if the Owner explicitly changes the current no-external-engagement approach.
+### 8.1 Qualified professional review RFQ
+
+The [Qualified Professional Review RFQ](after_four_qualified_professional_review_rfq.md) is `DORMANT CONTINGENCY — NOT TO BE ISSUED UNDER CURRENT OWNER DIRECTION` and `NOT_COMMISSIONED`. The following controls apply only if a later explicit Owner decision reverses the current public-source-only/no-contact direction and chooses to advance one or more CORE-01, CORE-02/D02 or CORE-04/D04 packages:
+
+1. Owner approves the exact RFQ content and, separately, the recipient list. Preparing the draft grants neither approval.
+2. Issue only the approved generic RFQ. Do not attach internal architecture, detailed decision records, worksheets, repositories, data, credentials, or evidence.
+3. Record each proposal as proposal evidence only. Verify the legal entity, named team, qualifications, references, conflicts, method, confidentiality/data practices, deliverables, exclusions, price and timeline; do not infer qualification from branding or a proposal assertion.
+4. Compare proposals package by package against the RFQ criteria. Preserve limitations and conflicts; do not rank on promised conclusions or absence of findings.
+5. Owner selects or rejects providers and records the rationale. Selection is not commissioning, payment approval, disclosure authorization, or permission to begin work.
+6. Before commissioning, approve due diligence, independence, confidentiality/data-protection terms, contract, commercial terms, exact scope and the exact materials that may be disclosed. Record recipient, purpose, classification/redaction, access, retention, return/destruction and subcontractor boundaries.
+7. Create the controlled evidence manifest and kickoff record only after those approvals. Only then may a real reviewer identity, qualification, scope and start date be recorded and work be treated as started.
+8. Review the deliverable against the RFQ and engagement acceptance criteria. Preserve reviewer conclusions, project response, limitations and unresolved Owner decisions separately.
+9. Commission any later independent Gate-readiness review separately. The original design/remediation author or professional-input provider cannot be treated as the independent readiness reviewer where separation is required.
+
+No stage above is currently complete. No proposal, selection, engagement, disclosure, payment or work commencement is recorded.
+
+### 8.2 Identity/Milestone 2B contingency portfolio
+
+The steps below remain inactive under ID-20. Use them only if the Owner explicitly changes the current no-external-engagement approach for that separate portfolio.
 
 1. Owner selects which combined engagement groups to procure and confirms the business decisions needed before their scope can complete.
-2. Send the relevant RFP template, qualification questionnaire, conflict declaration, confidentiality requirements, technical design, review package/results, and only the mapped review records.
+2. Approve the recipient and RFQ/RFP material first. Any technical design, review package/results or mapped review record requires a separate exact disclosure approval under §6.5; it is not attached at initial proposal-request stage by default.
 3. Evaluate proposals against qualification evidence, method, independence, assigned people, deliverables, evidence needs, limitations, and ability to preserve separate conclusions. Do not score on promised absence of findings.
-4. Record selection rationale and Owner authorization; negotiate price/schedule/contract outside these templates without backfilling invented values.
+4. Record selection rationale and Owner authorization; negotiate price/schedule/contract without backfilling invented values.
 5. Create controlled evidence manifest and kickoff record. Only then add real reviewer identity, qualification, scope, and start date to a review record and consider `IN_REVIEW`.
 6. Execute review, finding/remediation/retest governance, then use the completion template per record.
 7. Update the canonical checklist only when evidence supports the exact status change. A completed review still does not authorize Milestone 2B.
 
-## 9. Historical engagement gaps and current limitations
+## 9. Engagement gaps and current limitations
 
-- No reviewer candidates, qualification responses, conflict declarations, references, proposals, prices, schedules, or contracts exist because external engagement is not planned under ID-20.
-- No Owner authorization to engage a reviewer or disclose evidence is recorded; this is consistent with the current approach, not evidence of independent review.
+- The qualified-review RFQ is dormant contingency material and is not to be issued under the current Owner direction. No approved recipient list, qualification response, verified reference, proposal, quote, selection, contract, payment or work commencement exists.
+- No Owner authorization to engage a reviewer or disclose evidence is recorded. D02 and D04 remain `NOT_COMMISSIONED`, and no professional conclusion has been obtained.
+- For the separate ID-20 Identity/Milestone 2B portfolio, no external security, infrastructure, cryptography or legal/privacy engagement is planned; its historical templates remain contingency material.
 - BA-01 through BA-08 remain unresolved and block portions of the authorization/audit scopes.
 - Required implementation, staging, benchmark, browser, multi-process, proxy, privilege, backup, drill, and legal evidence does not yet exist.
 - Hosting/authentication/MFA/notification/monitoring providers and exact production topology remain unselected.
@@ -260,4 +288,4 @@ The steps below are inactive under ID-20. Use them only if the Owner explicitly 
 
 ## 10. Completion boundary
 
-This historical/contingency package created no reviewer identity, engagement, finding, date, evidence, legal conclusion, checklist change, business permission, vendor choice, implementation authorization, or residual-risk acceptance. Owner-led assessments must use the [Owner-Led Review Protocol](after_four_identity_owner_led_review_protocol.md). ADR-0006 remains Proposed and Milestone 2B remains unauthorized.
+This governance document and the RFQ draft create no reviewer identity, verified qualification, proposal, engagement, finding, date, evidence, legal or accounting conclusion, checklist change, business permission, provider choice, disclosure, payment, implementation authorization, or residual-risk acceptance. Owner-led Identity assessments must use the [Owner-Led Review Protocol](after_four_identity_owner_led_review_protocol.md). Qualified professional input does not replace an Owner decision, and any later independent readiness review remains a separate engagement. ADR-0006 remains Proposed and Milestone 2B remains unauthorized.

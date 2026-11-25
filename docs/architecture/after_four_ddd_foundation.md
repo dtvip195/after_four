@@ -193,10 +193,10 @@ The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_
 - **Responsibility:** shared drawer ledger, daily float, Cash Sessions, Cash Transactions, top-ups, counts, handover, discrepancies, and operating Expenses.
 - **Authoritative state:** immutable Cash Transactions and accountable session/expense evidence.
 - **Candidate roots:** Cash Session; Expense may be an independent root within the context.
-- **Important value objects:** Money; Operating Day; configurable Expense Delegation Limits.
-- **Invariants:** one shared drawer; 2,000,000 VND daily float carries across shifts; a new opening count is not a new float allocation; no automatic mid-day reset/top-up; top-ups are not revenue; delegated Expenses obey 200,000/500,000 VND limits, no self-approval, and no splitting to evade limits.
+- **Important value objects:** Money; Operating Day; configurable Expense Control Thresholds.
+- **Invariants:** one shared drawer; 2,000,000 VND daily float carries across shifts; a new opening count is not a new float allocation; no automatic mid-day reset/top-up; top-ups are not revenue; Operating Expenses use 200,000/500,000 VND control thresholds, require prior Owner approval, permit no emergency pre-approval exception, prohibit self-approval, and prohibit splitting to evade thresholds.
 - **Commands:** prepare/open/count/close/handover Session; request/authorize/post top-up; record/request/approve/execute Expense; append correction.
-- **Transaction boundary:** verified cash settlement and its Cash Transaction commit with Payment settlement and eligible Dispatch intent; close commits count/variance/evidence; delegated Expense enforces per-item and cumulative limits atomically.
+- **Transaction boundary:** verified cash settlement and its Cash Transaction commit with Payment settlement and eligible Dispatch intent; close commits count/variance/evidence; an Operating Expense request records per-item and cumulative control results and mandatory Owner approval evidence before any separately authorized incurrence/execution.
 - **Idempotency:** session open/close, Cash Transaction, top-up, and Expense command identities.
 - **Allowed dependencies:** Payment reference for cash tender; Workforce/Identity actor context; Reporting as downstream projection.
 - **Forbidden dependencies:** treating top-up as revenue; silently editing closed evidence; allowing Payment to own drawer state.

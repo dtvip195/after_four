@@ -25,7 +25,7 @@ Unless explicitly labeled otherwise, the enforcement mechanism is `TECHNICAL_PRO
 | Child belongs to its aggregate | Non-null parent FK; restrict parent deletion | Aggregate commands are the only write path | `TECHNICAL_PROPOSAL` |
 | Order source catalog FKs may coexist with snapshots | Nullable Product/Variant/Modifier FKs; sold-price snapshot non-null; other approved snapshot columns non-null | Historical sold Price uses the confirmation snapshot (`ODB-CAT-10`), never current joins; other snapshot components retain their recorded provenance | `OWNER_CONFIRMED` for sold Price; other snapshots `WORKSHOP_AGREED` |
 | Preparation Item references Order Item and exact RecipeVersion | FKs | Validate same Order/Branch and effective recipe at preparation | `WORKSHOP_AGREED` |
-| Refund references original successful Payment Attempt and Order | Non-null FKs | Validate success, currency, refundable balance, and authority under lock | `WORKSHOP_AGREED`; policy `OPEN_DECISION` |
+| Refund references original successful Payment Attempt and Order | Non-null FKs | Validate success, currency, refundable balance, mandatory Owner approval, and separately approved execution authority under lock | `WORKSHOP_AGREED`; Owner approval `OWNER_CONFIRMED`; remaining policy `OPEN_DECISION` |
 | Stock Movement belongs to Inventory Position and optional Lot | Non-null/nullable FKs | Validate Lot belongs to Position and source is legitimate | `WORKSHOP_AGREED` |
 | Transfer source and destination are distinct | FKs plus check IDs differ | Validate both Warehouses belong to same Organization and approved route | `WORKSHOP_AGREED` |
 | Cash Transaction belongs to Cash Session | Non-null FK | Validate Session state; post-close entries follow adjustment flow | `WORKSHOP_AGREED` |
@@ -227,7 +227,7 @@ In implemented Phase 1, `Preparation::RetryDispatch` requeues the existing Outbo
 
 The semantic Preparation acceptance attempt is also distinct from `preparation_dispatch_attempts` and Outbox delivery state. It has a stable attempt identity; candidate Ticket/Ticket Item state remains quarantined until authoritative acceptance guards produce exactly one terminal acceptance outcome. Missing, conflicting, ambiguous, or incomplete evidence is held fail-closed and cannot silently accept or reuse candidate work.
 
-Customer custody transfer is separate from acceptance and Preparation completion. Owner-selected Model A keeps `transfer_evidence_unresolved` nonterminal within the same stable custody-transfer attempt. Acknowledgement alone is not custody transfer; conflicting/disputed evidence remains held, append-only history is preserved, and `transferred` requires approved evidence criteria and authorized conflict disposition. The evidence classes, intended-recipient linkage, attester authority, and conflict-resolution authority remain unresolved.
+Customer custody transfer is separate from acceptance and Preparation completion. The Owner-confirmed First-Branch `DESIRED_PROCESS` requires whole-Ticket readiness, stable Order/Ticket identity, establishment of the intended-customer or authorized-recipient relationship before release, recipient confirmation, and an attributable handover record containing the Order/Ticket reference, responsible actor, linkage basis, time and available supporting evidence. Handover completes only after approved evidence criteria are satisfied. Owner-selected Model A keeps `transfer_evidence_unresolved` nonterminal within the same stable custody-transfer attempt. Acknowledgement alone is not custody transfer; conflicting/disputed evidence remains held, append-only history is preserved, and `transferred` requires approved evidence criteria and authorized conflict disposition. The evidence classes, recipient-linkage validation details, attester authority, conflict-resolution authority, access and retention policy remain unresolved.
 
 For the initial Preparation slice, progress is Item-level, not quantity-level. Each required Item has one logical state progression; partial Ticket completion and partial Ticket handover are prohibited. Ticket completion requires every required Item complete. Completion and handover are separate evidence-bearing events, and Order closure additionally requires settled Payment, handover evidence, and no open exception. Cancellation never silently advances completion, handover, closure, or Refund.
 
@@ -238,6 +238,8 @@ Terminal Payment Attempts (`succeeded`, `failed`, `cancelled`) preserve their fi
 Lock original Payment Attempt and Payment before applying a successful Refund. Recompute already-refunded amount under lock; reject excess; insert outcome and downstream loyalty/revenue/cash intents in the atomic local transaction. Provider communication occurs outside the open transaction.
 
 “Reject excess” here means a Refund cannot exceed the approved refundable obligation. It does not mean an already received overpayment may be discarded. The excess-evidence/Refund obligation model, allocation, original-tender behavior, and provider process remain unresolved.
+
+`OWNER_CONFIRMED` `WS-REFUND-01` is a logical fail-closed guard for an otherwise eligible request while the Owner is unreachable: record and acknowledge receipt, preserve eligibility/amount evidence, keep the request pending and unexecuted, notify/escalate to Owner, and communicate the pending status to the customer. Timeout, silence, request receipt, acknowledgement and elapsed time are never approval evidence. No threshold automation or emergency delegate is permitted. This rule selects no physical transaction mechanism, execution capability, Refund method or accounting treatment.
 
 ## 9. Inventory and weighted-average integrity
 
@@ -280,6 +282,8 @@ Receipt never edits dispatch movements. Cancelled dispatched stock requires retu
 
 ## 10. Cash and payroll integrity
 
+`OWNER_CONFIRMED` `WS-OPS-01` governs pending Employee Shift Handover, not customer custody transfer or Cash Session handover. Recorded custody remains explicit. The Owner may assign a named interim custodian where needed; without one, handover remains pending under controlled hold and custody-changing operations pause. Shift end never transfers custody automatically to a Branch Manager or other role, and recorded accountability does not require indefinite physical presence or employment. No Cash, Expense, Refund, Inventory or other capability follows. Exact evidence, item detail, control effectiveness and physical enforcement remain unresolved.
+
 ### 10.1 Cash Session
 
 - The initial operating model has one shared drawer and permits at most one open/counting Cash Session for it. A partial unique index is the proposed enforcement; any future multi-drawer topology requires separate approval and design.
@@ -290,9 +294,9 @@ Receipt never edits dispatch movements. Cancelled dispatched stock requires retu
 - `OWNER_CONFIRMED` The shared 2,000,000 VND float belongs to one Operating Day and carries across shift Cash Sessions. A Session opening count is not another float allocation; no automatic mid-day reset/top-up is permitted.
 - Float top-up requires Owner authorization and amount/source/executor/approver/time evidence; Staff may request it. It is a Cash Transaction/funding movement, not revenue, and no fixed frequency limit is approved.
 - Shift close and handover preserve actual count, actor/session accountability, discrepancy reason, and Owner notification. No discrepancy tolerance is approved.
-- Delegated Expenses require positive amount and purpose/recipient/executor evidence plus receipt or explanation. A single amount above 200,000 VND or cumulative delegated amount above 500,000 VND per Operating Day requires Owner approval. Self-approval and splitting to evade limits are forbidden. Values are configurable; the initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone, while future cutoff configuration and database enforcement remain unresolved.
+- Operating Expenses require positive amount and purpose/recipient/executor evidence plus receipt or explanation. Employees may record and submit requests only; every Expense requires Owner approval before incurrence or execution. The 200,000 VND per-Expense and 500,000 VND cumulative per-Operating-Day values remain configurable control thresholds, not approval exemptions. Self-approval, splitting to evade limits, and emergency pre-approval are forbidden. The initial Operating Day cutoff is `00:00` local time in each Branch's explicit timezone, while future cutoff configuration, shift-crossing allocation, and database enforcement remain unresolved.
 - Cash Session handover records outgoing actor, incoming actor, count, variance, reason, and acknowledgement or disagreement. Unresolved disagreement/refusal escalates to the Owner. Acknowledgement is not approval and does not close the outgoing Session; Close remains a separate capability-governed action. Customer custody-transfer attempt/disposition and intended-recipient evidence rules do not apply to Cash handover.
-- Every nonzero discrepancy requires recording, reason, and Owner notification; no tolerance exists. Unreconciled Cash facts are held from authoritative reporting. Discrepancy resolution does not itself grant report-release authority, and the resolver/release capability remains unresolved.
+- Every nonzero discrepancy requires recording, reason, and Owner notification; no tolerance exists. Only the Owner dispositions the discrepancy. Unreconciled Cash facts are held from authoritative reporting; disposition does not itself issue a report. Only the Owner issues official reports, while reconciliation sufficiency, waiting-case treatment, exception-release preconditions and evidence remain unresolved.
 
 ### 10.2 Payroll
 
@@ -344,7 +348,7 @@ Never keep a database transaction open while waiting for a payment provider, pri
 | Dispatch transfer | Transfer, source Positions/Lots sorted by ID |
 | Receive transfer | Transfer, Transfer Items, destination Positions/Lots sorted by ID |
 | Close Cash Session | Cash Session; verify no unposted local cash commands |
-| Record delegated Expense | Operating Day/approved policy scope, then Expense identity; serialize cumulative delegated total before commit |
+| Record Operating Expense request/control result | Operating Day/approved policy scope, then Expense identity; serialize cumulative control-threshold total before commit; no incurrence/execution before mandatory Owner approval |
 | Close Payroll Period | Period, Payroll rows sorted by Employee ID |
 | Claim Delivery | Delivery row/version and assignment transition |
 | Activate Product / change Default Variant | For activation, proposed Category first, then Product, then relevant Variants in stable ID order; atomically require Active Category and exactly one Active Variant with `is_default = true`, independent of visibility. Default-only changes do not invent a Category lock requirement. |
@@ -396,7 +400,7 @@ Entity classification, retention periods, purge eligibility/authority, cleanup s
 | Transfer in-transit accounting | FK/check support | Yes across dispatch/receipt transactions | Partial/concurrent receipt tests |
 | Branch authorization | Scope FKs | Yes, server-side | Cross-Branch denial tests |
 | Closed cash/payroll immutability | Restrict permissions/check status | Yes; adjustment-only commands | Mutation tests |
-| Delegated Expense limits | Typed/config-version support | Per-item and Operating-Day cumulative check; Owner approval; no self-approval | Boundary, concurrent cumulative, split-evasion tests |
+| Operating Expense controls | Typed/config-version support | Per-item and Operating-Day threshold checks; mandatory Owner approval before incurrence/execution; no self-approval or emergency bypass | Boundary, concurrent cumulative, pre-approval, unauthorized execution, and split-evasion tests |
 | Cancellation stage authority | State values/FKs only | Atomic Preparation-state fence and authorization | Start/cancel concurrency and rollback tests |
 | Audit append-only rows | PostgreSQL UPDATE/DELETE rejection trigger in Phase 1 | Rails update/destroy callbacks; append correction events instead of rewriting history | Direct SQL/bulk mutation tests; production role-separation verification still required |
 | Audit/approval target existence | Limited generic FK ability | Yes | Orphan scan/retention tests |
@@ -417,13 +421,13 @@ For the implemented Phase 1 `audit_events` table, Rails callbacks reject ordinar
 | Risk/open decision | Integrity impact | Required resolution |
 |---|---|---|
 | Partial/split payments | Payment aggregate/allocation and full-settlement trigger | Approve semantics before API/state machine and physical schema |
-| Partial refund allocation | Revenue, tax, promotion, loyalty, inventory corrections | Approve allocation and authority |
+| Partial refund allocation | Revenue, tax, promotion, loyalty, inventory corrections | Preserve Owner-only approval; approve allocation, execution authority and downstream correction rules |
 | Cancellation outcomes | Staff-before-start and Owner-after-start authority are confirmed, but completed Order, Refund, stock, remake, and compensation outcomes remain | Approve remaining exception/compensation details and atomic fence design |
 | Overpayment evidence/refund | Phase 1 exact-target aggregate cannot represent received excess | Design evidence, allocation, Refund method, authority, and reporting without relaxing current constraints |
 | Drawer/device topology | One-open-session constraint scope | Confirm physical drawer identity and concurrency |
 | Transfer valuation timing | Central/Branch cost agreement | Accounting validation and stable snapshot event |
 | Remaining approval thresholds/self-approval | Generic approval cardinality and authorization | Preserve confirmed Expense limits/no-self-approval; approve only other policy areas |
-| Operating Day/reporting formulas | Branch timezone and initial `00:00` local cutoff are confirmed, but future configuration, exceptional-day representation, metric formulas, and release authority remain unresolved | Preserve explicit Branch timezone/cutoff and approve formula/version/release semantics before implementation |
+| Operating Day/reporting formulas | Branch timezone and initial `00:00` local cutoff plus Owner-only official issuance are confirmed, but cross-midnight allocation, future configuration, exceptional-day representation, metric formulas, and release preconditions remain unresolved | Preserve explicit Branch timezone/cutoff and Owner issuance; approve allocation/formula/version/precondition semantics before implementation |
 | Future Price-scope activation | Commercial V1 is First-Branch-only with no chain default or Branch override; `ODB-CAT-07` is preserved as an inactive future direction | Separate explicit Owner decision before applying chain-default pricing or Branch overrides; published Price logical/physical design remains unauthorized |
 | Recipe/BOM and BUY finished evidence | 24 MAKE/48 combinations and four BUY Products have no approved Recipe, quantity, conversion, yield, packaging, finished specification, supplier quotation, or actual purchase price | Collect and approve evidence; retain version/source lineage before cost is calculable |
 | Cash handover/discrepancy authority | Evidence can remain unresolved, while acknowledgement, disposition, Session Close, and report release are separate authorities | Approve attester/recipient/conflict disposition and report-release boundaries without weakening fail-closed history |

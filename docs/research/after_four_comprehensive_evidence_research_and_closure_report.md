@@ -124,6 +124,8 @@ The worksheet's `WS-C04-01..10` correctly separates authority source, delegation
 
 One canonical synchronization defect remains: the older `ODB-CASH-15` wording says escalation is unresolved, while later confirmed `CORE-OD-14A` states refusal/disagreement escalates to Owner. The current worksheet correctly preserves Owner as escalation destination while leaving disposition authority unresolved. This is a documentation consistency issue, not an open policy choice and not corrected in this evidence-only package.
 
+> **Current status — 2026-11-25:** the paragraph above preserves the finding as assessed in this historical evidence package. The current [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md#wave-2-cash-owner-decisions) now synchronizes `ODB-CASH-15` with `CORE-OD-14A/B`: escalation to Owner and separate Close are confirmed, while post-escalation disposition authority and capability assignment remain unresolved.
+
 ## 9. Workstream E — end-to-end core operational evidence
 
 | Domain | Confirmed conclusion | Material unresolved evidence |
@@ -143,14 +145,15 @@ The current official-source set is:
 
 - enterprise registration: [Decree 168/2025/NĐ-CP](https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4), issued 2025-06-30 and effective 2025-07-01, amended by [Decree 296/2026/NĐ-CP](https://vanban.chinhphu.vn/?classid=1&docid=218986&pageid=27160), issued/effective 2026-07-23;
 - VAT: [Law 48/2024/QH15](https://vanban.chinhphu.vn/?docid=212476&orggroupid=1&pageid=27160), issued 2024-11-26 and effective 2025-07-01, and the current implementation/amendment chain including [Decree 144/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=218020&pageid=27160), issued 2026-05-05 and effective 2026-06-20;
-- tax administration and e-invoices: [Law 108/2025/QH15](https://vanban.chinhphu.vn/?docid=216541&orggroupid=1&pageid=27160), issued 2025-12-10 and effective 2026-07-01, plus [Decree 254/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=218689&orggroupid=2&pageid=27160) and [Circular 91/2026/TT-BTC](https://vanban.chinhphu.vn/?docid=219006&pageid=27160), issued 2026-06-30 and effective 2026-07-01;
-- accounting: [Accounting Law 88/2015/QH13](https://vanban.chinhphu.vn/?classid=1&docid=183198&pageid=27160&typegroupid=3), issued 2015-11-20 and effective 2017-01-01, and [Decree 174/2016/NĐ-CP](https://vanban.chinhphu.vn/?docid=187897&pageid=27160), issued 2016-12-30 and effective 2017-01-01;
+- tax administration and e-invoices: [Law 108/2025/QH15](https://vanban.chinhphu.vn/?docid=216541&orggroupid=1&pageid=27160), issued 2025-12-10 and effective 2026-07-01; its current official consolidation [162/2026/VBHN-LQ-VPQH](https://vanban.chinhphu.vn/?docid=219878&pageid=27160), issued by the Office of the National Assembly on 2026-09-29 without creating a new effective date; plus [Decree 254/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=218689&orggroupid=2&pageid=27160) and [Circular 91/2026/TT-BTC](https://vanban.chinhphu.vn/?docid=219006&pageid=27160), issued 2026-06-30 and effective 2026-07-01;
+- accounting: the current official consolidation [41/VBHN-VPQH](https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-41-vbhn-vpqh-469126.htm), issued by the Office of the National Assembly on 2026-03-16, consolidating Accounting Law 88/2015/QH13 and its amendments; [Decree 174/2016/NĐ-CP](https://vanban.chinhphu.vn/?docid=187897&pageid=27160), issued 2016-12-30 and effective 2017-01-01; and [Circular 99/2025/TT-BTC](https://congbao.chinhphu.vn/van-ban/thong-tu-so-99-2025-tt-btc-46529/59637.htm), issued 2025-10-27 and effective 2026-01-01 for its stated enterprise-accounting scope;
 - food safety: [Law 55/2010/QH12](https://vanban.chinhphu.vn/?classid=1&docid=96032&pageid=27160&typegroupid=3), issued 2010-06-17 and effective 2011-07-01, remains the primary statute identified here. [Decree 46/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=216827&orggroupid=2&pageid=27160), issued/effective 2026-01-26, was initially suspended through 2026-04-15 by [Resolution 09/2026/NQ-CP](https://vanban.chinhphu.vn/?docid=216891&pageid=27160), issued/effective 2026-02-04. That scheduled 2026-04-16 resumption did not occur: [Resolution 15/2026/NQ-CP](https://chinhphu.vn/?docid=217667&pageid=27160), issued/effective 2026-04-06, replaced Resolution 09 and suspended Decree 46 until both the amended Food Safety Law and its implementing decree take effect. Resolution 15 Article 2 states that [Decree 15/2018/NĐ-CP](https://vanban.chinhphu.vn/?docid=192829&pageid=27160) and its implementing/guidance instruments continue in force during that suspension; Article 5(1) makes Resolution 15 effective on signature and replaces Resolution 09. Official National Assembly records show the amended-law bill was [presented and discussed on 2026-10-24](https://quochoi.vn/tintuc/Pages/su-kien-noi-bat.aspx?ItemID=102467) and considered for explanation/revision by the Standing Committee on [2026-11-17](https://media.quochoi.vn/Home/AlbumDetails/51113). The [Second Session results published on 2026-11-21](https://quochoi.vn/tintuc/Pages/tin-hoat-dong-cua-quoc-hoi.aspx?ItemID=103162) do not list it among enacted laws, while the [official legislative schedule](https://quochoi.vn/tintuc/Pages/tin-hoat-dong-cua-quoc-hoi.aspx?ItemID=101723) proposed consideration for passage at the Third Session in May 2027. That schedule is not enactment or an effective date. At the 2026-11-24 cutoff, the bill therefore had not taken effect, Decree 46 remained suspended, and the stated termination condition had not occurred;
 - personal data: [Law 91/2025/QH15](https://vanban.chinhphu.vn/?classid=1&docid=214590&pageid=27160&typegroup=), issued 2025-06-26 and effective 2026-01-01, and [Decree 356/2025/NĐ-CP](https://vanban.chinhphu.vn/?classid=1&docid=216387&orggroupid=2&pageid=27160), issued 2025-12-31 and effective 2026-01-01;
+- electronic transactions and records: the latest official consolidation [154/2026/VBHN-LQ-VPQH](https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-154-2026-vbhn-lq-vpqh-470651/69037.htm), issued by the Office of the National Assembly on 2026-09-28, remains the current consolidated source at the cutoff; [Law 20/2026/QH16](https://congbao.chinhphu.vn/van-ban/luat-so-20-2026-qh16-470454.htm) is identified separately as future-effective on 2027-03-01 and is not treated as current 2026 policy;
 - labor: the [2026 consolidated Labor Code](https://vanban.chinhphu.vn/?classid=0&docid=217002&pageid=27160), consolidated 2026-02-12 without a new effective date, whose underlying Law 45/2019/QH14 was issued 2019-11-20 and effective 2021-01-01; and [Decree 293/2025/NĐ-CP](https://vanban.chinhphu.vn/?docid=215832&pageid=27160), issued 2025-11-10 and effective 2026-01-01, which remains the current minimum-wage instrument at this cutoff; and
 - future minimum wage: [Decree 399/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=220166&pageid=27160&typegroupid=4) is issued but does not take effect until 2027-01-01.
 
-These instruments establish the current research baseline, not AFTER FOUR's exact obligations. Legal form, taxpayer status, Branch ward/premises, products/processes, invoice flow, workers, personal-data fields/purposes/recipients, and record classes are required applicability facts. Decree 13/2023 and Decree 70/2025 must not be cited alone as the current privacy or invoice baseline. Decree 15/2018 continues during the Resolution 15 suspension, but it likewise cannot by itself determine AFTER FOUR's premises-, Product-, process-, licensing-, or exemption-specific obligations.
+These instruments establish the current research baseline, not AFTER FOUR's exact obligations. Legal form, taxpayer status, Branch ward/premises, products/processes, invoice flow, workers, personal-data fields/purposes/recipients, and record classes are required applicability facts. Decree 13/2023 and Decree 70/2025 must not be cited alone as the current privacy or invoice baseline. Decree 15/2018 continues during the Resolution 15 suspension, but it likewise cannot by itself determine AFTER FOUR's premises-, Product-, process-, licensing-, or exemption-specific obligations. Electronic-record integrity and evidential-value rules do not select a customer-custody evidence class, attester, recipient-linkage method, conflict resolver, retention period, or physical storage/enforcement mechanism.
 
 ## 11. Workstream G — non-public collection register
 
@@ -181,13 +184,14 @@ No confirmed Owner decision is reopened by these conflicts.
 
 ## 13. Ranked critical path and parallel execution
 
-### 13.1 Immediate and parallel
+### 13.1 Current execution boundary and later parallel lanes
 
-1. **Owner consolidated input session:** identify first Branch site facts; select Bơ xay dừa non Ingredient form; define Cam/fries and four BUY acceptance specifications; identify actual Signature-test Ingredients/equipment/vessels; supply CORE-02/04 operational responsibility facts without answering unsupported policy prematurely.
-2. **Operator field work:** run R04/R05 and one selected-size R12/R13 comparison; measure vessels/ice/output/loss/time; conduct site/daypart counts after a site exists. These streams are independent.
-3. **Supplier document preparation:** after explicit contact authorization, request exact SKU/specification, pack/unit/conversion, handling/shelf life/traceability, quotation/invoice, delivery/landed cost, and VAT statement for Owner-approved specifications.
-4. **Qualified reviews:** tax/accounting/e-invoice, food safety, privacy/custody evidence, labor, and retention may proceed in parallel once entity/site/workflow/data facts and engagement authority exist.
-5. **CORE policy sessions:** review `WS-C02-01/02/03/07` in parallel, then `04`, then `05/06`; review `WS-C04-01/02/03`, then `04/06`, then `07` before `08`; keep `09/10` separate.
+No immediate Owner session, purchase, physical inspection, field work, supplier contact, professional engagement or independent review is required or authorized by this report. The Owner has deferred the premises/ownership/household/registration/tax fact set and has confirmed that no Signature-test materials or equipment are currently available and nothing has been purchased. The remaining lanes become executable only after their own trigger and authority exist:
+
+1. **Commercial and physical evidence:** if the lane is deliberately resumed, define the relevant Product/specification and bounded contact/acquisition authority first; then identify actual Ingredients/equipment/vessels and authorize each independent R04/R05 or R12/R13 run before recording measurements.
+2. **Operational facts and qualified input:** if actual entity/site/workflow/data facts become available and engagement is separately authorized, tax/accounting/e-invoice, food safety, privacy/custody evidence, labor and retention reviews may proceed independently by discipline.
+3. **CORE policy sessions:** only after their evidence prerequisites exist, review `WS-C02-01/02/03/07` in parallel, then `04`, then `05/06`; review `WS-C04-01/02/03`, then `04/06`, then `07` before `08`; keep `09/10` separate.
+4. **Deferred premises and seller facts:** remain deferred until the Owner voluntarily resumes them; their absence must not be replaced with assumptions or repeated requests.
 
 ### 13.2 Later gates
 
@@ -195,12 +199,14 @@ Only after the applicable Owner policies and evidence are closed should independ
 
 ## 14. Explicit limitations and current readiness
 
-Genuinely ready now:
+Prepared but not executable now:
 
-- Owner/operator use of the existing Signature field-test protocol;
-- a consolidated Owner input session using the existing CORE-02/04 worksheet;
-- site-specific observation planning once the site is supplied; and
-- scoped professional-review preparation once actual applicability facts and engagement authority exist.
+- the Signature field-test protocol is capture-ready, but no materials/equipment, purchase authority or trial authorization exists;
+- the CORE-02/04 worksheet and scenario inventories are structurally complete, but the dependent policy questions await actual facts and/or qualified input;
+- professional review packages are scope-ready, but no engagement authority or complete prerequisite fact pack exists; and
+- site-specific observation remains conditional on the Owner voluntarily resuming the deferred premises/site lane.
+
+Accordingly, `NO_FURTHER_CODEX_ONLY_SPRINT_REQUIRED`: another internal documentation pass cannot create the missing physical evidence, external qualified opinion, actual event or Owner trigger.
 
 Blocked:
 
@@ -213,3 +219,46 @@ Blocked:
 - legal, tax, accounting, privacy, food-safety, labor, retention, FOA, and Production conclusions.
 
 This package changes no Owner Decision Baseline row, worksheet answer, input template, architecture, code, schema, migration, API, database, runtime, Gate, implementation authorization, FOA, or Production Authorization.
+
+## 15. Industry benchmark and optimized pre-opening operating model
+
+### 15.1 Source quality and transfer boundary
+
+The expanded source register `EV-BP-001`–`016` records the exact source, publisher, date, URL, applicable process and limitation. The strongest design sources are Codex Alimentarius (FAO/WHO), WHO, FDA, ISO, COSO, government-auditor cash guidance, ACFE and OIML. McDonald's, Starbucks, Jollibee, Costa, Highlands Coffee and The Coffee House are first-party evidence only of their publicly described practices; they are not independent assurance and disclose no complete proprietary store manuals. No detailed first-party public operating manual was found for Highlands Coffee or The Coffee House, so no undisclosed chain practice is inferred.
+
+Across the sources, the transferable principles are consistent:
+
+- standardize the work and evidence envelope, train by role, verify execution and retain corrective-action history;
+- identify a named custodian for cash, goods and records at each handover; when staffing cannot segregate duties, use Owner pre-approval, independent after-the-fact review, source matching, exception logging and trend review;
+- match authorized request/order, delivery and receiving evidence; inspect quantity, identity, condition, lot/expiry and applicable temperature; isolate rejected/nonconforming items;
+- use risk-based hygiene prerequisites, monitoring, corrective action and verification rather than treating a completed checklist as proof of safety;
+- version Recipes and specifications, verify measurement capability, record portion/yield/loss and release only against defined criteria; and
+- keep request, approval, execution, occurrence, recording, reconciliation, correction and reporting issuance as distinct attributable facts.
+
+These principles are `RESEARCH_SUPPORTED_DESIGN`. They do not establish Vietnamese legal applicability, Owner authority, physical readiness, actual control effectiveness or an approved AFTER FOUR SOP.
+
+### 15.2 Important alternatives and recommended small-café approach
+
+| Workflow | Credible approaches compared | Recommended design | Reason and retained limitation |
+|---|---|---|---|
+| Cash and financial controls | Full segregation by separate cashier, recorder, approver and reconciler; or limited-staff custody plus compensating review. | Named Cash custodian, attributable counts, Owner-only approvals already confirmed, immutable exception evidence, and independent Owner review/reconciliation whenever separate staff are unavailable. | Lowest practical workload while preserving traceability. Exact capability holders, deposit policy and reconciliation sufficiency remain `CORE-OD-12`/qualified input. |
+| Employee/goods custody | Automatic role/shift transfer; single acknowledgement; or dual confirmation with explicit pending/hold and named interim assignment. | Preserve the confirmed dual-confirmation/pending-hold model; receiving custody begins only after an attributable accepted handover. | Avoids silent custody transfer. Exact evidence/capability and dispute consequences remain unresolved. |
+| Food safety | Generic opening/closing checklist; or risk-based prerequisite programmes with Product/process-specific monitoring, correction and verification. | Short role-specific checklists backed by a risk register, nonconforming-product hold and corrective-action verification. | Scales to a small café without pretending to implement an enterprise FSMS. Vietnamese applicability and exact limits require qualified review. |
+| Inventory | Enterprise perpetual system and multiple departments; or manual/low-cost receiving ledger plus targeted cycle counts and independent review. | Authorized request → receiving inspection → accepted custody → movement/waste evidence → targeted critical/high-shrinkage counts → reconciliation. | Practical before inventory software exists. Count frequency, item classes and authority remain proposed and Inventory implementation remains deferred. |
+| Recipe and Product control | Barista discretion; or versioned specification/Recipe with measured portion, yield/loss and controlled change. | Versioned Recipe candidate, verified instrument capability, independent raw trials, Product release check and linked change history. | Reduces variation and supports costing without inventing quantities or tolerances. R04/R05 and all physical facts remain open. |
+| Reporting | One end-of-day total treated as truth; or staged source reconciliation, exception hold, immutable report version and separate issuance/access. | Staged fact reconciliation with default hold for unresolved evidence and Owner-only issuance. | Preserves confirmed boundaries and auditability. Reader/export/retention and cross-midnight allocation remain unresolved. |
+| Customer exceptions | Immediate ad-hoc remake/refund; or record complaint/error, preserve Order/Payment evidence, communicate status and route each remedy through its own authority. | Evidence-first triage with no automatic Refund, custody transfer or lifecycle mutation. | Keeps customer communication responsive without bypassing Owner-only Refund approval or unresolved remedy policy. |
+
+### 15.3 Optimized operating model
+
+The recommended model is a **named-custody, evidence-first, fail-closed small-café model**:
+
+1. use one named responsible actor per active station/custody envelope and explicit handover rather than title-derived authority;
+2. keep procedures short and role-specific, but require source evidence for every exception, adjustment, handover, approval and reconciliation;
+3. use Owner pre-approval and later review as compensating controls where small-team staffing cannot provide full segregation;
+4. isolate nonconforming food, unresolved custody, discrepancies and unreconciled reports rather than forcing a successful state;
+5. manage change through versioned specifications/Recipes and linked corrections, never destructive rewrite;
+6. separate service recovery from Refund, Expense, Cash, custody and Reporting authority; and
+7. review exception trends and corrective actions periodically once real operations exist.
+
+The executable procedure designs are maintained in [Evidence Intake Workbook §13](../architecture/after_four_milestone_a_evidence_intake_workbook.md#13-research-supported-proposed-operating-procedures). They remain proposed and grant no operational or implementation authority.
