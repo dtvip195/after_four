@@ -2,7 +2,7 @@
 
 **Status:** Accepted backend development standard  
 **Date:** 2026-11-14  
-**Runtime:** Ruby 3.4.12, Rails 8.1.4.1, PostgreSQL 18.7, RSpec Rails 8.1.0
+**Runtime:** Ruby 3.4.13, Rails 8.1.4.1, PostgreSQL 18.7, RSpec Rails 8.1.0
 
 ## Official framework
 
