@@ -1,7 +1,7 @@
 # AFTER FOUR — Comprehensive Evidence Research and Closure Report
 
-**Assessment date:** 2026-11-24 (Asia/Tokyo)
-**Repository baseline:** `fbb8685491da6773ab71539acf9f66975bd6d81d`
+**Assessment date:** 2026-11-25 (Asia/Tokyo); regulatory status remains assessed at the explicit 2026-11-24 cutoff stated in §10.
+**Repository baseline:** `91c0ef95a28bd45c08cee4b6dc1289c705592546` (merged PR #106 evidence baseline)
 **Status:** `EVIDENCE_MAP_COMPLETE — MATERIAL INPUTS REMAIN OPEN — NO AUTHORIZATION GRANTED`
 
 ## 1. Executive summary
@@ -19,11 +19,11 @@ The principal conclusions are:
 - current Vietnamese legal instruments can be identified, but applicability and operational conclusions require actual entity, premises, menu, staffing, data-use, and workflow facts plus qualified Vietnamese professional review; and
 - the shortest path is real evidence collection: one Owner input session, bounded field tests, supplier documents after authorization, and parallel qualified professional reviews. Another generic readiness sprint would not close these gaps.
 
-The companion [machine-readable evidence register](after_four_comprehensive_evidence_register.csv) contains 57 material evidence items and is the row-level source for classification, provenance, limitations, provider, next action, and blocking scope.
+The companion [machine-readable evidence register](after_four_comprehensive_evidence_register.csv) contains 61 material evidence items and is the row-level source for classification, provenance, limitations, provider, next action, and blocking scope.
 
 ## 2. Baseline, method, and authority boundary
 
-The review started from synchronized `main` and `origin/main` at `fbb8685491da6773ab71539acf9f66975bd6d81d`. It follows [AGENTS.md](../../AGENTS.md), the [Glossary](../../GLOSSARY.md), the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), and accepted ADR-0003, ADR-0004, ADR-0010, and [ADR-0011](../architecture/adr/0011-project-wide-layered-ddd.md).
+The evidence map was reconciled through synchronized `main` and `origin/main` at `91c0ef95a28bd45c08cee4b6dc1289c705592546`. It follows [AGENTS.md](../../AGENTS.md), the [Glossary](../../GLOSSARY.md), the [Owner Decision Baseline](../architecture/after_four_owner_decision_baseline.md), and accepted ADR-0003, ADR-0004, ADR-0010, and [ADR-0011](../architecture/adr/0011-project-wide-layered-ddd.md).
 
 Evidence is classified as `VERIFIED_PRIMARY`, `VERIFIED_SECONDARY`, `PUBLIC_LISTING_ONLY`, `RESEARCH_REFERENCE`, `RESEARCH_DERIVED_PROPOSAL`, `OWNER_INPUT_REQUIRED`, `PHYSICAL_MEASUREMENT_REQUIRED`, `SUPPLIER_DOCUMENT_REQUIRED`, `QUALIFIED_PROFESSIONAL_REQUIRED`, `GOVERNANCE_APPROVAL_REQUIRED`, `UNVERIFIED`, or `NOT_APPLICABLE`. A classification describes the stated evidence item only. Public evidence never upgrades a proposal into Owner policy, and repository presence never grants implementation authority.
 
@@ -36,7 +36,7 @@ No supplier, authority, accountant, lawyer, operator, customer, or other third p
 The program reused, rather than duplicated:
 
 - [Proposed Launch Menu v3](../architecture/after_four_proposed_launch_menu_v3.md) and [Real Menu & Pricing Specification](../architecture/after_four_real_menu_pricing_specification.md);
-- the 37-column [costing input](../architecture/after_four_commercial_v1_costing_input.csv), [MAKE Recipe/BOM input](../architecture/after_four_commercial_v1_make_recipe_bom_input.csv), [BUY procurement input](../architecture/after_four_commercial_v1_buy_finished_procurement_input.csv), and [Buy-vs-Make Owner input](../architecture/after_four_commercial_v1_buy_vs_make_owner_input.csv);
+- the 66-column [costing input](../architecture/after_four_commercial_v1_costing_input.csv), [MAKE Recipe/BOM input](../architecture/after_four_commercial_v1_make_recipe_bom_input.csv), [BUY procurement input](../architecture/after_four_commercial_v1_buy_finished_procurement_input.csv), and [Buy-vs-Make Owner input](../architecture/after_four_commercial_v1_buy_vs_make_owner_input.csv);
 - [external Ingredient/supplier research](after_four_commercial_v1_external_ingredient_supplier_research.md), [public Recipe research](after_four_commercial_v1_recipe_quantity_research.md), [Signature field-test protocol](after_four_commercial_v1_signature_practical_test_protocol.md), and [cost-evidence gap report](after_four_commercial_v1_cost_evidence_collection_gaps.md).
 
 The existing templates already represent repeated BOM lines, Product/Variant quantity, purchase/preparation units, conversion, yield/waste, channel packaging, quotation/actual cost, landed cost, and evidence dates. No new column is justified by current evidence.
@@ -57,6 +57,7 @@ No dedicated current Hoi An competitor, customer, location, or pricing research 
 | `CE-COM-004..006` | Bơ xay dừa non | Public evidence distinguishes coconut water, frozen young flesh, mature flesh and processed water-with-pulp | Intended Product/Ingredient form, texture and specification | `VERIFIED_PRIMARY`; `VERIFIED_SECONDARY`; `PUBLIC_LISTING_ONLY` | Owner selects bounded identity; supplier documents; later physical test | Practical test and costing for three combinations |
 | `CE-COM-007..008` | Cam ép / Khoai tây chiên | Orange-yield and frozen-fries comparators | Local fruit/SKU, portion, equipment, actual yield/waste/oil | `RESEARCH_REFERENCE` | Owner plus operator measurement and supplier instructions | Six Cam combinations and one fries combination |
 | `CE-COM-009..014` | Four BUY Products | Public retail/category/supplier-capability leads | Accepted finished specification, exact SKU/package, quotation, delivery, VAT document, storage/shelf life | `PUBLIC_LISTING_ONLY`; limited `VERIFIED_PRIMARY` capability | Owner specification; supplier documents after authorization | Four BUY costs |
+| `CE-COM-015..018` | Shared dairy/tea/packaging and exact BUY brownie delta | Public candidate SKU/package/price evidence, packaging configurations, and one exact brownie retail listing | Product/Recipe or packaging applicability, approved specification, physical fit/yield, accepted quotation, Hoi An delivery, landed or actual transaction cost | `PUBLIC_LISTING_ONLY`; `PUBLIC_PRODUCT_SPECIFICATION` where stated | Owner selects bounded candidates; operator verifies fit/output; supplier documents only after authorization | MAKE Recipe/costing, packaging allocation, and BUY brownie procurement |
 | `EV-B-TOUR-01..03` | Hoi An tourism | Official city/heritage statistics show large international visitor context | Scope conflict among citywide and managed/ticketed venue measures; no Branch catchment | `VERIFIED_PRIMARY` | Define exact measure and site before use | Market interpretation only |
 | `EV-B-MKT-01..03` | Competitor pricing | First-party public menu comparators | Transaction evidence, true comparability, demand, site radius | `PUBLIC_LISTING_ONLY` | Preserve access date; add matched competitors after site selection | Price-positioning confidence |
 | `EV-B-GAP-01..03` | Site economics/demand | Gap is explicitly identified | Exact site, footfall/daypart/channel observations, lease/utilities | `OWNER_INPUT_REQUIRED`; `PHYSICAL_MEASUREMENT_REQUIRED`; `SUPPLIER_DOCUMENT_REQUIRED` | Owner, operator, landlord documents | Location viability |
@@ -71,7 +72,7 @@ No dedicated current Hoi An competitor, customer, location, or pricing research 
 
 ### 5.1 Coverage and costing threshold
 
-All 28 Products and 52 priced combinations reconcile. The costing CSV has 52 rows and 37 columns; every row is `MISSING_INPUT`. The MAKE template covers 24 Products/48 combinations and every Recipe state remains missing/not Owner-approved. The BUY template covers four Products/four combinations and every verification state remains missing. Therefore:
+All 28 Products and 52 priced combinations reconcile. The costing CSV has 52 rows and 66 columns; every row is `MISSING_INPUT`. The MAKE template covers 24 Products/48 combinations and every Recipe state remains missing/not Owner-approved. The BUY template covers four Products/four combinations and every verification state remains missing. Therefore:
 
 - evidence-backed unit cost: **0/52**;
 - evidence-backed gross margin: **0/52**;
@@ -85,7 +86,9 @@ Admission to evidence-backed costing requires the complete applicable path: acce
 - **Bơ xay dừa non:** a Wonderfarm product declaration documents a processed coconut-water-with-pulp form, while HTK and Viet Thien Phu listings distinguish frozen young-coconut flesh formats. These sources prove that materially different Ingredient forms exist; they do not identify the intended AFTER FOUR Product. Bơ xay dừa non remains blocked before practical testing. Sources: [Wonderfarm declaration](https://www.wonderfarmonline.com/storage/hstcb-nuoc-dua-tuoi-wonderfarm-co-com-dua-181125-04122025.pdf), [HTK young coconut meat](https://htk.com.vn/san-pham/young-coconut-meat-iqf/), [Viet Thien Phu frozen coconut meat](https://vtpindustrial.com/product/frozen-coconut-meat/), and [BBC Good Food coconut-water explanation](https://www.bbcgoodfood.com/health/nutrition/health-benefits-coconut-water).
 - **Cam ép:** a public orange-yield comparator gives approximately six navel oranges for two cups of juice, but does not establish local Vietnamese fruit grade, mass, equipment yield, S/M/L allocation, or waste. It remains insufficient for costing. Source: [Food Network Garibaldi recipe](https://www.foodnetwork.com/recipes/garibaldi-7524952).
 - **Khoai tây chiên:** Potatoes USA references document multiple frozen formats and a 1 kg/six-serving loaded-fries comparator, not an AFTER FOUR plain-fries portion or yield. Owner selection, supplier instructions, and physical measurement remain required. Sources: [Frozen Potato Reference Guide](https://potatoesusa.com/wp-content/uploads/Frozen-Potato-Reference-Guide.pdf) and [2020 cookbook](https://potatoesusa.com/wp-content/uploads/2020/04/WORLD%E2%80%99s-BEST-POTATOES-2020-EN-Version.pdf).
-- **BUY_FINISHED:** croissant, cheesecake, brownie, and muffin sources provide retail or supplier-capability leads only. They do not establish an accepted finished specification, wholesale price, Hoi An delivery, landed cost, VAT evidence, or actual purchase. See the CSV items `CE-COM-009..014` for source-level limitations.
+- **Shared dairy and tea:** `CE-COM-015..016` add eight exact public candidate listings across one dairy seller/provider family and one tea seller/provider family. They do not establish Recipe applicability, approved substitution, measured extraction/yield, accepted quotation, Hoi An landed cost, or actual purchase.
+- **Packaging:** `CE-COM-017` records public candidate configurations and prices where published. It does not assign packaging to a Product/Variant or channel, prove component compatibility, establish Hoi An delivery, or supply an accepted quotation or actual transaction.
+- **BUY_FINISHED:** `CE-COM-009..014` and `CE-COM-018` provide retail, category, or supplier-capability leads for croissant, cheesecake, brownie, and muffin. The BUY input separately records a public listing seller/provider and keeps verified `supplier_identity` blank. These sources do not establish an accepted finished specification, selected supplier relationship, wholesale price, Hoi An delivery, landed cost, VAT evidence, quotation, or actual purchase.
 
 The current source leads do not justify changing any canonical commercial input template.
 
