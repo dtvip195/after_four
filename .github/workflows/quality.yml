@@ -49,6 +49,12 @@ jobs:
         run: |
           bin/rails db:schema:dump
           git diff --exit-code -- db/structure.sql
+      - name: Validate Packwerk configuration
+        run: bin/packwerk validate
+      - name: Check Packwerk dependencies
+        run: bin/packwerk check
+      - name: Run architecture specs
+        run: bundle exec rspec spec/architecture
       - run: bundle exec rspec
       - run: bin/rubocop
       - run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error

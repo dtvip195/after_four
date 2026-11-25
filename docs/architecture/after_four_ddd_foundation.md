@@ -31,6 +31,19 @@ Each Bounded Context owns its behavior and data responsibilities according to th
 
 The backend filesystem collects Bounded Contexts under `backend/app/contexts/`. That collection directory is an autoload root, not a Ruby namespace: `backend/app/contexts/orders/...` still defines `Orders::...`, not `Contexts::Orders::...`. Within a context, the singular `domain/`, `application/`, and `infrastructure/` directories identify Layered DDD responsibilities. The plural `contexts/` directory therefore describes context organization without changing any established Ruby constant or business vocabulary.
 
+### Packwerk dependency pilot
+
+Packwerk 3.3.1 enforces declared package-level dependency direction for the nine current context directories. Each context has a strict `package.yml`; the root package remains the Rails composition and shared technical shell rather than a business context. Six contexts explicitly depend on that root package only where current source uses `ApplicationRecord`, `DomainError`, `AuditEvent`, or `OutboxEvent`. Root controllers, jobs, composition roots, and those shared technical records remain outside the context packages. This pilot does not create a shared kernel, change Ruby namespaces, move source, or approve any new context boundary.
+
+| Consumer package | Declared context dependencies |
+|---|---|
+| `app/contexts/identity` | `app/contexts/organization` |
+| `app/contexts/orders` | `app/contexts/preparation` |
+| `app/contexts/payments` | `app/contexts/orders`, `app/contexts/preparation` |
+| `app/contexts/organization`, `app/contexts/preparation`, `app/contexts/catalog`, `app/contexts/platform`, `app/contexts/sales`, `app/contexts/billing` | None |
+
+The declared context edges correspond to the existing consumer-owned Application contracts: Identity uses `Organization::Application::Contracts`; Orders implements against `Preparation::Application::Ports::OrderDispatchGateway`; and Payments implements against `Orders::Application::Ports::PaymentGateway` and `Preparation::Application::Ports::PaymentSettlementGateway`. A package declaration permits references anywhere in the provider package, so it cannot prove that a reference uses the required Application contract or respects Domain/Application/Infrastructure layering. Existing architecture specs remain authoritative for those finer-grained restrictions. Packwerk 3 core also does not enforce constant privacy. CI therefore runs `bin/packwerk validate`, `bin/packwerk check`, and the architecture specs before the full backend suite.
+
 For example, Organization owns Organization/Brand/Branch behavior, Catalog owns Catalog behavior, Ordering owns Order behavior, and Payment owns Payment/settlement behavior within the selected analysis below. These examples neither enumerate every proposed context nor rename or approve a context.
 
 ### Forward adoption and maturity
