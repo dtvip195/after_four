@@ -1,16 +1,18 @@
 # AFTER FOUR — Commercial V1 Signature Product Practical Test Protocol
 
-**Prepared:** 2026-11-24 (Asia/Tokyo)
+**Prepared:** 2026-11-24; field-readiness synchronization updated 2026-11-25 (Asia/Tokyo)
 
 **Status:** `PLANNED — OWNER_REVIEW_REQUIRED`
 
-**Scope:** Cà phê muối — Một cỡ; Trà đào cam sả — S/M/L. Bơ xay dừa non remains a research gap only.
+**Scope:** Cà phê muối — Một cỡ; Trà đào cam sả — S/M/L; one unassigned-Variant Bơ xay dừa non R36 benchmark. The R36 benchmark does not establish S/M/L applicability.
 
 ## 1. Authority and test governance
 
 This protocol converts public source formulations into controlled test records. It approves no Recipe, BOM, Ingredient, serving capacity, yield, waste/remake rate, packaging, supplier, cost, or commercial release.
 
 Allowed test statuses are `PLANNED`, `IN_PROGRESS`, `TESTED`, `OWNER_REVIEW_REQUIRED`, and `REJECTED`. Every run must identify tester, date, equipment, exact Ingredient specification, parent source, and every departure from that source. Different source Recipes and controlled variations remain separate candidates and are never silently averaged. Experimental results are evidence for later review, not Owner approval. No candidate enters the costing BOM until separately reviewed and approved.
+
+Dashboard readiness uses a separate vocabulary: `READY_FOR_OWNER_PREPARATION`, `BLOCKED_BY_MISSING_INPUT`, `READY_FOR_CONTROLLED_TRIAL`, `TRIAL_IN_PROGRESS`, `EVIDENCE_PENDING`, and `READY_FOR_OWNER_REVIEW`. A dashboard readiness value never substitutes for the test status or grants permission to purchase, execute, accept, or approve anything.
 
 | Test identity field | Entry |
 |---|---|
@@ -54,6 +56,18 @@ The BUY input is the single acceptance and procurement capture artifact for Bán
 | Quantity received, saleable portions, unsaleable quantity/reason and receipt evidence | Operator measurement/observation tied to the actual receipt | No sample receipt or loss value may be entered. |
 | `acceptance_specification_status` | Owner records only after reviewing the complete evidence set | Blank does not mean accepted; current `verification_status` remains `MISSING_INPUT`. |
 
+#### 1.1.2 Field-trial to costing evidence handoff
+
+| Evidence class | Field-trial source | Costing destination | Boundary |
+|---|---|---|---|
+| Measured Ingredient quantity | Dated run/Ingredient line with actual SKU and unit | `preparation_quantity`, `preparation_unit`, Recipe/BOM evidence fields | A measurement is not an approved Recipe/BOM until separately admitted by the Owner. |
+| Purchase unit and price | Package label plus quotation/invoice/transaction source | Purchase/package quantity, quoted-price or actual-price fields and their distinct evidence references | A public price or quotation is not an actual purchase. |
+| Batch output and saleable portions | Batch/component and finished-output records | `batch_output_quantity`, allocation basis and unit-cost denominator | Retain actual run identity; never infer yield from nominal vessel capacity. |
+| Waste, loss, rework or remake | Measured leftover/loss plus reason and repeat/run reference | Waste/remake evidence and allocation fields | Blank is unknown, not zero. A failed run is evidence, not an approved waste rate. |
+| Dine-in/takeaway packaging | Exact packaging SKU and quantity recorded by channel | Separate dine-in and takeaway packaging fields | Shared packaging evidence may be referenced only when the exact SKU and quantity apply. |
+| Owner selection or approval | Dated disposition record | Recipe/BOM status or accepted finished specification | Owner selection must remain distinct from measured facts and supplier documents. |
+| Tax/accounting assumptions | Qualified evidence outside the field run | Tax information and calculation-basis fields | Remains unresolved; no tax, rounding or accounting treatment is inferred here. |
+
 ### 1.2 Execution order and parallelism
 
 1. Start with actual Ingredient/SKU, equipment and vessel identification. This can proceed independently for every unblocked Product and does not approve a Recipe or supplier.
@@ -62,7 +76,7 @@ The BUY input is the single acceptance and procurement capture artifact for Bán
 4. Capture shared Ingredient purchase documents once per exact SKU/package and reference that evidence from each affected Product/Variant. Shared evidence does not create a shared Recipe quantity or allocation.
 5. Measure each S/M/L Variant independently. Shared batch preparation may reduce repeated work only when the actual batch, output, allocation and loss are all measured and retained.
 6. Run the four BUY procurement evidence rows in parallel. Public listings remain candidate leads; supplier contact, RFQ, quotation acceptance and purchase require separate authority.
-7. Keep Bơ xay dừa non blocked until the actual young-coconut Ingredient identity is resolved. This blocker does not stop unrelated Product measurement.
+7. Prepare one R36 Bơ xay dừa non benchmark only after the actual avocado, frozen young-coconut flesh, dairy, syrup and ice inputs plus blender and vessel are identified. Keep S/M/L mapping blocked until separate measured evidence and Owner review.
 
 The 2026-11-25 public-evidence delta is recorded as `CE-COM-015` through `CE-COM-018` in the [Comprehensive Evidence Register](after_four_comprehensive_evidence_register.csv). Shared dairy, tea, packaging, and BUY-product evidence may be referenced from multiple candidate assessments without copying or altering the original record. A shared source reference does not establish Product applicability, Recipe quantity, packaging assignment, quotation, transaction, or cost.
 
@@ -82,10 +96,11 @@ Every test remains unexecuted. `NOT_READY` below means the record is structurall
 | `TDCS-S-R13-01` | Trà đào cam sả / S | Exact peach/liquid, orange, syrup, lemongrass, water and ice identities/SKUs plus an explicitly recorded R13 tea identity, dry dose, water, temperature, time and method; never import R12. | Operator-identified preparation equipment; measured S vessel; mass, volume, temperature and time measurement suitable for the recorded fields. | Prepare the separately identified R13 tea basis; measure every input/output/loss/time/sensory/repeat fact independently. | Explicit tea-base trial basis plus Ingredient/SKU, equipment, vessel, raw measurement, tester, deviation and disposition evidence. | Owner: select S and explicitly record the trial basis. Operator: equipment/vessel/tools. Ingredient purchase and supplier provenance. R13 tea basis remains missing. | Start only after the R13 tea basis is explicitly recorded and all S physical prerequisites are present — `NOT_READY`. |
 | `TDCS-M-R13-01` | Trà đào cam sả / M | Same R13 ingredient and explicit tea-basis requirements; no cross-size scaling. | Same functional equipment/tools, with an independently measured M vessel. | Run and record the complete R13 envelope independently for M. | Same R13 evidence classes, tied only to M. | Same categories as S plus M selection/vessel; R13 tea basis remains missing. | Start only after the explicit R13 basis and M prerequisites exist — `NOT_READY`. |
 | `TDCS-L-R13-01` | Trà đào cam sả / L | Same R13 ingredient and explicit tea-basis requirements; no cross-size scaling. | Same functional equipment/tools, with an independently measured L vessel. | Run and record the complete R13 envelope independently for L. | Same R13 evidence classes, tied only to L. | Same categories as S plus L selection/vessel; R13 tea basis remains missing. | Start only after the explicit R13 basis and L prerequisites exist — `NOT_READY`. |
+| `BXDN-R36-01` | Bơ xay dừa non / Variant unassigned | Exact avocado, frozen young-coconut flesh, unsweetened fresh milk, condensed milk, sugar syrup and ice identities/SKUs; retain the R36 benchmark exactly. | Operator-identified blender/container, gram scale, volume measures, timer and measured receiving vessel. | Record all source inputs, blend setting/time, finished output, vessel fill, residue/loss, preparation time, sensory observations and repeat identity. | R36 source; labels/SKUs and provenance; equipment/settings; raw dated measurements; departures; tester and Owner disposition. | Owner: actual inputs and permission to run the benchmark without assigning it to S/M/L. Operator: equipment/vessel/tools. Ingredient acquisition remains separately governed. | Start only when the complete physical prerequisite set is present and identified — `BLOCKED_BY_MISSING_INPUT`. |
 
 ### 1.4 Smallest useful first execution wave
 
-No test can be declared executable from repository evidence alone because actual Ingredient availability, equipment, vessels and measuring tools have not been confirmed. The earliest single run is whichever of `CM-R04-01` or `CM-R05-01` first satisfies its complete physical prerequisite set; one run produces useful bounded evidence but cannot decide between the two independent tracks. The smallest comparison wave is both R04 and R05. In parallel, select exactly one actual Trà đào cam sả size and prepare its R12 run; add the matching R13 run only after its independent tea basis is explicitly recorded. The other four tea records remain deferred without implying scaling or rejection.
+No test can be declared executable from repository evidence alone because actual Ingredient availability, equipment, vessels and measuring tools have not been confirmed. The earliest single run is whichever of `CM-R04-01`, `CM-R05-01`, or `BXDN-R36-01` first satisfies its complete physical prerequisite set; one run produces useful bounded evidence but cannot approve a Recipe or Variant. The smallest salted-coffee comparison wave is both R04 and R05. In parallel, select exactly one actual Trà đào cam sả size and prepare its R12 run; add the matching R13 run only after its independent tea basis is explicitly recorded. The other four tea records remain deferred without implying scaling or rejection. R36 remains an unassigned-Variant benchmark until separate review.
 
 ### 1.5 BUY sample evaluation sequence
 
@@ -97,6 +112,24 @@ This sequence applies independently to Bánh croissant, Cheesecake, Brownie choc
 4. Evaluate the sample against only the pre-recorded accepted criteria. Record observations and discrepancies; do not mark acceptance merely because a public listing or sample exists.
 5. Owner records `acceptance_specification_status` only after reviewing the complete evidence. Acceptance does not approve the supplier, quotation, purchase terms, cost, tax treatment, Recipe/BOM, Gate or implementation.
 6. Keep accepted quotation, actual purchase, delivery/freight and landed-cost evidence separate. Copy values into costing only when the exact evidence and calculation basis are complete; otherwise `verification_status` remains `MISSING_INPUT`.
+
+### 1.6 Owner execution dashboard
+
+No row is `READY_FOR_CONTROLLED_TRIAL` because the repository cannot prove physical availability or Owner selection of the required inputs. Move a row to that status only after the listed prerequisites are recorded.
+
+| Workstream | Product / trial | Readiness status | Missing materials/equipment | Missing Owner input | Evidence required | Next actionable step / blocking dependency |
+|---|---|---|---|---|---|---|
+| WS01 | Cà phê muối / `CM-R04-01` | `READY_FOR_OWNER_PREPARATION` | Actual coffee, condensed milk, whipping cream, salt, water/ice; phin/brewer, foam tools, scale, volume tools, thermometer, timer and vessel | Exact SKUs and first values inside source ranges | Labels/provenance, equipment/settings, actual measurements, output/loss, sensory and repeat evidence | Owner/operator identifies complete physical set; then status may become `READY_FOR_CONTROLLED_TRIAL`. |
+| WS01 | Cà phê muối / `CM-R05-01` | `READY_FOR_OWNER_PREPARATION` | Actual coffee, condensed milk, cream, fresh milk, salt, water/ice and same measurement capabilities | Exact SKUs and first in-range condensed-milk value; optional cocoa remains excluded unless explicitly selected | Same classes as R04, retained independently | Prepare separately; never hybridize with R04. |
+| WS02 | Trà đào cam sả / one selected `TDCS-*-R12-01` | `READY_FOR_OWNER_PREPARATION` | Exact tea, peach, orange, syrup, lemongrass, lime, water/ice; brewer/filter, citrus tools and measured vessel | Select one first Variant/vessel and actual SKUs | Brew inputs/output, Product inputs, ice, vessel, final output/loss, sensory and repeat evidence | Select and measure one vessel; do not scale the 500 ml benchmark. |
+| WS02 | Matching `TDCS-*-R13-01` | `BLOCKED_BY_MISSING_INPUT` | Same physical classes as R12 | Explicit independent tea identity, dose, water, temperature, time and method | Full R13 tea-basis record plus independent run evidence | Define the R13 trial basis without copying R12. |
+| WS03 | Bơ xay dừa non / `BXDN-R36-01` | `READY_FOR_OWNER_PREPARATION` | Actual avocado, frozen young-coconut flesh, milks, syrup, ice; blender/container, scale, volume tools, timer and vessel | Permit one unassigned-Variant benchmark and identify exact SKUs | Actual inputs, setting/time, output, residue/loss, sensory and repeat evidence | Assemble complete physical set; do not map result to S/M/L automatically. |
+| WS04 | Bánh croissant | `BLOCKED_BY_MISSING_INPUT` | No authorized physical sample or verified supplier/transaction evidence | Accepted finished specification, portion, receipt/storage/handling and rejection criteria | Actual SKU, manufacturer/supplier documents, lot/expiry, receipt condition, saleable portions, quotation/transaction and landed cost | Owner defines acceptance specification; supplier contact/purchase remains separately unauthorized. |
+| WS04 | Cheesecake | `BLOCKED_BY_MISSING_INPUT` | Same; public listing lacks weight/storage/shelf-life evidence | Exact formulation, weight/portion and acceptance criteria | Same receipt, traceability, saleability and transaction classes | Record specification first; public listing is not supplier acceptance. |
+| WS04 | Brownie chocolate | `BLOCKED_BY_MISSING_INPUT` | Same; walnut listing is only a public candidate | Decide whether the listed formulation fits the Product and define acceptance criteria | Same, including actual piece weight, lot/expiry, storage and measured loss | Preserve seller/provider versus supplier distinction. |
+| WS04 | Muffin | `BLOCKED_BY_MISSING_INPUT` | Same; flavour and weight are unresolved | Select accepted flavour/formulation, size/portion and criteria | Same receipt, traceability, saleability and transaction classes | Do not infer Vanilla or Chocolate selection from the listing. |
+| WS05 | 48 MAKE costing combinations | `EVIDENCE_PENDING` | Actual Recipe/BOM, purchase and packaging evidence | Separate Recipe/BOM and packaging admission after trials | Quantities, units/conversions, prices, yield, waste, batch allocation and channel packaging | Populate only traceable evidence lines; current unit cost remains uncalculable. |
+| WS05 | Four BUY costing combinations | `EVIDENCE_PENDING` | Accepted specification, verified supplier, quotation/transaction and receipt evidence | Accepted finished-product specification | Purchase unit, landed cost, saleable portions, measured loss and channel packaging | Keep quoted and actual purchase prices distinct; no margin calculation. |
 
 ## 2. Cà phê muối — independent benchmark tracks
 
@@ -216,6 +249,14 @@ The six records remain available for staged testing. The Owner may prioritize on
 
 For every R13 record, the tea identity, dry dose, water, temperature, time, and preparation method remain blank until measured under an explicitly identified trial basis or separately decided. R12 values must never be copied into R13 silently.
 
+### 5.3 Bơ xay dừa non — R36 unassigned-Variant benchmark
+
+R36 is a public beverage-training benchmark, not an approved AFTER FOUR Recipe or S/M/L formulation. Execute it only as one complete source formulation. Do not scale or assign its result to S, M or L without separate measured trials and Owner review.
+
+| Run ID | Parent track | Exact source formulation retained | Ingredient identity and actual SKU/brand | Actual weighed/measured quantities | Blender/container and settings | Vessel identity/measured capacity | Final serving mass/volume | Preparation time | Residue/loss | Sensory observations | Tester/date/repeat number | Owner disposition | Variant mapping disposition |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `BXDN-R36-01` | R36 | 80 g avocado flesh; 60 g frozen young-coconut flesh; 50 ml unsweetened fresh milk; 50 ml condensed milk; 20 ml sugar syrup; 180 g ice; high-speed blend about 30 seconds. |  |  |  |  |  |  |  |  |  |  | `UNASSIGNED — NO_S_M_L_INFERENCE` |
+
 ## 6. Supplementary practical measurement worksheet
 
 Duplicate the following rows for every Ingredient and every run. Blank cells must remain blank until measured or supplied; use `TO_BE_MEASURED` or `OWNER_INPUT_REQUIRED` rather than invented values.
@@ -252,6 +293,8 @@ Duplicate the following rows for every Ingredient and every run. Blank cells mus
 
 No numerical sensory threshold is approved. Where a target is required, record `OWNER_INPUT_REQUIRED`.
 
+A run may advance to `READY_FOR_OWNER_REVIEW` only when source fidelity/departures, every actual input, equipment/settings, finished output, loss, preparation time, sensory observations and repeat identity are recorded. This is evidence-completeness criteria, not sensory acceptance. Only the Owner may record a formulation disposition, and that disposition does not by itself approve Recipe/BOM admission or costing use.
+
 | Run ID | Flavor balance | Coffee/tea strength | Sweetness | Salt perception | Citrus/peach/lemongrass balance | Texture/foam stability | Appearance | Serving consistency | Owner/operator target or observation |
 |---|---|---|---|---|---|---|---|---|---|
 |  |  |  |  |  |  |  |  |  |  |
@@ -273,7 +316,7 @@ No numerical sensory threshold is approved. Where a target is required, record `
 
 | Input class | Required for the first practical round | Boundary |
 |---|---|---|
-| Owner must identify or approve | Actual Ingredient identities/SKUs to test; available equipment; the actual serving vessel for Cà phê muối; one prioritized Trà đào cam sả serving size and its actual vessel; whether an R13 tea-base trial may proceed and, if so, its explicitly recorded trial basis; which values inside published source ranges will be run first. | This selects test inputs only. It does not approve an Ingredient, Recipe, BOM, supplier, or commercial standard. |
+| Owner must identify or approve | Actual Ingredient identities/SKUs to test; available equipment; the actual serving vessel for Cà phê muối; one prioritized Trà đào cam sả serving size and its actual vessel; whether an R13 tea-base trial may proceed and, if so, its explicitly recorded trial basis; whether the R36 benchmark may be run without Variant assignment; which values inside published source ranges will be run first. | This selects test inputs only. It does not approve an Ingredient, Recipe, BOM, Variant mapping, supplier, or commercial standard. |
 | Physically measurable during the test | Ingredient masses/volumes; water temperature and time; extracted/filtered output; foam output; fruit/peach/lemongrass mass; ice mass; measured vessel capacity; finished output; preparation time; leftovers/loss; repeatability and sensory observations. | Measurements are test evidence, not approved Recipe or costing inputs. |
 | Supplier/document evidence required | SKU label/specification, package/unit evidence, lot or best-before information where available, and provenance for each actual Ingredient used. | Accepted quotation, invoice, landed cost, supplier approval, tax evidence, and purchase terms are not prerequisites for a bounded sensory/yield test, but remain required before evidence-backed costing or procurement approval. |
 | Not yet needed for the first practical round | Remaining Trà đào cam sả sizes not selected for the first session; approved S/M/L scaling; Dine-in/Takeaway packaging allocation; waste/remake policy; purchase price; unit cost; gross margin; tax and rounding treatment. | Deferral must not be interpreted as approval or as permission to copy the first-size result to another Variant. |
@@ -286,8 +329,9 @@ Practical testing remains blocked only where the selected first-round run lacks 
 2. Identify and measure the actual vessels, including the one Owner-prioritized Trà đào cam sả serving size. Do not infer capacities from S/M/L labels.
 3. Run R04 and R05 independently with their complete parent formulations and separate records; do not compare salt outside its foam system.
 4. Run R12 and R13 independently at the Owner-selected first serving size. R13 may proceed only with its tea-base trial basis explicitly recorded; do not import R12's tea dose or brewing method.
-5. Record outputs, losses, preparation times, sensory observations, and repeat identity; identify which candidates merit a controlled repeat without selecting a winner.
-6. Defer the remaining tea sizes until the first-round evidence has been reviewed. No scaling or cross-size adoption follows automatically.
+5. If separately prepared, run R36 exactly as retained under `BXDN-R36-01`; record it as an unassigned-Variant benchmark and do not infer S/M/L applicability.
+6. Record outputs, losses, preparation times, sensory observations, and repeat identity; identify which candidates merit a controlled repeat without selecting a winner.
+7. Defer the remaining tea and Bơ xay dừa non Variant work until first-round evidence has been reviewed. No scaling or cross-size adoption follows automatically.
 
 ## 9. Ingredient purchasing boundary
 
@@ -295,14 +339,15 @@ Candidate supplier references come only from the existing [external Ingredient/s
 
 - Cà phê muối: `SRC-01` and `SRC-17` are generic coffee/dairy category leads. Before testing, select exact coffee, condensed milk, whipping cream, fresh milk where Track B applies, salt, and ice/water specifications.
 - Trà đào cam sả: `SRC-03/04/05/06/08/09/10/11` are candidate tea/peach/syrup leads. Before testing, select exact black tea, preserved peach/peach liquid, orange, lemongrass, sugar syrup, lime for R12, and water/ice specifications.
+- Bơ xay dừa non: R36 supplies an external formulation only. Before testing, identify exact avocado maturity/specification, frozen young-coconut flesh, unsweetened fresh milk, condensed milk, sugar syrup, ice and their actual provenance. Coconut syrup, coconut milk and young-coconut flesh are not interchangeable.
 
 Do not contact suppliers, send RFQs, select a supplier, or treat a public listing as actual cost under this protocol.
 
-## 10. Bơ xay dừa non — research gap blocker
+## 10. Bơ xay dừa non — bounded R36 benchmark
 
-Bơ xay dừa non is excluded from this protocol's test execution. No test worksheet, Recipe, or quantity is authorized for it. R18 is an avocado/coconut-syrup/ice-cream comparator; R19 is an avocado/strawberry comparator. Neither establishes young-coconut identity or quantity.
+R36 establishes one external benchmark using frozen young-coconut flesh and the quantities retained in §5.3. R18 remains an avocado/coconut-syrup/ice-cream comparator and R19 remains an avocado/strawberry comparator; neither is merged into R36.
 
-Before a future protocol can be designed, evidence must define whether young coconut means flesh, coconut water, both, or a specified purchased preparation; the exact Ingredient specification and availability; and the intended flavor, texture, sweetness, ice, and serving characteristics. These are missing inputs, not decisions made by this document.
+The benchmark may enter physical execution only after its actual Ingredient SKUs/provenance, blender/container, measuring tools and vessel are identified. It establishes no approved Ingredient, Recipe, output, loss, sensory threshold or Variant applicability. Fresh versus frozen young coconut, any substitution, intended S/M/L mapping and commercial standard remain separate Owner-review matters.
 
 ## 11. Completion and governance boundary
 
