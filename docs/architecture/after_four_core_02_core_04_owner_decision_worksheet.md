@@ -13,7 +13,7 @@ For every question, the Owner may select one listed alternative, write an Owner-
 ## 2. Confirmed boundaries that are not reopened
 
 - CORE-02: Item-level progress; no quantity-level progress, partial Ticket completion, or partial handover. Preparation completion, acknowledgement, customer custody transfer, Order closure, Payment settlement, and Refund authority are distinct. Owner-confirmed `CORE02-FIR2-02` Model A keeps `transfer_evidence_unresolved` nonterminal and fail-closed in the same stable attempt. Acknowledgement, authentication, command invocation, transport success, or absence of refusal does not prove transfer. Candidate Ticket/Items without exact accepted binding remain quarantined. See [Owner Decision Baseline](after_four_owner_decision_baseline.md) and [CORE-02 qualified evidence §§1–2](../research/after_four_core_02_qualified_custody_evidence_sprint_1.md#1-confirmed-logical-boundary).
-- CORE-04: Cash Session handover records the approved evidence; acknowledgement is not approval or Close. Refusal/disagreement escalates to Owner. Close is separate. Closed evidence is immutable and correction is a linked fact, never reopening or rewriting. Every nonzero discrepancy requires reason and Owner notification; there is no tolerance. Unreconciled Cash facts remain held from authoritative reporting, and discrepancy disposition does not grant report release. See [Owner Decision Baseline](after_four_owner_decision_baseline.md) and [CORE-04 qualified input §1](../research/after_four_core_04_qualified_control_input_sprint_1.md#1-preserved-confirmed-policy).
+- CORE-04: Cash Session handover records the approved evidence; acknowledgement is not approval or Close. Refusal/disagreement escalates to Owner. Close is separate. `CORE-OD-14A` is the later controlling decision for that escalation destination; the older `ODB-CASH-15` remaining-boundary text must not be read as reopening it. The detailed disposition after escalation remains unresolved. Closed evidence is immutable and correction is a linked fact, never reopening or rewriting. Every nonzero discrepancy requires reason and Owner notification; there is no tolerance. Unreconciled Cash facts remain held from authoritative reporting, and discrepancy disposition does not grant report release. See [Owner Decision Baseline](after_four_owner_decision_baseline.md) and [CORE-04 qualified input §1](../research/after_four_core_04_qualified_control_input_sprint_1.md#1-preserved-confirmed-policy).
 
 ## 3. CORE-02 — customer acceptance and custody transfer
 
@@ -75,8 +75,17 @@ Customer custody transfer has its own stable attempt/evidence history and the di
 
 ## 5. Decision record — Owner fills this section
 
-| Worksheet ID | Owner answer / Owner-defined alternative | Decision date | Rationale / notes | Follow-up evidence required |
+The six deferred consolidated references and the separate Commercial reconciliation are recorded first so the session cannot accidentally count `CORE-OD-18` as part of the 28 confirmed / six deferred reconciliation. The `WS-*` rows then capture the detailed supporting policy dimensions. All answer fields remain blank until the Owner acts.
+
+| Worksheet / decision reference | Owner answer / Owner-defined alternative | Decision date | Rationale / notes | Follow-up evidence required |
 |---|---|---|---|---|
+| `CORE-OD-03` — tax treatment/display |  |  |  |  |
+| `CORE-OD-04` — monetary precision/rounding |  |  |  |  |
+| `CORE-OD-12` — Cash capability, delegation and separation |  |  |  |  |
+| `CORE-OD-13` — linked post-close correction operations and authority |  |  |  |  |
+| `CORE-OD-16B` — report-reader authority |  |  |  |  |
+| `CORE-OD-16F` — retention, disposal and legal hold |  |  |  |  |
+| Commercial scope reconciliation — `CORE-OD-18` / `ODB-CAT-07` |  |  |  |  |
 | `WS-C02-01` |  |  |  |  |
 | `WS-C02-02` |  |  |  |  |
 | `WS-C02-03` |  |  |  |  |
@@ -97,7 +106,17 @@ Customer custody transfer has its own stable attempt/evidence history and the di
 
 ## 6. Session ordering and authority boundary
 
-Review `WS-C02-01/02/03/07` in parallel, then `04`, then coordinate `05/06`. Review `WS-C04-01/02/03` first; `04` and `06` can then be answered independently but together; `07` precedes `08`; `09/10` remain separate governance questions. Deferral creates no default authority or business outcome. Completing this worksheet records policy input only and grants no canonical ODB allocation, Gate A/B/C, implementation, Identity Milestone 2B, FOA, or Production Authorization.
+| Priority | Decision set | Earliest defensible action | Required routing before a positive policy selection |
+|---|---|---|---|
+| 1 | Commercial scope reconciliation: `CORE-OD-18` / `ODB-CAT-07` | Owner may reconcile the two already recorded scope directions now; leaving it blank preserves both records and blocks publication/implementation reconciliation. | Owner decision; Tax/Accounting remains a separate input stream. |
+| 2 | `CORE-OD-03`, `CORE-OD-04` | Keep blank or defer until supported alternatives are supplied. | Qualified Vietnamese Tax/Accounting input. |
+| 3 | CORE-02 evidence and custody policy: `WS-C02-01/02/03/07`, then `04`, then `05/06` | Gather the stated evidence in parallel; decide each dimension independently only when its evidence is adequate. | Operations and the identified Identity/Governance/Privacy/Legal inputs. |
+| 4 | `CORE-OD-12`: `WS-C04-01/02/03` | Establish authority source/holder boundary before delegation and incompatible-role combinations. | Cash/Accounting control evidence; Identity is later enforcement, not a policy substitute. |
+| 5 | `CORE-OD-13` and discrepancy policy: `WS-C04-04/06` | Review together after the relevant authority boundary is known; do not infer correction authority from immutable-close policy. | Cash/Accounting/Reporting input and applicable `CORE-OD-12` closure. |
+| 6 | Reconciliation and release: `WS-C04-07`, then `WS-C04-08` | Define authoritative reconciliation evidence before considering any separately authorized exception release. | Cash/Accounting/Reporting lineage and control evidence. |
+| 7 | `CORE-OD-16B`, `CORE-OD-16F`: `WS-C04-09/10` | Review independently; keep blank or defer until qualified boundaries exist. | Identity/Governance/Privacy for readers; qualified Legal/Privacy/Accounting-records input for retention/legal hold. |
+
+`WS-C04-05` is limited to the detailed disposition after the already confirmed escalation destination; it does not reopen `CORE-OD-14A/B`. Deferral creates no default authority or business outcome. Completing this worksheet records policy input only and grants no canonical ODB allocation, Gate A/B/C, implementation, Identity Milestone 2B, FOA, or Production Authorization.
 
 ## 7. Consolidated Owner-session routing
 
