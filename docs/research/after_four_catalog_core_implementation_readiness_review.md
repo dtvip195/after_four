@@ -60,8 +60,8 @@ Rails 8.1, PostgreSQL 18, UUID keys, `structure.sql`, named database constraints
 | `backend/config/application.rb:22-61` | Rails 8.1 defaults, UTC, `structure.sql`, UUID generator, RSpec/FactoryBot generators, API-only mode. |
 | `backend/db/migrate/20261114192000_create_order_payment_foundation.rb:1-94` | Existing UUID, named check/index, status, lock-version, and audit patterns. |
 | `backend/db/migrate/20261114202000_enforce_payment_aggregate_integrity.rb:1-57` | Existing composite unique keys and composite FK convention. |
-| `backend/app/domains/orders/application/use_cases/create_draft.rb:30-79` | Transaction, audit, idempotency, and unique-race recovery convention. |
-| `backend/app/domains/orders/infrastructure/persistence/order_record.rb:1-15`, `backend/app/models/payment.rb:1-16` | Persistence-record validation conventions; Ordering no longer exposes a cross-context Active Record association model. |
+| `backend/app/contexts/orders/application/use_cases/create_draft.rb:30-79` | Transaction, audit, idempotency, and unique-race recovery convention. |
+| `backend/app/contexts/orders/infrastructure/persistence/order_record.rb:1-15`, `backend/app/models/payment.rb:1-16` | Persistence-record validation conventions; Ordering no longer exposes a cross-context Active Record association model. |
 | `backend/spec/rails_helper.rb:1-29`, `backend/Gemfile:26-47` | RSpec, transactional fixtures, FactoryBot, Shoulda Matchers, Faker, SimpleCov. |
 | `backend/db/structure.sql` and current migrations/specs | No Organization/Brand/Branch/Category/Product/Variant tables; existing Branch UUIDs are unconstrained references. |
 
@@ -199,7 +199,7 @@ The proposals above must not be cited as Owner decisions. Accepted PostgreSQL an
 
 | Area | Classification | Evidence and impact |
 |---|---|---|
-| Rails modular monolith | `READY` | [ADR-0001](../architecture/adr/0001-rails-modular-monolith.md) assigns Catalog to an in-process module; `backend/app/domains/catalog/.keep` already reserves the namespace. |
+| Rails modular monolith | `READY` | [ADR-0001](../architecture/adr/0001-rails-modular-monolith.md) assigns Catalog to an in-process module; `backend/app/contexts/catalog/.keep` already reserves the namespace. |
 | PostgreSQL 18 | `READY` | [ADR-0003](../architecture/adr/0003-postgresql-version-baseline.md) explicitly supports partial indexes, transactions, and row locking. |
 | UUID keys | `READY` | [ADR-0004](../architecture/adr/0004-uuid-primary-keys.md) and `backend/config/application.rb:38-42` require UUID business keys. |
 | SQL schema and migrations | `READY` | [ADR-0010](../architecture/adr/0010-database-migrations-and-schema.md) requires Rails migrations, named constraints, explicit FKs, reversible operations where safe, and `structure.sql`. |

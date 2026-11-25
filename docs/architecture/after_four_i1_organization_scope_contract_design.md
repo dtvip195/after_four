@@ -56,23 +56,23 @@ ADR-0006 remains `Proposed`; Identity Security Review Checklist statuses remain 
 
 The authorized production manifest was exactly:
 
-1. `backend/app/domains/identity/application/contracts/identity_brand_reference.rb`
-2. `backend/app/domains/identity/application/contracts/identity_organization_reference.rb`
-3. `backend/app/domains/identity/application/contracts/organization_scope_evidence.rb`
-4. `backend/app/domains/identity/application/contracts/organization_scope_result.rb`
-5. `backend/app/domains/identity/application/contracts/safe_failure_reference.rb`
-6. `backend/app/domains/identity/application/errors/unexpected_failure.rb`
-7. `backend/app/domains/identity/application/ports/organization_scope.rb`
-8. `backend/app/domains/identity/infrastructure/adapters/organization_scope_adapter.rb`
-9. `backend/app/domains/organization/application/contracts/brand_ancestry.rb`
-10. `backend/app/domains/organization/application/contracts/brand_reference.rb`
-11. `backend/app/domains/organization/application/contracts/organization_reference.rb`
-12. `backend/app/domains/organization/application/contracts/resolve_brand_ancestry_result.rb`
-13. `backend/app/domains/organization/application/contracts/safe_failure_reference.rb`
-14. `backend/app/domains/organization/application/errors/unexpected_failure.rb`
-15. `backend/app/domains/organization/application/ports/brand_ancestry_reader.rb`
-16. `backend/app/domains/organization/application/queries/resolve_brand_ancestry.rb`
-17. `backend/app/domains/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb`
+1. `backend/app/contexts/identity/application/contracts/identity_brand_reference.rb`
+2. `backend/app/contexts/identity/application/contracts/identity_organization_reference.rb`
+3. `backend/app/contexts/identity/application/contracts/organization_scope_evidence.rb`
+4. `backend/app/contexts/identity/application/contracts/organization_scope_result.rb`
+5. `backend/app/contexts/identity/application/contracts/safe_failure_reference.rb`
+6. `backend/app/contexts/identity/application/errors/unexpected_failure.rb`
+7. `backend/app/contexts/identity/application/ports/organization_scope.rb`
+8. `backend/app/contexts/identity/infrastructure/adapters/organization_scope_adapter.rb`
+9. `backend/app/contexts/organization/application/contracts/brand_ancestry.rb`
+10. `backend/app/contexts/organization/application/contracts/brand_reference.rb`
+11. `backend/app/contexts/organization/application/contracts/organization_reference.rb`
+12. `backend/app/contexts/organization/application/contracts/resolve_brand_ancestry_result.rb`
+13. `backend/app/contexts/organization/application/contracts/safe_failure_reference.rb`
+14. `backend/app/contexts/organization/application/errors/unexpected_failure.rb`
+15. `backend/app/contexts/organization/application/ports/brand_ancestry_reader.rb`
+16. `backend/app/contexts/organization/application/queries/resolve_brand_ancestry.rb`
+17. `backend/app/contexts/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb`
 
 The authorized spec manifest was exactly:
 
@@ -177,17 +177,17 @@ I1 does not design or implement:
 
 `VERIFIED_FACT`: A1 implements framework-independent entities at:
 
-- `backend/app/domains/organization/domain/entities/organization.rb`
-- `backend/app/domains/organization/domain/entities/brand.rb`
-- `backend/app/domains/organization/domain/entities/branch.rb`
+- `backend/app/contexts/organization/domain/entities/organization.rb`
+- `backend/app/contexts/organization/domain/entities/brand.rb`
+- `backend/app/contexts/organization/domain/entities/branch.rb`
 
 The Brand entity carries `id` and `organization_id`. The Domain objects do not inherit from Active Record.
 
 `VERIFIED_FACT`: A1 implements persistence records at:
 
-- `backend/app/domains/organization/infrastructure/persistence/organization_record.rb`
-- `backend/app/domains/organization/infrastructure/persistence/brand_record.rb`
-- `backend/app/domains/organization/infrastructure/persistence/branch_record.rb`
+- `backend/app/contexts/organization/infrastructure/persistence/organization_record.rb`
+- `backend/app/contexts/organization/infrastructure/persistence/brand_record.rb`
+- `backend/app/contexts/organization/infrastructure/persistence/branch_record.rb`
 
 `BrandRecord` belongs to `OrganizationRecord`. These classes own Active Record associations and persistence projection; they are not cross-context contracts.
 
@@ -692,21 +692,21 @@ This section is a `TECHNICAL_PROPOSAL`, not an implementation authorization. Pat
 
 | Proposed file | Proposed constant and responsibility |
 |---|---|
-| `backend/app/domains/organization/application/contracts/brand_reference.rb` | `Organization::Application::Contracts::BrandReference`: immutable, framework-independent validated UUID value used by the Organization contract. |
-| `backend/app/domains/organization/application/contracts/organization_reference.rb` | `Organization::Application::Contracts::OrganizationReference`: immutable validated Organization UUID value. |
-| `backend/app/domains/organization/application/contracts/safe_failure_reference.rb` | `Organization::Application::Contracts::SafeFailureReference`: immutable opaque correlation value; validates only the approved internal representation and contains no diagnostic payload. |
-| `backend/app/domains/organization/application/contracts/brand_ancestry.rb` | `Organization::Application::Contracts::BrandAncestry`: immutable success value containing exactly `BrandReference` and `OrganizationReference`. |
-| `backend/app/domains/organization/application/contracts/resolve_brand_ancestry_result.rb` | `Organization::Application::Contracts::ResolveBrandAncestryResult`: closed constructors/predicates for `resolved`, `not_found`, `invalid`, `inconsistent`, and `unavailable`; only `unavailable` carries `SafeFailureReference`. |
-| `backend/app/domains/organization/application/ports/brand_ancestry_reader.rb` | `Organization::Application::Ports::BrandAncestryReader`: query-specific persistence protocol and its minimal found/not-found/inconsistent/unavailable result contract. It exposes no CRUD or Active Record type. |
-| `backend/app/domains/organization/application/queries/resolve_brand_ancestry.rb` | `Organization::Application::Queries::ResolveBrandAncestry`: injected-reader query boundary; enforces the typed precondition, maps persistence facts/completed results, preserves recognized availability references, and returns only the published result union. It must convert unexpected underlying execution defects only through the later-approved sanitized termination mechanism, never into a normal result. |
-| `backend/app/domains/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb` | `Organization::Infrastructure::Persistence::ActiveRecordBrandAncestryReader`: implements the Organization-owned reader with an exact `BrandRecord`/Organization-parent query and minimal scalar projection. It records recognized availability failures through the later-approved internal failure mechanism and returns no record object. |
-| `backend/app/domains/identity/application/contracts/identity_brand_reference.rb` | `Identity::Application::Contracts::IdentityBrandReference`: immutable, framework-independent validated Brand UUID value owned by Identity. |
-| `backend/app/domains/identity/application/contracts/identity_organization_reference.rb` | `Identity::Application::Contracts::IdentityOrganizationReference`: immutable validated Organization UUID value owned by Identity. |
-| `backend/app/domains/identity/application/contracts/safe_failure_reference.rb` | `Identity::Application::Contracts::SafeFailureReference`: Identity-owned immutable wrapper for the unchanged opaque correlation value received from Organization for a recognized persistence availability failure. |
-| `backend/app/domains/identity/application/contracts/organization_scope_evidence.rb` | `Identity::Application::Contracts::OrganizationScopeEvidence`: immutable success value containing exactly the Identity Brand and Organization references. |
-| `backend/app/domains/identity/application/contracts/organization_scope_result.rb` | `Identity::Application::Contracts::OrganizationScopeResult`: Identity-owned five-outcome result union with the same semantics as §6.4. |
-| `backend/app/domains/identity/application/ports/organization_scope.rb` | `Identity::Application::Ports::OrganizationScope`: Identity-owned outbound protocol accepting only `IdentityBrandReference`. It does not define authentication or authorization. |
-| `backend/app/domains/identity/infrastructure/adapters/organization_scope_adapter.rb` | `Identity::Infrastructure::Adapters::OrganizationScopeAdapter`: implements the Identity-owned port, maps typed UUID values explicitly, calls the Organization Application query, preserves unavailable reference content unchanged, maps completed invalid Organization results to `inconsistent`, and propagates sanitized exceptional termination without converting it to a normal outcome. |
+| `backend/app/contexts/organization/application/contracts/brand_reference.rb` | `Organization::Application::Contracts::BrandReference`: immutable, framework-independent validated UUID value used by the Organization contract. |
+| `backend/app/contexts/organization/application/contracts/organization_reference.rb` | `Organization::Application::Contracts::OrganizationReference`: immutable validated Organization UUID value. |
+| `backend/app/contexts/organization/application/contracts/safe_failure_reference.rb` | `Organization::Application::Contracts::SafeFailureReference`: immutable opaque correlation value; validates only the approved internal representation and contains no diagnostic payload. |
+| `backend/app/contexts/organization/application/contracts/brand_ancestry.rb` | `Organization::Application::Contracts::BrandAncestry`: immutable success value containing exactly `BrandReference` and `OrganizationReference`. |
+| `backend/app/contexts/organization/application/contracts/resolve_brand_ancestry_result.rb` | `Organization::Application::Contracts::ResolveBrandAncestryResult`: closed constructors/predicates for `resolved`, `not_found`, `invalid`, `inconsistent`, and `unavailable`; only `unavailable` carries `SafeFailureReference`. |
+| `backend/app/contexts/organization/application/ports/brand_ancestry_reader.rb` | `Organization::Application::Ports::BrandAncestryReader`: query-specific persistence protocol and its minimal found/not-found/inconsistent/unavailable result contract. It exposes no CRUD or Active Record type. |
+| `backend/app/contexts/organization/application/queries/resolve_brand_ancestry.rb` | `Organization::Application::Queries::ResolveBrandAncestry`: injected-reader query boundary; enforces the typed precondition, maps persistence facts/completed results, preserves recognized availability references, and returns only the published result union. It must convert unexpected underlying execution defects only through the later-approved sanitized termination mechanism, never into a normal result. |
+| `backend/app/contexts/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb` | `Organization::Infrastructure::Persistence::ActiveRecordBrandAncestryReader`: implements the Organization-owned reader with an exact `BrandRecord`/Organization-parent query and minimal scalar projection. It records recognized availability failures through the later-approved internal failure mechanism and returns no record object. |
+| `backend/app/contexts/identity/application/contracts/identity_brand_reference.rb` | `Identity::Application::Contracts::IdentityBrandReference`: immutable, framework-independent validated Brand UUID value owned by Identity. |
+| `backend/app/contexts/identity/application/contracts/identity_organization_reference.rb` | `Identity::Application::Contracts::IdentityOrganizationReference`: immutable validated Organization UUID value owned by Identity. |
+| `backend/app/contexts/identity/application/contracts/safe_failure_reference.rb` | `Identity::Application::Contracts::SafeFailureReference`: Identity-owned immutable wrapper for the unchanged opaque correlation value received from Organization for a recognized persistence availability failure. |
+| `backend/app/contexts/identity/application/contracts/organization_scope_evidence.rb` | `Identity::Application::Contracts::OrganizationScopeEvidence`: immutable success value containing exactly the Identity Brand and Organization references. |
+| `backend/app/contexts/identity/application/contracts/organization_scope_result.rb` | `Identity::Application::Contracts::OrganizationScopeResult`: Identity-owned five-outcome result union with the same semantics as §6.4. |
+| `backend/app/contexts/identity/application/ports/organization_scope.rb` | `Identity::Application::Ports::OrganizationScope`: Identity-owned outbound protocol accepting only `IdentityBrandReference`. It does not define authentication or authorization. |
+| `backend/app/contexts/identity/infrastructure/adapters/organization_scope_adapter.rb` | `Identity::Infrastructure::Adapters::OrganizationScopeAdapter`: implements the Identity-owned port, maps typed UUID values explicitly, calls the Organization Application query, preserves unavailable reference content unchanged, maps completed invalid Organization results to `inconsistent`, and propagates sanitized exceptional termination without converting it to a normal outcome. |
 
 Each file has one primary constant, matching current repository naming practice. The exact method shape proposed for callable query/adapter objects is an injected constructor plus `#call`; result construction uses named constructors matching the five outcome names. No class method, global singleton, Rails concern, ActiveSupport dependency, or shared cross-context value-object package is required.
 

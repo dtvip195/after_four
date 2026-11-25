@@ -30,7 +30,7 @@ Names are illustrative; exact Rails namespaces should be chosen during backend f
 ```text
 app/
 ├── controllers/api/v1/
-├── domains/
+├── contexts/
 │   ├── identity/
 │   ├── catalog/
 │   ├── service/

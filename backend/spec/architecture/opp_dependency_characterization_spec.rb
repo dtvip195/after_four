@@ -139,36 +139,36 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
 
   TECHNICAL_FACILITY_ADAPTER_FILES = {
     audit: %w[
-      app/domains/orders/infrastructure/adapters/active_record_audit_log.rb
-      app/domains/payments/infrastructure/adapters/active_record_audit_log.rb
-      app/domains/preparation/infrastructure/adapters/active_record_audit_log.rb
+      app/contexts/orders/infrastructure/adapters/active_record_audit_log.rb
+      app/contexts/payments/infrastructure/adapters/active_record_audit_log.rb
+      app/contexts/preparation/infrastructure/adapters/active_record_audit_log.rb
     ],
     outbox: %w[
-      app/domains/preparation/infrastructure/adapters/active_record_outbox.rb
+      app/contexts/preparation/infrastructure/adapters/active_record_outbox.rb
     ]
   }.freeze
 
   ORDERING_INFRASTRUCTURE_CROSS_CONTEXT_FILES = {
     payment: [],
     preparation: %w[
-      app/domains/orders/infrastructure/adapters/preparation_order_dispatch_gateway.rb
+      app/contexts/orders/infrastructure/adapters/preparation_order_dispatch_gateway.rb
     ]
   }.freeze
   INFRASTRUCTURE_CONTRACT_REFERENCES = {
     "orders" => {
       "payments" => {},
       "preparation" => {
-        "app/domains/orders/infrastructure/adapters/preparation_order_dispatch_gateway.rb" =>
+        "app/contexts/orders/infrastructure/adapters/preparation_order_dispatch_gateway.rb" =>
           %w[Preparation::Application::Ports]
       }
     },
     "payments" => {
       "orders" => {
-        "app/domains/payments/infrastructure/adapters/ordering_payment_gateway.rb" =>
+        "app/contexts/payments/infrastructure/adapters/ordering_payment_gateway.rb" =>
           %w[Orders::Application::Ports]
       },
       "preparation" => {
-        "app/domains/payments/infrastructure/adapters/preparation_payment_settlement_gateway.rb" =>
+        "app/contexts/payments/infrastructure/adapters/preparation_payment_settlement_gateway.rb" =>
           %w[Preparation::Application::Ports]
       }
     },
@@ -385,7 +385,7 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     RUBY
 
     expect(DependencyScanner.new(source)).not_to(
-      reference_forbidden_layer_dependency("app/domains/orders/application/example.rb")
+      reference_forbidden_layer_dependency("app/contexts/orders/application/example.rb")
     )
   end
 
@@ -471,7 +471,7 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
   end
 
   it "keeps production independent of the removed global TrustedActor helper" do
-    removed_path = Rails.root.join("app/domains/trusted_actor.rb")
+    removed_path = Rails.root.join("app/contexts/trusted_actor.rb")
     production_files = Dir[Rails.root.join("app/**/*.rb")].sort
 
     expect(removed_path).not_to exist
@@ -482,9 +482,9 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
 
   it "keeps production independent of removed Payment facades and legacy Active Record models" do
     removed_paths = %w[
-      app/domains/payments/confirm.rb
-      app/domains/payments/confirm_cash.rb
-      app/domains/payments/confirm_bank_transfer.rb
+      app/contexts/payments/confirm.rb
+      app/contexts/payments/confirm_cash.rb
+      app/contexts/payments/confirm_bank_transfer.rb
       app/models/payment.rb
       app/models/payment_attempt.rb
       app/models/payment_review_case.rb
@@ -503,8 +503,8 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
 
   it "keeps production independent of removed Preparation facades and legacy Active Record models" do
     removed_paths = %w[
-      app/domains/preparation/request_dispatch.rb
-      app/domains/preparation/retry_dispatch.rb
+      app/contexts/preparation/request_dispatch.rb
+      app/contexts/preparation/retry_dispatch.rb
       app/models/preparation_dispatch.rb
       app/models/preparation_dispatch_attempt.rb
     ].map { |path| Rails.root.join(path) }
@@ -522,7 +522,7 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
 
   it "keeps production code independent of the removed Ordering service facades" do
     removed_paths = %w[create_draft confirm hold expire_pending].map do |name|
-      Rails.root.join("app/domains/orders/#{name}.rb")
+      Rails.root.join("app/contexts/orders/#{name}.rb")
     end
     production_files = Dir[Rails.root.join("app/**/*.rb")].sort
 
@@ -550,7 +550,7 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     legacy_path = Rails.root.join("app/models/order.rb")
     production_files = Dir[Rails.root.join("app/**/*.rb")].sort
     legacy_constant_references = production_files.select do |path|
-      path != Rails.root.join("app/domains/orders/domain/aggregates/order.rb").to_s &&
+      path != Rails.root.join("app/contexts/orders/domain/aggregates/order.rb").to_s &&
         scan(path).constant_paths.include?("Order")
     end
     legacy_associations = production_files.select do |path|
@@ -591,23 +591,23 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
   end
 
   def context_files(context)
-    Dir[Rails.root.join("app/domains", context, "**/*.rb")].sort
+    Dir[Rails.root.join("app/contexts", context, "**/*.rb")].sort
   end
 
   def target_layer_files
     %w[orders payments preparation].flat_map do |context|
       %w[domain application].flat_map do |layer|
-        Dir[Rails.root.join("app/domains", context, layer, "**/*.rb")]
+        Dir[Rails.root.join("app/contexts", context, layer, "**/*.rb")]
       end
     end.sort
   end
 
   def ordering_infrastructure_files
-    Dir[Rails.root.join("app/domains/orders/infrastructure/**/*.rb")].sort
+    Dir[Rails.root.join("app/contexts/orders/infrastructure/**/*.rb")].sort
   end
 
   def infrastructure_files(context)
-    Dir[Rails.root.join("app/domains", context, "infrastructure/**/*.rb")].sort
+    Dir[Rails.root.join("app/contexts", context, "infrastructure/**/*.rb")].sort
   end
 
   def cross_context_infrastructure_dependency?(scanner, context)
@@ -681,11 +681,11 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
 
   def reference_forbidden_layer_dependency(path = nil)
     owned_constants = case path
-    when %r{app/domains/orders/}
+    when %r{app/contexts/orders/}
       %w[Order Orders]
-    when %r{app/domains/payments/}
+    when %r{app/contexts/payments/}
       %w[Payment Payments]
-    when %r{app/domains/preparation/}
+    when %r{app/contexts/preparation/}
       %w[Preparation PreparationDispatch]
     else
       []
@@ -705,7 +705,7 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
   def persistence_constant_names
     @persistence_constant_names ||= begin
       model_files = Dir[Rails.root.join("app/models/**/*.rb")]
-      record_files = Dir[Rails.root.join("app/domains/**/infrastructure/persistence/**/*_record.rb")]
+      record_files = Dir[Rails.root.join("app/contexts/**/infrastructure/persistence/**/*_record.rb")]
       names = (model_files + record_files).map do |file|
         File.basename(file, ".rb").camelize
       end

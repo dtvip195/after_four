@@ -34,7 +34,7 @@ Recommended next step: a documentation-only **Package B Layered DDD technical de
 
 | Area | Repository evidence | Assessment |
 |---|---|---|
-| Catalog namespace | [`backend/app/domains/catalog/.keep`](../../backend/app/domains/catalog/.keep) only | Empty marker; not implementation. |
+| Catalog namespace | [`backend/app/contexts/catalog/.keep`](../../backend/app/contexts/catalog/.keep) only | Empty marker; not implementation. |
 | Domain | No Catalog Domain Entities, Value Objects, Aggregates or Domain Services | Not implemented. |
 | Application | No Catalog Commands, Queries or Use Cases | Not implemented. |
 | Infrastructure | No Catalog persistence records, mappings or external adapters | Not implemented. |

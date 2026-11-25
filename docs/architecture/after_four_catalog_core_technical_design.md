@@ -95,7 +95,7 @@ Table existence is not read/write authority. No Package B persistence record is 
 The path and namespace proposal follows the implemented A1 convention without treating Organization Infrastructure as a Catalog contract:
 
 ```text
-backend/app/domains/catalog/
+backend/app/contexts/catalog/
   domain/
     aggregates/product.rb
     entities/category.rb

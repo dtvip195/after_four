@@ -283,4 +283,4 @@ Completion of this document is a governance/security preparation checkpoint only
 - [AF-OWNER-002 I1 Gate C Decision](../architecture/security-reviews/owner-led/af-owner-002-i1-organization-scope-gate-c-decision.md)
 - [Curated GitLab Gemfile Reference Review](after_four_gitlab_gemfile_reference_review.md)
 
-The bounded implementation evidence was also inspected under `backend/app/domains/identity/` and `backend/app/domains/organization/` only to determine current seam availability. No application or database command was executed.
+The bounded implementation evidence was also inspected under `backend/app/contexts/identity/` and `backend/app/contexts/organization/` only to determine current seam availability. No application or database command was executed.

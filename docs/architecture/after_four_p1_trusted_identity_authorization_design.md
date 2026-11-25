@@ -61,8 +61,8 @@ Authoritative sources are the [Owner Decision Baseline](after_four_owner_decisio
 
 | Evidence | Verified current state |
 |---|---|
-| Organization reference foundation | Framework-independent Organization/Brand/Branch entities and Active Record persistence records exist under `backend/app/domains/organization/`. |
-| Catalog foundation | Package B Domain and Infrastructure exist under `backend/app/domains/catalog/`; no Catalog Application or Presentation lifecycle implementation exists. |
+| Organization reference foundation | Framework-independent Organization/Brand/Branch entities and Active Record persistence records exist under `backend/app/contexts/organization/`. |
+| Catalog foundation | Package B Domain and Infrastructure exist under `backend/app/contexts/catalog/`; no Catalog Application or Presentation lifecycle implementation exists. |
 | HTTP surface | `backend/config/routes.rb` exposes health endpoints and an unmatched `/api/v1` fallback only. |
 | Identity runtime | No User, Session, Role Assignment, Branch Assignment, Catalog delegation, authentication middleware, AuthorizationContext, or authorization provider was found under `backend/app`. |
 | A1 application contract | None exists. A1 intentionally has no Organization Application layer because no workflow was authorized. |

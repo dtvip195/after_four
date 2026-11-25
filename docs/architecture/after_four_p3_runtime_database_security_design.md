@@ -81,7 +81,7 @@ No credential values were inspected or recorded beyond repository-safe local exa
 | Function definitions | `VERIFIED_CURRENT_STATE` | Catalog trigger functions are `VOLATILE`, use fixed `search_path = pg_catalog, public`, contain no inspected dynamic SQL, and are installed in `public`. They are not Package C operation functions. |
 | Package C writes | `NOT_IMPLEMENTED` | No Catalog Application lifecycle use case or authorized runtime Catalog DML exists. |
 
-Catalog persistence records exist under `backend/app/domains/catalog/infrastructure/persistence/`, but repository application search found no Catalog runtime transaction/use case or raw Catalog write path. Their presence is not permission to grant runtime DML.
+Catalog persistence records exist under `backend/app/contexts/catalog/infrastructure/persistence/`, but repository application search found no Catalog runtime transaction/use case or raw Catalog write path. Their presence is not permission to grant runtime DML.
 
 ### 2.3 Audit controls
 

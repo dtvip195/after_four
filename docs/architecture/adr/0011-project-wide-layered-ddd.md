@@ -13,13 +13,15 @@ date: 2026-11-15
 
 AFTER FOUR is an API-only Rails modular monolith with multiple Bounded Contexts. ADR-0001 assigns business ownership to in-process modules, Active Record to persistence, named use cases to transaction orchestration, and controllers/presenters to HTTP adaptation. ADR-0005 provides conventional Rails directories plus domain namespaces. Those decisions do not require Domain objects to inherit from Active Record and do not define a complete layer dependency rule.
 
-Package A1 demonstrated strict separation for the Organization reference foundation: framework-independent Domain Entities live under `backend/app/domains/organization/domain/entities/`, while namespaced Active Record records and persistence projection live under `backend/app/domains/organization/infrastructure/persistence/`. No A1 business workflow or HTTP surface exists, so it intentionally has no Application or Presentation implementation.
+Package A1 demonstrated strict separation for the Organization reference foundation: framework-independent Domain Entities live under `backend/app/contexts/organization/domain/entities/`, while namespaced Active Record records and persistence projection live under `backend/app/contexts/organization/infrastructure/persistence/`. No A1 business workflow or HTTP surface exists, so it intentionally has no Application or Presentation implementation.
 
 Existing Ordering, Payment, Preparation, Platform, and other code predates this decision or has not been assessed against it. Project-wide adoption therefore requires a forward rule without silently authorizing wholesale migration.
 
 ## Decision
 
 Layered DDD is mandatory for all AFTER FOUR source code created or modified from 2026-11-15 onward. Each Bounded Context uses four logical layers when the corresponding responsibility exists:
+
+The Rails backend collects Bounded Contexts under `backend/app/contexts/`. Rails treats that directory as an autoload root, so its child directories retain their established top-level Ruby namespaces (`Orders`, `Payments`, `Preparation`, and peers); no `Contexts` wrapper namespace is introduced. The singular `domain/` directory inside each context denotes the Domain layer and is distinct from the plural context-collection directory.
 
 | Layer | Owns | Rules |
 |---|---|---|
@@ -57,8 +59,8 @@ Each Bounded Context owns its domain behavior and data responsibilities as defin
 
 The first implemented example is limited to the A1 Organization/Brand/Branch reference foundation:
 
-- Domain Entities: `backend/app/domains/organization/domain/entities/{organization,brand,branch}.rb`.
-- Infrastructure records: `backend/app/domains/organization/infrastructure/persistence/{organization_record,brand_record,branch_record}.rb`.
+- Domain Entities: `backend/app/contexts/organization/domain/entities/{organization,brand,branch}.rb`.
+- Infrastructure records: `backend/app/contexts/organization/infrastructure/persistence/{organization_record,brand_record,branch_record}.rb`.
 - Domain Entities represent identity, names, parent identifiers, relationships and the Branch timezone value without Rails or persistence dependencies.
 - Infrastructure records own table mapping, associations, database-aligned validations, optimistic locking, restrictive dependent deletion and the implemented `to_domain` projection.
 - No domain-to-persistence write mapping exists because no provisioning or administration use case is authorized.

@@ -1,9 +1,9 @@
 require "spec_helper"
-require_relative "../../../../app/domains/orders/domain/value_objects/order_id"
-require_relative "../../../../app/domains/orders/domain/value_objects/order_number"
-require_relative "../../../../app/domains/orders/domain/value_objects/money"
-require_relative "../../../../app/domains/orders/domain/value_objects/service_channel"
-require_relative "../../../../app/domains/orders/domain/value_objects/payment_window"
+require_relative "../../../../app/contexts/orders/domain/value_objects/order_id"
+require_relative "../../../../app/contexts/orders/domain/value_objects/order_number"
+require_relative "../../../../app/contexts/orders/domain/value_objects/money"
+require_relative "../../../../app/contexts/orders/domain/value_objects/service_channel"
+require_relative "../../../../app/contexts/orders/domain/value_objects/payment_window"
 
 RSpec.describe "Ordering value objects" do
   it "compares Order IDs by canonical UUID value" do

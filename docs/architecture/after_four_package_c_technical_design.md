@@ -30,7 +30,7 @@ At preparation time the repository was on `main` at `2b180298c82ba0c0b88fd89d920
 
 Current implementation evidence is deliberately narrower than this design:
 
-- Package B has framework-independent Category, Product, and Variant Domain objects and Active Record persistence records under `backend/app/domains/catalog/`.
+- Package B has framework-independent Category, Product, and Variant Domain objects and Active Record persistence records under `backend/app/contexts/catalog/`.
 - Package B has PostgreSQL lifecycle checks/triggers, immutable ancestry, no-Purge triggers, Default uniqueness, deferred Product/Variant and Category/Product final-state checks, and a fail-closed `READ COMMITTED` guard.
 - Package B has local PostgreSQL integrity, concurrency, migration-lifecycle, failure-atomicity, and schema-equivalence specs. These do not prove production roles or Package C behavior.
 - There are no Catalog Application lifecycle use cases or Presentation adapters.
