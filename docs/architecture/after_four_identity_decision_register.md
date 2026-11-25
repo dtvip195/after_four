@@ -14,10 +14,13 @@ Owner confirmation approves only the stated operating policy. It does not approv
 
 `WORKSHOP_AGREED` below is pre-existing domain provenance, not a Milestone 2A.1 decision status and not a substitute for Owner confirmation or security review.
 
+The 2026-11-26 Workforce/Identity/Organization bounded-context ownership approval is a separate `OWNER_CONFIRMED` architecture decision recorded in the Owner Decision Baseline. It does not change the count or provenance of ID-01 through ID-34 and allocates no new `ODB-*` identifier.
+
 ## Existing approved boundaries
 
 | Decision | Classification | Evidence |
 |---|---|---|
+| Workforce owns Employee identity, employment facts, and Employee Branch Assignment; Identity owns User, authentication, Sessions, Role Assignment, trusted authorization context, and authorization resolution; Organization owns Organization, Brand, and Branch. Identity consumes Employee Branch Assignment through a narrow Workforce Application read contract and fails closed rather than using Role Assignment alone. | `OWNER_CONFIRMED` architecture | Owner Decision Baseline, explicit Owner approval dated 2026-11-26 |
 | User authentication identity is separate from Employee employment history; their link is optional one-to-one. | `WORKSHOP_AGREED` | Business Domain Model, ERD, Data Dictionary |
 | Employee Branch Assignments are effective-dated and support primary and temporary assignments. | `WORKSHOP_AGREED` | Business Domain Model, ERD |
 | Role Assignments and Branch Assignments are separate; neither substitutes for the other. | `WORKSHOP_AGREED` | ERD |

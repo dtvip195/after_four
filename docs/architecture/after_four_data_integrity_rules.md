@@ -14,6 +14,8 @@ Integrity uses three complementary layers:
 
 Unless explicitly labeled otherwise, the enforcement mechanism is `TECHNICAL_PROPOSAL`. The underlying business invariant retains the provenance shown in the canonical model.
 
+`OWNER_CONFIRMED` architecture boundary: Workforce owns Employee and Employee Branch Assignment; Identity owns User, Role Assignment, trusted authorization context, and authorization resolution; Organization owns Organization, Brand, and Branch. This ownership decision changes no conceptual field, physical constraint, table, migration, or existing provenance below. Cross-context enforcement uses narrow Application contracts and never direct Infrastructure or Active Record access.
+
 ## 2. Referential integrity
 
 | Rule | Database enforcement | Application/transaction enforcement | Provenance |
@@ -72,7 +74,7 @@ Database cascades are limited to unconfirmed, purely dependent configuration row
 
 ### 4.2 Application authorization rules
 
-`WORKSHOP_AGREED` Every read and command resolves the authenticated User's effective Role Assignments and Employee Branch Assignments at the event time. A request-supplied Branch is a target to validate, not authority. `TECHNICAL_PROPOSAL`: except for an approved Organization-scoped Owner rule, a Branch operation requires the intersection of the effective Role scope and the linked Employee's effective Branch Assignment; neither alone grants access.
+`WORKSHOP_AGREED` Every read and command resolves the authenticated User's effective Role Assignments and Employee Branch Assignments at the event time. A request-supplied Branch is a target to validate, not authority. `OWNER_CONFIRMED`: except for the approved Organization-scoped Owner rule, a Branch operation requires the applicable capability and the intersection of the Identity-owned effective Role scope and the linked Employee's Workforce-owned effective Employee Branch Assignment; neither alone grants access. Identity obtains the Workforce fact through a narrow Application read contract. Missing, stale, unavailable, invalid, or Organization-mismatched Workforce evidence fails closed and never falls back to Role Assignment alone.
 
 Application policy must:
 

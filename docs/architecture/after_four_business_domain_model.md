@@ -6,7 +6,7 @@
 
 **Payment clarification:** [Canonical Payment Model](after_four_payment_model.md) separates funding truth from attempt activity; it does not change the Owner-confirmed paid-before-preparation rule.
 
-**Owner-decision source:** The [Owner Decision Baseline](after_four_owner_decision_baseline.md) is authoritative for later Owner-confirmed business policy. The [DDD Foundation](after_four_ddd_foundation.md) proposes logical context ownership without authorizing implementation.
+**Owner-decision source:** The [Owner Decision Baseline](after_four_owner_decision_baseline.md) is authoritative for later Owner-confirmed business policy and the 2026-11-26 Owner-approved Workforce/Identity/Organization architecture boundary. The [DDD Foundation](after_four_ddd_foundation.md) records that ownership boundary and retains proposal status for context details outside its exact scope; none of it authorizes implementation.
 
 ## 1. Purpose, sources, and decision provenance
 
@@ -112,6 +112,7 @@ _Avoid:_ Order transaction, checkout state.
 flowchart LR
   ORG[Organization & Branches] --> IAM[Identity & Authorization]
   ORG --> HR[Workforce & Payroll]
+  HR -->|authoritative Employee Branch Assignment facts| IAM
   ORG --> CAT[Catalog & Recipes]
   ORG --> INV[Inventory & Procurement]
   IAM --> SALES[Sales]
@@ -130,9 +131,9 @@ flowchart LR
 
 | Bounded context | Owns | Does not own |
 |---|---|---|
-| Organization & Branches | Organization, Brand, Branch, Warehouse identity | User permissions, stock balances |
-| Identity & Authorization | User, role template, capability, effective branch access | Employee compensation or attendance |
-| Workforce & Payroll | Employee, availability, shift plan, attendance, leave, overtime, compensation, payroll | Login credentials, cash drawer |
+| Organization & Branches | Organization, Brand, Branch | User permissions, Employee facts, stock balances |
+| Identity & Authorization | User, authentication, Session, Role Assignment, capability, trusted authorization context, authorization resolution | Employee identity, Employee Branch Assignment, compensation, attendance |
+| Workforce & Payroll | Employee identity, employment facts, Employee Branch Assignment, availability, shift plan, attendance, leave, overtime, compensation, payroll | Login credentials, Role Assignment, authorization resolution, cash drawer |
 | Catalog & Recipes | Category, Product, Variant, Modifier, prices, availability, RecipeVersion | Historical Order Item values |
 | Sales | Order, Order Item, service channel, totals snapshots | Payment and Preparation lifecycles |
 | Payments & Refunds | Payment, attempt, settlement, Refund | Provider-specific assumptions, cash counts |
@@ -142,7 +143,7 @@ flowchart LR
 | Customers, Loyalty & Promotions | Customer, consent, loyalty ledger, promotion policy/application | Authentication for employees |
 | Operations, Assets & Compliance | Reservations/tables, checklists, assets, maintenance, feedback, food-safety records, devices/printing | Core sales or payment state |
 
-`TECHNICAL_PROPOSAL` These are logical ownership boundaries, not a requirement for microservices or separate databases. The existing modular-monolith proposal remains suitable for later engineering review.
+`OWNER_CONFIRMED` architecture boundary: Workforce owns Employee identity, employment facts, and Employee Branch Assignment; Identity owns User, authentication, Sessions, Role Assignment, trusted authorization context, and authorization resolution; Organization owns Organization, Brand, and Branch. Identity may consume authoritative Employee Branch Assignment facts only through a narrow Workforce Application contract. Employee Branch Assignment is work eligibility and never grants authorization alone; non-Owner Branch authorization also requires an effective Role Assignment, resource scope, and the applicable capability. The ownership decision requires neither microservices nor separate databases and authorizes no implementation, schema, migration, API, runtime grant, or production operation. Other context details in this table retain their stated provenance.
 
 ## 4. Core entity catalog and relationships
 
@@ -150,13 +151,13 @@ flowchart LR
 
 | Entity | Definition and essential history | Provenance |
 |---|---|---|
-| Organization | Owns Brands and central operations. Initial deployment has one; schema supports multiple. | `OWNER_CONFIRMED` `ODB-CAT-14` |
-| Brand | Belongs to Organization. Initial deployment has one; schema supports multiple. | `OWNER_CONFIRMED` `ODB-CAT-14`; maximum cardinality unresolved |
-| Branch | Belongs to Brand; immutable owner of operational records created there. | `WORKSHOP_AGREED` |
-| User | Sign-in identity; deactivated rather than deleted when referenced by history. | `WORKSHOP_AGREED` |
-| Employee | Employment profile and status, separate from User. | `WORKSHOP_AGREED` |
-| Branch Assignment | Effective-dated primary or temporary assignment; history is retained. | `WORKSHOP_AGREED` |
-| Role Assignment | Effective-dated role/capability grant scoped to authorized branches. | `WORKSHOP_AGREED` |
+| Organization | Organization-context enterprise identity that owns Brands and Branch reference ancestry. Initial deployment has one; schema supports multiple. | Structure `OWNER_CONFIRMED` `ODB-CAT-14`; context ownership `OWNER_CONFIRMED` architecture |
+| Brand | Organization-owned identity. Initial deployment has one; schema supports multiple. | Structure `OWNER_CONFIRMED` `ODB-CAT-14`; context ownership `OWNER_CONFIRMED` architecture; maximum cardinality unresolved |
+| Branch | Organization-owned physical cafe identity and immutable owner of operational records created there. | Concept `WORKSHOP_AGREED`; context ownership `OWNER_CONFIRMED` architecture |
+| User | Identity-owned sign-in identity; deactivated rather than deleted when referenced by history. | Concept `WORKSHOP_AGREED`; context ownership `OWNER_CONFIRMED` architecture |
+| Employee | Workforce-owned employment profile and history, separate from User. | Concept `WORKSHOP_AGREED`; context ownership `OWNER_CONFIRMED` architecture |
+| Branch Assignment | Workforce-owned, effective-dated primary or temporary work-eligibility relationship; history is retained and it grants no authorization alone. | Concept `WORKSHOP_AGREED`; context ownership `OWNER_CONFIRMED` architecture |
+| Role Assignment | Identity-owned, effective-dated role/capability grant scoped to authorized branches. | Concept `WORKSHOP_AGREED`; context ownership `OWNER_CONFIRMED` architecture |
 | Availability Submission | Employee-declared availability for a planning period. | `WORKSHOP_AGREED` |
 | Shift Assignment | Planned Branch, start/end, and one or more operational roles: cashier, barista, server, cleaning. | `WORKSHOP_AGREED` |
 | Swap Request | Proposed exchange/reassignment of published shifts with approval history. | `WORKSHOP_AGREED` |

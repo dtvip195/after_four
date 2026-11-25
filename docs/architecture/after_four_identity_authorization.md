@@ -39,16 +39,18 @@
 
 ### 2.1 Separation of concerns
 
-| Concept | Owns | Does not own |
-|---|---|---|
-| User | Login identifier, lifecycle, authenticators, sessions, MFA, role grants | Employment dates, compensation, attendance |
-| Employee | Employee code, employment lifecycle, contact/work profile, Branch Assignments | Credentials, sessions, permissions |
-| Role Assignment | Authorization template and effective scope | Permission to work a shift by itself |
-| Branch Assignment | Employee eligibility to work at a Branch for an interval | Capabilities by itself |
-| Invitation Delegation | Time-limited authority for an active Branch Manager to invite Staff to assigned Branches | A Role Assignment, Branch Assignment, onward delegation, or assignment approval |
-| Shift/Attendance | Planned and actual Branch execution | Standing access after the shift/assignment ends |
+| Concept | Authoritative context | Owns | Does not own |
+|---|---|---|---|
+| User | Identity | Login identifier, lifecycle, authenticators, Sessions, MFA | Employment dates, compensation, attendance |
+| Employee | Workforce | Employee identity, employment lifecycle, contact/work profile | Credentials, Sessions, permissions |
+| Role Assignment | Identity | Authorization template and effective scope | Permission to work at a Branch by itself |
+| Employee Branch Assignment | Workforce | Employee eligibility to work at a Branch for an interval | Capabilities or authorization by itself |
+| Invitation Delegation | Identity | Time-limited authority for an active Branch Manager to invite Staff to assigned Branches | A Role Assignment, Employee Branch Assignment, onward delegation, or assignment approval |
+| Shift/Attendance | Workforce | Planned and actual Branch execution | Standing access after the shift/assignment ends |
 
 An Employee can exist without a User. A service/support User may exist without an Employee only if explicitly justified and tightly scoped. Shared employee credentials are forbidden.
+
+`OWNER_CONFIRMED` architecture boundary: Workforce is authoritative for Employee and Employee Branch Assignment. Identity is authoritative for User, Role Assignment, trusted authorization context, and authorization resolution. For a non-Owner Branch decision, Identity may consume only authoritative Workforce facts exposed through a narrow Workforce Application read contract; Identity does not own, mutate, or directly access Workforce Infrastructure or Active Record records. Organization remains authoritative for Organization, Brand, and Branch ancestry. This boundary authorizes no package, schema, migration, persistence, API, capability, or runtime integration.
 
 ### 2.2 Proposed User lifecycle
 
@@ -92,7 +94,7 @@ PINs need not be globally unique values. Masked entry, a separate adaptive diges
 
 ### 2.6 Offboarding
 
-One audited offboarding command should, atomically where possible: end future/current Role Assignments, end Branch Assignments as of the approved time, deactivate the User, revoke sessions and pending recovery/invitation tokens, disable PIN/MFA authenticators, and retain Employee/User/audit/history records. Ending employment must not erase prior actor, Branch, shift, order, cash, or approval evidence. Failures are visible and retryable; access removal fails closed.
+One audited, composition-coordinated offboarding workflow should, atomically where possible, invoke context-owned operations: Identity ends future/current Role Assignments, deactivates the User, and revokes Sessions and pending recovery/invitation tokens plus PIN/MFA authenticators; Workforce ends Employee Branch Assignments at the approved time and preserves Employee history. Neither context mutates the other's persistence records. Ending employment must not erase prior actor, Branch, shift, order, cash, or approval evidence. Failures are visible and retryable; access removal fails closed. Exact lifecycle, transaction, and failure mechanics remain separately governed.
 
 ## 3. Authorization model
 
@@ -120,8 +122,8 @@ For every protected request:
 1. Authenticate an unexpired, unrevoked Session and load the current User; deny unless lifecycle is active.
 2. Resolve Organization solely from the trusted Session/User.
 3. Scope the resource query to that Organization and authorized Branch set before lookup.
-4. Resolve effective Role Assignments at server time and map fixed role templates to capabilities.
-5. For Branch operations, require the target Branch in both the role scope and linked Employee's effective Branch Assignment, except for the explicitly approved Owner Organization scope.
+4. Resolve Identity-owned effective Role Assignments at server time and map fixed role templates to capabilities.
+5. For non-Owner Branch operations, resolve the linked Employee's effective Employee Branch Assignment through a narrow Workforce Application read contract and require the target Branch in both assignment scopes. Missing, stale, unavailable, invalid, or Organization-mismatched Workforce evidence fails closed; Identity never falls back to Role Assignment alone. The approved Owner Organization scope remains unchanged.
 6. Validate the resource's persisted Branch/Organization; do not authorize from a request body/header copy.
 7. Apply command-specific ownership, segregation, step-up, and approval rules.
 8. Deny by default and emit safe audit evidence for sensitive success or denial.
@@ -130,7 +132,7 @@ Unknown or out-of-scope resource identifiers return the same `404 resource_not_f
 
 ### 3.4 Working Branch and history
 
-Primary and temporary Branch Assignments establish eligible work scope. A scheduled Shift must be at an eligible Branch. At operation time, the server resolves an explicit working Branch from the session/device/request route and revalidates it; the frontend's selected Branch is only a target. Actual Shift/Attendance does not create standing permission.
+Workforce-owned primary and temporary Employee Branch Assignments establish eligible work scope. A scheduled Shift must be at an eligible Branch. At operation time, Identity authorization resolution obtains current Workforce evidence through the approved Application boundary, resolves an explicit working Branch from the session/device/request route, and revalidates it; the frontend's selected Branch is only a target. Actual Shift/Attendance does not create standing permission.
 
 Every Branch-owned business record stores immutable `branch_id` at creation. Changing assignments, role grants, selected Branch, or organizational structure never rewrites historical Branch context. Audit records capture the effective Branch and role/capability used at event time.
 
@@ -156,7 +158,7 @@ Require recent password/MFA reauthentication for Owner-level identity administra
 
 | Logical record/change | Purpose | Status |
 |---|---|---|
-| Existing User, Employee, Branch Assignment, Role, Role Assignment | Core identity/employment/authorization separation | Approved logical concepts |
+| Existing User and Role Assignment (Identity); Employee and Employee Branch Assignment (Workforce) | Core identity/employment/authorization separation | Approved logical concepts and `OWNER_CONFIRMED` architecture ownership; no new physical schema approved |
 | Expanded User lifecycle values and normalized identifier columns | Invitation, lock, suspension, stable uniqueness | Invitation and username policy `OWNER_CONFIRMED`; physical fields/transitions `TECHNICAL_PROPOSAL` |
 | Authentication Credential | Separate password/PIN digest and lifecycle metadata | `TECHNICAL_PROPOSAL`, security review required |
 | Session | Server-side token verifier, expiry, revocation, assurance, optional Device | `TECHNICAL_PROPOSAL`, security review required |
@@ -198,8 +200,8 @@ The authorized slice implements a backend authentication foundation without gran
 
 1. Resolve the remaining technical, operational, security, and legal/privacy review items and complete the [Identity Security Review Checklist](after_four_identity_security_review_checklist.md); update ADR-0006 before coding.
 2. Add failing RSpec policy/request/model tests for lifecycle, session revocation, default denial, IDOR, Branch intersection, and redaction.
-3. Add minimal identity migrations in dependency order: Users/Employees, Branch Assignments, fixed Roles/Role Assignments, credentials, Sessions, invitation/recovery records selected by policy, Audit Logs. Do not add Region/MFA records unless approved for the slice.
-4. Implement User lifecycle and offboarding transaction; keep Employee lifecycle separate.
+3. Under separately bounded authorization, add physical changes only in their owning contexts and approved dependency order: Identity owns User and any later fixed Role/Role Assignment persistence; Workforce owns any later Employee and Employee Branch Assignment persistence; credentials, Sessions, invitation/recovery records and Audit Logs remain governed by their own approved slices. Do not add Region/MFA records unless approved for the slice.
+4. Implement User lifecycle in Identity and keep Employee lifecycle in Workforce; any future offboarding workflow uses composition-wired Application contracts rather than cross-context persistence access.
 5. Implement password login, opaque session issuance/rotation/revocation/expiry, cookie/CSRF middleware, rate limiting, and generic errors.
 6. Implement authorization context and explicit policies with Organization/Branch-scoped queries; seed fixed role templates and capabilities.
 7. Implement invitation, employee recovery, PIN, and MFA only after their technical controls pass security review; do not implement Owner recovery until its exact reviewed procedure is approved.

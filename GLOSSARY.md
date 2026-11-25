@@ -5,14 +5,14 @@ Stable business language for the AFTER FOUR cafe chain. Implementation and secur
 ## Language
 
 **Branch Assignment**:  
-An effective-dated relationship showing that an Employee is eligible to work at a Branch, as a primary or temporary assignment. It does not grant capabilities by itself.
+The Workforce-owned, effective-dated relationship showing that an Employee is eligible to work at a Branch, as a primary or temporary assignment. It does not grant capabilities by itself and is not a Role Assignment.
 
 **Branch Manager**:  
 An active authorization role limited to explicitly assigned Branches.  
 _Avoid_: Manager, Store Manager
 
 **Employee**:  
-The employment identity used for work history, Branch Assignments, shifts, attendance, compensation, and offboarding. An Employee may exist without login access.  
+The Workforce-owned employment identity used for work history, Branch Assignments, shifts, attendance, compensation, and offboarding. An Employee may exist without login access.
 _Avoid_: User, account
 
 **Authentication Lock**:  
@@ -28,7 +28,7 @@ Time-limited Owner-granted authority for an active Branch Manager to invite Staf
 _Avoid_: role, Role Assignment, Branch Assignment
 
 **Organization**:  
-The chain-level enterprise that owns Brands, Users, and Employees. Initial deployment has one Organization, but the domain permits more than one.
+The chain-level enterprise identity. The Organization context owns Organization, Brand, and Branch reference ancestry; Identity and Workforce separately own their User and Employee facts within that Organization. Initial deployment has one Organization, but the domain permits more than one.
 
 **Brand**: A customer-facing business identity belonging to an Organization. Initial deployment has one Brand, but the domain permits more than one.
 
@@ -172,7 +172,7 @@ A reserved, inactive future role for an explicit set of Branches. It grants no a
 _Avoid_: treating it as an active role
 
 **Role Assignment**:  
-An effective-dated grant of an authorization role to a User at Organization or Branch scope. It does not prove employment eligibility at a Branch by itself.
+An Identity-owned, effective-dated grant of an authorization role to a User at Organization or Branch scope. It does not prove employment eligibility at a Branch by itself.
 
 **Staff**:  
 An active authorization role limited to explicitly assigned Branches and capabilities. Cashier, barista, server, and cleaning are shift duties or capabilities, not separate identity roles.
@@ -181,7 +181,7 @@ An active authorization role limited to explicitly assigned Branches and capabil
 An Owner-controlled temporary restriction on User access, distinct from Authentication Lock, Deactivation, and Employee status. Reactivation requires explicit Owner authorization and audit.
 
 **User**:  
-An individual authentication identity with lifecycle, credentials, sessions, and Role Assignments. It is distinct from the Employee employment record and must not be shared between people.  
+An Identity-owned individual authentication identity with lifecycle, credentials, Sessions, and Role Assignments. It is distinct from the Workforce-owned Employee employment record and must not be shared between people.
 _Avoid_: Employee, shared account
 
-See the [Owner Decision Baseline](docs/architecture/after_four_owner_decision_baseline.md) for confirmed policy, [DDD Foundation](docs/architecture/after_four_ddd_foundation.md) for proposed context ownership, [Identity & Branch Authorization](docs/architecture/after_four_identity_authorization.md) for the proposed security design, and [Business Domain Model](docs/architecture/after_four_business_domain_model.md) for the canonical domain model.
+See the [Owner Decision Baseline](docs/architecture/after_four_owner_decision_baseline.md) for confirmed policy and architecture ownership, [DDD Foundation](docs/architecture/after_four_ddd_foundation.md) for Layered DDD and context boundaries, [Identity & Branch Authorization](docs/architecture/after_four_identity_authorization.md) for the proposed security design, and [Business Domain Model](docs/architecture/after_four_business_domain_model.md) for the canonical domain model.
