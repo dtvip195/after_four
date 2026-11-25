@@ -128,7 +128,7 @@ One canonical synchronization defect remains: the older `ODB-CASH-15` wording sa
 
 | Domain | Confirmed conclusion | Material unresolved evidence |
 |---|---|---|
-| Catalog/Pricing | Catalog owns current definitions; Ordering owns confirmed snapshots; Price Versions are immutable | `CORE-OD-18` first-Branch/no-default costing scope remains unreconciled with `ODB-CAT-07` chain-default/Branch overrides; tax/rounding remain deferred |
+| Catalog/Pricing | Catalog owns current definitions; Ordering owns confirmed snapshots; Price Versions are immutable | `CORE-OD-18` / `ODB-CAT-07` scope is reconciled: Commercial V1 is First-Branch-only with no chain default or Branch override, while `ODB-CAT-07` remains a future direction requiring separate Owner approval before application; tax/rounding remain deferred |
 | Ordering/POS | Dine-in/takeaway supported; no mandatory Table Session, zero-price Item, direct sold-price override, price-changing Modifier, or automatic cancellation in initial slice | Catalog-backed construction, cancellation authority/consequences, runtime authorization and public API |
 | Payment | Initial exact-balance cash only; manual bank excluded; settlement does not close Order; cancellation is not Refund | Refund authority/allocation, overpayment, provider reconciliation, split/partial payment |
 | Preparation | Item-level progress; no quantity-level progress, partial Ticket completion or partial handover; explicit custody transfer after completion | Dispatch acceptance/custody evidence, resolver authority, actual KDS/consumer and Gate B enforcement |
@@ -168,7 +168,7 @@ These instruments establish the current research baseline, not AFTER FOUR's exac
 
 ## 12. Conflicts, stale evidence, and unsupported claims
 
-1. `CORE-OD-18` and `ODB-CAT-07` remain an explicit pricing-scope conflict before publication or implementation.
+1. `CORE-OD-18` and `ODB-CAT-07` scope is reconciled for Commercial V1, but Price publication/implementation remains unauthorized and any future chain-default or Branch-override application requires a separate explicit Owner decision.
 2. `ODB-CASH-15` contains stale escalation wording relative to confirmed `CORE-OD-14A`.
 3. Hoi An tourism figures use different citywide, managed-site, and ticketed-heritage scopes; they cannot be summed or averaged.
 4. Public Recipes, manufacturer formulations, competitor menus, public supplier listings, and retail prices remain illustrative/reference evidence.

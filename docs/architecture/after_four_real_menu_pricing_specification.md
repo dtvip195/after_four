@@ -20,7 +20,7 @@ Tài liệu này áp dụng các quyết định Catalog/Pricing và Catalog Cor
 | Product identity dùng chung toàn Brand? | Có — `ODB-CAT-01` |
 | Effective menu có giống nhau giữa mọi Branch? | Chờ Owner xác nhận khi có thêm Branch; Branch availability override đã được hỗ trợ theo `ODB-CAT-06` |
 | Phạm vi Commercial Baseline V1 | First Branch; first Price Version; dine-in và takeaway dùng cùng proposed price |
-| Chain default / Branch override trong V1 | Không áp dụng; chưa được quyết định cho baseline này |
+| Chain default / Branch override trong V1 | Không áp dụng; Owner xác nhận Commercial V1 không dùng chain default hoặc Branch override |
 
 “Effective menu” ở đây là tập Variant thực tế có thể bán tại một Branch. Nó không tạo Product identity riêng cho Branch.
 
@@ -87,7 +87,7 @@ Owner confirmed this costing baseline on 2026-11-24 under `CORE-OD-18`. Prices a
 
 This approval permits further cost calculation only. It does not publish a Price, authorize implementation, establish tax treatment or rounding, or prove any Recipe, supplier cost, unit cost or gross margin. Cost evidence must be collected in [`after_four_commercial_v1_costing_input.csv`](after_four_commercial_v1_costing_input.csv); repeat a Product/Variant row for each distinct ingredient or direct-cost line rather than combining inputs.
 
-**Canonical conflict requiring Owner clarification before publication or implementation:** `ODB-CAT-07` previously approved chain-level default Prices with explicit Branch overrides, while `CORE-OD-18` says Commercial Baseline V1 uses the first Branch's first Price Version without a chain default or Branch override. This document preserves the V1 costing scope exactly and does not silently supersede, narrow or reinterpret `ODB-CAT-07`. The relationship between those decisions must be explicitly reconciled before any Price publication or implementation.
+**Owner-confirmed scope reconciliation:** Commercial V1 applies exclusively to the First Branch, and its first Price Version applies directly to that Branch without a chain-default Price or Branch override. `ODB-CAT-07` remains preserved as a long-term product direction, not active Commercial V1 behavior. Applying chain-default pricing or Branch overrides in a future scope requires a separate explicit Owner decision. This reconciliation does not authorize Price publication, implementation, tax/accounting policy, Recipe/BOM approval, cost/margin approval, or any Gate.
 
 ## 5. Modifier Groups
 
@@ -117,14 +117,14 @@ Nếu chưa biết giá, ghi `TBD`, không tự điền `0`. Việc Modifier có
 
 ## 7. Future chain/Branch pricing scope — not applied to V1
 
-`ODB-CAT-07` records the earlier approved direction for chain-default Prices and explicit Branch overrides. `CORE-OD-18` does not apply either mechanism to Commercial Baseline V1, which is scoped directly to the first Branch's first Price Version. The conflict identified in §4 must be resolved before this future table is used.
+`ODB-CAT-07` records the preserved long-term direction for chain-default Prices and explicit Branch overrides. The Owner-confirmed reconciliation keeps both mechanisms outside Commercial V1, which is scoped directly to the First Branch's first Price Version. This future table may be used only after a separate explicit Owner decision activates that future direction and defines its scope.
 
 | Product/Variant | Giá mặc định chuỗi | Main Branch override | Lý do |
 |---|---:|---:|---|
 |  |  |  |  |
 |  |  |  |  |
 
-This table is retained only for the future `ODB-CAT-07` scope; it is not a V1 costing input. Any Price published after the governance conflict is resolved must still use immutable, effective-dated Price Versions under `ODB-CAT-08`.
+This table is retained only for a future `ODB-CAT-07` scope; it is not a V1 costing input and its retention grants no publication or implementation authority. Any future approved Price scope must still use immutable, effective-dated Price Versions under `ODB-CAT-08`.
 
 ## 8. Availability và tình trạng bán
 
