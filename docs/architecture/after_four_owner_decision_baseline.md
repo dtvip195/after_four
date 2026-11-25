@@ -283,7 +283,7 @@ The **Operating Day** boundary used for daily limits and reporting is not yet de
 
 | ID | Owner-confirmed decision | Implementation | Repository evidence / remaining boundary |
 |---|---|---|---|
-| `ODB-RPT-01` | AFTER FOUR will provide an Owner Dashboard and automatic daily report delivery through Telegram. | Not implemented. | Direction is approved; delivery details below remain open. |
+| `ODB-RPT-01` | AFTER FOUR will provide an Owner Dashboard and automatic daily report delivery through Telegram. | Not implemented. | This remains an approved future product direction. Initial automatic Telegram or other external delivery is deferred under later `CORE-OD-16D`; no recipient, schedule, disclosure, delivery, or implementation authority is granted. |
 | `ODB-RPT-02` | Dashboard views support daily, weekly, monthly, custom date ranges, and period comparison. | Not implemented. | Business-day and formula definitions remain `UNRESOLVED`. |
 | `ODB-RPT-03` | Excel export is deferred. | Not implemented. | It is not part of the current reporting scope. |
 | `ODB-RPT-04` | Reporting distinguishes revenue from cash flow. Daily reporting includes relevant gross/net sales, Order count, cash/bank-transfer split, Refunds, operating Expenses, float/top-ups, cancellations, and exceptions. | Not implemented. | Exact metric formulas remain `UNRESOLVED`. |

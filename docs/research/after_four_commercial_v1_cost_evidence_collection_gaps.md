@@ -15,7 +15,7 @@
 | [BUY procurement input](../architecture/after_four_commercial_v1_buy_finished_procurement_input.csv) | 4 Products / 4 combinations | All rows are `MISSING_INPUT`. Public leads are not finished-product procurement proof. |
 | [Canonical costing input](../architecture/after_four_commercial_v1_costing_input.csv) | 28 Products / 52 unique priced combinations | All 52 are `MISSING_INPUT`; 0/52 have calculable unit cost or gross margin. |
 
-The current templates already support repeated ingredient lines, per-Variant quantities, purchase/preparation unit conversion, yield/waste, channel packaging, procurement evidence, landed cost, and source dates. No CSV column change is required.
+The current templates support repeated ingredient lines, per-Variant quantities, purchase/preparation unit conversion, yield/waste, channel packaging, procurement evidence, landed cost, source dates, and a consolidated BUY acceptance envelope. The BUY input keeps Owner-accepted specification fields separate from public listing evidence and separately captures receipt condition, remaining shelf life, handling, rejection criteria, traceability, actual receipt and unsaleable reason. No separate Product-specific acceptance document is required.
 
 ## 2. Smallest missing evidence — MAKE_IN_HOUSE
 
@@ -37,11 +37,11 @@ This applies independently to Bánh croissant, Cheesecake, Brownie chocolate, an
 
 | Evidence required | Owner can provide/approve directly | Supplier response/document required |
 |---|---|---|
-| Finished-product specification | Acceptance specification and whether the item is procured finished; no bake-off inference | Exact offered product/SKU and conformance evidence. |
+| Finished-product specification | Accepted flavor/formulation identity, physical size/weight, saleable portion, and whether the item is procured finished; no bake-off inference | Exact offered product/SKU and conformance evidence. |
 | Commercial unit | Accept purchase/serving relationship | Purchase unit, pack size, unit conversion and MOQ. |
 | Price and landed cost | Accept quotation | Supplier, accepted quotation or invoice, actual purchase price, discount, delivery to first Branch, currency and effective date. |
-| Tax and handling | Approve operational handling after evidence; no tax/accounting treatment is inferred. | Record VAT/tax information exactly as shown by quotation/invoice, plus storage, shelf life and delivery conditions. Documentary VAT text does not establish applicability or accounting treatment. |
-| Waste and packaging | Approved waste assumption and Dine-in/Takeaway packaging allocation | Supplier shelf-life/packaging facts and packaging quote where applicable. |
+| Receipt, handling and acceptance | Approve condition-on-receipt, remaining-shelf-life and defect/rejection criteria after evidence; no threshold is inferred. | Storage, shelf life, handling/preparation, lot/batch/expiry traceability and delivery conditions. Qualified food-safety input is required where applicability demands it. |
+| Waste and packaging | Approved waste assumption and Dine-in/Takeaway packaging allocation | Supplier shelf-life/packaging facts and packaging quote where applicable; operator records actual received/saleable/unsaleable quantities and reason. |
 
 The retained source IDs are component/category leads only and do not establish a finished-product supplier, accepted terms, or actual purchase cost.
 
