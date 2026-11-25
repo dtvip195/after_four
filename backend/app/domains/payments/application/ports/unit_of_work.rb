@@ -2,7 +2,7 @@ module Payments
   module Application
     module Ports
       module UnitOfWork
-        def call
+        def call(&)
           raise NotImplementedError
         end
       end
