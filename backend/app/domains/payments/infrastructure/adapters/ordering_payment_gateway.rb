@@ -24,10 +24,6 @@ module Payments
           payment = Payment.lock.find_by!(order_id: order_id)
           Snapshot.new(reference_id: payment.id, funding_status: payment.funding_status)
         end
-
-        def compatibility_record(reference_id)
-          Payment.find(reference_id)
-        end
       end
     end
   end

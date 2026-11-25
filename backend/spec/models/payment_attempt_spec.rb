@@ -98,7 +98,7 @@ RSpec.describe PaymentAttempt do
 
   def create_attempt(status:)
     actor_id = SecureRandom.uuid
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -106,8 +106,8 @@ RSpec.describe PaymentAttempt do
       currency_code: "VND",
       idempotency_key: "create-attempt-#{SecureRandom.uuid}",
       now: Time.utc(2026, 11, 14, 11, 0, 0)
-    ).order
-    order.payment.payment_attempts.create!(
+    )
+    payment_for(order).payment_attempts.create!(
       method: "cash",
       status: status,
       requested_amount: 80_000,

@@ -321,7 +321,7 @@ Idempotency keys are opaque, stable per user intent, and scoped to the command/a
 
 Domain-specific UQ keys remain the final guard even when a generic `idempotency_records` row exists.
 
-For `Orders::CreateDraft`, the scope is `(branch_id, creation_idempotency_key)`. Fingerprint version `after_four.order.create.v1` hashes the normalized trusted actor UUID, channel, integer total amount, and uppercase currency with SHA-256. Branch is represented by the key scope; command time and generated identifiers are excluded. Same fingerprint returns the original Order, Payment, and replay marker without duplicate audit evidence. A different fingerprint raises `idempotency_conflict`. Concurrent uniqueness losers recover only from the named Branch/key index violation, then compare against the committed winner; unrelated database errors are not swallowed.
+For `Orders::Application::UseCases::CreateDraft`, the scope is `(branch_id, creation_idempotency_key)`. Fingerprint version `after_four.order.create.v1` hashes the normalized trusted actor UUID, channel, integer total amount, and uppercase currency with SHA-256. Branch is represented by the key scope; command time and generated identifiers are excluded. Same fingerprint returns the original Order, Payment reference, and replay marker without duplicate audit evidence. A different fingerprint raises `idempotency_conflict`. Concurrent uniqueness losers recover only from the named Branch/key index violation, then compare against the committed winner; unrelated database errors are not swallowed.
 
 ### 11.2 External provider and printer boundaries
 

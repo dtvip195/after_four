@@ -4,7 +4,7 @@ RSpec.describe "payment settlement transaction recovery" do
   it "rolls back settlement when outbox persistence fails and succeeds on safe retry" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 18, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -12,8 +12,8 @@ RSpec.describe "payment settlement transaction recovery" do
       currency_code: "VND",
       idempotency_key: "create-rollback-spec",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-rollback-spec",
@@ -43,9 +43,9 @@ RSpec.describe "payment settlement transaction recovery" do
       )
     end.to raise_error(ActiveRecord::StatementInvalid, /phase1 injected outbox failure/)
 
-    expect(order.payment.reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(order.payment.payment_attempts).to be_empty
-    expect(order.preparation_dispatch).to be_nil
+    expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
+    expect(payment_for(order).payment_attempts).to be_empty
+    expect(preparation_dispatch_for(order)).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "payment.confirmed")).to be_empty
 
@@ -60,7 +60,7 @@ RSpec.describe "payment settlement transaction recovery" do
     )
     expect(result.payment).to have_attributes(funding_status: "fully_paid")
     expect(result.preparation_dispatch).to be_present
-    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: result.preparation_dispatch.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "payment.confirmed", subject_id: result.payment_attempt.id).count).to eq(1)
   ensure

@@ -19,17 +19,6 @@ module Orders
           record && mapper.to_domain(record)
         end
 
-        def validate_draft_attributes!(**attributes)
-          now = attributes.fetch(:now)
-          ::Order.new(
-            attributes.except(:now).merge(
-              status: "draft",
-              created_at: now,
-              updated_at: now
-            )
-          ).validate!
-        end
-
         def add(order)
           mapper.build_record(order).save!
         rescue ActiveRecord::RecordNotUnique => error
@@ -45,7 +34,10 @@ module Orders
         end
 
         def save(order)
-          record = locked_records.fetch(order.id.to_s) { OrderRecord.find(order.id.to_s) }
+          record = locked_records.fetch(order.id.to_s) do
+            raise Application::Ports::OrderRepository::OrderNotLocked,
+              "Order must be locked through this repository before it can be saved"
+          end
           mapper.apply(order, record).save!
         end
 
@@ -53,10 +45,6 @@ module Orders
           OrderRecord.where(status: "confirmed", payment_expires_at: ..now)
             .order(:payment_expires_at, :id)
             .pluck(:id)
-        end
-
-        def compatibility_record(order_id)
-          ::Order.find(order_id)
         end
 
         private

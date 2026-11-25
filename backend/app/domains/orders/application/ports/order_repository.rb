@@ -3,12 +3,9 @@ module Orders
     module Ports
       module OrderRepository
         class DuplicateCreationKey < StandardError; end
+        class OrderNotLocked < StandardError; end
 
         def find_by_creation_key(branch_id:, idempotency_key:)
-          raise NotImplementedError
-        end
-
-        def validate_draft_attributes!(**attributes)
           raise NotImplementedError
         end
 

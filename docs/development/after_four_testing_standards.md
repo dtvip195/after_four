@@ -12,13 +12,16 @@ RSpec is the only supported primary testing framework for the Rails backend. New
 
 Name files `*_spec.rb` and describe externally meaningful behavior in plain language. Require `rails_helper` except for the narrow pure-Domain exception below. `rails_helper` loads `spec_helper` first so SimpleCov starts before application code.
 
-Pure Domain specs that exercise framework-independent Value Objects, Aggregates, Domain Services, or Domain errors may require `spec_helper` instead. This preserves an executable Rails-free path and catches accidental framework coupling. Such specs may load only the Domain source files they exercise and Ruby standard-library dependencies; they must not load Rails, Active Record, ApplicationRecord, PostgreSQL adapters, repositories, jobs, controllers, or other Infrastructure/Presentation code. Application, Infrastructure, persistence, integration, service, request, model, and job specs continue to require `rails_helper`.
+Pure Domain specs that exercise framework-independent Value Objects, Aggregates, Domain Services, or Domain errors may require `spec_helper` instead. Pure Application specs may also do so when they load only framework-independent Application use cases and owned ports, Domain source, Ruby standard-library dependencies, and explicit in-memory fake adapters. This preserves executable Rails-free Domain/Application paths and catches accidental framework coupling. These specs must not load Rails, Active Record, ApplicationRecord, PostgreSQL adapters, jobs, controllers, or other Infrastructure/Presentation code. Infrastructure, persistence, integration, compatibility-facade, service, request, model, and job specs continue to require `rails_helper`.
 
 - `spec/models/`: persistence behavior, validations, associations, scopes, and model-owned invariants.
 - `spec/requests/`: routing, HTTP status, serialization, authentication/authorization, error envelopes, and request boundaries.
 - `spec/services/`: commands, calculations, orchestration, and domain/platform services through their public interface.
 - `spec/jobs/`: enqueueing contracts, idempotency, retry behavior, and observable job outcomes.
 - `spec/integration/`: infrastructure integration that does not belong to an application model, such as the PostgreSQL connection contract.
+- `spec/domains/<context>/domain/`: pure Domain behavior and invariants through Domain interfaces.
+- `spec/domains/<context>/application/`: Application orchestration through owned ports; use pure fakes where no framework capability is involved.
+- `spec/domains/<context>/infrastructure/`: mappings, adapters, database constraints and transaction behavior.
 - `spec/factories/`: factories for real application records only.
 - `spec/support/`: reusable configuration or helpers only after at least two specs need them; support files must not end in `_spec.rb`.
 

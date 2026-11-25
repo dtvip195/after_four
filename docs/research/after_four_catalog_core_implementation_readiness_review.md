@@ -60,8 +60,8 @@ Rails 8.1, PostgreSQL 18, UUID keys, `structure.sql`, named database constraints
 | `backend/config/application.rb:22-61` | Rails 8.1 defaults, UTC, `structure.sql`, UUID generator, RSpec/FactoryBot generators, API-only mode. |
 | `backend/db/migrate/20261114192000_create_order_payment_foundation.rb:1-94` | Existing UUID, named check/index, status, lock-version, and audit patterns. |
 | `backend/db/migrate/20261114202000_enforce_payment_aggregate_integrity.rb:1-57` | Existing composite unique keys and composite FK convention. |
-| `backend/app/domains/orders/create_draft.rb:30-79` | Transaction, audit, idempotency, and unique-race recovery convention. |
-| `backend/app/models/order.rb:1-16`, `backend/app/models/payment.rb:1-16` | Model validation and restrictive association conventions. |
+| `backend/app/domains/orders/application/use_cases/create_draft.rb:30-79` | Transaction, audit, idempotency, and unique-race recovery convention. |
+| `backend/app/domains/orders/infrastructure/persistence/order_record.rb:1-15`, `backend/app/models/payment.rb:1-16` | Persistence-record validation conventions; Ordering no longer exposes a cross-context Active Record association model. |
 | `backend/spec/rails_helper.rb:1-29`, `backend/Gemfile:26-47` | RSpec, transactional fixtures, FactoryBot, Shoulda Matchers, Faker, SimpleCov. |
 | `backend/db/structure.sql` and current migrations/specs | No Organization/Brand/Branch/Category/Product/Variant tables; existing Branch UUIDs are unconstrained references. |
 

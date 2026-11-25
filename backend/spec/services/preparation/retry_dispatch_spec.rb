@@ -4,7 +4,7 @@ RSpec.describe Preparation::RetryDispatch do
   it "requeues the existing dispatch without creating duplicate dispatch or outbox records" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 17, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -12,8 +12,8 @@ RSpec.describe Preparation::RetryDispatch do
       currency_code: "VND",
       idempotency_key: "create-retry-spec",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-retry-spec",

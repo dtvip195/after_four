@@ -32,7 +32,7 @@ Executable repository evidence inspected includes:
 
 - `backend/db/migrate/20261114202000_enforce_payment_aggregate_integrity.rb`, which demonstrates pre-migration audits, named composite keys/FKs, deferred constraint triggers, and common-parent row locking;
 - `backend/db/migrate/20261114203000_protect_audit_events_append_only.rb`, which rejects AuditEvent update/delete with SQLSTATE `23514` at database level;
-- `backend/app/domains/orders/create_draft.rb`, which demonstrates whole-command transactions, atomic audit persistence, idempotency, and constraint-name error discrimination;
+- `backend/app/domains/orders/application/use_cases/create_draft.rb`, which demonstrates whole-command transactions, atomic audit persistence, idempotency, and constraint-name error discrimination;
 - `backend/app/domains/trusted_actor.rb`, which validates only a server-provided UUID reference and is explicitly not authentication or authorization; and
 - existing PostgreSQL integrity and multi-connection concurrency specs, which establish repository test patterns but do not prove the proposed Catalog behavior.
 

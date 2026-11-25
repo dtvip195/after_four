@@ -15,7 +15,6 @@ module Orders
 
         def call(order_id:, actor_id:, reason:, idempotency_key:, expected_version:, now:)
           actor_id = require_actor!(actor_id)
-          raise Domain::Errors::RuleViolation.new("reason_required", "A hold reason is required") if reason.to_s.strip.empty?
           require_idempotency_key!(idempotency_key, reject_whitespace: false)
           order = nil
           outcome = nil

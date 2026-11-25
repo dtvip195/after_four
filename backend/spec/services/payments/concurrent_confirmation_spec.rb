@@ -6,7 +6,7 @@ RSpec.describe "concurrent payment confirmation", :concurrency do
   it "settles and creates preparation dispatch at most once" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 19, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -14,8 +14,8 @@ RSpec.describe "concurrent payment confirmation", :concurrency do
       currency_code: "VND",
       idempotency_key: "create-concurrency-spec",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-concurrency-spec",
@@ -51,7 +51,7 @@ RSpec.describe "concurrent payment confirmation", :concurrency do
 
     expect(results.count { |result| result.is_a?(Payments::Confirm::Result) }).to eq(1)
     expect(results.grep(DomainError).map(&:code)).to contain_exactly("payment_already_fully_settled")
-    expect(PaymentAttempt.where(payment_id: order.payment.id, status: "succeeded").count).to eq(1)
+    expect(PaymentAttempt.where(payment_id: payment_for(order).id, status: "succeeded").count).to eq(1)
     expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested").count).to eq(1)
   ensure
@@ -66,7 +66,7 @@ RSpec.describe "concurrent payment confirmation", :concurrency do
         PreparationDispatch.where(id: dispatch_ids).delete_all
         PaymentAttempt.where(payment_id: payment_ids).delete_all
         Payment.where(id: payment_ids).delete_all
-        Order.where(id: order.id).delete_all
+        Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all
       end
     end
   end

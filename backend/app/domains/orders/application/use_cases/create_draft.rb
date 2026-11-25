@@ -14,14 +14,14 @@ module Orders
           audit_log:,
           unit_of_work:,
           id_generator:,
-          order_number_generator:
+          order_number_token_generator:
         )
           @order_repository = order_repository
           @payment_gateway = payment_gateway
           @audit_log = audit_log
           @unit_of_work = unit_of_work
           @id_generator = id_generator
-          @order_number_generator = order_number_generator
+          @order_number_token_generator = order_number_token_generator
         end
 
         def call(actor_id:, branch_id:, channel:, total_amount:, currency_code:, idempotency_key:, now:)
@@ -39,19 +39,8 @@ module Orders
           )
           return replay(existing, input) if existing
 
-          order_number = order_number_generator.call
+          order_number = Domain::ValueObjects::OrderNumber.generate(token: order_number_token_generator.call)
           request_fingerprint = fingerprint(input)
-          order_repository.validate_draft_attributes!(
-            branch_id: input.fetch(:branch_id),
-            created_by_actor_id: input.fetch(:actor_id),
-            order_number: order_number,
-            channel: input.fetch(:channel),
-            total_amount: input.fetch(:total_amount),
-            currency_code: input.fetch(:currency_code),
-            creation_idempotency_key: input.fetch(:idempotency_key),
-            creation_request_fingerprint: request_fingerprint,
-            now: now
-          )
           order = build_order(input, order_number, request_fingerprint, now)
           payment_reference = nil
           unit_of_work.call do
@@ -78,7 +67,7 @@ module Orders
         private
 
         attr_reader :order_repository, :payment_gateway, :audit_log, :unit_of_work,
-          :id_generator, :order_number_generator
+          :id_generator, :order_number_token_generator
 
         def normalize(actor_id:, branch_id:, channel:, total_amount:, currency_code:, idempotency_key:)
           {
@@ -92,22 +81,35 @@ module Orders
         end
 
         def build_order(input, order_number, request_fingerprint, now)
-          Domain::Aggregates::Order.new(
+          Domain::Aggregates::Order.draft(
             id: id_generator.call,
             branch_id: input.fetch(:branch_id),
             created_by_actor_id: input.fetch(:actor_id),
             order_number: order_number,
             channel: Domain::ValueObjects::ServiceChannel.new(input.fetch(:channel)),
-            status: "draft",
             total: Domain::ValueObjects::Money.new(
               amount: input.fetch(:total_amount),
               currency_code: input.fetch(:currency_code)
             ),
             creation_idempotency_key: input.fetch(:idempotency_key),
             creation_request_fingerprint: request_fingerprint,
-            lock_version: 0,
-            created_at: now,
-            updated_at: now
+            created_at: now
+          )
+        rescue ArgumentError => error
+          raise Errors::InvalidDraft.new(
+            attributes: {
+              branch_id: input.fetch(:branch_id),
+              created_by_actor_id: input.fetch(:actor_id),
+              order_number: order_number.to_s,
+              channel: input.fetch(:channel),
+              status: "draft",
+              total_amount: input.fetch(:total_amount),
+              currency_code: input.fetch(:currency_code),
+              creation_idempotency_key: input.fetch(:idempotency_key),
+              creation_request_fingerprint: request_fingerprint,
+              created_at: now,
+              updated_at: now
+            }
           )
         end
 

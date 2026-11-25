@@ -3,11 +3,40 @@ module Orders
     module Aggregates
       class Order
         STATUSES = %w[draft confirmed held expired cancelled closed].freeze
+        UUID_FORMAT = /\A[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/i
+        FINGERPRINT_FORMAT = /\A[0-9a-f]{64}\z/
 
         attr_reader :id, :branch_id, :created_by_actor_id, :order_number, :channel, :status,
           :total, :creation_idempotency_key, :creation_request_fingerprint,
           :confirmation_idempotency_key, :confirmed_at, :payment_expires_at, :expired_at,
           :held_at, :hold_reason, :hold_idempotency_key, :lock_version, :created_at, :updated_at
+
+        def self.draft(
+          id:,
+          branch_id:,
+          created_by_actor_id:,
+          order_number:,
+          channel:,
+          total:,
+          creation_idempotency_key:,
+          creation_request_fingerprint:,
+          created_at:
+        )
+          new(
+            id: id,
+            branch_id: branch_id,
+            created_by_actor_id: created_by_actor_id,
+            order_number: order_number,
+            channel: channel,
+            status: "draft",
+            total: total,
+            creation_idempotency_key: creation_idempotency_key,
+            creation_request_fingerprint: creation_request_fingerprint,
+            lock_version: 0,
+            created_at: created_at,
+            updated_at: created_at
+          )
+        end
 
         def initialize(
           id:,
@@ -31,17 +60,20 @@ module Orders
           hold_idempotency_key: nil
         )
           @id = id.is_a?(ValueObjects::OrderId) ? id : ValueObjects::OrderId.new(id)
-          @branch_id = branch_id
-          @created_by_actor_id = created_by_actor_id
-          @order_number = order_number
+          @branch_id = canonical_uuid(branch_id, "Branch identity")
+          @created_by_actor_id = canonical_uuid(created_by_actor_id, "Actor identity")
+          @order_number = ValueObjects::OrderNumber.new(order_number).to_s
           @channel = channel.is_a?(ValueObjects::ServiceChannel) ? channel : ValueObjects::ServiceChannel.new(channel)
           raise ArgumentError, "Order status is invalid" unless STATUSES.include?(status)
           raise ArgumentError, "Order total must be Money" unless total.is_a?(ValueObjects::Money)
 
           @status = status
           @total = total
-          @creation_idempotency_key = creation_idempotency_key
-          @creation_request_fingerprint = creation_request_fingerprint
+          @creation_idempotency_key = required_text(creation_idempotency_key, "Creation idempotency key")
+          unless creation_request_fingerprint.to_s.match?(FINGERPRINT_FORMAT)
+            raise ArgumentError, "Creation request fingerprint must be a lowercase SHA-256 digest"
+          end
+          @creation_request_fingerprint = creation_request_fingerprint.to_s
           @confirmation_idempotency_key = confirmation_idempotency_key
           @confirmed_at = confirmed_at
           @payment_expires_at = payment_expires_at
@@ -49,9 +81,11 @@ module Orders
           @held_at = held_at
           @hold_reason = hold_reason
           @hold_idempotency_key = hold_idempotency_key
-          @lock_version = lock_version
-          @created_at = created_at
-          @updated_at = updated_at
+          @lock_version = Integer(lock_version)
+          raise ArgumentError, "Order lock version must be nonnegative" if @lock_version.negative?
+
+          @created_at = required_value(created_at, "Order creation timestamp")
+          @updated_at = required_value(updated_at, "Order update timestamp")
 
           validate_lifecycle_evidence!
         end
@@ -109,6 +143,26 @@ module Orders
         end
 
         private
+
+        def canonical_uuid(value, label)
+          canonical = value.to_s.downcase
+          raise ArgumentError, "#{label} must be a UUID" unless canonical.match?(UUID_FORMAT)
+
+          canonical
+        end
+
+        def required_text(value, label)
+          text = value.to_s
+          raise ArgumentError, "#{label} is required" if text.strip.empty?
+
+          text
+        end
+
+        def required_value(value, label)
+          raise ArgumentError, "#{label} is required" if value.nil?
+
+          value
+        end
 
         def validate_lifecycle_evidence!
           case status

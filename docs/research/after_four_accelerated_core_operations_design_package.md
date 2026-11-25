@@ -34,7 +34,7 @@ Repository presence is not authority. No Gate, implementation, production, exter
 
 ### 2.1 Implemented foundations
 
-- `Orders::CreateDraft`, `Orders::Confirm`, `Orders::Hold` and `Orders::ExpirePending` implement an aggregate-total Order foundation (`backend/app/domains/orders/`).
+- `Orders::Application::UseCases::CreateDraft`, `Confirm`, `Hold` and `ExpirePending` implement an aggregate-total Order foundation (`backend/app/domains/orders/application/use_cases/`).
 - `Payments::ConfirmCash` and `Payments::ConfirmBankTransfer` call the exact-balance local confirmation command; mismatch is recorded/rejected and eligible settlement atomically creates one pending Preparation Dispatch (`backend/app/domains/payments/confirm.rb:34-101,126-234`).
 - Late success on Held/Expired Orders records financial truth plus a review case without automatic dispatch or reactivation (`backend/spec/services/payments/late_success_spec.rb`).
 - `Preparation::RequestDispatch` and `Preparation::RetryDispatch` create/requeue the durable pending handoff; no ticket worker or kitchen lifecycle exists (`backend/app/domains/preparation/`).
@@ -180,7 +180,7 @@ CORE-01 invariants are:
 
 The exact re-quote command shape, review token, lock order, database isolation and Price-publication race mechanism remain `TECHNICAL_PROPOSAL` pending Gate A review and Gate B authorization. The semantic requirement is stable: unrelated Draft edits never silently reprice, explicit revalidation exposes every changed commercial term, and confirmation cannot bypass the required review.
 
-The current `Orders::CreateDraft` accepts `total_amount` from its caller (`backend/app/domains/orders/create_draft.rb:7-27`). `CORE-01` must replace that trust boundary for the public operational flow; it must not silently change the existing command before Gate B approval.
+The current `Orders::Application::UseCases::CreateDraft` accepts `total_amount` from its caller (`backend/app/domains/orders/application/use_cases/create_draft.rb:27-56`). `CORE-01` must replace that trust boundary for the public operational flow; it must not silently change the existing command before Gate B approval.
 
 Ordering owns a stable confirmation attempt with these mutually exclusive logical outcomes:
 

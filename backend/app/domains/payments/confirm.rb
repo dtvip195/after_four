@@ -10,7 +10,7 @@ module Payments
     )
 
     def self.call(method:, order_id:, actor_id:, amount:, currency_code:, idempotency_key:, clock: -> { Time.current })
-      new(
+      OrderingComposition.confirm_payment(
         method: method,
         order_id: order_id,
         actor_id: actor_id,
@@ -18,10 +18,11 @@ module Payments
         currency_code: currency_code,
         idempotency_key: idempotency_key,
         clock: clock
-      ).call
+      )
     end
 
-    def initialize(method:, order_id:, actor_id:, amount:, currency_code:, idempotency_key:, clock:)
+    def initialize(order_gateway:, method:, order_id:, actor_id:, amount:, currency_code:, idempotency_key:, clock:)
+      @order_gateway = order_gateway
       @method = method
       @order_id = order_id
       @actor_id = actor_id
@@ -38,8 +39,8 @@ module Payments
       result = nil
       deferred_error = nil
       ApplicationRecord.transaction do
-        order = Order.lock.find(order_id)
-        payment = order.payment.lock!
+        order = order_gateway.lock(order_id)
+        payment = Payment.lock.find_by!(order_id: order.id.to_s)
         decision_time = clock.call
         existing = payment.payment_attempts.find_by(idempotency_key: idempotency_key)
         if existing
@@ -103,7 +104,7 @@ module Payments
 
     private
 
-    attr_reader :method, :order_id, :actor_id, :amount, :currency_code,
+    attr_reader :order_gateway, :method, :order_id, :actor_id, :amount, :currency_code,
       :idempotency_key, :clock
 
     def validate_input!
@@ -171,12 +172,14 @@ module Payments
     def expire_if_deadline_passed!(order, decision_time)
       return unless order.status == "confirmed" && order.payment_expires_at && decision_time >= order.payment_expires_at
 
-      order.update!(status: "expired", expired_at: decision_time, updated_at: decision_time)
+      return unless order.expire(now: decision_time, payment_unpaid: true) == :applied
+
+      order_gateway.save(order)
     end
 
     def create_dispatch!(order, payment, decision_time)
       dispatch = PreparationDispatch.create!(
-        order: order,
+        order_id: order.id.to_s,
         payment: payment,
         branch_id: order.branch_id,
         status: "pending",
@@ -201,7 +204,7 @@ module Payments
 
     def create_review_case!(order, payment, attempt, decision_time)
       PaymentReviewCase.create!(
-        order: order,
+        order_id: order.id.to_s,
         payment: payment,
         payment_attempt: attempt,
         kind: "late_success",
@@ -247,7 +250,7 @@ module Payments
         order: order,
         payment: payment,
         payment_attempt: attempt,
-        preparation_dispatch: order.preparation_dispatch,
+        preparation_dispatch: PreparationDispatch.find_by(order_id: order.id.to_s),
         review_case: attempt.payment_review_case,
         replayed: replayed
       )

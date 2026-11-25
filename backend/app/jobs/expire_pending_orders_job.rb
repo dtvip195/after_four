@@ -2,6 +2,6 @@ class ExpirePendingOrdersJob < ApplicationJob
   queue_as :default
 
   def perform
-    Orders::ExpirePending.call
+    OrderingComposition.expire_pending_use_case.call(now: Time.current)
   end
 end
