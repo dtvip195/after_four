@@ -523,6 +523,31 @@ CREATE TABLE public.audit_events (
 
 
 --
+-- Name: authentication_sessions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.authentication_sessions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    secret_verifier_digest character varying(64) NOT NULL,
+    csrf_verifier_digest character varying(64) NOT NULL,
+    authenticated_at timestamp(6) with time zone NOT NULL,
+    last_seen_at timestamp(6) with time zone NOT NULL,
+    idle_expires_at timestamp(6) with time zone NOT NULL,
+    absolute_expires_at timestamp(6) with time zone NOT NULL,
+    revoked_at timestamp(6) with time zone,
+    revocation_reason character varying(100),
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT authentication_sessions_csrf_digest_format CHECK (((csrf_verifier_digest)::text ~ '^[0-9a-f]{64}$'::text)),
+    CONSTRAINT authentication_sessions_expiry_order CHECK ((idle_expires_at <= absolute_expires_at)),
+    CONSTRAINT authentication_sessions_lock_version_nonnegative CHECK ((lock_version >= 0)),
+    CONSTRAINT authentication_sessions_secret_digest_format CHECK (((secret_verifier_digest)::text ~ '^[0-9a-f]{64}$'::text))
+);
+
+
+--
 -- Name: branches; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1256,6 +1281,31 @@ ALTER SEQUENCE public.solid_queue_semaphores_id_seq OWNED BY public.solid_queue_
 
 
 --
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    organization_id uuid NOT NULL,
+    username character varying(100) NOT NULL,
+    email character varying(254),
+    status character varying(24) DEFAULT 'invited'::character varying NOT NULL,
+    encrypted_password character varying DEFAULT ''::character varying NOT NULL,
+    reset_password_token character varying,
+    reset_password_sent_at timestamp(6) with time zone,
+    failed_attempts integer DEFAULT 0 NOT NULL,
+    unlock_token character varying,
+    locked_at timestamp(6) with time zone,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT users_failed_attempts_nonnegative CHECK ((failed_attempts >= 0)),
+    CONSTRAINT users_lock_version_nonnegative CHECK ((lock_version >= 0)),
+    CONSTRAINT users_status_allowed CHECK (((status)::text = ANY ((ARRAY['invited'::character varying, 'active'::character varying, 'suspended'::character varying, 'deactivated'::character varying])::text[])))
+);
+
+
+--
 -- Name: solid_queue_batch_executions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1360,6 +1410,14 @@ ALTER TABLE ONLY public.ar_internal_metadata
 
 ALTER TABLE ONLY public.audit_events
     ADD CONSTRAINT audit_events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: authentication_sessions authentication_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.authentication_sessions
+    ADD CONSTRAINT authentication_sessions_pkey PRIMARY KEY (id);
 
 
 --
@@ -1579,6 +1637,14 @@ ALTER TABLE ONLY public.solid_queue_semaphores
 
 
 --
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: idx_on_subject_type_subject_id_occurred_at_92d4f006a6; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1590,6 +1656,27 @@ CREATE INDEX idx_on_subject_type_subject_id_occurred_at_92d4f006a6 ON public.aud
 --
 
 CREATE UNIQUE INDEX index_audit_events_on_branch_and_key ON public.audit_events USING btree (branch_id, idempotency_key);
+
+
+--
+-- Name: index_authentication_sessions_on_absolute_expires_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_authentication_sessions_on_absolute_expires_at ON public.authentication_sessions USING btree (absolute_expires_at);
+
+
+--
+-- Name: index_authentication_sessions_on_idle_expires_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_authentication_sessions_on_idle_expires_at ON public.authentication_sessions USING btree (idle_expires_at);
+
+
+--
+-- Name: index_authentication_sessions_on_user_and_revocation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_authentication_sessions_on_user_and_revocation ON public.authentication_sessions USING btree (user_id, revoked_at);
 
 
 --
@@ -2020,6 +2107,27 @@ CREATE INDEX index_solid_queue_semaphores_on_key_and_value ON public.solid_queue
 
 
 --
+-- Name: index_users_on_organization_and_normalized_username; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_organization_and_normalized_username ON public.users USING btree (organization_id, lower((username)::text));
+
+
+--
+-- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING btree (reset_password_token);
+
+
+--
+-- Name: index_users_on_unlock_token; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_unlock_token ON public.users USING btree (unlock_token);
+
+
+--
 -- Name: uq_categories_brand_code; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2372,11 +2480,27 @@ ALTER TABLE ONLY public.solid_queue_batch_executions
 
 
 --
+-- Name: authentication_sessions fk_rails_c1fb4ea59f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.authentication_sessions
+    ADD CONSTRAINT fk_rails_c1fb4ea59f FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE RESTRICT;
+
+
+--
 -- Name: solid_queue_scheduled_executions fk_rails_c4316f352d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.solid_queue_scheduled_executions
     ADD CONSTRAINT fk_rails_c4316f352d FOREIGN KEY (job_id) REFERENCES public.solid_queue_jobs(id) ON DELETE CASCADE;
+
+
+--
+-- Name: users fk_rails_d7b9ff90af; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT fk_rails_d7b9ff90af FOREIGN KEY (organization_id) REFERENCES public.organizations(id) ON DELETE RESTRICT;
 
 
 --
@@ -2410,6 +2534,7 @@ ALTER TABLE ONLY public.payment_review_cases
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261126090000'),
 ('20261115210000'),
 ('20261115200000'),
 ('20261114203000'),

@@ -1,8 +1,10 @@
 # AFTER FOUR Identity & Branch Authorization v1.0
 
-**Status:** Owner policies confirmed; technical design remains Proposed pending security review  
-**Date:** 2026-11-14  
-**Scope:** Identity, authentication, sessions, authorization, Branch scope, and security audit only. No implementation is authorized.  
+**Status:** Owner policies confirmed; bounded authentication foundation implemented; production and business-authorization prerequisites remain open
+
+**Date:** 2026-11-14; implementation note updated 2026-11-26
+
+**Scope:** Identity, authentication, sessions, authorization, Branch scope, and security audit only. The 2026-11-26 Security & Trust Foundation task authorizes only the bounded implementation recorded in §7; Milestone 2B and production use remain unauthorized.
 **Related:** [ADR-0006](adr/0006-authentication-session-topology.md) · [Decision Register](after_four_identity_decision_register.md) · [Threat Model](after_four_security_threat_model.md) · [ERD](after_four_erd.md) · [Data Dictionary](after_four_data_dictionary.md) · [API Contract](after_four_api_contract.md)
 
 ## 1. Audit result: facts before proposals
@@ -173,7 +175,26 @@ Required event families include login success/failure, logout, session expiry/re
 
 For an unauthenticated failure, `actor_user_id` remains null. A keyed digest or coarse classification of the attempted identifier may support correlation; raw identifiers, network addresses beyond approved retention, and secret material do not belong in general metadata. Never store passwords, PINs, raw session/recovery/CSRF tokens, MFA seeds/codes, cookie/authorization headers, or unrestricted request bodies. Audit writes for sensitive state changes occur in the same transaction; direct update/delete is denied to the application role. No numeric retention period is approved. Database privileges and integrity evidence require security review; durations, payroll/customer visibility, pre-employment/offboarding treatment, recovery evidence, holds/exports, and anonymization timing require legal/privacy review.
 
-## 7. Milestone 2B sequence after approval
+## 7. Implemented Security & Trust Foundation slice (2026-11-26)
+
+The authorized slice implements a backend authentication foundation without granting a business capability:
+
+- Devise 5.0.4 supplies `database_authenticatable`, `recoverable`, `lockable`, and `timeoutable` credential primitives on the namespaced Identity Infrastructure record. Public registration, `rememberable`, public recovery endpoints, PIN, MFA, invitations, and Owner recovery are not implemented.
+- `users` records are Organization-scoped, default to `invited`, use username rather than email for login, and retain the separate active/suspended/deactivated lifecycle values. The database enforces normalized username uniqueness per Organization. Bcrypt is the Devise-supported implemented digest; this does not approve or replace the separately gated Argon2 production candidate.
+- `authentication_sessions` store a public UUID lookup plus SHA-256 verifiers for independently random session and CSRF secrets. Raw secrets are never persisted. The browser receives a host-only, `HttpOnly`, `SameSite=Lax`, `Path=/` cookie; production uses a `Secure` `__Host-` name. Unsafe authentication requests require the configured exact browser origin, and logout additionally requires the session-bound CSRF token.
+- Back-office sessions enforce the confirmed 30-minute idle and 12-hour absolute limits server-side. Authentication creates a new session rather than adopting caller state; logout, expiry, suspension/deactivation checks, and credential changes invalidate access. Password reset primitives enforce expiry and single use, but no public recovery/delivery workflow exists because its authority and evidence remain unresolved.
+- Presentation derives an `AuthenticatedActor` from the verified server session and delegates to Identity Application use cases. Client `actor_id`, role, Organization, or Branch assertions never populate the actor. Domain/Application code remains independent of Rails, Devise, Active Record, cookies, and sessions.
+- The only positive authorization rule is an active actor reading their own session in the same Organization. Unknown actions, another User, another Organization, and every Branch-scoped request deny by default. Role Assignment and Employee Branch Assignment persistence is absent, so no Ordering, Payment, Preparation, Catalog, Cash, reporting, or other business authority is granted.
+- Existing expiration jobs remain explicit system execution with no fabricated human identity. This slice introduces no general-purpose system account and no authentication-related background job.
+
+### 7.1 Explicit remaining controls and prerequisites
+
+- Exact distributed rate limiting, progressive delay, lock thresholds/release policy, breached-password screening, MFA, invitation acceptance, recovery proof/delivery, notifications, session inventory/revoke-all, and Owner-unavailable handling remain review items. Non-test processes fail boot unless lock threshold and duration are explicitly configured; local Compose values are development evidence only, not production approval.
+- The existing Branch-scoped `audit_events` shape cannot safely represent Organization-only or unauthenticated authentication events. Authentication audit persistence, safe attempted-subject correlation, event integrity, reader/retention policy, and legal/privacy review therefore remain open rather than forcing false Branch evidence.
+- Local development and test continue to use the PostgreSQL superuser as migration, owner, and runtime principal. Production runtime/schema-owner separation, exact grants, credential custody, and negative privilege tests remain a deployment prerequisite; no production role or credential was changed.
+- Same-origin production routing, trusted proxies, Host Authorization, TLS termination, production secret custody, mail delivery, and qualified security/legal/privacy review remain unverified. No production identity data may be created from this implementation record alone.
+
+## 8. Milestone 2B sequence after approval
 
 1. Resolve the remaining technical, operational, security, and legal/privacy review items and complete the [Identity Security Review Checklist](after_four_identity_security_review_checklist.md); update ADR-0006 before coding.
 2. Add failing RSpec policy/request/model tests for lifecycle, session revocation, default denial, IDOR, Branch intersection, and redaction.
@@ -187,7 +208,7 @@ For an unauthenticated failure, `actor_user_id` remains null. A keyed digest or 
 
 Stop after design approval review. No step above is authorized by this document alone.
 
-## 8. External security basis
+## 9. External security basis
 
 - [Rails Security Guide](https://guides.rubyonrails.org/security.html)
 - [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)

@@ -9,7 +9,7 @@ require "active_job/railtie"
 require "active_record/railtie"
 # require "active_storage/engine"
 require "action_controller/railtie"
-# require "action_mailer/railtie"
+require "action_mailer/railtie"
 # require "action_mailbox/engine"
 # require "action_text/engine"
 require "action_view/railtie"
@@ -59,5 +59,17 @@ module Backend
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+    config.middleware.use ActionDispatch::Cookies
+
+    config.x.identity.browser_origin = if Rails.env.production?
+      ENV.fetch("BROWSER_ORIGIN")
+    else
+      ENV.fetch("BROWSER_ORIGIN", "http://localhost:5173")
+    end
+    config.x.identity.session_cookie_name = if Rails.env.production?
+      "__Host-after_four_session"
+    else
+      "after_four_session"
+    end
   end
 end

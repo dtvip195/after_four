@@ -12,7 +12,7 @@ RSpec.describe "I1 layered dependency boundaries" do
     application_files.each do |path|
       source = File.read(path)
 
-      expect(source).not_to match(/\b(?:ActiveRecord|ApplicationRecord|Rails|PG::)/), path
+      expect(source).not_to match(/\b(?:ActiveRecord|ApplicationRecord|Devise|Rails|PG::)/), path
     end
   end
 
@@ -23,6 +23,12 @@ RSpec.describe "I1 layered dependency boundaries" do
     expect(
       Identity::Infrastructure::Adapters::OrganizationScopeAdapter.ancestors
     ).to include(Identity::Application::Ports::OrganizationScope)
+    expect(
+      Identity::Infrastructure::Adapters::DeviseCredentialAuthenticator.ancestors
+    ).to include(Identity::Application::Ports::CredentialAuthenticator)
+    expect(
+      Identity::Infrastructure::Adapters::ActiveRecordSessionStore.ancestors
+    ).to include(Identity::Application::Ports::SessionStore)
   end
 
   it "prevents cross-context persistence access" do

@@ -5,7 +5,8 @@ RSpec.describe "Package B Catalog isolation guard" do
 
   after do
     ActiveRecord::Base.connection.execute(<<~SQL)
-      TRUNCATE TABLE product_variants, products, categories, branches, brands, organizations
+      TRUNCATE TABLE authentication_sessions, users,
+        product_variants, products, categories, branches, brands, organizations
     SQL
   end
 
