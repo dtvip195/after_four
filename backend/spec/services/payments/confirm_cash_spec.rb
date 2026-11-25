@@ -209,7 +209,7 @@ RSpec.describe "cash payment confirmation" do
     expect(replay.payment_attempt.id).to eq(first.payment_attempt.id)
     expect(replay.preparation_dispatch.id).to eq(first.preparation_dispatch.id)
     expect(payment_for(order).payment_attempt_records.count).to eq(1)
-    expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: first.preparation_dispatch.id).count).to eq(1)
   end
 
@@ -239,7 +239,7 @@ RSpec.describe "cash payment confirmation" do
 
     expect(payment_for(order).payment_attempt_records.count).to eq(1)
     expect(payment_for(order).payment_attempt_records.first.id).to eq(original.payment_attempt.id.to_s)
-    expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: original.preparation_dispatch.id).count).to eq(1)
   end
 

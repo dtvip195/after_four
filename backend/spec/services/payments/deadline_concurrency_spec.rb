@@ -67,7 +67,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
       ActiveRecord::Base.connection_pool.with_connection do
         command_started << true
         begin
-          Preparation::RequestDispatch.call(
+          PreparationComposition.request_dispatch(
             order_id: order.id,
             actor_id: actor_id,
             idempotency_key: "dispatch-after-lock-wait",
@@ -133,7 +133,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
     expect(order_record(confirmation.order.id)).to have_attributes(status: "expired")
     expect(payment_for(order).reload).to have_attributes(funding_status: "fully_paid")
     expect(confirmation.review_case).to have_attributes(kind: "late_success", status: "open")
-    expect(PreparationDispatch.where(order_id: order.id)).to be_empty
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id)).to be_empty
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
   ensure
     confirmer&.join
@@ -178,12 +178,12 @@ RSpec.describe "payment deadline concurrency", :concurrency do
 
     Payments::Infrastructure::Persistence::PaymentRecord.transaction do
       payment_ids = Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: order.id).pluck(:id)
-      dispatch_ids = PreparationDispatch.where(order_id: order.id).pluck(:id)
+      dispatch_ids = Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).pluck(:id)
       delete_audit_events_as_database_owner(AuditEvent.where(branch_id: order.branch_id))
       Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.where(order_id: order.id).delete_all
-      PreparationDispatchAttempt.where(preparation_dispatch_id: dispatch_ids).delete_all
+      Preparation::Infrastructure::Persistence::DispatchAttemptRecord.where(preparation_dispatch_id: dispatch_ids).delete_all
       OutboxEvent.where(aggregate_type: "PreparationDispatch", aggregate_id: dispatch_ids).delete_all
-      PreparationDispatch.where(id: dispatch_ids).delete_all
+      Preparation::Infrastructure::Persistence::DispatchRecord.where(id: dispatch_ids).delete_all
       Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_ids).delete_all
       Payments::Infrastructure::Persistence::PaymentRecord.where(id: payment_ids).delete_all
       Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all

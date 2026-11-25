@@ -93,7 +93,7 @@ RSpec.describe "Payment Phase 2 persistence and composition" do
     payment = Payments::Infrastructure::Persistence::PaymentRecord.find_by!(order_id: order.id)
     expect(payment).to have_attributes(funding_status: "unpaid", successful_amount: 0)
     expect(payment.payment_attempt_records).to be_empty
-    expect(PreparationDispatch.where(order_id: order.id)).to be_empty
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id)).to be_empty
     expect(AuditEvent.where(event_type: "payment.confirmed")).to be_empty
   ensure
     connection&.execute("DROP TRIGGER IF EXISTS fail_phase_2_outbox_insert ON outbox_events")

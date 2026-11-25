@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Preparation::RetryDispatch do
+RSpec.describe PreparationComposition do
   it "requeues the existing dispatch without creating duplicate dispatch or outbox records" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 17, 0, 0)
@@ -29,22 +29,22 @@ RSpec.describe Preparation::RetryDispatch do
       clock: -> { now + 1.minute }
     ).preparation_dispatch
 
-    first = described_class.call(
+    first = described_class.retry_dispatch(
       preparation_dispatch_id: dispatch.id,
       actor_id: actor_id,
       idempotency_key: "retry-dispatch-1",
       now: now + 2.minutes
     )
-    replay = described_class.call(
+    replay = described_class.retry_dispatch(
       preparation_dispatch_id: dispatch.id,
       actor_id: actor_id,
       idempotency_key: "retry-dispatch-1",
       now: now + 3.minutes
     )
 
-    expect(first.preparation_dispatch.id).to eq(dispatch.id)
+    expect(first.preparation_dispatch.id.to_s).to eq(dispatch.id)
     expect(replay.replayed).to be(true)
-    expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: dispatch.id).count).to eq(1)
   end
 end

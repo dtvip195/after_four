@@ -135,23 +135,22 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     preparation_to_payment: []
   }.freeze
 
-  LEGACY_TECHNICAL_FACILITY_FILES = {
+  TECHNICAL_FACILITY_ADAPTER_FILES = {
     audit: %w[
       app/domains/orders/infrastructure/adapters/active_record_audit_log.rb
       app/domains/payments/infrastructure/adapters/active_record_audit_log.rb
-      app/domains/preparation/request_dispatch.rb
-      app/domains/preparation/retry_dispatch.rb
+      app/domains/preparation/infrastructure/adapters/active_record_audit_log.rb
     ],
     outbox: %w[
-      app/domains/preparation/infrastructure/adapters/active_record_settlement_dispatch_gateway.rb
-      app/domains/preparation/request_dispatch.rb
-      app/domains/preparation/retry_dispatch.rb
+      app/domains/preparation/infrastructure/adapters/active_record_outbox.rb
     ]
   }.freeze
 
   ORDERING_INFRASTRUCTURE_CROSS_CONTEXT_FILES = {
     payment: [],
-    preparation: []
+    preparation: %w[
+      app/domains/orders/infrastructure/adapters/preparation_order_dispatch_gateway.rb
+    ]
   }.freeze
   REMOVED_ORDERING_FACADES = %w[
     Orders::CreateDraft
@@ -163,6 +162,10 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     Payments::Confirm
     Payments::ConfirmCash
     Payments::ConfirmBankTransfer
+  ].freeze
+  REMOVED_PREPARATION_FACADES = %w[
+    Preparation::RequestDispatch
+    Preparation::RetryDispatch
   ].freeze
 
   it "records the exact current cross-context persistence violations" do
@@ -177,13 +180,13 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     expect(actual).to eq(LEGACY_CROSS_CONTEXT_FILES)
   end
 
-  it "records direct Audit and Outbox access as technical-facility debt, not business contexts" do
+  it "keeps direct Audit and Outbox access in explicit Infrastructure adapters" do
     actual = {
       audit: all_context_files_matching(/\bAuditEvent\b/),
       outbox: all_context_files_matching(/\bOutboxEvent\b/)
     }
 
-    expect(actual).to eq(LEGACY_TECHNICAL_FACILITY_FILES)
+    expect(actual).to eq(TECHNICAL_FACILITY_ADAPTER_FILES)
   end
 
   it "keeps newly introduced Domain and Application layers independent of Rails persistence" do
@@ -336,6 +339,21 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     expect(
       Payments::Infrastructure::Adapters::PreparationPaymentSettlementGateway.ancestors
     ).to include(Preparation::Application::Ports::PaymentSettlementGateway)
+    expect(
+      Orders::Infrastructure::Adapters::PreparationOrderDispatchGateway.ancestors
+    ).to include(Preparation::Application::Ports::OrderDispatchGateway)
+    expect(
+      Preparation::Infrastructure::Persistence::ActiveRecordDispatchRepository.ancestors
+    ).to include(Preparation::Application::Ports::DispatchRepository)
+    expect(
+      Preparation::Infrastructure::Persistence::ActiveRecordUnitOfWork.ancestors
+    ).to include(Preparation::Application::Ports::UnitOfWork)
+    expect(
+      Preparation::Infrastructure::Adapters::ActiveRecordOutbox.ancestors
+    ).to include(Preparation::Application::Ports::Outbox)
+    expect(
+      Preparation::Infrastructure::Adapters::ActiveRecordAuditLog.ancestors
+    ).to include(Preparation::Application::Ports::AuditLog)
 
     expect(Payments::Application::Ports::PaymentRepository.instance_method(:lock_by_order_id).parameters)
       .to eq([ [ :req, :_order_id ] ])
@@ -343,6 +361,8 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       .to eq([ [ :req, :_payment ] ])
     expect(Preparation::Application::Ports::SettlementDispatchGateway.instance_method(:request_for_settlement).parameters)
       .to eq([ [ :keyreq, :order_id ], [ :keyreq, :payment_id ], [ :keyreq, :branch_id ], [ :keyreq, :now ] ])
+    expect(Preparation::Application::Ports::PaymentSettlementGateway.instance_method(:fully_settled?).parameters)
+      .to eq([ [ :req, :_snapshot ] ])
     expect(Payments::Application::Ports::ReviewCaseGateway.instance_method(:open_late_success).parameters)
       .to eq([
         [ :keyreq, :order_id ],
@@ -383,6 +403,25 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     expect(Payments::Infrastructure::Persistence::PaymentAttemptRecord.table_name).to eq("payment_attempts")
     expect(Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.table_name)
       .to eq("payment_review_cases")
+  end
+
+  it "keeps production independent of removed Preparation facades and legacy Active Record models" do
+    removed_paths = %w[
+      app/domains/preparation/request_dispatch.rb
+      app/domains/preparation/retry_dispatch.rb
+      app/models/preparation_dispatch.rb
+      app/models/preparation_dispatch_attempt.rb
+    ].map { |path| Rails.root.join(path) }
+    production_files = Dir[Rails.root.join("app/**/*.rb")].sort
+
+    expect(removed_paths.select(&:exist?)).to be_empty
+    production_files.each do |path|
+      expect(scan(path).constant_paths & REMOVED_PREPARATION_FACADES).to be_empty, relative(path)
+    end
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.table_name)
+      .to eq("preparation_dispatches")
+    expect(Preparation::Infrastructure::Persistence::DispatchAttemptRecord.table_name)
+      .to eq("preparation_dispatch_attempts")
   end
 
   it "keeps production code independent of the removed Ordering service facades" do

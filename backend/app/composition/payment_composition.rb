@@ -13,7 +13,7 @@ module PaymentComposition
     Payments::Application::UseCases::ConfirmSettlement.new(
       order_gateway: Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway.new,
       payment_repository: Payments::Infrastructure::Persistence::ActiveRecordPaymentRepository.new,
-      preparation_gateway: Preparation::Infrastructure::Adapters::ActiveRecordSettlementDispatchGateway.new,
+      preparation_gateway: PreparationComposition.settlement_dispatch_gateway,
       review_case_gateway: Payments::Infrastructure::Adapters::ActiveRecordReviewCaseGateway.new,
       audit_log: Payments::Infrastructure::Adapters::ActiveRecordAuditLog.new,
       unit_of_work: Payments::Infrastructure::Persistence::ActiveRecordUnitOfWork.new,
