@@ -263,17 +263,19 @@ Duplicate the following rows for every Ingredient and every run. Blank cells mus
 
 ### 6.1 Ingredient inputs
 
-| Run ID | Ingredient/component | Function (main/topping/garnish/optional) | Exact specification/SKU | Preparation state | Source quantity/unit | Actual quantity/unit | Evidence/classification | Notes |
-|---|---|---|---|---|---|---|---|---|
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
+Record the entity shown on the package or document only in the evidence field supported by that source. A public seller/provider is not a verified supplier, and physical possession does not establish an approved supplier relationship or purchase cost.
+
+| Run ID | Ingredient/component | Function (main/topping/garnish/optional) | Exact specification/SKU/brand | Public seller, supplier or other source identity as evidenced | Package label, lot/expiry and source reference | Physically available for this run? | Preparation state | Source quantity/unit | Actual quantity/unit | Evidence/classification | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+|  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |
 
 ### 6.2 Equipment and settings
 
-| Run ID | Equipment | Make/model or specification | Setting | Temperature | Time | Calibration/check evidence | Notes |
-|---|---|---|---|---|---|---|---|
-|  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |
+| Run ID | Equipment/tool | Make/model or specification | Physical availability and location | Condition/readiness check | Setting | Temperature | Time | Calibration/check evidence | Checked by/date | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+|  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |
 
 ### 6.3 Batch/component preparation
 
@@ -284,10 +286,12 @@ Duplicate the following rows for every Ingredient and every run. Blank cells mus
 
 ### 6.4 Ice, vessel, finished output, and loss
 
-| Run ID | Ice mass | Vessel identity | Vessel capacity | Finished mass | Finished volume | Foam/component output | Leftover/loss | Measurement method |
-|---|---|---|---|---|---|---|---|---|
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
+Nominal size labels are not measured capacity. Record the actual vessel and the method and repeat evidence used to establish its usable capacity; do not transfer a capacity between S/M/L or between source tracks.
+
+| Run ID | Ice mass | Vessel identity/SKU | Vessel physically available? | Capacity measurement method | Capacity readings / evidence reference | Measured usable capacity | Finished mass | Finished volume | Foam/component output | Leftover/loss | Measurement method / notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+|  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |
 
 ### 6.5 Sensory evaluation and acceptance fields
 
@@ -311,6 +315,22 @@ A run may advance to `READY_FOR_OWNER_REVIEW` only when source fidelity/departur
 | Candidate ID | Current test status | Owner disposition | Decision date | Rationale/conditions | Further evidence/test required | Costing-BOM admission separately approved? |
 |---|---|---|---|---|---|---|
 |  | `OWNER_REVIEW_REQUIRED` |  |  |  |  | No |
+
+### 6.8 Pre-trial preparation checklist
+
+Complete this checklist independently for each planned run. A checked preparation item confirms only that the identified evidence or physical input is available for that run; it does not approve an Ingredient, supplier, Recipe, BOM, Variant mapping or formulation. `CM-R04-01` and `CM-R05-01` require separate checklists even when they use the same physical equipment or exact Ingredient SKU.
+
+| Run ID | Preparation checkpoint | Evidence/reference | Confirmed by/date | Status | Unresolved note |
+|---|---|---|---|---|---|
+|  | Parent source and immutable run identity recorded |  |  |  |  |
+|  | Every required Ingredient physically present and exact label/SKU recorded |  |  |  |  |
+|  | Source-range values selected and recorded without changing the parent formulation |  |  |  |  |
+|  | Equipment and measuring tools physically present and readiness/check evidence recorded |  |  |  |  |
+|  | Actual serving vessel identified and usable capacity measured |  |  |  |  |
+|  | Safe handling information available for the actual inputs |  |  |  |  |
+|  | Blank run sheet and evidence references prepared before measurement starts |  |  |  |  |
+|  | R13 independent tea identity, dose, water, temperature, time and method recorded, if applicable |  |  |  |  |
+|  | No S/M/L scaling, cross-track substitution or prior result has been assumed |  |  |  |  |
 
 ## 7. First-round input readiness
 
