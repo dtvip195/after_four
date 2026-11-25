@@ -9,14 +9,14 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect { Preparation::RequestDispatch.call(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected outbox_insert failure/)
 
-    expect(order.preparation_dispatch).to be_nil
+    expect(preparation_dispatch_for(order)).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
-    expect(order.payment.reload).to have_attributes(
+    expect(payment_for(order).reload).to have_attributes(
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "outbox_insert")
     result = Preparation::RequestDispatch.call(**attributes)
@@ -37,14 +37,14 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect { Preparation::RequestDispatch.call(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit_insert failure/)
 
-    expect(order.preparation_dispatch).to be_nil
+    expect(preparation_dispatch_for(order)).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
-    expect(order.payment.reload).to have_attributes(
+    expect(payment_for(order).reload).to have_attributes(
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "audit_insert")
     result = Preparation::RequestDispatch.call(**attributes)
@@ -68,11 +68,11 @@ RSpec.describe "preparation dispatch transaction recovery" do
 
     expect(event.reload).to have_attributes(status: "published", published_at: now + 2.minutes)
     expect(AuditEvent.where(event_type: "preparation.dispatch_retry_requested", subject_id: dispatch.id)).to be_empty
-    expect(order.payment.reload).to have_attributes(
+    expect(payment_for(order).reload).to have_attributes(
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "retry_audit_insert")
     result = Preparation::RetryDispatch.call(**attributes)
@@ -95,11 +95,11 @@ RSpec.describe "preparation dispatch transaction recovery" do
 
     expect(event.reload).to have_attributes(status: "published", published_at: now + 2.minutes)
     expect(AuditEvent.where(event_type: "preparation.dispatch_retry_requested", subject_id: dispatch.id)).to be_empty
-    expect(order.payment.reload).to have_attributes(
+    expect(payment_for(order).reload).to have_attributes(
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "retry_outbox_update")
     result = Preparation::RetryDispatch.call(**attributes)
@@ -114,7 +114,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
   def create_dispatchable_order(suffix)
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 12, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -122,8 +122,8 @@ RSpec.describe "preparation dispatch transaction recovery" do
       currency_code: "VND",
       idempotency_key: "create-#{suffix}",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-#{suffix}",
@@ -137,7 +137,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
   def create_pending_dispatch(suffix)
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 14, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -145,8 +145,8 @@ RSpec.describe "preparation dispatch transaction recovery" do
       currency_code: "VND",
       idempotency_key: "create-#{suffix}",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-#{suffix}",
@@ -167,7 +167,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
 
   def record_valid_settlement(order, actor_id, settled_at)
     Payment.transaction do
-      order.payment.payment_attempts.create!(
+      payment_for(order).payment_attempts.create!(
         method: "cash",
         status: "succeeded",
         requested_amount: order.total_amount,
@@ -179,7 +179,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
         created_at: settled_at,
         updated_at: settled_at
       )
-      order.payment.update!(
+      payment_for(order).update!(
         funding_status: "fully_paid",
         successful_amount: order.total_amount,
         fully_settled_at: settled_at,

@@ -8,6 +8,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require "rspec/rails"
 require "shoulda/matchers"
 require_relative "support/audit_event_cleanup"
+require_relative "support/ordering_application_test_support"
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -26,5 +27,6 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.include FactoryBot::Syntax::Methods
   config.include AuditEventCleanup
+  config.include OrderingApplicationTestSupport
   config.filter_rails_from_backtrace!
 end

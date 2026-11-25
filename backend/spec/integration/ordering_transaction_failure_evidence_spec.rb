@@ -6,19 +6,21 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
     attributes = draft_attributes(branch_id:, idempotency_key: "audit-failure-draft")
     install_audit_failure!
 
-    expect { Orders::CreateDraft.call(**attributes) }
+    expect { create_order_draft_record(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit failure/)
 
-    expect(Order.where(branch_id: branch_id)).to be_empty
-    expect(Payment.joins(:order).where(orders: { branch_id: branch_id })).to be_empty
+    expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id)).to be_empty
+    order_ids = Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id).select(:id)
+    expect(Payment.where(order_id: order_ids)).to be_empty
     expect(AuditEvent.where(branch_id: branch_id)).to be_empty
 
     remove_audit_failure!
-    result = Orders::CreateDraft.call(**attributes)
+    result = OrderingComposition.create_draft_use_case.call(**attributes)
+    order = Orders::Infrastructure::Persistence::OrderRecord.find(result.order.id.to_s)
 
     expect(result.replayed).to be(false)
-    expect(result.order).to be_persisted
-    expect(result.payment).to be_persisted
+    expect(order).to be_persisted
+    expect(Payment.find(result.payment_reference)).to be_persisted
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(1)
   ensure
     remove_audit_failure!
@@ -32,9 +34,9 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
     expect { Payments::ConfirmCash.call(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit failure/)
 
-    expect(order.payment.reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(order.payment.payment_attempts).to be_empty
-    expect(order.preparation_dispatch).to be_nil
+    expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
+    expect(payment_for(order).payment_attempts).to be_empty
+    expect(preparation_dispatch_for(order)).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "payment.confirmed", subject_type: "PaymentAttempt")).to be_empty
 
@@ -43,7 +45,7 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
 
     expect(result.payment).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
     expect(result.preparation_dispatch).to be_present
-    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: result.preparation_dispatch.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "payment.confirmed", subject_id: result.payment_attempt.id).count).to eq(1)
   ensure
@@ -52,7 +54,7 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
 
   it "rolls back late-success settlement and review evidence and permits a complete retry" do
     actor_id, now, order = create_confirmed_order("audit-failure-late-success")
-    Orders::ExpirePending.call(now: order.payment_expires_at)
+    expire_pending_orders(now: order.payment_expires_at)
     attributes = payment_attributes(
       order: order,
       actor_id: actor_id,
@@ -65,17 +67,17 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit failure/)
 
     expect(order.reload).to have_attributes(status: "expired")
-    expect(order.payment.reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(order.payment.payment_attempts).to be_empty
+    expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
+    expect(payment_for(order).payment_attempts).to be_empty
     expect(PaymentReviewCase.where(order_id: order.id)).to be_empty
-    expect(order.preparation_dispatch).to be_nil
+    expect(preparation_dispatch_for(order)).to be_nil
 
     remove_audit_failure!
     result = Payments::ConfirmBankTransfer.call(**attributes)
 
     expect(result.payment).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
     expect(result.review_case).to have_attributes(kind: "late_success", status: "open")
-    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
     expect(PaymentReviewCase.where(order_id: order.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "payment.late_success_recorded").count).to eq(1)
   ensure
@@ -87,14 +89,14 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
     deadline = order.payment_expires_at
     install_audit_failure!
 
-    expect { Orders::ExpirePending.call(now: deadline) }
+    expect { expire_pending_orders(now: deadline) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit failure/)
 
     expect(order.reload).to have_attributes(status: "confirmed", expired_at: nil)
     expect(AuditEvent.where(event_type: "order.payment_window_expired", subject_id: order.id)).to be_empty
 
     remove_audit_failure!
-    result = Orders::ExpirePending.call(now: deadline)
+    result = expire_pending_orders(now: deadline)
 
     expect(result.expired_order_ids).to contain_exactly(order.id)
     expect(order.reload).to have_attributes(status: "expired", expired_at: deadline)
@@ -116,7 +118,7 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
     }
     install_audit_failure!
 
-    expect { Orders::Hold.call(**attributes) }
+    expect { hold_order_record(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit failure/)
 
     expect(order.reload).to have_attributes(
@@ -129,7 +131,7 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
     expect(AuditEvent.where(event_type: "order.held", subject_id: order.id)).to be_empty
 
     remove_audit_failure!
-    result = Orders::Hold.call(**attributes)
+    result = OrderingComposition.hold_use_case.call(**attributes)
 
     expect(result.replayed).to be(false)
     expect(result.order).to have_attributes(status: "held", hold_reason: "Bank notification requires review")
@@ -141,10 +143,10 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
   def create_confirmed_order(suffix)
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 10, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       **draft_attributes(branch_id: SecureRandom.uuid, idempotency_key: "create-#{suffix}", actor_id: actor_id)
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-#{suffix}",

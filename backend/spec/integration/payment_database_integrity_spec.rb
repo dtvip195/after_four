@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "payment database integrity" do
   it "rejects fully paid without successful Payment Attempt evidence" do
-    payment = create_order.payment
+    payment = payment_for(create_order)
 
     expect do
       Payment.transaction(requires_new: true) do
@@ -15,7 +15,7 @@ RSpec.describe "payment database integrity" do
   end
 
   it "rejects fully paid when succeeded Payment Attempts are below the target" do
-    payment = create_order(total_amount: 80_000).payment
+    payment = payment_for(create_order(total_amount: 80_000))
 
     expect do
       Payment.transaction(requires_new: true) do
@@ -30,7 +30,7 @@ RSpec.describe "payment database integrity" do
   end
 
   it "accepts exact fully paid funding with complete succeeded evidence" do
-    payment = create_order(total_amount: 80_000).payment
+    payment = payment_for(create_order(total_amount: 80_000))
 
     Payment.transaction(requires_new: true) do
       insert_attempt(payment)
@@ -45,7 +45,7 @@ RSpec.describe "payment database integrity" do
   end
 
   it "rejects succeeded Payment Attempts missing required evidence" do
-    payment = create_order.payment
+    payment = payment_for(create_order)
     missing_evidence = [
       { method: nil },
       { requested_amount: nil },
@@ -67,7 +67,7 @@ RSpec.describe "payment database integrity" do
   end
 
   it "rejects a succeeded Payment Attempt whose confirmed amount differs from requested amount" do
-    payment = create_order.payment
+    payment = payment_for(create_order)
 
     expect do
       PaymentAttempt.transaction(requires_new: true) do
@@ -78,7 +78,7 @@ RSpec.describe "payment database integrity" do
 
   it "rejects a Preparation Dispatch that joins an Order to another Order's Payment" do
     order = create_order
-    other_payment = create_order.payment
+    other_payment = payment_for(create_order)
 
     expect do
       PreparationDispatch.insert_all!([ dispatch_attributes(order, payment: other_payment) ])
@@ -90,7 +90,7 @@ RSpec.describe "payment database integrity" do
 
     expect do
       PreparationDispatch.insert_all!([
-        dispatch_attributes(order, payment: order.payment, branch_id: SecureRandom.uuid)
+        dispatch_attributes(order, payment: payment_for(order), branch_id: SecureRandom.uuid)
       ])
     end.to raise_error(ActiveRecord::StatementInvalid)
   end
@@ -103,8 +103,8 @@ RSpec.describe "payment database integrity" do
       PaymentReviewCase.insert_all!([
         review_case_attributes(
           order: other_order,
-          payment: settled_order.payment,
-          attempt: settled_order.payment.payment_attempts.find_by!(status: "succeeded")
+          payment: payment_for(settled_order),
+          attempt: payment_for(settled_order).payment_attempts.find_by!(status: "succeeded")
         )
       ])
     end.to raise_error(ActiveRecord::StatementInvalid)
@@ -118,8 +118,8 @@ RSpec.describe "payment database integrity" do
       PaymentReviewCase.insert_all!([
         review_case_attributes(
           order: settled_order,
-          payment: settled_order.payment,
-          attempt: other_settled_order.payment.payment_attempts.find_by!(status: "succeeded")
+          payment: payment_for(settled_order),
+          attempt: payment_for(other_settled_order).payment_attempts.find_by!(status: "succeeded")
         )
       ])
     end.to raise_error(ActiveRecord::StatementInvalid)
@@ -128,16 +128,16 @@ RSpec.describe "payment database integrity" do
   it "keeps the current valid settlement and dispatch path working" do
     order = settle_order
 
-    expect(order.payment.reload).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
-    expect(order.preparation_dispatch).to have_attributes(
-      payment_id: order.payment.id,
+    expect(payment_for(order).reload).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
+    expect(preparation_dispatch_for(order)).to have_attributes(
+      payment_id: payment_for(order).id,
       branch_id: order.branch_id,
       status: "pending"
     )
   end
 
   def create_order(branch_id: SecureRandom.uuid, total_amount: 80_000)
-    Orders::CreateDraft.call(
+    create_order_draft_record(
       actor_id: SecureRandom.uuid,
       branch_id: branch_id,
       channel: "takeaway",
@@ -145,14 +145,14 @@ RSpec.describe "payment database integrity" do
       currency_code: "VND",
       idempotency_key: "database-integrity-#{SecureRandom.uuid}",
       now: Time.utc(2026, 11, 14, 10, 0, 0)
-    ).order
+    )
   end
 
   def settle_order
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 10, 0, 0)
     order = create_order
-    Orders::Confirm.call(
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "database-integrity-confirm-#{SecureRandom.uuid}",

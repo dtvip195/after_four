@@ -9,12 +9,12 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
 
     results = race_creations([ attributes, attributes ])
 
-    expect(results).to all(be_a(Orders::CreateDraft::Result))
+    expect(results).to all(be_a(Orders::Application::UseCases::CreateDraft::Result))
     expect(results.map { |result| result.order.id }.uniq.one?).to be(true)
-    expect(results.map { |result| result.payment.id }.uniq.one?).to be(true)
+    expect(results.map(&:payment_reference).uniq.one?).to be(true)
     expect(results.map(&:replayed)).to contain_exactly(false, true)
-    expect(Order.where(branch_id: branch_id, creation_idempotency_key: "concurrent-same-payload").count).to eq(1)
-    expect(Payment.where(order_id: results.first.order.id).count).to eq(1)
+    expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id, creation_idempotency_key: "concurrent-same-payload").count).to eq(1)
+    expect(Payment.where(order_id: results.first.order.id.to_s).count).to eq(1)
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(1)
   ensure
     cleanup_branch(branch_id)
@@ -26,16 +26,18 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
     changed = original.merge(channel: "dine_in", total_amount: 135_000)
 
     results = race_creations([ original, changed ])
-    winner = results.find { |result| result.is_a?(Orders::CreateDraft::Result) }
-    conflict = results.find { |result| result.is_a?(DomainError) }
+    winner = results.find { |result| result.is_a?(Orders::Application::UseCases::CreateDraft::Result) }
+    conflict = results.find { |result| result.is_a?(Orders::Domain::Errors::RuleViolation) }
 
     expect(winner).to be_present
     expect(conflict&.code).to eq("idempotency_conflict")
-    expect(Order.where(branch_id: branch_id, creation_idempotency_key: "concurrent-different-payload").count).to eq(1)
+    expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id, creation_idempotency_key: "concurrent-different-payload").count).to eq(1)
+    winning_order = Orders::Infrastructure::Persistence::OrderRecord.find(winner.order.id.to_s)
+    winning_payment = Payment.find(winner.payment_reference)
     expect([ [ "takeaway", 125_000 ], [ "dine_in", 135_000 ] ])
-      .to include([ winner.order.reload.channel, winner.order.total_amount ])
-    expect(winner.payment.reload).to have_attributes(target_amount: winner.order.total_amount)
-    expect(Payment.where(order_id: winner.order.id).count).to eq(1)
+      .to include([ winning_order.channel, winning_order.total_amount ])
+    expect(winning_payment).to have_attributes(target_amount: winning_order.total_amount)
+    expect(Payment.where(order_id: winning_order.id).count).to eq(1)
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(1)
   ensure
     cleanup_branch(branch_id)
@@ -48,11 +50,11 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
 
     results = race_creations([ first, second ])
 
-    expect(results).to all(be_a(Orders::CreateDraft::Result))
+    expect(results).to all(be_a(Orders::Application::UseCases::CreateDraft::Result))
     expect(results.map(&:replayed)).to contain_exactly(false, false)
     expect(results.map { |result| result.order.id }.uniq.length).to eq(2)
-    expect(results.map { |result| result.payment.id }.uniq.length).to eq(2)
-    expect(Order.where(branch_id: branch_id).count).to eq(2)
+    expect(results.map(&:payment_reference).uniq.length).to eq(2)
+    expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id).count).to eq(2)
     expect(Payment.where(order_id: results.map { |result| result.order.id }).count).to eq(2)
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(2)
   ensure
@@ -85,7 +87,7 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
           connection.execute("SET application_name = #{connection.quote(application_names[index])}")
           start.pop
           begin
-            Orders::CreateDraft.call(**attributes)
+            OrderingComposition.create_draft_use_case.call(**attributes)
           rescue StandardError => error
             error
           ensure
@@ -109,7 +111,7 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
   def hold_orders_table(lock_ready, release_lock)
     Thread.new do
       ActiveRecord::Base.connection_pool.with_connection do |connection|
-        Order.transaction do
+        Orders::Infrastructure::Persistence::OrderRecord.transaction do
           connection.execute("LOCK TABLE orders IN SHARE MODE")
           lock_ready << true
           release_lock.pop
@@ -140,11 +142,11 @@ RSpec.describe "concurrent draft creation idempotency", :concurrency do
   def cleanup_branch(branch_id)
     return unless branch_id
 
-    order_ids = Order.where(branch_id: branch_id).pluck(:id)
+    order_ids = Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id).pluck(:id)
     payment_ids = Payment.where(order_id: order_ids).pluck(:id)
     delete_audit_events_as_database_owner(AuditEvent.where(branch_id: branch_id))
     PaymentAttempt.where(payment_id: payment_ids).delete_all
     Payment.where(id: payment_ids).delete_all
-    Order.where(id: order_ids).delete_all
+    Orders::Infrastructure::Persistence::OrderRecord.where(id: order_ids).delete_all
   end
 end

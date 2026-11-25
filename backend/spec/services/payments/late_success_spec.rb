@@ -4,7 +4,7 @@ RSpec.describe "late payment success" do
   it "records settlement for an expired order but opens review and never dispatches" do
     actor_id = SecureRandom.uuid
     opened_at = Time.utc(2026, 11, 14, 12, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "dine_in",
@@ -12,15 +12,15 @@ RSpec.describe "late payment success" do
       currency_code: "VND",
       idempotency_key: "create-late-spec",
       now: opened_at
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-late-spec",
       expected_version: order.lock_version,
       now: opened_at
     )
-    Orders::ExpirePending.call(now: opened_at + 5.minutes)
+    expire_pending_orders(now: opened_at + 5.minutes)
 
     result = Payments::ConfirmBankTransfer.call(
       order_id: order.id,
@@ -41,7 +41,7 @@ RSpec.describe "late payment success" do
   it "records settlement for a held order but never reactivates or dispatches it" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 13, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -49,15 +49,15 @@ RSpec.describe "late payment success" do
       currency_code: "VND",
       idempotency_key: "create-held-late-spec",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-held-late-spec",
       expected_version: order.lock_version,
       now: now
     )
-    Orders::Hold.call(
+    hold_order_record(
       order_id: order.id,
       actor_id: actor_id,
       reason: "Operator review",

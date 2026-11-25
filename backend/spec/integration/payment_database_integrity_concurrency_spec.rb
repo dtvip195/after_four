@@ -5,7 +5,7 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
 
   it "serializes concurrent succeeded totals and rejects the overfunded aggregate" do
     order = create_order
-    payment = order.payment
+    payment = payment_for(order)
     ready = Queue.new
     start = Queue.new
 
@@ -43,7 +43,7 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
   end
 
   def create_order
-    Orders::CreateDraft.call(
+    create_order_draft_record(
       actor_id: SecureRandom.uuid,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -51,7 +51,7 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
       currency_code: "VND",
       idempotency_key: "database-integrity-concurrency-#{SecureRandom.uuid}",
       now: Time.utc(2026, 11, 14, 10, 0, 0)
-    ).order
+    )
   end
 
   def insert_attempt(payment, index)
@@ -80,7 +80,7 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
       payment_ids = Payment.where(order_id: order.id).pluck(:id)
       PaymentAttempt.where(payment_id: payment_ids).delete_all
       Payment.where(id: payment_ids).delete_all
-      Order.where(id: order.id).delete_all
+      Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all
     end
   end
 end

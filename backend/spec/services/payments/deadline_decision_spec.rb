@@ -65,7 +65,7 @@ RSpec.describe "payment deadline decision time" do
   end
 
   def create_confirmed_order(actor_id:, confirmed_at:, suffix:)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -73,8 +73,8 @@ RSpec.describe "payment deadline decision time" do
       currency_code: "VND",
       idempotency_key: "create-#{suffix}",
       now: confirmed_at
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-#{suffix}",

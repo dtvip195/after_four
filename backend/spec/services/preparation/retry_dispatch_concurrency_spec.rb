@@ -37,7 +37,7 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
     expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(event_key: event.event_key).count).to eq(1)
     expect(event.reload).to have_attributes(status: "pending", published_at: nil)
-    expect(PaymentAttempt.where(payment_id: order.payment.id, status: "succeeded").count).to eq(1)
+    expect(PaymentAttempt.where(payment_id: payment_for(order).id, status: "succeeded").count).to eq(1)
     expect(AuditEvent.where(event_type: "preparation.dispatch_retry_requested", subject_id: dispatch.id).count).to eq(1)
   ensure
     release_lock << true if holder&.alive?
@@ -78,7 +78,7 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
   def create_pending_dispatch(suffix)
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 16, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -86,8 +86,8 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
       currency_code: "VND",
       idempotency_key: "create-#{suffix}",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-#{suffix}",
@@ -163,7 +163,7 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
       PreparationDispatch.where(id: dispatch_ids).delete_all
       PaymentAttempt.where(payment_id: payment_ids).delete_all
       Payment.where(id: payment_ids).delete_all
-      Order.where(id: order.id).delete_all
+      Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all
     end
   end
 end

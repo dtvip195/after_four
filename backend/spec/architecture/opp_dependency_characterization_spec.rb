@@ -4,8 +4,9 @@ require "prism"
 RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline" do
   class DependencyScanner < Prism::Visitor
     PERSISTENCE_METHODS = %i[
-      all where joins pluck exists? find find_by find_by! find_each new create create!
-      update update! update_all save save! delete delete_all destroy destroy_all connection lock
+      all first take where joins pluck exists? find find_by find_by! find_each new create create!
+      insert_all insert_all! upsert upsert_all update update! update_all save save!
+      delete delete_all destroy destroy_all connection lock transaction
     ].freeze
 
     class AliasCollector < Prism::Visitor
@@ -23,12 +24,15 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       end
     end
 
-    attr_reader :constant_paths, :calls
+    ASSOCIATION_LOAD_METHODS = %i[includes preload eager_load joins left_joins].freeze
+
+    attr_reader :constant_paths, :calls, :association_names
 
     def initialize(source)
       super()
       @constant_paths = []
       @calls = []
+      @association_names = []
       result = Prism.parse(source)
       raise result.errors.map(&:message).join("; ") unless result.success?
 
@@ -52,6 +56,11 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       receiver = resolve(self.class.constant_receiver(node.receiver))
       calls << [ receiver, node.name ] if receiver
       calls << [ nil, node.name ] unless receiver
+      if ASSOCIATION_LOAD_METHODS.include?(node.name)
+        node.arguments&.arguments&.each do |argument|
+          association_names << argument.value.to_sym if argument.is_a?(Prism::SymbolNode)
+        end
+      end
       super
     end
 
@@ -72,6 +81,10 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
 
     def calls_method?(name)
       calls.any? { |_receiver, method| method == name }
+    end
+
+    def references_association?(name)
+      association_names.include?(name)
     end
 
     def self.constant_name(node)
@@ -116,9 +129,9 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
   # comparison prevents a new file from silently introducing the same dependency.
   LEGACY_CROSS_CONTEXT_FILES = {
     ordering_to_payment: [],
-    payment_to_ordering: %w[app/domains/payments/confirm.rb],
+    payment_to_ordering: [],
     payment_to_preparation: %w[app/domains/payments/confirm.rb],
-    preparation_to_ordering: %w[app/domains/preparation/request_dispatch.rb],
+    preparation_to_ordering: [],
     preparation_to_payment: %w[app/domains/preparation/request_dispatch.rb]
   }.freeze
 
@@ -135,6 +148,17 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       app/domains/preparation/retry_dispatch.rb
     ]
   }.freeze
+
+  ORDERING_INFRASTRUCTURE_CROSS_CONTEXT_FILES = {
+    payment: [],
+    preparation: []
+  }.freeze
+  REMOVED_ORDERING_FACADES = %w[
+    Orders::CreateDraft
+    Orders::Confirm
+    Orders::Hold
+    Orders::ExpirePending
+  ].freeze
 
   it "records the exact current cross-context persistence violations" do
     actual = {
@@ -164,6 +188,56 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       scanner = scan(path)
       expect(scanner).not_to reference_forbidden_layer_dependency(relative(path)), relative(path)
     end
+  end
+
+  it "keeps Ordering Infrastructure cross-context references limited to explicit composition" do
+    actual = {
+      payment: ordering_infrastructure_files.select do |path|
+        ordering_infrastructure_cross_context_dependency?(scan(path), :payment)
+      end.map { |path| relative(path) },
+      preparation: ordering_infrastructure_files.select do |path|
+        ordering_infrastructure_cross_context_dependency?(scan(path), :preparation)
+      end.map { |path| relative(path) }
+    }
+
+    expect(actual).to eq(ORDERING_INFRASTRUCTURE_CROSS_CONTEXT_FILES)
+  end
+
+  it "detects namespaced, aliased, chained, and association-based Infrastructure bypasses" do
+    payment_bypasses = [
+      "Payments::Infrastructure::Persistence::PaymentRecord.first",
+      "::Payments::Domain::Aggregates::Payment.new",
+      "PaymentStore = Payments::Infrastructure::Persistence::PaymentRecord\nPaymentStore.upsert_all([])",
+      "Payment.transaction { Payment.take }",
+      "order.payment",
+      "Order.joins(:payment).pluck(:id)"
+    ]
+    preparation_bypasses = [
+      "Preparation::Infrastructure::Persistence::DispatchRecord.take",
+      "DispatchStore = ::Preparation::Infrastructure::Persistence::DispatchRecord\nDispatchStore.insert_all([])",
+      "order.preparation_dispatch"
+    ]
+
+    payment_bypasses.each do |source|
+      expect(ordering_infrastructure_cross_context_dependency?(DependencyScanner.new(source), :payment))
+        .to be(true), source
+    end
+    preparation_bypasses.each do |source|
+      expect(ordering_infrastructure_cross_context_dependency?(DependencyScanner.new(source), :preparation))
+        .to be(true), source
+    end
+  end
+
+  it "allows Ordering Infrastructure to use its own layers and persistence" do
+    source = <<~RUBY
+      Orders::Infrastructure::Persistence::OrderRecord.where(status: "draft").first
+      Orders::Domain::Aggregates::Order
+      Orders::Application::Ports::OrderRepository
+    RUBY
+    scanner = DependencyScanner.new(source)
+
+    expect(ordering_infrastructure_cross_context_dependency?(scanner, :payment)).to be(false)
+    expect(ordering_infrastructure_cross_context_dependency?(scanner, :preparation)).to be(false)
   end
 
   it "rejects representative dependency aliases and persistence bypasses" do
@@ -233,6 +307,75 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     expect(
       Payments::Infrastructure::Adapters::OrderingPaymentGateway.ancestors
     ).to include(Orders::Application::Ports::PaymentGateway)
+    expect(
+      Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway.ancestors
+    ).to include(Orders::Application::Ports::OrderSettlementGateway)
+  end
+
+  it "wires the Payment adapter only at the application composition root" do
+    dependencies = OrderingComposition.dependencies
+
+    expect(dependencies.payment_gateway)
+      .to be_a(Payments::Infrastructure::Adapters::OrderingPaymentGateway)
+    expect(dependencies.order_repository)
+      .to be_a(Orders::Infrastructure::Persistence::ActiveRecordOrderRepository)
+    expect(dependencies.order_settlement_gateway)
+      .to be_a(Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway)
+  end
+
+  it "keeps production code independent of the removed Ordering service facades" do
+    removed_paths = %w[create_draft confirm hold expire_pending].map do |name|
+      Rails.root.join("app/domains/orders/#{name}.rb")
+    end
+    production_files = Dir[Rails.root.join("app/**/*.rb")].sort
+
+    expect(removed_paths.select { |path| File.exist?(path) }).to be_empty
+    production_files.each do |path|
+      expect(scan(path).constant_paths & REMOVED_ORDERING_FACADES).to be_empty, relative(path)
+    end
+  end
+
+  it "detects direct, leading-qualified, and aliased references to removed Ordering facades" do
+    fixtures = [
+      "Orders::CreateDraft.call",
+      "::Orders::Confirm.call",
+      "LegacyHold = Orders::Hold\nLegacyHold.call",
+      "LegacyExpiry = ::Orders::ExpirePending\nLegacyExpiry.call"
+    ]
+
+    fixtures.each do |source|
+      expect(DependencyScanner.new(source).constant_paths & REMOVED_ORDERING_FACADES)
+        .not_to be_empty, source
+    end
+  end
+
+  it "keeps production independent of the removed legacy Order Active Record model" do
+    legacy_path = Rails.root.join("app/models/order.rb")
+    production_files = Dir[Rails.root.join("app/**/*.rb")].sort
+    legacy_constant_references = production_files.select do |path|
+      path != Rails.root.join("app/domains/orders/domain/aggregates/order.rb").to_s &&
+        scan(path).constant_paths.include?("Order")
+    end
+    legacy_associations = production_files.select do |path|
+      File.read(path).match?(/\b(?:belongs_to|has_one|has_many)\s+:order\b/)
+    end
+
+    expect(File.exist?(legacy_path)).to be(false)
+    expect(legacy_constant_references.map { |path| relative(path) }).to be_empty
+    expect(legacy_associations.map { |path| relative(path) }).to be_empty
+    expect(Orders::Infrastructure::Persistence::OrderRecord.table_name).to eq("orders")
+  end
+
+  it "detects direct, leading-qualified, and aliased legacy Order model references" do
+    fixtures = [
+      "Order.find(order_id)",
+      "::Order.lock.find(order_id)",
+      "LegacyOrder = Order\nLegacyOrder.where(status: 'confirmed')"
+    ]
+
+    fixtures.each do |source|
+      expect(DependencyScanner.new(source).constant_paths).to include("Order"), source
+    end
   end
 
   def files_matching(context, pattern)
@@ -260,6 +403,27 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
         Dir[Rails.root.join("app/domains", context, layer, "**/*.rb")]
       end
     end.sort
+  end
+
+  def ordering_infrastructure_files
+    Dir[Rails.root.join("app/domains/orders/infrastructure/**/*.rb")].sort
+  end
+
+  def ordering_infrastructure_cross_context_dependency?(scanner, context)
+    case context
+    when :payment
+      scanner.references?("Payment", "PaymentAttempt", "PaymentReviewCase", "Payments") ||
+        %i[payment payment_attempts payment_review_cases].any? do |name|
+          scanner.calls_method?(name) || scanner.references_association?(name)
+        end
+    when :preparation
+      scanner.references?("Preparation", "PreparationDispatch") ||
+        %i[preparation_dispatch preparation_dispatches].any? do |name|
+          scanner.calls_method?(name) || scanner.references_association?(name)
+        end
+    else
+      raise ArgumentError, "Unknown context: #{context}"
+    end
   end
 
   def scan(path)

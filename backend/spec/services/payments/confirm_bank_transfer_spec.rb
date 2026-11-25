@@ -4,7 +4,7 @@ RSpec.describe Payments::ConfirmBankTransfer do
   it "records the cashier's explicit manual verification without bank credentials" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 10, 0, 0)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "dine_in",
@@ -12,8 +12,8 @@ RSpec.describe Payments::ConfirmBankTransfer do
       currency_code: "VND",
       idempotency_key: "create-bank-spec",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-bank-spec",

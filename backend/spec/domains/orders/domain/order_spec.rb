@@ -1,6 +1,7 @@
 require "spec_helper"
 require_relative "../../../../app/domains/orders/domain/errors/rule_violation"
 require_relative "../../../../app/domains/orders/domain/value_objects/order_id"
+require_relative "../../../../app/domains/orders/domain/value_objects/order_number"
 require_relative "../../../../app/domains/orders/domain/value_objects/money"
 require_relative "../../../../app/domains/orders/domain/value_objects/service_channel"
 require_relative "../../../../app/domains/orders/domain/value_objects/payment_window"
@@ -120,6 +121,56 @@ RSpec.describe Orders::Domain::Aggregates::Order do
     expect(order.expire(now: now + 299, payment_unpaid: true)).to eq(:ineligible)
     expect(order.expire(now: now + 300, payment_unpaid: true)).to eq(:applied)
     expect(order).to have_attributes(status: "expired", expired_at: now + 300)
+  end
+
+  describe "creation invariants" do
+    it "constructs a valid Draft without Rails" do
+      draft = described_class.draft(
+        id: "0d13889c-916c-43e7-8f25-f21e19b6ef71",
+        branch_id: "d4a98431-609d-4b50-92f5-c973aec268db",
+        created_by_actor_id: "e75b9410-c367-490b-bb05-fd0bd86a54ba",
+        order_number: Orders::Domain::ValueObjects::OrderNumber.generate(token: "a1b2c3d4e5f6"),
+        channel: "takeaway",
+        total: Orders::Domain::ValueObjects::Money.new(amount: 80_000, currency_code: "VND"),
+        creation_idempotency_key: "create-1",
+        creation_request_fingerprint: "a" * 64,
+        created_at: now
+      )
+
+      expect(draft).to have_attributes(
+        status: "draft",
+        order_number: "AF-A1B2C3D4E5F6",
+        lock_version: 0,
+        created_at: now,
+        updated_at: now
+      )
+    end
+
+    it "rejects invalid owned and referenced identities during creation and reconstitution" do
+      {
+        id: "not-an-order-id",
+        branch_id: "not-a-branch-id",
+        created_by_actor_id: "not-an-actor-id",
+        order_number: " ",
+        creation_idempotency_key: " ",
+        creation_request_fingerprint: "not-a-fingerprint",
+        lock_version: -1,
+        created_at: nil,
+        updated_at: nil
+      }.each do |field, invalid|
+        expect { build_order(field => invalid) }.to raise_error(ArgumentError), field.to_s
+      end
+    end
+
+    it "rejects invalid channel and Money through Domain value objects" do
+      expect { build_order(channel: "delivery") }.to raise_error(ArgumentError, "Service Channel is invalid")
+      expect do
+        Orders::Domain::ValueObjects::Money.new(amount: 0, currency_code: "VND")
+      end.to raise_error(ArgumentError, "Money amount must be positive")
+      expect do
+        Orders::Domain::ValueObjects::Money.new(amount: 80_000, currency_code: "VN")
+      end.to raise_error(ArgumentError, "Money currency must be a three-letter code")
+    end
   end
 
   describe "lifecycle reconstitution invariants" do

@@ -3,15 +3,32 @@ module Preparation
     Result = Data.define(:preparation_dispatch, :replayed)
 
     def self.call(order_id:, actor_id:, idempotency_key:, clock: -> { Time.current })
+      OrderingComposition.request_preparation_dispatch(
+        order_id: order_id,
+        actor_id: actor_id,
+        idempotency_key: idempotency_key,
+        clock: clock
+      )
+    end
+
+    def initialize(order_gateway:, order_id:, actor_id:, idempotency_key:, clock:)
+      @order_gateway = order_gateway
+      @order_id = order_id
+      @actor_id = actor_id
+      @idempotency_key = idempotency_key
+      @clock = clock
+    end
+
+    def call
       TrustedActor.require_id!(actor_id)
       raise DomainError.new("idempotency_key_required", "Idempotency key is required") if idempotency_key.to_s.empty?
 
       result = nil
       ApplicationRecord.transaction do
-        order = Order.lock.find(order_id)
-        payment = order.payment.lock!
+        order = order_gateway.lock(order_id)
+        payment = Payment.lock.find_by!(order_id: order.id.to_s)
         decision_time = clock.call
-        existing = order.preparation_dispatch
+        existing = PreparationDispatch.find_by(order_id: order.id.to_s)
         if existing
           result = Result.new(preparation_dispatch: existing, replayed: true)
           next
@@ -29,7 +46,7 @@ module Preparation
         end
 
         dispatch = PreparationDispatch.create!(
-          order: order,
+          order_id: order.id.to_s,
           payment: payment,
           branch_id: order.branch_id,
           status: "pending",
@@ -65,5 +82,9 @@ module Preparation
       end
       result
     end
+
+    private
+
+    attr_reader :order_gateway, :order_id, :actor_id, :idempotency_key, :clock
   end
 end

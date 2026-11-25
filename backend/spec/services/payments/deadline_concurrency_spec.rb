@@ -87,7 +87,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
     expect(result).to be_a(DomainError)
     expect(result.code).to eq("order_not_dispatchable")
     expect(order.reload).to have_attributes(status: "confirmed")
-    expect(order.preparation_dispatch).to be_nil
+    expect(preparation_dispatch_for(order)).to be_nil
   ensure
     release_lock << true if holder&.alive?
     holder&.join
@@ -122,7 +122,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
       ActiveRecord::Base.connection_pool.with_connection do
         ready << true
         start.pop
-        Orders::ExpirePending.call(now: deadline)
+        expire_pending_orders(now: deadline)
       end
     end
     2.times { ready.pop }
@@ -130,7 +130,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
     confirmation = confirmer.value
     expirer.value
 
-    expect(confirmation.order.reload).to have_attributes(status: "expired")
+    expect(order_record(confirmation.order.id)).to have_attributes(status: "expired")
     expect(confirmation.payment.reload).to have_attributes(funding_status: "fully_paid")
     expect(confirmation.review_case).to have_attributes(kind: "late_success", status: "open")
     expect(PreparationDispatch.where(order_id: order.id)).to be_empty
@@ -142,7 +142,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
   end
 
   def create_confirmed_order(actor_id:, confirmed_at:, suffix:)
-    order = Orders::CreateDraft.call(
+    order = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -150,8 +150,8 @@ RSpec.describe "payment deadline concurrency", :concurrency do
       currency_code: "VND",
       idempotency_key: "create-#{suffix}",
       now: confirmed_at
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: order.id,
       actor_id: actor_id,
       idempotency_key: "confirm-#{suffix}",
@@ -164,8 +164,8 @@ RSpec.describe "payment deadline concurrency", :concurrency do
   def hold_order_lock(order, lock_acquired, release_lock)
     Thread.new do
       ActiveRecord::Base.connection_pool.with_connection do
-        Order.transaction do
-          Order.lock.find(order.id)
+        Orders::Infrastructure::Persistence::OrderRecord.transaction do
+          Orders::Infrastructure::Persistence::OrderRecord.lock.find(order.id)
           lock_acquired << true
           release_lock.pop
         end
@@ -186,13 +186,13 @@ RSpec.describe "payment deadline concurrency", :concurrency do
       PreparationDispatch.where(id: dispatch_ids).delete_all
       PaymentAttempt.where(payment_id: payment_ids).delete_all
       Payment.where(id: payment_ids).delete_all
-      Order.where(id: order.id).delete_all
+      Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all
     end
   end
 
   def record_valid_settlement(order, settled_at)
     Payment.transaction do
-      order.payment.payment_attempts.create!(
+      payment_for(order).payment_attempts.create!(
         method: "cash",
         status: "succeeded",
         requested_amount: order.total_amount,
@@ -204,7 +204,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
         created_at: settled_at,
         updated_at: settled_at
       )
-      order.payment.update!(
+      payment_for(order).update!(
         funding_status: "fully_paid",
         successful_amount: order.total_amount,
         fully_settled_at: settled_at

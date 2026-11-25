@@ -40,6 +40,43 @@ RSpec.describe "Ordering persistence and Payment contract adapters" do
     )
   end
 
+  it "refuses to save an Aggregate that was not obtained through the repository lock" do
+    record = create_order_record
+    aggregate = mapper.to_domain(record)
+
+    expect { repository.save(aggregate) }
+      .to raise_error(Orders::Application::Ports::OrderRepository::OrderNotLocked)
+  end
+
+  it "propagates not-found lookup through the Ordering settlement gateway" do
+    gateway = Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway.new(
+      order_repository: repository
+    )
+
+    expect { gateway.lock(SecureRandom.uuid) }.to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  it "keeps settlement gateway writes inside the caller's transaction" do
+    record = create_order_record
+    gateway = Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway.new(
+      order_repository: repository
+    )
+
+    ApplicationRecord.transaction do
+      aggregate = gateway.lock(record.id)
+      aggregate.confirm(
+        idempotency_key: "gateway-ambient-transaction",
+        expected_version: record.lock_version,
+        now: now,
+        payment_window: Orders::Domain::ValueObjects::PaymentWindow.new(300)
+      )
+      gateway.save(aggregate)
+      raise ActiveRecord::Rollback
+    end
+
+    expect(record.reload).to have_attributes(status: "draft", confirmation_idempotency_key: nil)
+  end
+
   it "implements the Ordering-owned Payment contract under the ambient transaction" do
     aggregate = build_aggregate
     repository.add(aggregate)
@@ -99,7 +136,7 @@ RSpec.describe "Ordering persistence and Payment contract adapters" do
 
   it "persists, reloads, and replays a legacy whitespace-only Hold key" do
     actor_id = SecureRandom.uuid
-    created = Orders::CreateDraft.call(
+    created = create_order_draft_record(
       actor_id: actor_id,
       branch_id: SecureRandom.uuid,
       channel: "takeaway",
@@ -107,25 +144,25 @@ RSpec.describe "Ordering persistence and Payment contract adapters" do
       currency_code: "VND",
       idempotency_key: "whitespace-hold-create",
       now: now
-    ).order
-    Orders::Confirm.call(
+    )
+    confirm_order_record(
       order_id: created.id,
       actor_id: actor_id,
       idempotency_key: "whitespace-hold-confirm",
       expected_version: created.lock_version,
       now: now
     )
-    held = Orders::Hold.call(
+    held = hold_order_record(
       order_id: created.id,
       actor_id: actor_id,
       reason: "Review",
       idempotency_key: " ",
       expected_version: created.reload.lock_version,
       now: now + 60
-    ).order
+    )
 
     reconstituted = repository.lock(held.id)
-    replay = Orders::Hold.call(
+    replay = OrderingComposition.hold_use_case.call(
       order_id: held.id,
       actor_id: actor_id,
       reason: "Review",

@@ -91,7 +91,7 @@ All people, identifiers, amounts, methods and events below are synthetic. They e
 | [Real Menu & Pricing Specification](../architecture/after_four_real_menu_pricing_specification.md) | Owner-input template and `TBD` inventory | Blank/TBD/example rows are not approved data. |
 | [P1B reconciliation](after_four_p1b_catalog_current_state_reconciliation.md) | Precisely separates Package B Catalog Core evidence from absent Price/Availability/Modifier/menu runtime | No Price implementation authorization. |
 | [Catalog foundation migration](../../backend/db/migrate/20261115210000_create_catalog_core_foundation.rb), [Variant record](../../backend/app/domains/catalog/infrastructure/persistence/product_variant_record.rb), [record specs](../../backend/spec/domains/catalog/infrastructure/persistence/catalog_records_spec.rb) | Product/Variant identity, relationships and lifecycle persistence | No Price, Modifier, tax, service charge, rounding or sold snapshot. Tests were inspected, not executed. |
-| [Order draft](../../backend/app/domains/orders/create_draft.rb) and [Order confirm](../../backend/app/domains/orders/confirm.rb) | Current command accepts `total_amount` and confirms it | No Order Items, Catalog lookup, Price Version, quote-review, component calculation or sold provenance. |
+| [Order draft](../../backend/app/domains/orders/application/use_cases/create_draft.rb) and [Order confirm](../../backend/app/domains/orders/application/use_cases/confirm.rb) | Current command accepts `total_amount` and confirms it | No Order Items, Catalog lookup, Price Version, quote-review, component calculation or sold provenance. |
 | [Vietnam POS evidence](after_four_wave_2_vietnam_pos_comparative_evidence.md) | Vendor examples of discounts/tax/service fees/channel pricing | Context only; not a portable formula, authority, or legal basis. |
 
 ## 7. Commercial component gaps
@@ -101,7 +101,7 @@ All people, identifiers, amounts, methods and events below are synthetic. They e
 | Product/sellable Variant | `OWNER_DECISION` + bounded `IMPLEMENTED_BEHAVIOR` | Every sellable selection uses persisted Variant; Product/Variant tables exist. | No selling/menu operation or real Price data. |
 | Chain default/Branch override | `OWNER_DECISION` | Explicit Branch override, otherwise chain default. | No Price table/runtime, actual override, publication authority, or conflict rule. |
 | Effective Price Version | `OWNER_DECISION` | Immutable/effective-dated; correction creates a new version. | No interval inclusivity, timezone, overlap/tie selection, persistence or test. |
-| Draft repricing | `OWNER_DECISION` | Revised quote review before confirmation. | Current `Orders::Confirm` does no Catalog lookup/version check; UX/contract/concurrency unresolved. |
+| Draft repricing | `OWNER_DECISION` | Revised quote review before confirmation. | Current `Orders::Application::UseCases::Confirm` does no Catalog lookup/version check; UX/contract/concurrency unresolved. |
 | Sold Price | `OWNER_DECISION` | Locked at confirmation; later Catalog changes cannot rewrite it. | No Order Items/component snapshot or source-version provenance implemented. |
 | Actual menu/Price | `UNVERIFIED_ASSUMPTION` | Template contains blanks/TBDs; individual proposal rows are not approved. | Actual launch Variant, Modifier and Branch Price facts. |
 | Modifier price | `OPEN_QUESTION` | Modifier cardinality is approved. | Whether/how modifiers affect Price, negative/zero delta, history and Refund treatment. |
@@ -157,7 +157,7 @@ There is no necessary circular ownership: each component domain supplies its fac
 | Cancellation authority vs consequence | `ODB-OP-12`–`14`; `P1A-OD-04/05` | What stage-specific outcomes apply without reopening authority? |
 | Effective-dated Price vs undefined boundary | `ODB-CAT-08`; [Catalog discovery §4](../architecture/after_four_catalog_pricing_discovery.md#4-unresolved-decisions-preserved) | Which business timezone, inclusivity, overlap and tie semantics apply? |
 | Sold Price vs full commercial snapshot | `ODB-CAT-10`; [P1B §4](after_four_p1b_catalog_current_state_reconciliation.md#4-canonical-terminology-and-ownership) | Which immutable component/provenance facts comprise the sold total? |
-| Caller-supplied Order total vs future authoritative Catalog calculation | [`Orders::CreateDraft`](../../backend/app/domains/orders/create_draft.rb) | Current bounded implementation is not proof of a future Price authority contract; what replaces caller-supplied totals after policy/design approval? |
+| Caller-supplied Order total vs future authoritative Catalog calculation | [`Orders::Application::UseCases::CreateDraft`](../../backend/app/domains/orders/application/use_cases/create_draft.rb) | Current bounded implementation is not proof of a future Price authority contract; what replaces caller-supplied totals after policy/design approval? |
 | Tax/service/rounding ownership | [Upstream evidence §5.1](after_four_wave_2_upstream_commercial_dependency_evidence_review.md#51-ownership-boundary) | Accountable policy owner is not fully established; qualified evidence and Owner confirmation are required. |
 
 ## 11. Qualified evidence still required
