@@ -150,11 +150,11 @@ This sequence applies independently to Bánh croissant, Cheesecake, Brownie choc
 
 ### 1.6 Owner execution dashboard
 
-No row is `READY_FOR_CONTROLLED_TRIAL` because the repository cannot prove physical availability or Owner selection of the required inputs. Move a row to that status only after the listed prerequisites are recorded.
+No row is `READY_FOR_CONTROLLED_TRIAL` because the repository cannot prove physical availability and completion of every required input/tool check. R04 now has a provisional Owner checkpoint, but that checkpoint does not prove physical readiness or authorize execution. Move a row to `READY_FOR_CONTROLLED_TRIAL` only after its listed prerequisites are recorded.
 
 | Workstream | Product / trial | Readiness status | Missing materials/equipment | Missing Owner input | Evidence required | Next actionable step / blocking dependency |
 |---|---|---|---|---|---|---|
-| WS01 | Cà phê muối / `CM-R04-01` | `READY_FOR_OWNER_PREPARATION` | Actual coffee, condensed milk, whipping cream, salt, water/ice; phin/brewer, foam tools, scale, volume tools, thermometer, timer and vessel | Exact SKUs and first values inside source ranges | Labels/provenance, equipment/settings, actual measurements, output/loss, sensory and repeat evidence | Owner/operator identifies complete physical set; then status may become `READY_FOR_CONTROLLED_TRIAL`. |
+| WS01 | Cà phê muối / `CM-R04-01` | `EVIDENCE_BACKED_SELECTION_AWAITING_PHYSICAL_VERIFICATION` | Physically identified packages for provisional coffee `R04M-I01/I02`, condensed milk `R04M-I03`, cream `R04M-I05/I06`, water `R04M-I12`, exact salt and ice; provisional phin `R04M-E01`, scale `R04M-E04`, mixer `R04M-E07`; thermometer, volume tools, timer function and measured vessel | Retailer choice within the paired coffee and cream observations remains open; no further formulation quantity is required because the Owner provisionally selected 1.0 g salt and three independent conforming runs on 2026-11-25 | Package labels/provenance; physical availability; equipment checks; vessel capacity; actual measurements; output/loss; sensory and repeat evidence | Complete the R04 physical verification sheet in §2.5. The provisional checkpoint is not an Ingredient/equipment approval, purchase authorization or permission to execute the trial. |
 | WS01 | Cà phê muối / `CM-R05-01` | `READY_FOR_OWNER_PREPARATION` | Actual coffee, condensed milk, cream, fresh milk, salt, water/ice and same measurement capabilities | Exact SKUs and first in-range condensed-milk value; optional cocoa remains excluded unless explicitly selected | Same classes as R04, retained independently | Prepare separately; never hybridize with R04. |
 | WS02 | Trà đào cam sả / one selected `TDCS-*-R12-01` | `READY_FOR_OWNER_PREPARATION` | Exact tea, peach, orange, syrup, lemongrass, lime, water/ice; brewer/filter, citrus tools and measured vessel | Select one first Variant/vessel and actual SKUs | Brew inputs/output, Product inputs, ice, vessel, final output/loss, sensory and repeat evidence | Select and measure one vessel; do not scale the 500 ml benchmark. |
 | WS02 | Matching `TDCS-*-R13-01` | `BLOCKED_BY_MISSING_INPUT` | Same physical classes as R12 | Explicit independent tea identity, dose, water, temperature, time and method | Full R13 tea-basis record plus independent run evidence | Define the R13 trial basis without copying R12. |
@@ -165,6 +165,24 @@ No row is `READY_FOR_CONTROLLED_TRIAL` because the repository cannot prove physi
 | WS04 | Muffin | `BLOCKED_BY_MISSING_INPUT` | Same; flavour and weight are unresolved | Select accepted flavour/formulation, size/portion and criteria | Same receipt, traceability, saleability and transaction classes | Do not infer Vanilla or Chocolate selection from the listing. |
 | WS05 | 48 MAKE costing combinations | `EVIDENCE_PENDING` | Actual Recipe/BOM, purchase and packaging evidence | Separate Recipe/BOM and packaging admission after trials | Quantities, units/conversions, prices, yield, waste, batch allocation and channel packaging | Populate only traceable evidence lines; current unit cost remains uncalculable. |
 | WS05 | Four BUY costing combinations | `EVIDENCE_PENDING` | Accepted specification, verified supplier, quotation/transaction and receipt evidence | Accepted finished-product specification | Purchase unit, landed cost, saleable portions, measured loss and channel packaging | Keep quoted and actual purchase prices distinct; no margin calculation. |
+
+#### 1.6.1 R04 provisional Owner checkpoint
+
+The Owner supplied the following checkpoint on 2026-11-25. It completes the repository-recording step only. Every entry remains provisional for trial preparation and requires physical identification or verification before use.
+
+| R04 concern | Provisional selection | Preserved boundary |
+|---|---|---|
+| Coffee | `R04M-I01/I02` | Same named 340 g Product observed at two retailers; retailer, exact physical package, batch, availability and grind suitability remain unverified. |
+| Condensed milk | `R04M-I03` | Exact physical package and label must be verified; 20 ml is not converted to grams. |
+| Whipping cream | `R04M-I05/I06` | Same named 1 L Anchor Product observed through two retailer sources; retailer, physical package, cold-chain evidence and availability remain unverified. |
+| Salt quantity | 1.0 g | Quantity is selected only for R04 trial preparation; exact salt Product remains to be physically identified. |
+| Water | `R04M-I12` | Physical bottle/package and suitability for the bounded trial remain to be verified. |
+| Phin | `R04M-E01` | Public specification only; physical condition, assembly and suitability remain unverified. |
+| Scale/timer | `R04M-E04` | A 0.1 g display division does not establish accuracy or calibration. |
+| Foam tool | `R04M-E07` | Physical identity, condition, included beaters and operating settings remain unverified. |
+| Repeat design | Three independent conforming runs | No run has occurred. Failed or deviated runs remain evidence but do not count toward the three conforming runs. |
+
+This checkpoint does not select a retailer, approve an Ingredient or tool, prove stock at Hoi An, authorize acquisition or physical execution, or approve a Recipe/BOM or cost.
 
 ## 2. Cà phê muối — independent benchmark tracks
 
@@ -179,7 +197,7 @@ Sources and limitations are documented in [Recipe Research §3.3](after_four_com
 | Measured coffee output | Source reports about 80 ml | Measure every run; source value is not actual AFTER FOUR yield. |
 | Condensed milk | 20 ml | Preserve; exact Ingredient specification required. |
 | Foam whipping cream | 60 ml | Preserve as the salt denominator. |
-| Salt | 0.75–1.5 g fine sea salt | Each selected mass is a controlled variant of R04, not a new source Recipe; do not select a final value here. |
+| Salt | 0.75–1.5 g fine sea salt | Preserve the source range. The Owner provisionally selected 1.0 g for `CM-R04-01` preparation on 2026-11-25; this is not a final Recipe or Ingredient approval. |
 | Ice | Glass two-thirds full | Source has no mass; record actual ice mass and vessel capacity. |
 | Extraction time | Not established in retained source evidence | `TO_BE_MEASURED`; do not invent. |
 
@@ -201,6 +219,107 @@ Sources and limitations are documented in [Recipe Research §3.3](after_four_com
 ### 2.3 Cà phê muối required measurements
 
 For every run record coffee specification/dose, brew-water input, actual temperature and extraction time, measured coffee output, condensed milk, every foam Ingredient, salt mass, ice mass, vessel capacity, foam output/leftover, finished mass/volume, sensory result, and repeatability. R04 and R05 salt results must always be interpreted with their parent foam composition.
+
+### 2.4 R04 Ingredient evidence reconciliation
+
+All public prices remain `MARKET_REFERENCE_ONLY`. Listing presence is not Hoi An inventory, delivery, quotation, transaction or purchase evidence.
+
+| Input | Provisional evidence | Comparison and confidence | Exact unresolved attribute / physical label check | Trial-critical blocker |
+|---|---|---|---|---|
+| Coffee | `R04M-I01/I02` | Both identify Trung Nguyên Sáng Tạo 1, 100% Robusta, ground coffee, 340 g. `I01` is a direct WinMart Product page at 95,000 VND with high confidence; `I02` is a direct Co.op Product page at 89,700 VND, includes retailer SKU `3330468`, and also has high confidence. Neither source proves that retailer-specific SKU numbers are a shared manufacturer code. | Record actual manufacturer Product name/code, ingredients/composition, roast/grind statements, net content, lot, expiry, retailer/source and package photographs. Retailer choice remains open; retain the other listing as corroborating market evidence. | Missing physical package, availability, package identity or grind suitability blocks a valid R04 run. |
+| Condensed milk | `R04M-I03` | Direct WinMart listing for Vinamilk Ông Thọ green label, sweetened condensed milk, 380 g, 29,700 VND; high confidence. | Verify exact label, net mass, ingredients, lot/expiry, storage statement and physical availability. Record 20 ml by volume and, if useful, measure its actual mass separately; never derive mass from the listing. | Missing exact physical package or inability to measure 20 ml blocks the run. |
+| Whipping cream | `R04M-I05/I06` | Both identify Anchor UHT whipping cream, 1 L. `I05` is the stronger primary evidence: direct WinMart Product page, 204,500 VND, high confidence. `I06` is retained as the alternative retailer observation: Annam search listing, 210,000 VND, medium confidence. | Verify actual manufacturer Product identity, fat/composition statement, net volume, lot/expiry, storage/cold-chain instructions, package condition and retailer/source. Retailer choice and Hoi An availability remain open. | Missing physical package, safe storage evidence or ability to measure 60 ml blocks the run. |
+| Salt | Quantity fixed provisionally at 1.0 g; `R04M-I10/I11` remain alternatives | `I10` is stronger primary listing evidence (direct Co.op Product page, high confidence); `I11` is a medium-confidence brand listing. They are not assumed sensory-equivalent. | Owner/operator must identify the actual salt Product and record label, grain/type statement, net mass, lot/expiry where present and source. Scale suitability for 1.0 g must pass the proposed check in §2.5. | Unidentified salt or measurement uncertainty that cannot support the selected 1.0 g input blocks the run. |
+| Water | `R04M-I12` | Direct WinMart listing for Aquafina 1.5 L, 11,700 VND; high confidence; only a bounded bottled-water comparator. | Verify the physical bottle identity, seal, net volume, lot/expiry where present and actual source. | Missing physical water or inability to measure 100 ml blocks the run. |
+| Ice | `R04M-I13` | Evidence gap; no sufficiently specific retained source or price. | Record source, food-handling/storage statement, physical form, package identity/mass where applicable, measurement instrument and actual mass added. | Unidentified/unsafely handled ice or inability to measure its actual mass blocks the run. |
+
+### 2.5 R04 physical equipment verification record
+
+Every observed result below is intentionally blank. `PROPOSED_VALIDATION_TARGET` is an experimental target for Owner review, not proof that a tool is suitable.
+
+| Tool / provisional ID | Identity and condition to record | Check procedure and blank observations | Go/no-go boundary |
+|---|---|---|---|
+| Scale/timer — `R04M-E04` | Actual make/model/serial or distinguishing ID; maximum load; displayed division; pan condition; power/battery; level/stable placement; timer availability | Warm/stabilize as instructed; record unloaded zero; tare the actual container; apply a documented check weight at least three times, removing it between readings; record nominal check-weight value/source and every reading; repeat the tare/return-to-zero check. Observed readings: ___ / ___ / ___. Zero returns: ___ / ___ / ___. | Readability is not accuracy or calibration. For the 1.0 g salt input, proposed maximum uncertainty is 0.05 g (`PROPOSED_VALIDATION_TARGET`). A 0.1 g display division alone cannot demonstrate that target; if documented check evidence cannot support the input, use a separately verified suitable instrument or stop. |
+| Thermometer — candidate not selected (`R04M-E08/E09`) | Actual make/model/ID; probe condition; stated range, resolution and tolerance from its own evidence | Confirm the stated range covers 90–96°C. Record a comparison against a separately identified reference at a relevant hot-water point, the reference evidence, both readings and difference; repeat at least three times without calling the comparison formal calibration. Results: ___ / ___ / ___. | Proposed requirements: range includes 90–96°C, resolution no coarser than 1°C and verified uncertainty/tolerance no greater than ±1°C. Missing specifications or unacceptable comparison evidence blocks the run. |
+| Volume tools — `R04M-E10/E11/E12` candidates | Actual tool ID, nominal capacity, marked graduation interval, condition and readable markings | Select tools appropriate to 20 ml, 60 ml and 100 ml. At each target, fill/read using a consistent meniscus method and compare three repeats using a separately identified reference or gravimetric procedure whose assumptions are documented. Record actual readings; do not infer tolerance from photos. | Proposed requirements: 20 ml and 60 ml measurements use graduations no coarser than 1 ml with proposed verified tolerance ±1 ml; 100 ml must have a documented suitable graduation/tolerance. Missing evidence blocks the affected input. |
+| Phin — `R04M-E01` | Actual item identity, parts, cleanliness, damage, filter fit and stated/observed capacity | Dry-assemble all parts; inspect holes/filter/press/lid; verify it physically accepts the 20 g coffee and 100 ml water basis without overflow under a non-product dry/water fit check; record observations only. | Missing/damaged parts, contamination or inability to accommodate the bounded inputs blocks the run. No brew duration or yield is pre-approved. |
+| Mixer — `R04M-E07` | Actual model/ID, voltage/power evidence, beaters, cleanliness, damage and operating state | Inspect and dry-run each intended setting only as permitted by the manufacturer; record setting used, abnormal sound/vibration and beater identity. Manual-whisk evidence cannot substitute for this electric-tool selection. | Unsafe/inoperative equipment or an unrecorded setting blocks the run. No speed or mixing duration is selected by this protocol. |
+| Serving vessel — `R04M-E15` | Actual vessel ID/photo, material, condition and nominal marking if any | Define usable fill line before measuring. Fill to that line with a verified graduated method three times; empty between observations; record ___ ml / ___ ml / ___ ml and method. Retain all readings and state the chosen recorded usable capacity only after review. | Nominal catalogue capacity is not usable capacity. Missing vessel or three traceable observations blocks the run. |
+| Ice / finished-output measurement | Actual scale/container/volume-tool IDs and usable ranges | Tare the receiving container; record actual ice mass. After assembly, record finished mass and, where measured, volume plus method; record residual foam, coffee or beverage separately. | Instrument range must cover the full item/container. Missing actual ice mass or finished-output evidence makes the run nonconforming. |
+
+### 2.6 `CM-R04-01` controlled execution procedure
+
+1. **Open the run record.** Assign repeat `01`, `02` or `03`; record date/time, operator, location and the immutable parent identity `CM-R04-01` / R04. Do not count an earlier failed/deviated run by relabelling it.
+2. **Confirm readiness.** Check physical Ingredient packages, safe handling/storage evidence, equipment condition, measurement checks, actual vessel identity and blank capture fields. Stop if any trial-critical item in §2.4 or §2.5 fails.
+3. **Record Ingredient identity.** Capture each exact Product/SKU, package, lot/batch and expiry where available, label evidence, acquisition/source evidence and storage condition. Public IDs remain cross-references, not physical identity proof.
+4. **Prepare measuring tools.** Record instrument IDs, zero/tare state and the completed check results. Do not proceed with 1.0 g salt unless the measurement is defensible under the recorded check evidence.
+5. **Measure coffee and water.** Record actual coffee mass against the 20 g target and water volume against the 100 ml target. Heat water and record the actual temperature used; it must remain within the retained 90–96°C source range unless the run is explicitly marked deviated.
+6. **Prepare the phin.** Record coffee distribution, actual water additions and start/end timestamps. The retained evidence does not prescribe bloom volume/time, tamp force or extraction duration; any operator choice must be recorded as `PROPOSED — OWNER REVIEW REQUIRED`, not silently treated as the Recipe.
+7. **Measure extraction.** Record actual extracted coffee mass and/or volume, measurement method, residual water/coffee where observable and deviations. The source's approximately 80 ml is a comparator, not an assumed output.
+8. **Measure condensed milk.** Record 20 ml with the verified volume tool. If mass is also observed, record it as a direct measurement tied to this package/run; do not apply it as a general density.
+9. **Prepare the complete R04 foam.** Measure 60 ml cream and 1.0 g of the physically identified salt. Record mixer/beater ID, setting, start/end time, input temperature if observed, foam output and leftover. Evaluate salt only within this complete foam system.
+10. **Assemble and add ice.** Record pre-weighed ice mass, assembly order, vessel ID and every added amount. The source phrase “two-thirds full” is not a mass or approved fill rule; record the observed fill without inventing a target capacity.
+11. **Measure finished output.** Record final mass and/or volume, temperature if measured, preparation duration, remaining coffee/foam, spill/residue and calculated loss only when the measurement basis is complete and shown.
+12. **Record observations.** Capture appearance, aroma, coffee intensity, sweetness, salt perception, texture, temperature and overall free-text observations without applying invented pass thresholds.
+13. **Close the run.** Record deviations/reasons, completeness status, operator sign-off and Owner-review field. Clean equipment following available manufacturer and food-handling instructions. Preserve raw data even if the run fails or is rejected.
+
+### 2.7 Blank R04 records — three planned independent runs
+
+The following reusable records intentionally contain no actual results. A run counts toward the three-run plan only when it is independently executed and later classified conforming from complete evidence.
+
+| Field | `CM-R04-01-R01` | `CM-R04-01-R02` | `CM-R04-01-R03` |
+|---|---|---|---|
+| Date/time; operator; location |  |  |  |
+| Parent source and run ID | R04 / `CM-R04-01` | R04 / `CM-R04-01` | R04 / `CM-R04-01` |
+| Coffee public ID; exact package/SKU; lot/expiry |  |  |  |
+| Condensed-milk ID; package/SKU; lot/expiry |  |  |  |
+| Cream public ID; package/SKU; lot/expiry |  |  |  |
+| Salt Product/package; lot/expiry where present |  |  |  |
+| Water and ice identity/source |  |  |  |
+| Phin; scale; thermometer; volume tool; mixer; timer; vessel IDs |  |  |  |
+| Instrument check references/results |  |  |  |
+| Coffee target 20 g / actual g |  |  |  |
+| Water target 100 ml / actual ml / actual °C |  |  |  |
+| Brew start/end; proposed operator choices |  |  |  |
+| Extracted coffee output and unit/method |  |  |  |
+| Condensed milk target 20 ml / actual ml; directly measured mass if taken |  |  |  |
+| Cream target 60 ml / actual ml |  |  |  |
+| Salt target 1.0 g / actual g |  |  |  |
+| Mixer setting/time; foam output/leftover |  |  |  |
+| Ice actual mass |  |  |  |
+| Vessel usable-capacity evidence reference |  |  |  |
+| Finished output mass/volume; method |  |  |  |
+| Total preparation time; residue/spill/loss and basis |  |  |  |
+| Process and sensory observations |  |  |  |
+| Deviations and reasons |  |  |  |
+| Status: conforming / deviated / failed / incomplete |  |  |  |
+| Operator sign-off; Owner review/disposition/date |  |  |  |
+
+### 2.8 R04 evaluation framework
+
+| Dimension | Review question | Advancement rule |
+|---|---|---|
+| Data completeness | Are identities, instrument checks, all actual inputs, outputs, loss, time, observations and deviations present? | Any mandatory blank remains `INCOMPLETE_EVIDENCE`; it is not a conforming repeat. |
+| Instrument readiness | Did every used instrument have suitable range/readability and recorded check evidence? | Missing or conflicting check evidence fails closed. Accuracy is never inferred from display resolution. |
+| Process conformity | Did the run retain R04 quantities/range and the provisional 1.0 g salt choice, with every proposed operator parameter recorded? | Unexplained departure is deviated; it remains evidence but cannot count as conforming. |
+| Repeatability | Do three independent conforming records permit direct comparison of inputs, process settings and outputs? | No numerical tolerance is approved. Owner must decide acceptable variance after seeing evidence; three runs do not automatically approve repeatability. |
+| Output/yield | Are extraction, foam, final output and denominators directly measured? | Missing denominator prevents yield conclusion and Recipe/BOM handoff. |
+| Loss/waste | Are leftovers, spills and discarded material measured with reasons? | Blank means unknown, not zero. No waste rate may be inferred. |
+| Sensory review | Are observations recorded for the complete R04 formulation? | No numerical acceptance threshold exists. Owner must explicitly retain, repeat, change or reject after review. |
+| Packaging/serving | Is the actual vessel measured and is any dine-in/takeaway packaging evidence explicit? | Trial vessel evidence does not establish commercial channel packaging; missing packaging remains downstream evidence. |
+
+### 2.9 R04 downstream evidence handoff and remaining actions
+
+R04 remains **not** a Recipe/BOM candidate and the project remains **0/52 evidence-backed unit costs and margins**. After successful physical work, later admission requires actual acquisition transaction evidence, exact package/net contents, defensible purchase-to-preparation conversions, measured usage, output/yield and loss, dine-in/takeaway packaging and cost evidence, and qualified/approved tax and rounding treatment.
+
+| Critical-path order | Action | Responsible evidence source | Current status |
+|---:|---|---|---|
+| 1 | Identify the exact physical coffee retailer/package within `I01/I02`, exact cream retailer/package within `I05/I06`, actual salt Product, ice source and every package/lot/expiry. | Owner/operator physical inspection | `AWAITING_PHYSICAL_VERIFICATION`; do not repeat the already supplied provisional selections. |
+| 2 | Identify thermometer, volume tools, timer function and serving vessel; execute and record all §2.5 checks. | Owner/operator physical inspection and tool documentation | `AWAITING_PHYSICAL_VERIFICATION`. |
+| 3 | Decide whether the proposed scale uncertainty, thermometer, liquid-measurement and three-observation vessel targets are acceptable for this experiment. | Owner review | `OWNER_DECISION_REQUIRED`; no equipment approval follows automatically. |
+| 4 | Confirm physical availability and separately authorize acquisition or trial execution if desired. | Owner | `NOT_AUTHORIZED_BY_THIS_PROTOCOL`. |
+| 5 | Execute and preserve the three independent run records, retaining all failures/deviations. | Designated physical operator | `AWAITING_PHYSICAL_EXECUTION`; no run has occurred. |
+| 6 | Review the evidence and decide retain/repeat/change/reject. | Owner | `AWAITING_EVIDENCE`; not Recipe/BOM approval. |
 
 ## 3. Trà đào cam sả — independent benchmark tracks
 
