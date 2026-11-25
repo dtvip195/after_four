@@ -2,6 +2,114 @@ require "rails_helper"
 
 RSpec.describe Orders::CreateDraft do
   describe ".call" do
+    it "preserves Active Record validation errors for invalid persisted attributes" do
+      common = {
+        actor_id: SecureRandom.uuid,
+        branch_id: SecureRandom.uuid,
+        channel: "takeaway",
+        total_amount: 80_000,
+        currency_code: "VND",
+        idempotency_key: "legacy-validation",
+        now: Time.utc(2026, 11, 14, 10, 0, 0)
+      }
+
+      [
+        { channel: "delivery" },
+        { total_amount: 0 },
+        { currency_code: "VN" }
+      ].each do |invalid|
+        expect { described_class.call(**common.merge(invalid)) }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
+
+    it "preserves context-validation precedence over persistence validation" do
+      valid = {
+        actor_id: SecureRandom.uuid,
+        branch_id: SecureRandom.uuid,
+        channel: "delivery",
+        total_amount: 80_000,
+        currency_code: "VND",
+        idempotency_key: "context-precedence",
+        now: Time.utc(2026, 11, 14, 10, 0, 0)
+      }
+
+      expect { described_class.call(**valid.merge(actor_id: "invalid")) }
+        .to raise_error(DomainError) { |error|
+          expect(error).to have_attributes(code: "trusted_actor_required", details: {})
+        }
+      expect { described_class.call(**valid.merge(branch_id: "invalid")) }
+        .to raise_error(DomainError) { |error|
+          expect(error).to have_attributes(code: "branch_context_required", details: {})
+        }
+      expect { described_class.call(**valid.merge(idempotency_key: " ")) }
+        .to raise_error(DomainError) { |error|
+          expect(error).to have_attributes(code: "idempotency_key_required", details: {})
+        }
+    end
+
+    it "preserves the caller attributes and validation details on RecordInvalid" do
+      actor_id = SecureRandom.uuid
+      branch_id = SecureRandom.uuid
+      key = "combined-persistence-invalid"
+      now = Time.utc(2026, 11, 14, 10, 0, 0)
+
+      expect do
+        described_class.call(
+          actor_id: actor_id.upcase,
+          branch_id: branch_id,
+          channel: "delivery",
+          total_amount: 0,
+          currency_code: "vn",
+          idempotency_key: key,
+          now: now
+        )
+      end.to raise_error(ActiveRecord::RecordInvalid) { |error|
+        expect(error.record).to be_a(Order)
+        expect(error.record).to have_attributes(
+          branch_id: branch_id,
+          created_by_actor_id: actor_id,
+          channel: "delivery",
+          total_amount: 0,
+          currency_code: "VN",
+          creation_idempotency_key: key,
+          created_at: now,
+          updated_at: now
+        )
+        expect(error.record.order_number).to match(/\AAF-[0-9A-F]{12}\z/)
+        expect(error.record.errors.attribute_names).to contain_exactly(:channel, :total_amount, :currency_code)
+      }
+    end
+
+    it "preserves constructor-time Integer conversion before context validation" do
+      expect do
+        described_class.new(
+          actor_id: "invalid",
+          branch_id: "invalid",
+          channel: "delivery",
+          total_amount: "not-an-integer",
+          currency_code: "VN",
+          idempotency_key: " ",
+          now: Time.utc(2026, 11, 14, 10, 0, 0)
+        )
+      end.to raise_error(ArgumentError, /invalid value for Integer/)
+    end
+
+    it "preserves rejection of whitespace-only creation idempotency keys" do
+      expect do
+        described_class.call(
+          actor_id: SecureRandom.uuid,
+          branch_id: SecureRandom.uuid,
+          channel: "takeaway",
+          total_amount: 80_000,
+          currency_code: "VND",
+          idempotency_key: " ",
+          now: Time.utc(2026, 11, 14, 10, 0, 0)
+        )
+      end.to raise_error(DomainError) { |error|
+        expect(error).to have_attributes(code: "idempotency_key_required", details: {})
+      }
+    end
+
     it "persists a draft order and its unpaid exact-balance payment" do
       result = described_class.call(
         actor_id: SecureRandom.uuid,

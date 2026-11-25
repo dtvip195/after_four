@@ -1,10 +1,10 @@
 # AFTER FOUR — DDD Foundation
 
-**Status:** Layered DDD is `OWNER_CONFIRMED`; context topology and detailed patterns remain `DOCUMENTED_PROPOSAL`
-**Date:** 2026-11-14; Layered DDD decision recorded 2026-11-15
+**Status:** Layered DDD is `OWNER_CONFIRMED`; Ordering/Payment/Preparation boundaries `OPP-ARCH-06`–`OPP-ARCH-12` are `OWNER_CONFIRMED_TECHNICAL_ARCHITECTURE`; all other context topology and detailed patterns retain their stated status
+**Date:** 2026-11-14; Layered DDD decision recorded 2026-11-15; Ordering/Payment/Preparation architecture recorded 2026-11-25
 **Scope:** Layered DDD, Bounded Context vocabulary, ownership, dependencies, transactions, events, idempotency, and recovery
 
-The Owner-confirmed project-wide Layered DDD decision is recorded as `ODB-ARCH-01` in the [Owner Decision Baseline](after_four_owner_decision_baseline.md#project-wide-architecture) and accepted in [ADR-0011](adr/0011-project-wide-layered-ddd.md). The Bounded Context names, candidate aggregates and detailed coordination patterns below retain their stated proposal status unless another canonical decision approves them. This document does not require a Rails engine per context or authorize implementation.
+The Owner-confirmed project-wide Layered DDD decision is recorded as `ODB-ARCH-01` in the [Owner Decision Baseline](after_four_owner_decision_baseline.md#project-wide-architecture) and accepted in [ADR-0011](adr/0011-project-wide-layered-ddd.md). [ADR-0012](adr/0012-ordering-payment-preparation-ddd-boundaries.md) separately records the Owner-approved technical architecture `OPP-ARCH-06`–`OPP-ARCH-12` for Ordering, Payment, and Preparation. Bounded Context names, candidate aggregates and detailed coordination patterns outside that exact approval retain their stated proposal status unless another canonical decision approves them. This document does not require a Rails engine per context or authorize implementation.
 
 ## Owner-confirmed Layered DDD baseline
 
@@ -25,7 +25,7 @@ Infrastructure ──> Domain and implemented contracts
 Domain ──> no outer layer
 ```
 
-The [Owner Decision Baseline](after_four_owner_decision_baseline.md) is authoritative for Owner-confirmed decisions and governance rules. The [Business Domain Model](after_four_business_domain_model.md) is canonical for business concepts, business rules, lifecycles, and the complete proposed logical context inventory. [ADR-0011](adr/0011-project-wide-layered-ddd.md) accepts the project-wide four-layer architecture and inward dependency direction. This foundation provides the accepted Layered DDD guidance and selected, non-exhaustive proposed context and dependency analysis; it does not replace the Business Domain Model's complete proposed inventory or approve final context topology.
+The [Owner Decision Baseline](after_four_owner_decision_baseline.md) is authoritative for Owner-confirmed business decisions and governance rules. The [Business Domain Model](after_four_business_domain_model.md) is canonical for business concepts, business rules, lifecycles, and the complete proposed logical context inventory. [ADR-0011](adr/0011-project-wide-layered-ddd.md) accepts the project-wide four-layer architecture and inward dependency direction. [ADR-0012](adr/0012-ordering-payment-preparation-ddd-boundaries.md) accepts only the target architecture for Ordering, Payment, and Preparation described below. This foundation provides accepted Layered DDD guidance and selected, non-exhaustive context/dependency analysis; it does not replace the Business Domain Model or approve any other final context topology.
 
 Each Bounded Context owns its behavior and data responsibilities according to the applicable approved policy and proposed boundaries in those sources. Cross-context work uses an explicitly approved integration contract when a real interaction requires one; it does not directly manipulate another context's Infrastructure records. This decision does not mandate Clean Architecture, generic repositories, speculative ports/mappers, empty layer classes, Rails engines or separate services.
 
@@ -41,7 +41,7 @@ For example, Organization owns Organization/Brand/Branch behavior, Catalog owns 
 | Scope | Status | Evidence and boundary |
 |---|---|---|
 | A1 Organization/Brand/Branch reference foundation | `IMPLEMENTED` | Pure entities and namespaced persistence records are verified at the paths below. This status is limited to A1. |
-| Existing Ordering, Payment and Preparation Phase 1 code | `NOT_YET_MIGRATED` | It predates `ODB-ARCH-01`; this decision grants no refactor authority and makes no functional-conformance claim. |
+| Ordering, Payment and Preparation Phase 1 code | Ordering: `MIGRATED_WITH_COMPATIBILITY_FACADES`; Payment and Preparation: `TARGET_ARCHITECTURE_APPROVED — NOT_YET_MIGRATED` | Ordering now uses a framework-independent Aggregate/Value Objects, Application use cases and ports, namespaced Infrastructure persistence, and a Payment-owned adapter while preserving the four legacy command interfaces. Payment and Preparation retain their legacy implementations. ADR-0012 remains the architecture baseline and does not authorize either remaining migration. |
 | Platform and all other existing or future contexts | `UNVERIFIED` | No project-wide Layered DDD conformance assessment is recorded. Absent implementation is not conformance evidence. |
 | Existing frontend source | `UNVERIFIED` | The forward rule applies when frontend source is changed, but no retrospective frontend Layered DDD assessment or refactor is authorized. |
 
@@ -67,7 +67,7 @@ The completed A1 implementation report records: 2 pure Domain examples and 50 fo
 
 ## 1. Vocabulary and ADR boundary
 
-The following proposed context vocabulary is non-exhaustive and limited to contexts selected for analysis in this foundation. It is not the complete proposed context inventory or an Owner-approved final Bounded Context list. The [Business Domain Model §3](after_four_business_domain_model.md#3-bounded-context-overview) remains the canonical source for the complete proposed logical context inventory.
+The following context vocabulary is non-exhaustive and limited to contexts selected for analysis in this foundation. Ordering, Payment, and Preparation are approved target Bounded Contexts only for the ADR-0012 remediation scope. The remaining list is not an Owner-approved final Bounded Context list. The [Business Domain Model §3](after_four_business_domain_model.md#3-bounded-context-overview) remains the canonical source for the complete proposed logical context inventory.
 
 - Ordering
 - Payment
@@ -79,13 +79,13 @@ The following proposed context vocabulary is non-exhaustive and limited to conte
 - Reporting
 - Identity/Authorization
 
-[ADR-0001](adr/0001-rails-modular-monolith.md) and [ADR-0005](adr/0005-backend-repository-structure.md) use `Sales` and `Billing`, while implemented Phase 1 namespaces use `Orders`, `Payments`, and `Preparation`. The discrepancy is real; this document does not silently resolve or rename it. The separate [ADR amendment proposal](adr/proposals/0001-0005-context-vocabulary-amendment-proposal.md) awaits explicit Owner approval. Until then, the Accepted ADR text and current namespaces remain unchanged.
+[ADR-0001](adr/0001-rails-modular-monolith.md) and [ADR-0005](adr/0005-backend-repository-structure.md) use `Sales` and `Billing`, while implemented Phase 1 namespaces use `Orders`, `Payments`, and `Preparation`. `OPP-ARCH-09` retains `Orders`, `Payments`, and `Preparation` as the implementation vocabulary for the ADR-0012 remediation scope without rewriting the historical ADR text or authorizing namespace/table/class renames. The broader [ADR amendment proposal](adr/proposals/0001-0005-context-vocabulary-amendment-proposal.md) remains separately governed.
 
 These are logical ownership boundaries inside one Rails application and one PostgreSQL database. Active Record remains the Infrastructure persistence mechanism. Do not add a generic repository, command bus, microservice, or engine without demonstrated need.
 
 ## 2. Context map
 
-This context map is a scoped architectural analysis of the selected contexts and relationships below, not an exhaustive map of every proposed context. It does not supersede the Business Domain Model's complete proposed context inventory and does not approve final context boundaries or topology.
+This context map is a scoped architectural analysis of the selected contexts and relationships below, not an exhaustive map of every proposed context. ADR-0012 approves the Ordering, Payment, and Preparation boundaries and coordinating-contract direction only; other displayed contexts and relationships retain their existing proposal or decision status. The map does not supersede the Business Domain Model's complete proposed context inventory.
 
 ```mermaid
 flowchart LR
@@ -237,7 +237,7 @@ The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_
 
 ### 4.1 Payment–Preparation
 
-Proposed application seam: one authorization-aware use case applies an authoritative Payment outcome and coordinates narrow interfaces owned by Ordering, Payment, and Preparation. It must preserve:
+Approved target application seam under `OPP-ARCH-07`: a Payment Application coordinating use case applies an authoritative Payment outcome and coordinates narrow contracts owned by Ordering, Payment, and Preparation. Payment Application does not own Ordering settlement eligibility/lifecycle rules or Preparation Dispatch eligibility/identity behavior. Infrastructure composition supplies adapters participating in the same local PostgreSQL transaction; the adapters must not open independent transactions that break atomicity. The use case must preserve:
 
 1. lock Order then Payment;
 2. sample authoritative decision time after both locks;
@@ -249,6 +249,10 @@ Proposed application seam: one authorization-aware use case applies an authorita
 8. retry the same Dispatch/Outbox identity without charging again.
 
 Do not replace this local atomic boundary with an uncoordinated asynchronous event chain. The Outbox carries post-commit delivery; it does not decide whether Dispatch may exist.
+
+Under `OPP-ARCH-08`, Preparation owns Dispatch and its integration contract. Existing commands remain compatibility facades during incremental extraction (`OPP-ARCH-10`), context-local Money and identifier Value Objects introduce no shared kernel (`OPP-ARCH-11`), and the initial remediation requires no schema change (`OPP-ARCH-12`). These are approved technical architecture boundaries, not implementation authorization.
+
+The following decisions remain unresolved and must not be inferred from this seam: exact Integration Event version encoding (`OPP-ARCH-13`), Payment Review Case aggregate placement (`OPP-ARCH-14`), long-term Payment-target creation timing (`OPP-ARCH-15`), and the future Preparation Ticket/Ticket Item aggregate boundary (`OPP-ARCH-16`). Initial remediation also excludes Order Items, sold-price snapshots, Price-version binding, authoritative server quote/repricing, and new Pricing/Commercial capability.
 
 ### 4.2 Payment–Cash
 

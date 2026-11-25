@@ -10,7 +10,9 @@ RSpec is the only supported primary testing framework for the Rails backend. New
 
 ## Naming and organization
 
-Name files `*_spec.rb`, require `rails_helper`, and describe externally meaningful behavior in plain language. `rails_helper` loads `spec_helper` first so SimpleCov starts before application code.
+Name files `*_spec.rb` and describe externally meaningful behavior in plain language. Require `rails_helper` except for the narrow pure-Domain exception below. `rails_helper` loads `spec_helper` first so SimpleCov starts before application code.
+
+Pure Domain specs that exercise framework-independent Value Objects, Aggregates, Domain Services, or Domain errors may require `spec_helper` instead. This preserves an executable Rails-free path and catches accidental framework coupling. Such specs may load only the Domain source files they exercise and Ruby standard-library dependencies; they must not load Rails, Active Record, ApplicationRecord, PostgreSQL adapters, repositories, jobs, controllers, or other Infrastructure/Presentation code. Application, Infrastructure, persistence, integration, service, request, model, and job specs continue to require `rails_helper`.
 
 - `spec/models/`: persistence behavior, validations, associations, scopes, and model-owned invariants.
 - `spec/requests/`: routing, HTTP status, serialization, authentication/authorization, error envelopes, and request boundaries.

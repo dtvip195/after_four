@@ -1,6 +1,6 @@
 # AFTER FOUR — Order Lifecycle & Payment Safety Implementation Phase 1
 
-**Status:** Implemented backend command foundation; public mutation API and frontend integration deferred  
+**Status:** Implemented backend command foundation; Ordering Layered DDD migration complete; Payment/Preparation migration, public mutation API and frontend integration deferred
 **Date:** 2026-11-14  
 **Scope:** Order creation/confirmation/hold/expiration, exact-balance cash and manual bank-transfer confirmation, late-success review, payment-gated preparation dispatch, audit evidence, and transactional outbox persistence
 
@@ -44,6 +44,22 @@ Idempotency is likewise scoped: draft-creation command identity is stored on Ord
 
 No bank credentials, bank API tokens, PINs, passwords, or raw banking notification payloads are stored. Manual bank confirmation records only method, amount, currency, trusted actor reference, and time.
 
+### 3.1 Ordering Layered DDD implementation
+
+Ordering Phase 1 now places lifecycle rules in `Orders::Domain::Aggregates::Order` and uses context-local `OrderId`, `Money`, `ServiceChannel`, and `PaymentWindow` Value Objects. The Domain has no Rails, Active Record, PostgreSQL, Payment, or Preparation dependency. It retains Draft, Confirmed, Held, and Expired behavior; reserved persisted statuses remain readable without adding a new transition.
+
+`Orders::Application::UseCases::{CreateDraft,Confirm,Hold,ExpirePending}` coordinate the Aggregate through Ordering-owned repository, audit, transaction and Payment-fact contracts. The Payment-owned `Payments::Infrastructure::Adapters::OrderingPaymentGateway` implements the required target-creation and locked funding-status contract without moving Payment rules into Ordering. It joins the ambient local transaction and opens no independent transaction.
+
+`Orders::Infrastructure::Persistence::OrderRecord` remains mapped to the existing `orders` table. `OrderMapper`, `ActiveRecordOrderRepository`, and `ActiveRecordUnitOfWork` isolate persistence and preserve PostgreSQL optimistic locking, unique constraints, candidate ordering, Order-before-Payment locking, and rollback behavior. The legacy `Order` Active Record class remains available to Payment, Preparation, tests, and compatibility results; no table, column, constraint, trigger, association, or public result type was renamed.
+
+The four existing `Orders::*` commands are compatibility facades. Their keyword interfaces, result members, `DomainError` codes/details, replay semantics, Audit evidence, `ExpirePendingOrdersJob` integration, and legacy Active Record result projections remain unchanged. Architecture enforcement removes Ordering's legacy direct Payment-persistence files from the allowlist while retaining the separately unresolved Payment and Preparation violations.
+
+`Orders::Confirm` intentionally locks only Order before sampling its confirmation decision time. Payment is created with the Draft and confirmation neither reads nor mutates Payment state. Every implemented workflow that can mutate or make a decision from Payment state—Payment confirmation, Hold, expiration, and Preparation dispatch—first acquires the same Order lock and then the Payment lock. The Order lock therefore serializes those workflows against Draft → Confirmed without a second lock in `Orders::Confirm`: a Payment workflow that wins first observes Draft and cannot settle/dispatch it; one that waits observes the committed confirmation evidence. Adding a Payment lock to Order confirmation would protect no additional current invariant. The earlier remediation expectation that every confirmation decision required Order → Payment locks was overly broad; Order → Payment remains mandatory only for workflows that consume or mutate Payment state. This conclusion records verified Phase 1 behavior, not a new business rule or Payment design authorization.
+
+The architecture dependency spec uses Prism AST inspection, normalized constant aliases, known persistence-model identities, and call-receiver chains to reject direct persistence, Infrastructure, framework, and prohibited cross-context dependencies in Domain/Application source. It is a static source guard, not complete Ruby semantic analysis: it cannot prove behavior assembled through `eval`, reflective `const_get`, runtime monkey-patching, dynamically generated method names, or types hidden solely behind arbitrary local variables. Those techniques are not used by the inspected target layers; runtime integration tests and code review remain required alongside the scanner.
+
+This migration does not implement Order Items, sold-price snapshots, Pricing, a public mutation endpoint, Payment/Preparation extraction, an outbox publisher, or Preparation Tickets. It does not resolve `OPP-ARCH-13` through `OPP-ARCH-16` and introduces no schema or migration change.
+
 ## 4. Atomic safety boundary
 
 For an eligible settlement, one PostgreSQL transaction:
@@ -60,7 +76,7 @@ Unique constraints on payment attempt identity, one Dispatch per Order, scoped d
 
 At or after the deadline, or while Held/Expired, verified success is retained as financial truth and an open late-success review case is created. No Dispatch/outbox is created and the Order is not reactivated.
 
-Authoritative decision time means the time sampled inside the transaction after the required Order→Payment locks have been acquired. Command-start time is not dispatch authority. Production callers use the default system clock; injected clocks exist for deterministic command-seam tests and must not be populated from client input.
+For settlement and dispatch decisions, authoritative decision time means the time sampled inside the transaction after the required Order→Payment locks have been acquired. For Order confirmation, it means the time sampled after its required Order lock as recorded in §3.1. Command-start time is never confirmation or dispatch authority. Production callers use the default system clock; injected clocks exist for deterministic command-seam tests and must not be populated from client input.
 
 Draft creation fingerprint version `after_four.order.create.v1` includes the trusted actor UUID lowercased, the validated lowercase channel, integer stored-unit total, and uppercase currency. `branch_id` scopes the key instead of being repeated in the digest. Request time, generated Order UUID, and generated Order number are excluded. SHA-256 stores only the 64-character digest, not a raw request payload. The unique `(branch_id, creation_idempotency_key)` index remains the final concurrency backstop.
 
