@@ -102,6 +102,41 @@ Every test remains unexecuted. `NOT_READY` below means the record is structurall
 
 No test can be declared executable from repository evidence alone because actual Ingredient availability, equipment, vessels and measuring tools have not been confirmed. The earliest single run is whichever of `CM-R04-01`, `CM-R05-01`, or `BXDN-R36-01` first satisfies its complete physical prerequisite set; one run produces useful bounded evidence but cannot approve a Recipe or Variant. The smallest salted-coffee comparison wave is both R04 and R05. In parallel, select exactly one actual Trà đào cam sả size and prepare its R12 run; add the matching R13 run only after its independent tea basis is explicitly recorded. The other four tea records remain deferred without implying scaling or rejection. R36 remains an unassigned-Variant benchmark until separate review.
 
+#### 1.4.1 `CM-R04-01` / `CM-R05-01` preparation evidence boundary
+
+The repository has completed the source and record design needed to prepare the first salted-coffee wave. It does not establish physical readiness. The Owner or test operator must confirm each physical fact against the actual item or tool before either run changes from `PLANNED`.
+
+| Prerequisite | Established by repository evidence | Physical confirmation still required | Go/no-go criterion |
+|---|---|---|---|
+| Stable run and parent-source identity | `CM-R04-01` is bound to R04; `CM-R05-01` is bound to R05. Their quantities and foam systems remain independent. | Blank run sheet is assigned to the actual tester, date, location and repeat number. | Go only when the selected sheet identifies exactly one run and parent source; no hybrid formulation. |
+| Source-specific quantities | R04 and R05 quantities/ranges in §§2.1–2.2 are source-verified planning evidence. | Owner identifies the first value inside every published range; actual weighed/measured inputs are recorded during the run. | Go only when every ranged input has an explicit trial value and no missing value has been copied from the other track. |
+| Ingredient identity and provenance | Required Ingredient classes are enumerated for each track. | Exact SKU/brand, package label, source/provenance, lot/expiry where present, storage/safe-handling evidence and physical availability. | Go only when every required input is physically present, identifiable and usable; a public listing is insufficient. |
+| Equipment and measuring tools | Required functional classes are enumerated: brewer/phin, foam tools, scale, volume tools, thermometer and timer. | Actual make/model or specification, location, condition/readiness and check/calibration evidence. | Go only when each required function is available and its readiness is recorded; absence or failed check blocks the run. |
+| Serving vessel | A measured vessel is required; nominal capacity is not accepted as evidence. | Actual vessel identity/SKU, physical availability, capacity method, readings and measured usable capacity. | Go only when the vessel is present and usable capacity is traceably measured for the run. |
+| Actual measurement capture | §§5–6 provide blank fields for extraction, foam, ice, output, loss, time, sensory and repeat evidence. | Raw dated measurements, operator observations and departures from the parent source. | Go only with blank records prepared before work starts; completion requires every applicable actual field or an explicit unresolved reason. |
+
+#### 1.4.2 Evidence review criteria after each salted-coffee run
+
+| Review dimension | Evidence required | Fail-closed result when absent or conflicting |
+|---|---|---|
+| Source fidelity | Parent track, all selected source values, actual quantities and every departure. | Retain as incomplete experimental evidence; do not compare or advance it as the R04/R05 candidate. |
+| Identity and provenance | Exact input labels/SKUs, evidence sources, equipment, vessel, tester, date and repeat. | No Recipe/BOM handoff. |
+| Input/output balance | Coffee input and extracted output; complete foam inputs/output; ice; finished output; leftover/loss and reason. | Yield, waste and unit-cost denominators remain unknown. |
+| Sensory record | Observations recorded against the complete parent formulation; salt is never assessed outside its foam system. | No sensory disposition or cross-track conclusion. |
+| Repeatability | A separately identified repeat with retained settings, measurements and observed variance. | One run remains bounded evidence only; it cannot establish repeatability or an approved Recipe. |
+| Owner disposition | Explicit dated review identifying retain/repeat/reject/needs-more-evidence without rewriting raw evidence. | Status remains `OWNER_REVIEW_REQUIRED`; no Recipe/BOM approval or costing use. |
+
+#### 1.4.3 First costing-candidate ranking across all 52 combinations
+
+All 52 costing rows remain `NOT_CALCULABLE_MISSING_EVIDENCE`; this ranking identifies acquisition order only. The comparison uses current source coverage, prepared run identity, number and clarity of missing inputs, physical measurability, purchase-evidence availability, yield/output measurability, packaging requirements and unresolved policy dependencies. It is not a cost, margin, Recipe or supplier recommendation.
+
+| Rank | Product / approved Variant | Why it leads on current evidence | Exact remaining gaps | Minimum acquisition sequence |
+|---:|---|---|---|---|
+| 1 | Cà phê muối / Một cỡ | Two source-verified named-Product tracks have stable run IDs, complete source-specific capture sheets and explicit equipment/output/loss controls. It is the only combination already marked `READY_AFTER_SESSION_INPUT_CONFIRMATION` in the MAKE matrix. | Exact Ingredient SKUs and availability; selected in-range values; equipment/tool checks; measured vessel; actual run and repeat measurements; Owner-reviewed Recipe/BOM; purchase/package evidence; unit conversion; measured yield/waste; dine-in/takeaway packaging and their costs. | Complete independent R04/R05 pre-trial records → execute and retain raw measurements separately → repeat the retained candidate → Owner Recipe/BOM review → collect actual purchase and packaging evidence → populate traceable costing lines → evidence review before any calculation. |
+| 2 | Cà phê sữa / Một cỡ | Two direct named-Product formulations provide independently published quantities, the Variant is single-size, and coffee/milk/ice inputs and extraction/output are physically measurable. It has stronger comparable public quantity evidence than Cà phê đen, whose second source is only a phin-method comparator. | Owner selection of a bounded trial basis; exact coffee/condensed-milk/ice SKUs; dedicated run identity and capture sheet; equipment/vessel; actual extraction/output/loss and repeat evidence; Owner-reviewed Recipe/BOM; purchase, conversion, packaging and cost evidence. | Select one parent formulation without averaging → assign a controlled run ID and blank capture record → identify physical inputs/equipment/vessel → measure run and repeat → Owner Recipe/BOM review → acquire purchase/packaging evidence → costing reconciliation. |
+
+No tie-breaker makes either combination costing-ready today. BUY Products retain a potentially shorter arithmetic path only after an accepted finished specification and authorized procurement evidence exist; current public retail listings do not satisfy that chain. `CORE-OD-03/04` remain required for authoritative tax/rounding treatment but do not prevent collection of raw quantities, purchase documents, packaging facts or trial measurements.
+
 ### 1.5 BUY sample evaluation sequence
 
 This sequence applies independently to Bánh croissant, Cheesecake, Brownie chocolate and Muffin. It is usable only after a real sample is lawfully obtained; it authorizes no contact, RFQ, purchase or supplier relationship.
