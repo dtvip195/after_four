@@ -1,55 +1,33 @@
 module Orders
   class Confirm
+    extend CompatibilityErrorTranslation
+
     Result = Data.define(:order, :replayed)
+    IMPLICIT_NOW = Object.new.freeze
 
-    def self.call(order_id:, actor_id:, idempotency_key:, expected_version:, now: Time.current)
-      TrustedActor.require_id!(actor_id)
-      raise DomainError.new("idempotency_key_required", "Idempotency key is required") if idempotency_key.to_s.empty?
-
-      order = nil
-      replayed = false
-
-      ApplicationRecord.transaction do
-        order = Order.lock.find(order_id)
-
-        if order.confirmation_idempotency_key == idempotency_key
-          replayed = true
-          next
-        end
-
-        unless order.lock_version == expected_version
-          raise DomainError.new(
-            "concurrent_modification",
-            "Order version does not match",
-            details: { current_version: order.lock_version }
-          )
-        end
-        unless order.status == "draft"
-          raise DomainError.new("invalid_state_transition", "Only a draft Order can be confirmed")
-        end
-
-        order.update!(
-          status: "confirmed",
-          confirmation_idempotency_key: idempotency_key,
-          confirmed_at: now,
-          payment_expires_at: now + Rails.configuration.x.orders.payment_window_seconds.seconds,
-          updated_at: now
-        )
-        AuditEvent.create!(
-          branch_id: order.branch_id,
-          actor_type: "user",
+    def self.call(order_id:, actor_id:, idempotency_key:, expected_version:, now: IMPLICIT_NOW)
+      translate_ordering_errors do
+        dependencies = Infrastructure::Composition.dependencies
+        clock = now.equal?(IMPLICIT_NOW) ? -> { Time.current } : -> { now }
+        application_result = Application::UseCases::Confirm.new(
+          order_repository: dependencies.order_repository,
+          audit_log: dependencies.audit_log,
+          unit_of_work: dependencies.unit_of_work,
+          payment_window: Domain::ValueObjects::PaymentWindow.new(
+            Rails.configuration.x.orders.payment_window_seconds
+          ),
+          clock: clock
+        ).call(
+          order_id: order_id,
           actor_id: actor_id,
-          event_type: "order.confirmed",
-          subject_type: "Order",
-          subject_id: order.id,
-          idempotency_key: "order.confirmed:#{idempotency_key}",
-          metadata: { payment_expires_at: order.payment_expires_at.iso8601 },
-          occurred_at: now,
-          created_at: now
+          idempotency_key: idempotency_key,
+          expected_version: expected_version
+        )
+        Result.new(
+          order: dependencies.order_repository.compatibility_record(application_result.order.id.to_s),
+          replayed: application_result.replayed
         )
       end
-
-      Result.new(order: order, replayed: replayed)
     end
   end
 end

@@ -19,6 +19,7 @@
 | [ADR-0009](adr/0009-api-conventions-versioning.md) | REST/JSON under `/api/v1` | Accepted | Request/contract tests define the frontend seam. |
 | [ADR-0010](adr/0010-database-migrations-and-schema.md) | Rails migrations plus PostgreSQL `structure.sql` | Accepted | Preserve PostgreSQL-specific constraints and use expand/migrate/contract releases. |
 | [ADR-0011](adr/0011-project-wide-layered-ddd.md) | Project-wide Layered DDD | Accepted (`OWNER_CONFIRMED`) | New and modified source follows four logical layers within authorized scope; A1 is the first implemented example and existing contexts are not implicitly migrated. |
+| [ADR-0012](adr/0012-ordering-payment-preparation-ddd-boundaries.md) | Ordering, Payment, and Preparation DDD boundaries | Accepted (`OWNER_CONFIRMED_TECHNICAL_ARCHITECTURE`) | Records `OPP-ARCH-06`–`OPP-ARCH-12`; establishes target context ownership and Payment Application coordination while preserving compatibility facades, context-local values, existing atomic behavior, and the no-schema-change boundary. It grants no implementation authorization. |
 
 The supporting [runtime-version research](../research/after_four_runtime_version_baseline.md) is primary-source evidence, not an additional decision. The accepted [Payment model](after_four_payment_model.md) resolves the old aggregate-status ambiguity for MVP.
 

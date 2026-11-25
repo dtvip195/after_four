@@ -12,6 +12,11 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect(order.preparation_dispatch).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
+    expect(order.payment.reload).to have_attributes(
+      funding_status: "fully_paid",
+      successful_amount: order.total_amount
+    )
+    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "outbox_insert")
     result = Preparation::RequestDispatch.call(**attributes)
@@ -35,6 +40,11 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect(order.preparation_dispatch).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
+    expect(order.payment.reload).to have_attributes(
+      funding_status: "fully_paid",
+      successful_amount: order.total_amount
+    )
+    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "audit_insert")
     result = Preparation::RequestDispatch.call(**attributes)
@@ -58,6 +68,11 @@ RSpec.describe "preparation dispatch transaction recovery" do
 
     expect(event.reload).to have_attributes(status: "published", published_at: now + 2.minutes)
     expect(AuditEvent.where(event_type: "preparation.dispatch_retry_requested", subject_id: dispatch.id)).to be_empty
+    expect(order.payment.reload).to have_attributes(
+      funding_status: "fully_paid",
+      successful_amount: order.total_amount
+    )
+    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "retry_audit_insert")
     result = Preparation::RetryDispatch.call(**attributes)
@@ -70,7 +85,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
   end
 
   it "does not swallow an Outbox update failure during retry" do
-    actor_id, now, _order, dispatch, event = create_pending_dispatch("retry-outbox-failure")
+    actor_id, now, order, dispatch, event = create_pending_dispatch("retry-outbox-failure")
     mark_published(event, now + 2.minutes)
     attributes = retry_attributes(dispatch:, actor_id:, key: "retry-outbox-failure", now: now + 3.minutes)
     install_failure!(table: "outbox_events", operation: "UPDATE", name: "retry_outbox_update")
@@ -80,6 +95,11 @@ RSpec.describe "preparation dispatch transaction recovery" do
 
     expect(event.reload).to have_attributes(status: "published", published_at: now + 2.minutes)
     expect(AuditEvent.where(event_type: "preparation.dispatch_retry_requested", subject_id: dispatch.id)).to be_empty
+    expect(order.payment.reload).to have_attributes(
+      funding_status: "fully_paid",
+      successful_amount: order.total_amount
+    )
+    expect(order.payment.payment_attempts.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "retry_outbox_update")
     result = Preparation::RetryDispatch.call(**attributes)
