@@ -9,7 +9,7 @@
 | ADR | Decision | Status | Implementation effect |
 |---|---|---|---|
 | [ADR-0001](adr/0001-rails-modular-monolith.md) | Rails API modular monolith with one PostgreSQL database | Accepted | Establishes application shape and module boundaries. |
-| [ADR-0002](adr/0002-ruby-rails-version-baseline.md) | Ruby 3.4.12 / Rails 8.1.4.1 baseline | Accepted | Exact runtime, dependency, native-gem, PostgreSQL 18, test, lint, and security checks passed for Milestone 1. |
+| [ADR-0002](adr/0002-ruby-rails-version-baseline.md) | Ruby 3.4.13 / Rails 8.1.4.1 baseline | Accepted | Ruby 3.4.13 is the current security-patched runtime; the initial Ruby 3.4.12 Milestone 1 compatibility evidence remains historical evidence. |
 | [ADR-0003](adr/0003-postgresql-version-baseline.md) | PostgreSQL 18 | Accepted | All environments and concurrency tests use PostgreSQL 18.x. |
 | [ADR-0004](adr/0004-uuid-primary-keys.md) | Native UUID keys | Accepted | Configure UUID defaults before the first application migration. |
 | [ADR-0005](adr/0005-backend-repository-structure.md) | Rails under `backend/` | Accepted | Preserves the independently buildable `frontend/`. |
@@ -27,7 +27,7 @@ The supporting [runtime-version research](../research/after_four_runtime_version
 
 ### Before Milestone 1 scaffolding
 
-Resolved on 2026-11-14: official releases were rechecked, the exact dependency set was executed on Ruby 3.4.12 and Ruby 4.0.9, and ADR-0002 was accepted on Ruby 3.4.12 / Rails 8.1.4.1. The selected patches remain identical in development and CI and must remain identical in staging and production. No preview runtime is permitted.
+Resolved on 2026-11-14: official releases were rechecked, the exact dependency set was executed on Ruby 3.4.12 and Ruby 4.0.9, and ADR-0002 selected the Ruby 3.4 / Rails 8.1 baseline. Ruby was subsequently patched to 3.4.13 after the 2026-11-18 Ruby security advisory, as permitted by ADR-0002's patch-maintenance rule. The selected patches remain identical in development and CI and must remain identical in staging and production. No preview runtime is permitted.
 
 ### Before production authentication
 

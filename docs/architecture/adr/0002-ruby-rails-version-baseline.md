@@ -13,7 +13,7 @@ As of 2026-11-14, official sources identify Ruby 3.4.12 and Ruby 4.0.9 as normal
 
 ## Decision
 
-Use Ruby `3.4.12`, Rails `8.1.4.1`, and Bundler `2.6.9` as the accepted foundation baseline. Pin these inputs in `.ruby-version`, `Gemfile`, `Gemfile.lock`, development images, and CI. Use PostgreSQL 18 with `pg 1.7.x`; lock the resolved dependency set and deployment platforms.
+Use Ruby `3.4.13`, Rails `8.1.4.1`, and Bundler `2.6.9` as the accepted foundation baseline. Pin these inputs in `.ruby-version`, `Gemfile`, `Gemfile.lock`, development images, and CI. Use PostgreSQL 18 with `pg 1.7.x`; lock the resolved dependency set and deployment platforms. Ruby 3.4.13 supersedes the initial 3.4.12 patch after the Ruby security advisory published on 2026-11-18; this is routine patch maintenance within the accepted Ruby 3.4 series, not a major/minor baseline change.
 
 Exact official Ruby 3.4.12 and Ruby 4.0.9 container checks both resolved, installed, and loaded the Rails 8.1.4.1 stack, including `pg 1.7.0`, Puma 8.0.3, Bootsnap 1.26.1, Solid Queue 1.7.2, test, lint, and security tooling. The selected Ruby 3.4.12 application then booted, migrated, dumped and loaded `structure.sql`, connected to PostgreSQL 18.7, passed tests and static checks, and served live/ready endpoints. Ruby 4.0.9 is therefore deferred for maintainability rather than rejected as incompatible: combining a new Ruby major with a Rails line already in security-only maintenance adds change risk without a project requirement.
 
