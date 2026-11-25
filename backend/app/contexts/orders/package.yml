@@ -1,0 +1,5 @@
+enforce_dependencies: strict
+
+dependencies:
+  - .
+  - app/contexts/preparation

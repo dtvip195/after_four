@@ -27,6 +27,9 @@ gem "bootsnap", "~> 1.26.1", require: false
 # gem "rack-cors"
 
 group :development, :test do
+  # Enforces declared Bounded Context dependency edges in development and CI.
+  gem "packwerk", "3.3.1", require: false
+
   # Primary backend test framework and Rails generator integration.
   gem "rspec-rails", "~> 8.1.0"
   gem "factory_bot_rails", "~> 6.5.1"

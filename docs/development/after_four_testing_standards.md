@@ -65,6 +65,16 @@ docker compose run --rm backend bundle exec rspec spec/requests/health_endpoints
 
 With the repository's exact Ruby and PostgreSQL client installed locally, remove the `docker compose run --rm backend` prefix.
 
+Before the RSpec suite, validate the package manifests and enforce the declared Bounded Context dependency graph:
+
+```bash
+docker compose run --rm backend bin/packwerk validate
+docker compose run --rm backend bin/packwerk check
+docker compose run --rm backend bundle exec rspec spec/architecture
+```
+
+Packwerk checks package-level dependency direction. The architecture specs remain required because they enforce finer-grained namespace, layer, contract, and composition rules that a permitted package edge cannot express. Do not generate or accept a dependency TODO as a substitute for classifying and correcting a violation.
+
 RSpec randomizes example order and prints its seed. Re-run a failure with `--seed NUMBER`. Every spec file must pass alone and as part of the complete suite.
 
 ## Coverage
