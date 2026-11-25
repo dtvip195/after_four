@@ -81,7 +81,7 @@ RSpec.describe "payment database integrity" do
     other_payment = payment_for(create_order)
 
     expect do
-      PreparationDispatch.insert_all!([ dispatch_attributes(order, payment: other_payment) ])
+      Preparation::Infrastructure::Persistence::DispatchRecord.insert_all!([ dispatch_attributes(order, payment: other_payment) ])
     end.to raise_error(ActiveRecord::StatementInvalid)
   end
 
@@ -89,7 +89,7 @@ RSpec.describe "payment database integrity" do
     order = create_order
 
     expect do
-      PreparationDispatch.insert_all!([
+      Preparation::Infrastructure::Persistence::DispatchRecord.insert_all!([
         dispatch_attributes(order, payment: payment_for(order), branch_id: SecureRandom.uuid)
       ])
     end.to raise_error(ActiveRecord::StatementInvalid)

@@ -27,6 +27,6 @@ module OrderingApplicationTestSupport
   end
 
   def preparation_dispatch_for(order)
-    PreparationDispatch.find_by(order_id: order.id)
+    Preparation::Infrastructure::Persistence::DispatchRecord.find_by(order_id: order.id)
   end
 end

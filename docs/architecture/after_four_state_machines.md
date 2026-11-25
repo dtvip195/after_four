@@ -121,7 +121,7 @@ sequenceDiagram
   end
 ```
 
-The worker/ticket portion of this diagram is a target `TECHNICAL_PROPOSAL`, not implemented Phase 1 behavior. Phase 1 stops after committing the pending Dispatch and Outbox Event. `Preparation::RetryDispatch` requeues that same Outbox Event and appends an Audit Event; it does not create a `PreparationDispatchAttempt`. Delivery execution and attempt-outcome recording remain deferred.
+The worker/ticket portion of this diagram is a target `TECHNICAL_PROPOSAL`, not implemented behavior. The current command foundation stops after committing the pending Dispatch and Outbox Event. `Preparation::Application::UseCases::RetryDispatch` requeues that same Outbox Event and appends an Audit Event; it does not create a Dispatch Attempt record. Delivery execution and attempt-outcome recording remain deferred.
 
 `OWNER_CONFIRMED` Full successful settlement precedes Preparation Dispatch. Timeout/client success screens/provider initiation never prove success.
 

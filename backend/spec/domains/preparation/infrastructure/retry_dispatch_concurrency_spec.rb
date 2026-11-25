@@ -19,7 +19,7 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
         ActiveRecord::Base.connection_pool.with_connection do |connection|
           connection.execute("SET application_name = #{connection.quote(application_name)}")
           start.pop
-          Preparation::RetryDispatch.call(**attributes)
+          PreparationComposition.retry_dispatch(**attributes)
         ensure
           connection.execute("RESET application_name")
         end
@@ -31,10 +31,10 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
     results = racers.map(&:value)
     holder.join
 
-    expect(results).to all(be_a(Preparation::RetryDispatch::Result))
+    expect(results).to all(be_a(Preparation::Application::UseCases::RetryDispatch::Result))
     expect(results.map(&:replayed)).to contain_exactly(false, true)
-    expect(results.map { |result| result.preparation_dispatch.id }.uniq).to eq([ dispatch.id ])
-    expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
+    expect(results.map { |result| result.preparation_dispatch.id.to_s }.uniq).to eq([ dispatch.id ])
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(event_key: event.event_key).count).to eq(1)
     expect(event.reload).to have_attributes(status: "pending", published_at: nil)
     expect(Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_for(order).id, status: "succeeded").count).to eq(1)
@@ -63,7 +63,7 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
     )
 
     expect do
-      Preparation::RetryDispatch.call(
+      PreparationComposition.retry_dispatch(
         **retry_attributes(dispatch:, actor_id:, key: key, now: now + 3.minutes)
       )
     end.to raise_error(ActiveRecord::RecordNotUnique)
@@ -122,8 +122,8 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
   def hold_dispatch(dispatch, lock_ready, release_lock)
     Thread.new do
       ActiveRecord::Base.connection_pool.with_connection do
-        PreparationDispatch.transaction do
-          PreparationDispatch.lock.find(dispatch.id)
+        Preparation::Infrastructure::Persistence::DispatchRecord.transaction do
+          Preparation::Infrastructure::Persistence::DispatchRecord.lock.find(dispatch.id)
           lock_ready << true
           release_lock.pop
         end
@@ -155,12 +155,12 @@ RSpec.describe "concurrent preparation dispatch retry", :concurrency do
 
     Payments::Infrastructure::Persistence::PaymentRecord.transaction do
       payment_ids = Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: order.id).pluck(:id)
-      dispatch_ids = PreparationDispatch.where(order_id: order.id).pluck(:id)
+      dispatch_ids = Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).pluck(:id)
       delete_audit_events_as_database_owner(AuditEvent.where(branch_id: order.branch_id))
       Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.where(order_id: order.id).delete_all
-      PreparationDispatchAttempt.where(preparation_dispatch_id: dispatch_ids).delete_all
+      Preparation::Infrastructure::Persistence::DispatchAttemptRecord.where(preparation_dispatch_id: dispatch_ids).delete_all
       OutboxEvent.where(aggregate_type: "PreparationDispatch", aggregate_id: dispatch_ids).delete_all
-      PreparationDispatch.where(id: dispatch_ids).delete_all
+      Preparation::Infrastructure::Persistence::DispatchRecord.where(id: dispatch_ids).delete_all
       Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_ids).delete_all
       Payments::Infrastructure::Persistence::PaymentRecord.where(id: payment_ids).delete_all
       Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all

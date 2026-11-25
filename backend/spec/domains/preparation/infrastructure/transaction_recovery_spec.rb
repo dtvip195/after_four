@@ -6,7 +6,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
     attributes = dispatch_attributes(order:, actor_id:, key: "outbox-insert-failure", now: now + 1.minute)
     install_failure!(table: "outbox_events", operation: "INSERT", name: "outbox_insert")
 
-    expect { Preparation::RequestDispatch.call(**attributes) }
+    expect { PreparationComposition.request_dispatch(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected outbox_insert failure/)
 
     expect(preparation_dispatch_for(order)).to be_nil
@@ -19,10 +19,10 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "outbox_insert")
-    result = Preparation::RequestDispatch.call(**attributes)
+    result = PreparationComposition.request_dispatch(**attributes)
 
     expect(result.replayed).to be(false)
-    expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: result.preparation_dispatch.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "preparation.dispatch_requested", subject_id: result.preparation_dispatch.id).count).to eq(1)
   ensure
@@ -34,7 +34,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
     attributes = dispatch_attributes(order:, actor_id:, key: "audit-insert-failure", now: now + 1.minute)
     install_failure!(table: "audit_events", operation: "INSERT", name: "audit_insert")
 
-    expect { Preparation::RequestDispatch.call(**attributes) }
+    expect { PreparationComposition.request_dispatch(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit_insert failure/)
 
     expect(preparation_dispatch_for(order)).to be_nil
@@ -47,10 +47,10 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "audit_insert")
-    result = Preparation::RequestDispatch.call(**attributes)
+    result = PreparationComposition.request_dispatch(**attributes)
 
     expect(result.replayed).to be(false)
-    expect(PreparationDispatch.where(order_id: order.id).count).to eq(1)
+    expect(Preparation::Infrastructure::Persistence::DispatchRecord.where(order_id: order.id).count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: result.preparation_dispatch.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "preparation.dispatch_requested", subject_id: result.preparation_dispatch.id).count).to eq(1)
   ensure
@@ -63,7 +63,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
     attributes = retry_attributes(dispatch:, actor_id:, key: "retry-audit-failure", now: now + 3.minutes)
     install_failure!(table: "audit_events", operation: "INSERT", name: "retry_audit_insert")
 
-    expect { Preparation::RetryDispatch.call(**attributes) }
+    expect { PreparationComposition.retry_dispatch(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected retry_audit_insert failure/)
 
     expect(event.reload).to have_attributes(status: "published", published_at: now + 2.minutes)
@@ -75,7 +75,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "retry_audit_insert")
-    result = Preparation::RetryDispatch.call(**attributes)
+    result = PreparationComposition.retry_dispatch(**attributes)
 
     expect(result.replayed).to be(false)
     expect(event.reload).to have_attributes(status: "pending", published_at: nil)
@@ -90,7 +90,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
     attributes = retry_attributes(dispatch:, actor_id:, key: "retry-outbox-failure", now: now + 3.minutes)
     install_failure!(table: "outbox_events", operation: "UPDATE", name: "retry_outbox_update")
 
-    expect { Preparation::RetryDispatch.call(**attributes) }
+    expect { PreparationComposition.retry_dispatch(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected retry_outbox_update failure/)
 
     expect(event.reload).to have_attributes(status: "published", published_at: now + 2.minutes)
@@ -102,7 +102,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
     expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "retry_outbox_update")
-    result = Preparation::RetryDispatch.call(**attributes)
+    result = PreparationComposition.retry_dispatch(**attributes)
 
     expect(result.replayed).to be(false)
     expect(event.reload).to have_attributes(status: "pending", published_at: nil)

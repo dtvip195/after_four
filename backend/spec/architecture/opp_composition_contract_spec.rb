@@ -1,8 +1,8 @@
 require "rails_helper"
 
-RSpec.describe "Ordering, Payment, and Preparation command compatibility" do
+RSpec.describe "Ordering, Payment, and Preparation composition contracts" do
   COMMAND_CONTRACTS = {
-    Preparation::RequestDispatch => {
+    PreparationComposition.method(:request_dispatch) => {
       parameters: [
         [ :keyreq, :order_id ],
         [ :keyreq, :actor_id ],
@@ -11,7 +11,7 @@ RSpec.describe "Ordering, Payment, and Preparation command compatibility" do
       ],
       result_members: %i[preparation_dispatch replayed]
     },
-    Preparation::RetryDispatch => {
+    PreparationComposition.method(:retry_dispatch) => {
       parameters: [
         [ :keyreq, :preparation_dispatch_id ],
         [ :keyreq, :actor_id ],
@@ -24,8 +24,13 @@ RSpec.describe "Ordering, Payment, and Preparation command compatibility" do
 
   it "preserves the public invocation and result interfaces used by current callers" do
     COMMAND_CONTRACTS.each do |command, contract|
-      expect(command.method(:call).parameters).to eq(contract.fetch(:parameters)), command.name
-      expect(command::Result.members).to eq(contract.fetch(:result_members)), command.name
+      expect(command.parameters).to eq(contract.fetch(:parameters)), command.name.to_s
+      result_class = if command.name == :request_dispatch
+        Preparation::Application::UseCases::RequestDispatch::Result
+      else
+        Preparation::Application::UseCases::RetryDispatch::Result
+      end
+      expect(result_class.members).to eq(contract.fetch(:result_members)), command.name.to_s
     end
   end
 

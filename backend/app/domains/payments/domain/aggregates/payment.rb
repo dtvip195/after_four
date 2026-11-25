@@ -52,6 +52,12 @@ module Payments
           target.currency_code
         end
 
+        def fully_settled?
+          funding_status == "fully_paid" &&
+            attempt_activity == "idle" &&
+            successful_amount == target_amount
+        end
+
         def confirm(attempt_id:, method:, amount:, currency_code:, idempotency_key:, actor_id:, now:)
           validate_confirmation_input!(method, amount, currency_code, idempotency_key, actor_id)
           existing = attempts.find { |attempt| attempt.idempotency_key == idempotency_key }

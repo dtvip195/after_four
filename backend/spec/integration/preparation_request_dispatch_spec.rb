@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Preparation::RequestDispatch do
+RSpec.describe PreparationComposition do
   it "rejects dispatch while payment is pending" do
     actor_id = SecureRandom.uuid
     now = Time.utc(2026, 11, 14, 14, 0, 0)
@@ -23,7 +23,7 @@ RSpec.describe Preparation::RequestDispatch do
     payment_for(order).update!(attempt_activity: "processing")
 
     expect do
-      described_class.call(
+      described_class.request_dispatch(
         order_id: order.id,
         actor_id: actor_id,
         idempotency_key: "pending-dispatch-request",
@@ -45,7 +45,7 @@ RSpec.describe Preparation::RequestDispatch do
     )
 
     expect do
-      described_class.call(
+      described_class.request_dispatch(
         order_id: order.id,
         actor_id: actor_id,
         idempotency_key: "failed-dispatch",
@@ -60,7 +60,7 @@ RSpec.describe Preparation::RequestDispatch do
     payment_for(order).update!(attempt_activity: "reconciliation_required")
 
     expect do
-      described_class.call(
+      described_class.request_dispatch(
         order_id: order.id,
         actor_id: actor_id,
         idempotency_key: "unknown-dispatch",
@@ -75,7 +75,7 @@ RSpec.describe Preparation::RequestDispatch do
     expire_pending_orders(now: now + 5.minutes)
 
     expect do
-      described_class.call(
+      described_class.request_dispatch(
         order_id: order.id,
         actor_id: actor_id,
         idempotency_key: "expired-dispatch",
