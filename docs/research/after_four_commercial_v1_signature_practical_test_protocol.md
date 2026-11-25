@@ -39,6 +39,21 @@ All actual measurements, purchase evidence, unit costs and margins remain blank.
 
 The costing input records quoted price and actual invoiced/purchased price as separate evidence classes, each with its own evidence type and source reference. A quotation never proves a purchase transaction. When all required inputs and the relevant selling-price basis are valid, `gross_margin_amount_vnd` records the VND difference produced by the stated calculation basis, while `gross_margin_percentage` records the separately identified percentage produced by that basis. `gross_margin_calculation_basis` must identify the exact selling-price and unit-cost inputs used. No amount or percentage may be calculated while either input is incomplete, and no VAT, tax, monetary precision, rounding, or accounting treatment may be inferred by this template.
 
+#### 1.1.1 BUY acceptance field responsibility
+
+The BUY input is the single acceptance and procurement capture artifact for Bánh croissant, Cheesecake, Brownie chocolate, and Muffin. Blank accepted-specification fields are intentional; public listing facts remain in their separately labelled public-evidence fields and never populate an accepted specification automatically.
+
+| BUY field group | Required provider / evidence class | Boundary |
+|---|---|---|
+| `finished_product_specification`; accepted flavor/formulation, physical size/weight, and saleable portion | Owner input, supported by exact supplier document where applicable | Public identity, flavor, SKU, weight, or portion is a candidate only until the Owner accepts it. |
+| Purchase quantity/unit, packaging configuration, pack size, conversion and MOQ | Supplier document; Owner accepts the purchase-to-sale relationship | A public retail pack does not establish an AFTER FOUR purchase unit or saleable portion. |
+| Condition on receipt, storage, shelf life, required remaining shelf life, handling/preparation and traceability | Supplier document plus qualified food-safety input where applicability requires it; operator records actual receipt evidence | No threshold, temperature, expiry rule, bake-off workflow, or handling requirement is inferred. |
+| Defect/rejection criteria | Owner input after supplier specification and qualified food-safety/operations input where required | No defect threshold or automatic rejection authority is created. |
+| Public seller/provider, product identity, listed price/date/URL | `PUBLIC_RETAIL_LISTING_NOT_QUOTATION_OR_TRANSACTION` | The public seller/provider is not a verified supplier; a retail price is not a quote, transaction, wholesale price, or landed cost. |
+| Verified supplier identity, accepted quotation, actual purchase price, delivery and landed-cost evidence | Supplier/transaction documents after separate contact and procurement authorization | These fields remain blank; this protocol authorizes no contact, RFQ, selection, acceptance, or purchase. |
+| Quantity received, saleable portions, unsaleable quantity/reason and receipt evidence | Operator measurement/observation tied to the actual receipt | No sample receipt or loss value may be entered. |
+| `acceptance_specification_status` | Owner records only after reviewing the complete evidence set | Blank does not mean accepted; current `verification_status` remains `MISSING_INPUT`. |
+
 ### 1.2 Execution order and parallelism
 
 1. Start with actual Ingredient/SKU, equipment and vessel identification. This can proceed independently for every unblocked Product and does not approve a Recipe or supplier.
@@ -52,6 +67,21 @@ The costing input records quoted price and actual invoiced/purchased price as se
 The 2026-11-25 public-evidence delta is recorded as `CE-COM-015` through `CE-COM-018` in the [Comprehensive Evidence Register](after_four_comprehensive_evidence_register.csv). Shared dairy, tea, packaging, and BUY-product evidence may be referenced from multiple candidate assessments without copying or altering the original record. A shared source reference does not establish Product applicability, Recipe quantity, packaging assignment, quotation, transaction, or cost.
 
 For the remaining MAKE Products, the first executable action is to record the actual Ingredient specifications and a controlled test basis in the MAKE matrix. Public formulations may guide test planning but do not make a Product costable. No cost calculation may proceed from a reference formulation alone.
+
+### 1.3 Practical-test execution readiness
+
+Every test remains unexecuted. `NOT_READY` below means the record is structurally usable but at least one real input must be supplied before physical execution; it is not a design or implementation status.
+
+| Test ID | Required preparation and physical inputs | Measurement procedure and observations | Evidence to retain | Missing prerequisite / execution status |
+|---|---|---|---|---|
+| `CM-R04-01` | Identify exact coffee, condensed milk, whipping cream, salt, water/ice, equipment and measured vessel; select values only within the retained R04 source range. | Weigh/measure every input; record water temperature/time, extracted coffee, complete foam output, ice, final output, loss, preparation time, sensory observations and repeat identity. | Ingredient labels/SKUs; source track; equipment/settings; dated tester record; raw measurements; deviations; Owner disposition. | Actual inputs, equipment and vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
+| `CM-R05-01` | Identify exact coffee, condensed milk, cream, fresh milk, salt, water/ice, equipment and measured vessel; retain R05 independently. | Measure extraction and the complete R05 foam system; record outputs/losses/time/sensory/repeat. Optional cocoa remains excluded unless explicitly recorded. | Same evidence classes as R04, retained under R05 without combining tracks. | Actual inputs, equipment and vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
+| `TDCS-S-R12-01` | Owner selects S for execution; identify tea, peach, orange, syrup, lemongrass, lime, water/ice, equipment and measured S vessel. | Preserve R12 benchmark; measure brew inputs/output, every Product input, ice, final output/loss, time, sensory result and repeat. | Ingredient/SKU and source evidence; brew/settings; vessel measurement; dated tester record; deviations; disposition. | Size selection, inputs, equipment and vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
+| `TDCS-M-R12-01` | Same R12 prerequisites, with an independently measured M vessel and no S/M/L scaling. | Same R12 measurement envelope, recorded independently for M. | Same R12 evidence classes, tied to M. | Size selection, inputs, equipment and vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
+| `TDCS-L-R12-01` | Same R12 prerequisites, with an independently measured L vessel and no S/M/L scaling. | Same R12 measurement envelope, recorded independently for L. | Same R12 evidence classes, tied to L. | Size selection, inputs, equipment and vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
+| `TDCS-S-R13-01` | Owner selects S; identify all inputs/equipment/vessel and explicitly record an R13 tea identity, dry dose, water, temperature, time and method without importing R12. | Measure the separately defined R13 tea base and every remaining input/output/loss/time/sensory/repeat fact. | Explicit tea-base trial basis plus the R12 evidence classes applicable to the independent R13 run. | R13 tea basis plus physical inputs/equipment/vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
+| `TDCS-M-R13-01` | Same R13 prerequisites, with an independently measured M vessel and no cross-size scaling. | Same R13 measurement envelope, recorded independently for M. | Same R13 evidence classes, tied to M. | R13 tea basis plus physical inputs/equipment/vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
+| `TDCS-L-R13-01` | Same R13 prerequisites, with an independently measured L vessel and no cross-size scaling. | Same R13 measurement envelope, recorded independently for L. | Same R13 evidence classes, tied to L. | R13 tea basis plus physical inputs/equipment/vessel are missing — `NOT_READY — OWNER/OPERATOR_INPUT_REQUIRED`. |
 
 ## 2. Cà phê muối — independent benchmark tracks
 
