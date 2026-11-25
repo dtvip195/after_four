@@ -123,6 +123,25 @@ RSpec.describe Orders::Domain::Aggregates::Order do
     expect(order).to have_attributes(status: "expired", expired_at: now + 300)
   end
 
+  it "owns settlement and preparation eligibility decisions" do
+    expect(order.payment_settlement_eligible?).to be(false)
+    order.confirm(idempotency_key: "confirm-1", expected_version: 0, now: now, payment_window: window)
+
+    expect(order.payment_settlement_eligible?).to be(true)
+    expect(order.preparation_dispatch_eligible?(at: now + 299)).to be(true)
+    expect(order.preparation_dispatch_eligible?(at: now + 300)).to be(false)
+
+    order.hold(
+      reason: "Review",
+      idempotency_key: "hold-1",
+      expected_version: 0,
+      now: now + 60,
+      payment_unpaid: true
+    )
+    expect(order.payment_settlement_eligible?).to be(true)
+    expect(order.preparation_dispatch_eligible?(at: now + 120)).to be(false)
+  end
+
   describe "creation invariants" do
     it "constructs a valid Draft without Rails" do
       draft = described_class.draft(

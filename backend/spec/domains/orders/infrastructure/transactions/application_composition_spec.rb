@@ -16,7 +16,7 @@ RSpec.describe "Ordering Application composition" do
       status: "draft",
       order_number: a_string_matching(/\AAF-[0-9A-F]{12}\z/)
     )
-    expect(Payment.find(result.payment_reference)).to have_attributes(
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.find(result.payment_reference)).to have_attributes(
       funding_status: "unpaid",
       target_amount: 125_000,
       currency_code: "VND"

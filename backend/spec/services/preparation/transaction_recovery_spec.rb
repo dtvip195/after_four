@@ -16,7 +16,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "outbox_insert")
     result = Preparation::RequestDispatch.call(**attributes)
@@ -44,7 +44,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "audit_insert")
     result = Preparation::RequestDispatch.call(**attributes)
@@ -72,7 +72,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "audit_events", name: "retry_audit_insert")
     result = Preparation::RetryDispatch.call(**attributes)
@@ -99,7 +99,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
       funding_status: "fully_paid",
       successful_amount: order.total_amount
     )
-    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
 
     remove_failure!(table: "outbox_events", name: "retry_outbox_update")
     result = Preparation::RetryDispatch.call(**attributes)
@@ -153,7 +153,7 @@ RSpec.describe "preparation dispatch transaction recovery" do
       expected_version: order.lock_version,
       now: now
     )
-    dispatch = Payments::ConfirmCash.call(
+    dispatch = PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: order.total_amount,
@@ -166,8 +166,8 @@ RSpec.describe "preparation dispatch transaction recovery" do
   end
 
   def record_valid_settlement(order, actor_id, settled_at)
-    Payment.transaction do
-      payment_for(order).payment_attempts.create!(
+    Payments::Infrastructure::Persistence::PaymentRecord.transaction do
+      payment_for(order).payment_attempt_records.create!(
         method: "cash",
         status: "succeeded",
         requested_amount: order.total_amount,

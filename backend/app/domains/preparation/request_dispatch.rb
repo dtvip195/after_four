@@ -3,7 +3,7 @@ module Preparation
     Result = Data.define(:preparation_dispatch, :replayed)
 
     def self.call(order_id:, actor_id:, idempotency_key:, clock: -> { Time.current })
-      OrderingComposition.request_preparation_dispatch(
+      PreparationComposition.request_dispatch(
         order_id: order_id,
         actor_id: actor_id,
         idempotency_key: idempotency_key,
@@ -11,8 +11,9 @@ module Preparation
       )
     end
 
-    def initialize(order_gateway:, order_id:, actor_id:, idempotency_key:, clock:)
+    def initialize(order_gateway:, payment_gateway:, order_id:, actor_id:, idempotency_key:, clock:)
       @order_gateway = order_gateway
+      @payment_gateway = payment_gateway
       @order_id = order_id
       @actor_id = actor_id
       @idempotency_key = idempotency_key
@@ -26,7 +27,7 @@ module Preparation
       result = nil
       ApplicationRecord.transaction do
         order = order_gateway.lock(order_id)
-        payment = Payment.lock.find_by!(order_id: order.id.to_s)
+        payment = payment_gateway.lock_snapshot(order_id: order.id.to_s)
         decision_time = clock.call
         existing = PreparationDispatch.find_by(order_id: order.id.to_s)
         if existing
@@ -39,15 +40,13 @@ module Preparation
             decision_time < order.payment_expires_at
           raise DomainError.new("order_not_dispatchable", "Order is expired, held, or otherwise not dispatchable")
         end
-        unless payment.funding_status == "fully_paid" &&
-            payment.attempt_activity == "idle" &&
-            payment.successful_amount == payment.target_amount
+        unless payment.fully_settled?
           raise DomainError.new("payment_not_fully_settled", "Full verified payment is required before preparation")
         end
 
         dispatch = PreparationDispatch.create!(
           order_id: order.id.to_s,
-          payment: payment,
+          payment_id: payment.reference_id,
           branch_id: order.branch_id,
           status: "pending",
           idempotency_key: "dispatch-request:#{idempotency_key}",
@@ -60,7 +59,7 @@ module Preparation
           event_type: "preparation.dispatch_requested",
           aggregate_type: "PreparationDispatch",
           aggregate_id: dispatch.id,
-          payload: { order_id: order.id, payment_id: payment.id, branch_id: order.branch_id },
+          payload: { order_id: order.id, payment_id: payment.reference_id, branch_id: order.branch_id },
           occurred_at: decision_time,
           available_at: decision_time,
           created_at: decision_time,
@@ -85,6 +84,6 @@ module Preparation
 
     private
 
-    attr_reader :order_gateway, :order_id, :actor_id, :idempotency_key, :clock
+    attr_reader :order_gateway, :payment_gateway, :order_id, :actor_id, :idempotency_key, :clock
   end
 end

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe PaymentAttempt do
+RSpec.describe Payments::Infrastructure::Persistence::PaymentAttemptRecord do
   TERMINAL_EVIDENCE_CHANGES = {
     status: "failed",
     requested_amount: 81_000,
@@ -55,7 +55,7 @@ RSpec.describe PaymentAttempt do
 
     TERMINAL_EVIDENCE_CHANGES.each do |attribute, changed_value|
       expect do
-        PaymentAttempt.transaction(requires_new: true) do
+        Payments::Infrastructure::Persistence::PaymentAttemptRecord.transaction(requires_new: true) do
           attempt.update_columns(attribute => changed_value)
         end
       end.to raise_error(ActiveRecord::StatementInvalid, /terminal payment attempt evidence is immutable/i)
@@ -69,7 +69,7 @@ RSpec.describe PaymentAttempt do
     connection = ActiveRecord::Base.connection
 
     expect do
-      PaymentAttempt.transaction(requires_new: true) do
+      Payments::Infrastructure::Persistence::PaymentAttemptRecord.transaction(requires_new: true) do
         connection.execute(<<~SQL)
           UPDATE payment_attempts
           SET method = 'bank_transfer'
@@ -83,10 +83,10 @@ RSpec.describe PaymentAttempt do
 
   it "rolls back other transaction changes when PostgreSQL rejects terminal evidence mutation" do
     attempt = create_attempt(status: "succeeded")
-    payment = attempt.payment
+    payment = attempt.payment_record
 
     expect do
-      PaymentAttempt.transaction(requires_new: true) do
+      Payments::Infrastructure::Persistence::PaymentAttemptRecord.transaction(requires_new: true) do
         payment.update!(updated_at: Time.utc(2026, 11, 14, 14, 0, 0))
         attempt.update_columns(confirmed_amount: 79_000)
       end
@@ -107,7 +107,7 @@ RSpec.describe PaymentAttempt do
       idempotency_key: "create-attempt-#{SecureRandom.uuid}",
       now: Time.utc(2026, 11, 14, 11, 0, 0)
     )
-    payment_for(order).payment_attempts.create!(
+    payment_for(order).payment_attempt_records.create!(
       method: "cash",
       status: status,
       requested_amount: 80_000,

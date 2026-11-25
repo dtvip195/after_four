@@ -11,7 +11,7 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
 
     expect(Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id)).to be_empty
     order_ids = Orders::Infrastructure::Persistence::OrderRecord.where(branch_id: branch_id).select(:id)
-    expect(Payment.where(order_id: order_ids)).to be_empty
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: order_ids)).to be_empty
     expect(AuditEvent.where(branch_id: branch_id)).to be_empty
 
     remove_audit_failure!
@@ -20,7 +20,7 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
 
     expect(result.replayed).to be(false)
     expect(order).to be_persisted
-    expect(Payment.find(result.payment_reference)).to be_persisted
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.find(result.payment_reference)).to be_persisted
     expect(AuditEvent.where(branch_id: branch_id, event_type: "order.created").count).to eq(1)
   ensure
     remove_audit_failure!
@@ -31,21 +31,21 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
     attributes = payment_attributes(order:, actor_id:, key: "audit-failure-settlement", now: now + 1.minute)
     install_audit_failure!
 
-    expect { Payments::ConfirmCash.call(**attributes) }
+    expect { PaymentComposition.confirm_cash(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit failure/)
 
     expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(payment_for(order).payment_attempts).to be_empty
+    expect(payment_for(order).payment_attempt_records).to be_empty
     expect(preparation_dispatch_for(order)).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "payment.confirmed", subject_type: "PaymentAttempt")).to be_empty
 
     remove_audit_failure!
-    result = Payments::ConfirmCash.call(**attributes.merge(clock: -> { now + 2.minutes }))
+    result = PaymentComposition.confirm_cash(**attributes.merge(clock: -> { now + 2.minutes }))
 
     expect(result.payment).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
     expect(result.preparation_dispatch).to be_present
-    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: result.preparation_dispatch.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "payment.confirmed", subject_id: result.payment_attempt.id).count).to eq(1)
   ensure
@@ -63,22 +63,22 @@ RSpec.describe "Phase 1 Audit Event failure atomicity" do
     )
     install_audit_failure!
 
-    expect { Payments::ConfirmBankTransfer.call(**attributes) }
+    expect { PaymentComposition.confirm_bank_transfer(**attributes) }
       .to raise_error(ActiveRecord::StatementInvalid, /m03 injected audit failure/)
 
     expect(order.reload).to have_attributes(status: "expired")
     expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(payment_for(order).payment_attempts).to be_empty
-    expect(PaymentReviewCase.where(order_id: order.id)).to be_empty
+    expect(payment_for(order).payment_attempt_records).to be_empty
+    expect(Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.where(order_id: order.id)).to be_empty
     expect(preparation_dispatch_for(order)).to be_nil
 
     remove_audit_failure!
-    result = Payments::ConfirmBankTransfer.call(**attributes)
+    result = PaymentComposition.confirm_bank_transfer(**attributes)
 
     expect(result.payment).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
     expect(result.review_case).to have_attributes(kind: "late_success", status: "open")
-    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
-    expect(PaymentReviewCase.where(order_id: order.id).count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
+    expect(Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.where(order_id: order.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "payment.late_success_recorded").count).to eq(1)
   ensure
     remove_audit_failure!

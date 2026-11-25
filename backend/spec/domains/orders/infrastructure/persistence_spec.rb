@@ -90,7 +90,7 @@ RSpec.describe "Ordering persistence and Payment contract adapters" do
     )
     snapshot = adapter.lock_snapshot(order_id: aggregate.id.to_s)
 
-    expect(reference).to eq(Payment.find_by!(order_id: aggregate.id.to_s).id)
+    expect(reference).to eq(Payments::Infrastructure::Persistence::PaymentRecord.find_by!(order_id: aggregate.id.to_s).id)
     expect(snapshot).to have_attributes(reference_id: reference, funding_status: "unpaid")
     expect(snapshot).to be_unpaid
   end
@@ -242,7 +242,7 @@ RSpec.describe "Ordering persistence and Payment contract adapters" do
       end.to raise_error(ActiveRecord::RecordInvalid)
     end.not_to change(Orders::Infrastructure::Persistence::OrderRecord, :count)
 
-    expect(Payment.where(order_id: aggregate.id.to_s)).to be_empty
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: aggregate.id.to_s)).to be_empty
   end
 
   it "rolls a successful Payment and Audit write back after a later outer failure" do
@@ -262,14 +262,14 @@ RSpec.describe "Ordering persistence and Payment contract adapters" do
         )
         audit_log.order_created(order: aggregate, actor_id: aggregate.created_by_actor_id, now: now)
 
-        expect(Payment.find(payment_reference)).to have_attributes(order_id: aggregate.id.to_s)
+        expect(Payments::Infrastructure::Persistence::PaymentRecord.find(payment_reference)).to have_attributes(order_id: aggregate.id.to_s)
         expect(AuditEvent.where(subject_id: aggregate.id.to_s, event_type: "order.created")).to exist
         raise "later covered operation failed"
       end
     end.to raise_error("later covered operation failed")
 
     expect(Orders::Infrastructure::Persistence::OrderRecord.where(id: aggregate.id.to_s)).to be_empty
-    expect(Payment.where(order_id: aggregate.id.to_s)).to be_empty
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: aggregate.id.to_s)).to be_empty
     expect(AuditEvent.where(subject_id: aggregate.id.to_s)).to be_empty
     expect(OutboxEvent.where(aggregate_id: aggregate.id.to_s)).to be_empty
   end

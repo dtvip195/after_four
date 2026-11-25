@@ -15,9 +15,9 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
           ready << true
           start.pop
           begin
-            Payment.transaction do
+            Payments::Infrastructure::Persistence::PaymentRecord.transaction do
               insert_attempt(payment, index)
-              Payment.where(id: payment.id).update_all(
+              Payments::Infrastructure::Persistence::PaymentRecord.where(id: payment.id).update_all(
                 funding_status: "fully_paid",
                 successful_amount: payment.target_amount
               )
@@ -36,7 +36,7 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
     expect(results.count(:committed)).to eq(1)
     expect(results.count { |result| result.is_a?(ActiveRecord::StatementInvalid) }).to eq(1)
     expect(payment.reload).to have_attributes(funding_status: "fully_paid", successful_amount: 80_000)
-    expect(payment.payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment.payment_attempt_records.where(status: "succeeded").count).to eq(1)
   ensure
     threads&.each(&:join)
     cleanup_order(order)
@@ -56,7 +56,7 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
 
   def insert_attempt(payment, index)
     now = Time.utc(2026, 11, 14, 10, 1, index)
-    PaymentAttempt.insert_all!([ {
+    Payments::Infrastructure::Persistence::PaymentAttemptRecord.insert_all!([ {
       id: SecureRandom.uuid,
       payment_id: payment.id,
       method: "cash",
@@ -76,10 +76,10 @@ RSpec.describe "payment database integrity under concurrency", :concurrency do
   def cleanup_order(order)
     return unless order&.persisted?
 
-    Payment.transaction do
-      payment_ids = Payment.where(order_id: order.id).pluck(:id)
-      PaymentAttempt.where(payment_id: payment_ids).delete_all
-      Payment.where(id: payment_ids).delete_all
+    Payments::Infrastructure::Persistence::PaymentRecord.transaction do
+      payment_ids = Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: order.id).pluck(:id)
+      Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_ids).delete_all
+      Payments::Infrastructure::Persistence::PaymentRecord.where(id: payment_ids).delete_all
       Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all
     end
   end

@@ -23,7 +23,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
     confirmer = Thread.new do
       ActiveRecord::Base.connection_pool.with_connection do
         command_started << true
-        Payments::ConfirmCash.call(
+        PaymentComposition.confirm_cash(
           order_id: order.id,
           actor_id: actor_id,
           amount: order.total_amount,
@@ -108,7 +108,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
       ActiveRecord::Base.connection_pool.with_connection do
         ready << true
         start.pop
-        Payments::ConfirmBankTransfer.call(
+        PaymentComposition.confirm_bank_transfer(
           order_id: order.id,
           actor_id: actor_id,
           amount: order.total_amount,
@@ -131,7 +131,7 @@ RSpec.describe "payment deadline concurrency", :concurrency do
     expirer.value
 
     expect(order_record(confirmation.order.id)).to have_attributes(status: "expired")
-    expect(confirmation.payment.reload).to have_attributes(funding_status: "fully_paid")
+    expect(payment_for(order).reload).to have_attributes(funding_status: "fully_paid")
     expect(confirmation.review_case).to have_attributes(kind: "late_success", status: "open")
     expect(PreparationDispatch.where(order_id: order.id)).to be_empty
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
@@ -176,23 +176,23 @@ RSpec.describe "payment deadline concurrency", :concurrency do
   def cleanup_order(order)
     return unless order&.persisted?
 
-    Payment.transaction do
-      payment_ids = Payment.where(order_id: order.id).pluck(:id)
+    Payments::Infrastructure::Persistence::PaymentRecord.transaction do
+      payment_ids = Payments::Infrastructure::Persistence::PaymentRecord.where(order_id: order.id).pluck(:id)
       dispatch_ids = PreparationDispatch.where(order_id: order.id).pluck(:id)
       delete_audit_events_as_database_owner(AuditEvent.where(branch_id: order.branch_id))
-      PaymentReviewCase.where(order_id: order.id).delete_all
+      Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.where(order_id: order.id).delete_all
       PreparationDispatchAttempt.where(preparation_dispatch_id: dispatch_ids).delete_all
       OutboxEvent.where(aggregate_type: "PreparationDispatch", aggregate_id: dispatch_ids).delete_all
       PreparationDispatch.where(id: dispatch_ids).delete_all
-      PaymentAttempt.where(payment_id: payment_ids).delete_all
-      Payment.where(id: payment_ids).delete_all
+      Payments::Infrastructure::Persistence::PaymentAttemptRecord.where(payment_id: payment_ids).delete_all
+      Payments::Infrastructure::Persistence::PaymentRecord.where(id: payment_ids).delete_all
       Orders::Infrastructure::Persistence::OrderRecord.where(id: order.id).delete_all
     end
   end
 
   def record_valid_settlement(order, settled_at)
-    Payment.transaction do
-      payment_for(order).payment_attempts.create!(
+    Payments::Infrastructure::Persistence::PaymentRecord.transaction do
+      payment_for(order).payment_attempt_records.create!(
         method: "cash",
         status: "succeeded",
         requested_amount: order.total_amount,

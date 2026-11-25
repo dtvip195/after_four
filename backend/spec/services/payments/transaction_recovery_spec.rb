@@ -33,7 +33,7 @@ RSpec.describe "payment settlement transaction recovery" do
     SQL
 
     expect do
-      Payments::ConfirmCash.call(
+      PaymentComposition.confirm_cash(
         order_id: order.id,
         actor_id: actor_id,
         amount: 45_000,
@@ -44,13 +44,13 @@ RSpec.describe "payment settlement transaction recovery" do
     end.to raise_error(ActiveRecord::StatementInvalid, /phase1 injected outbox failure/)
 
     expect(payment_for(order).reload).to have_attributes(funding_status: "unpaid", successful_amount: 0)
-    expect(payment_for(order).payment_attempts).to be_empty
+    expect(payment_for(order).payment_attempt_records).to be_empty
     expect(preparation_dispatch_for(order)).to be_nil
     expect(OutboxEvent.where(event_type: "preparation.dispatch_requested")).to be_empty
     expect(AuditEvent.where(event_type: "payment.confirmed")).to be_empty
 
     connection.execute("DROP TRIGGER fail_phase1_outbox_insert ON outbox_events")
-    result = Payments::ConfirmCash.call(
+    result = PaymentComposition.confirm_cash(
       order_id: order.id,
       actor_id: actor_id,
       amount: 45_000,
@@ -60,7 +60,7 @@ RSpec.describe "payment settlement transaction recovery" do
     )
     expect(result.payment).to have_attributes(funding_status: "fully_paid")
     expect(result.preparation_dispatch).to be_present
-    expect(payment_for(order).payment_attempts.where(status: "succeeded").count).to eq(1)
+    expect(payment_for(order).payment_attempt_records.where(status: "succeeded").count).to eq(1)
     expect(OutboxEvent.where(aggregate_id: result.preparation_dispatch.id).count).to eq(1)
     expect(AuditEvent.where(event_type: "payment.confirmed", subject_id: result.payment_attempt.id).count).to eq(1)
   ensure

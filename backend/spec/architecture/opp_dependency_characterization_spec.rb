@@ -130,20 +130,20 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
   LEGACY_CROSS_CONTEXT_FILES = {
     ordering_to_payment: [],
     payment_to_ordering: [],
-    payment_to_preparation: %w[app/domains/payments/confirm.rb],
+    payment_to_preparation: [],
     preparation_to_ordering: [],
-    preparation_to_payment: %w[app/domains/preparation/request_dispatch.rb]
+    preparation_to_payment: []
   }.freeze
 
   LEGACY_TECHNICAL_FACILITY_FILES = {
     audit: %w[
       app/domains/orders/infrastructure/adapters/active_record_audit_log.rb
-      app/domains/payments/confirm.rb
+      app/domains/payments/infrastructure/adapters/active_record_audit_log.rb
       app/domains/preparation/request_dispatch.rb
       app/domains/preparation/retry_dispatch.rb
     ],
     outbox: %w[
-      app/domains/payments/confirm.rb
+      app/domains/preparation/infrastructure/adapters/active_record_settlement_dispatch_gateway.rb
       app/domains/preparation/request_dispatch.rb
       app/domains/preparation/retry_dispatch.rb
     ]
@@ -158,6 +158,11 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     Orders::Confirm
     Orders::Hold
     Orders::ExpirePending
+  ].freeze
+  REMOVED_PAYMENT_FACADES = %w[
+    Payments::Confirm
+    Payments::ConfirmCash
+    Payments::ConfirmBankTransfer
   ].freeze
 
   it "records the exact current cross-context persistence violations" do
@@ -312,6 +317,42 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     ).to include(Orders::Application::Ports::OrderSettlementGateway)
   end
 
+  it "implements Payment and Preparation ports only in Infrastructure adapters" do
+    expect(
+      Payments::Infrastructure::Persistence::ActiveRecordPaymentRepository.ancestors
+    ).to include(Payments::Application::Ports::PaymentRepository)
+    expect(
+      Payments::Infrastructure::Persistence::ActiveRecordUnitOfWork.ancestors
+    ).to include(Payments::Application::Ports::UnitOfWork)
+    expect(
+      Payments::Infrastructure::Adapters::ActiveRecordAuditLog.ancestors
+    ).to include(Payments::Application::Ports::AuditLog)
+    expect(
+      Payments::Infrastructure::Adapters::ActiveRecordReviewCaseGateway.ancestors
+    ).to include(Payments::Application::Ports::ReviewCaseGateway)
+    expect(
+      Preparation::Infrastructure::Adapters::ActiveRecordSettlementDispatchGateway.ancestors
+    ).to include(Preparation::Application::Ports::SettlementDispatchGateway)
+    expect(
+      Payments::Infrastructure::Adapters::PreparationPaymentSettlementGateway.ancestors
+    ).to include(Preparation::Application::Ports::PaymentSettlementGateway)
+
+    expect(Payments::Application::Ports::PaymentRepository.instance_method(:lock_by_order_id).parameters)
+      .to eq([ [ :req, :_order_id ] ])
+    expect(Payments::Application::Ports::PaymentRepository.instance_method(:save).parameters)
+      .to eq([ [ :req, :_payment ] ])
+    expect(Preparation::Application::Ports::SettlementDispatchGateway.instance_method(:request_for_settlement).parameters)
+      .to eq([ [ :keyreq, :order_id ], [ :keyreq, :payment_id ], [ :keyreq, :branch_id ], [ :keyreq, :now ] ])
+    expect(Payments::Application::Ports::ReviewCaseGateway.instance_method(:open_late_success).parameters)
+      .to eq([
+        [ :keyreq, :order_id ],
+        [ :keyreq, :payment_id ],
+        [ :keyreq, :payment_attempt_id ],
+        [ :keyreq, :actor_id ],
+        [ :keyreq, :now ]
+      ])
+  end
+
   it "wires the Payment adapter only at the application composition root" do
     dependencies = OrderingComposition.dependencies
 
@@ -321,6 +362,27 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       .to be_a(Orders::Infrastructure::Persistence::ActiveRecordOrderRepository)
     expect(dependencies.order_settlement_gateway)
       .to be_a(Orders::Infrastructure::Adapters::ActiveRecordOrderSettlementGateway)
+  end
+
+  it "keeps production independent of removed Payment facades and legacy Active Record models" do
+    removed_paths = %w[
+      app/domains/payments/confirm.rb
+      app/domains/payments/confirm_cash.rb
+      app/domains/payments/confirm_bank_transfer.rb
+      app/models/payment.rb
+      app/models/payment_attempt.rb
+      app/models/payment_review_case.rb
+    ].map { |path| Rails.root.join(path) }
+    production_files = Dir[Rails.root.join("app/**/*.rb")].sort
+
+    expect(removed_paths.select(&:exist?)).to be_empty
+    production_files.each do |path|
+      expect(scan(path).constant_paths & REMOVED_PAYMENT_FACADES).to be_empty, relative(path)
+    end
+    expect(Payments::Infrastructure::Persistence::PaymentRecord.table_name).to eq("payments")
+    expect(Payments::Infrastructure::Persistence::PaymentAttemptRecord.table_name).to eq("payment_attempts")
+    expect(Payments::Infrastructure::Persistence::PaymentReviewCaseRecord.table_name)
+      .to eq("payment_review_cases")
   end
 
   it "keeps production code independent of the removed Ordering service facades" do
@@ -412,7 +474,15 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
   def ordering_infrastructure_cross_context_dependency?(scanner, context)
     case context
     when :payment
-      scanner.references?("Payment", "PaymentAttempt", "PaymentReviewCase", "Payments") ||
+      scanner.references?(
+        "Payment",
+        "PaymentAttempt",
+        "PaymentReviewCase",
+        "Payments::Infrastructure::Persistence::PaymentRecord",
+        "Payments::Infrastructure::Persistence::PaymentAttemptRecord",
+        "Payments::Infrastructure::Persistence::PaymentReviewCaseRecord",
+        "Payments"
+      ) ||
         %i[payment payment_attempts payment_review_cases].any? do |name|
           scanner.calls_method?(name) || scanner.references_association?(name)
         end
@@ -457,9 +527,10 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     @persistence_constant_names ||= begin
       model_files = Dir[Rails.root.join("app/models/**/*.rb")]
       record_files = Dir[Rails.root.join("app/domains/**/infrastructure/persistence/**/*_record.rb")]
-      (model_files + record_files).map do |file|
+      names = (model_files + record_files).map do |file|
         File.basename(file, ".rb").camelize
-      end.uniq
+      end
+      (names + %w[Payment PaymentAttempt PaymentReviewCase]).uniq
     end
   end
 

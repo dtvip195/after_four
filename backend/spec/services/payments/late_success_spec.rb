@@ -22,7 +22,7 @@ RSpec.describe "late payment success" do
     )
     expire_pending_orders(now: opened_at + 5.minutes)
 
-    result = Payments::ConfirmBankTransfer.call(
+    result = PaymentComposition.confirm_bank_transfer(
       order_id: order.id,
       actor_id: actor_id,
       amount: 90_000,
@@ -66,7 +66,7 @@ RSpec.describe "late payment success" do
       now: now + 1.minute
     )
 
-    result = Payments::ConfirmBankTransfer.call(
+    result = PaymentComposition.confirm_bank_transfer(
       order_id: order.id,
       actor_id: actor_id,
       amount: 70_000,

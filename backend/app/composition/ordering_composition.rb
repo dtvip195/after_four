@@ -63,27 +63,4 @@ module OrderingComposition
       unit_of_work: current.unit_of_work
     )
   end
-
-  def confirm_payment(method:, order_id:, actor_id:, amount:, currency_code:, idempotency_key:, clock:)
-    Payments::Confirm.new(
-      order_gateway: dependencies.order_settlement_gateway,
-      method: method,
-      order_id: order_id,
-      actor_id: actor_id,
-      amount: amount,
-      currency_code: currency_code,
-      idempotency_key: idempotency_key,
-      clock: clock
-    ).call
-  end
-
-  def request_preparation_dispatch(order_id:, actor_id:, idempotency_key:, clock:)
-    Preparation::RequestDispatch.new(
-      order_gateway: dependencies.order_settlement_gateway,
-      order_id: order_id,
-      actor_id: actor_id,
-      idempotency_key: idempotency_key,
-      clock: clock
-    ).call
-  end
 end

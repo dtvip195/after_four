@@ -23,7 +23,7 @@ module OrderingApplicationTestSupport
   end
 
   def payment_for(order)
-    Payment.find_by!(order_id: order.id)
+    Payments::Infrastructure::Persistence::PaymentRecord.find_by!(order_id: order.id)
   end
 
   def preparation_dispatch_for(order)

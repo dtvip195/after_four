@@ -36,7 +36,7 @@ RSpec.describe Preparation::RequestDispatch do
 
   it "rejects dispatch after an authoritative payment failure" do
     actor_id, now, order = create_confirmed_order("failed")
-    payment_for(order).payment_attempts.create!(
+    payment_for(order).payment_attempt_records.create!(
       method: "cash",
       status: "failed",
       requested_amount: order.total_amount,
