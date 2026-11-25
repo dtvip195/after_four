@@ -121,3 +121,97 @@ No complete equipment-kit total is defensible: the observations are alternatives
 - No supplier identity, quotation, transaction, receipt, actual purchase price, landed cost, Recipe/BOM cost or margin evidence exists.
 
 All findings remain `MARKET_REFERENCE_ONLY`. Nothing here authorizes supplier contact, RFQ, purchase, payment, substitution, Ingredient approval, Recipe/BOM approval, trial execution, costing, pricing, implementation, Gate, FOA, or Production Authorization.
+
+## 8. R04 Internet evidence completion
+
+**Internet review date:** 2026-11-25. This section strengthens the Owner's provisional R04 preparation choices; it does not change them. Manufacturer facts, retailer observations and technical references are deliberately separated.
+
+### 8.1 R04 Ingredient comparison
+
+| Input | Provisional candidate and strongest evidence | Research comparators | Evidence-backed assessment | Owner-review recommendation |
+|---|---|---|---|---|
+| Coffee | `R04M-I01/I02`, Trung Nguyên Sáng Tạo 1, 340 g. Manufacturer packaging/self-declaration identifies 100% Robusta, ground coffee, 340 g, dry/cool storage, and phin directions using about 20 g; see `R04X-S01`. | La Viet F1 is explicitly ground for Vietnamese phin (`R04X-S02`); Mr. Việt Robusta is a 250 g, 100% Robusta, medium-dark, ground comparator (`R04X-S03`). These are not the same Product or sensory substitute. | The two retained retailer rows refer to the same named Product and package size. `I01` is the stronger direct retailer page; `I02` adds retailer SKU `3330468` and the lower observed public price. No evidence proves a shared retailer SKU, current Hội An stock or grind performance in `R04M-E01`. | **Retain `I01/I02` for trial preparation.** Use `I01` as primary listing evidence and `I02` as retailer/price corroboration; physically verify the actual package and grind before trial. |
+| Condensed milk | `R04M-I03`, Ông Thọ Nhãn xanh biển 380 g. Vinamilk's Product page provides the ingredient declaration and nutrition panel (`R04X-S04`). | Other Ông Thọ variants have distinct formulations and are comparators only. Vinamilk label evidence for another 380 g Ông Thọ variant confirms the pattern “close tightly, refrigerate after opening, use within 7 days,” but the actual green-label package must be checked before applying that instruction (`R04X-S05`). | Official evidence supports exact identity, package and ingredients. It does not supply a defensible density for converting R04's 20 ml into grams. | **Retain `I03`.** Verify the green-label package's own after-opening instruction, lot and expiry; measure 20 ml directly. |
+| Whipping cream | `R04M-I05/I06`, Anchor UHT Whipping Cream 1 L. Anchor identifies 1 L, item code `119204`, minimum 35% milk fat, UHT handling, 2–4°C after opening, use within 3 days and do not freeze (`R04X-S06`). | Emborg 200 ml is an official Vietnam-market 35.1% alternative (`R04X-S07`). Elle & Vire 1 L is a Vietnam retailer/distributor comparator with public pricing but incomplete official handling evidence in the retained page (`R04X-S08`). | `I05` is the stronger direct retailer listing and `I06` a secondary retailer observation. Alternatives differ in brand, pack and possibly functional output; no interchangeability is established. | **Retain Anchor `I05/I06`.** Use `I05` as primary public listing; physically verify exact item, cold-chain/package condition and after-opening instruction. |
+| Salt | `R04M-I10/I11`; quantity remains 1.0 g. Co.op's direct `I10` page states fine dried iodized sea salt, 500 g, NaCl 99.996–99.998% and KIO3 0.002–0.004% (`R04X-S09`). | `I11` remains a lower-detail brand/category listing. | `I10` has the stronger identity, ingredient/mineral and public-price evidence. Grain behavior and sensory suitability remain physical-trial questions. | **Prefer `I10` for Owner review; retain `I11` as alternative.** This is not Ingredient approval. |
+| Water | `R04M-I12`, Aquafina 1.5 L. Public label documentation identifies bottled water, 1.5 L, barcode `8934588063060`, RO/ozone/UV treatment and dry/cool/clean storage away from sunlight, strong odors and chemicals (`R04X-S10`). | A controlled potable-water source could be compared later only with its own source and quality evidence. | The evidence supports a bounded bottled-water comparator, not a permanent café water policy or local delivery. | **Retain `I12` for the bounded R04 trial.** Verify the actual sealed bottle, label, lot/expiry and source. |
+| Ice | `R04M-I13` remains a gap. Vietnamese food-safety materials identify instant-use/food-processing ice as a regulated food category and QCVN 10:2011/BYT provides the relevant safety framework (`R04X-S11`, `R04X-S12`). | Internet searches did not yield a sufficiently verifiable Hội An/Đà Nẵng Product page combining exact producer identity, package, current public price, food-safety evidence and delivery terms. | No supplier, pack size, price, mass or local availability can be responsibly selected. | **No verifiable candidate.** Owner/operator must physically identify a packaged or documented food-grade source and weigh the actual trial portion. |
+
+### 8.2 R04 equipment shortlist and purchase-reference comparison
+
+Every price is `MARKET_REFERENCE_ONLY`. “Primary” means best aligned with the existing provisional checkpoint or strongest documentation; it is not an acquisition decision.
+
+| Function | Primary candidate | Alternative(s) | Public price evidence | Technical evidence and limitation | Status |
+|---|---|---|---|---|---|
+| Phin | `R04M-E01` Vinbar inox; public listing states a 20–25 g coffee / 170 ml water basis. | QiFi aluminium phin states one 20 g serving (`R04X-S13`); 88 Coffee stainless phin states 20 g capacity (`R04X-S14`). | Vinbar 47,000 promotional / 53,000 regular; alternatives' Vietnam price not verified. | Material/capacity claims do not prove perforation consistency, extraction or physical condition. Exact basket dimensions were not verified for `E01`. | Retain `E01`; `PHYSICAL_VERIFICATION_REQUIRED`. |
+| General scale/timer | `R04M-E04` Promix CDTP-06, public retailer evidence: 5 kg, 0.1 g division, timer, 390,000 VND. | `E03` I2000; laboratory/technical alternative PCE-BT 2000: 2,100 g, 0.01 g readability/repeatability, ±0.2 g linearity, external calibration, 19,025,188 VND incl. VAT (`R04X-S15`). | As stated. | No official Promix manual, accuracy, tolerance, repeatability or calibration procedure was verified. PCE's 0.01 g readability still does not meet the proposed 0.05 g uncertainty merely by specification because its stated linearity is ±0.2 g. | Retain `E04` for general measurements/timer; **no publicly verified scale currently proves the 1.0 g salt uncertainty target**. Separate physical verification or a suitable verified precision balance is required. |
+| Thermometer | Testo 104 official Vietnam page: -50 to +250°C, accuracy ±0.5°C from -30 to +99.9°C and ±1% above 100°C (`R04X-S16`). | Nitori NDO-1: -15 to 250°C, 0.1°C display, ±1°C from 0 to 100°C (`R04X-S17`); TZ-FMT04 distributor document: -50 to 300°C, 0.1°C resolution, published ±1°C relevant range (`R04X-S18`). | Testo/Nitori/TZ prices not consistently verified in retained direct pages. | All cover 90–96°C on paper. Cleaning, actual response, physical condition and comparison check remain required; calibration features are not calibration evidence. | Testo 104 is strongest technical candidate; NDO-1/TZ-FMT04 are alternatives. `OWNER_CONFIRMATION_REQUIRED`. |
+| 20/60/100 ml volume | DURAN 100 ml Class A cylinder with ISO 4788 basis and stated 0.5 ml tolerance, individually calibrated with ISO 17025-accredited certificate (`R04X-S19`). | Existing `E10/E11/E12` food jugs have public capacity/price but no graduation/tolerance evidence. A food-safe syringe may be considered for 20 ml only if its specification and cleaning controls are documented. | DURAN price not verified; existing jugs 10,000/36,000/40,000 VND. | Laboratory cylinder provides stronger volumetric evidence but food-contact use, cleaning, breakage risk and availability must be reviewed. Separate appropriate tools may be needed for viscous condensed milk and cream. | Prefer a documented cylinder/reference system for verification; actual working tool remains `OWNER_CONFIRMATION_REQUIRED`. |
+| Foam tool | `R04M-E07` Bear DDQ-B02P5: Bear identifies 125 W, five speeds and stainless beaters (`R04X-S20`); retailer observation 399,000 VND. | Bear HM-5H01J29: 125 W, 220 V/50 Hz, five speeds, 915–1480 rpm, two beaters, 18-month warranty, 690,000 VND on Bear Vietnam (`R04X-S21`). | As stated. | Neither candidate specifies which speed/time produces the R04 foam. Actual beaters, condition, cleaning and selected setting require recording. | Retain `E07`; HM-5H01J29 is documented alternative, not a substitution. |
+| Serving vessel | No actual vessel selected. Luminarc Salto 350 ml is listed at 41,900 VND with food-safe glass and dishwasher claims (`R04X-S23`). | Libbey Venice 350 ml is listed at 56,100 VND (`R04X-S24`); existing `E13` remains only a 360 ml combo comparator. | 41,900 / 56,100 VND; `MARKET_REFERENCE_ONLY`. | The complete R04 output is unmeasured, so neither nominal 350 ml vessel is proven large enough. Luminarc's retained page also states a 60°C thermal threshold, requiring separation from hot brewing and physical handling review. Nominal capacity is not usable capacity. | Shortlist both for Owner review only; final selection requires measured output/headspace and three physical usable-capacity observations. |
+| Ice/output weighing | `E04` may cover full-vessel mass if it passes physical verification. | A separate suitable scale may be used if its range, readability and check evidence are documented. | No additional price retained. | Salt precision and full-vessel capacity are different measurement problems and need not use the same instrument. | `PHYSICAL_VERIFICATION_REQUIRED`. |
+
+### 8.3 Food-safety and handling controls
+
+These controls combine manufacturer instructions and general authoritative guidance. They are not a legal-compliance determination.
+
+| Control | Source-grounded requirement for the R04 checklist | Evidence class |
+|---|---|---|
+| Anchor cream | Verify unopened package and date; protect from direct sunlight; once opened keep at 2–4°C, use within 3 days and do not freeze, subject to confirmation on the actual Vietnam package. | `OFFICIAL_MANUFACTURER_SPEC` — `R04X-S06` |
+| Condensed milk | Follow the actual green-label package. The retained Vinamilk label reference for a 380 g Ông Thọ variant says close tightly, refrigerate after opening and use within 7 days; do not transfer it silently if the selected package differs. | `OFFICIAL_PRODUCT_LABEL` / `PHYSICAL_VERIFICATION_REQUIRED` — `R04X-S05` |
+| Ice and water | Use a traceable safe source; retain source/package evidence; protect from contamination; use clean dedicated containers and scoops; never infer safety from visual appearance. | `TECHNICAL_REFERENCE` — WHO Five Keys (`R04X-S22`) and Vietnamese ice framework (`R04X-S11/S12`) |
+| Equipment and surfaces | Wash and sanitize food-contact surfaces/equipment, keep clean, and avoid cross-contamination. Record actual cleaning method and any manufacturer restriction for thermometer probes and mixer beaters. | `TECHNICAL_REFERENCE` — `R04X-S22` |
+| Temperature tool | Clean the probe before/after use according to its instructions; do not submerge non-waterproof parts; retain comparison-check evidence separately from formal calibration. | Manufacturer-specific instruction remains `PHYSICAL_VERIFICATION_REQUIRED`; general hygiene from `R04X-S22`. |
+| Finished drink | Record preparation/holding time and protect the finished beverage from contamination. No shelf-life or service-time threshold is created here. | `OWNER_CONFIRMATION_REQUIRED`; general practice from `R04X-S22`. |
+
+### 8.4 Source register
+
+| Source ID | Page title / publisher | URL | Accessed | Classification | Retained use |
+|---|---|---|---|---|---|
+| `R04X-S01` | Cà phê rang xay Sáng Tạo 1 — Trung Nguyên Legend | https://trungnguyenlegend.com/files/HO-SO-TU-CONG-BO-SAN-PHAM/CPRX-SangTao1.pdf | 2026-11-25 | `OFFICIAL_PRODUCT_LABEL` | Identity, 340 g, 100% Robusta, ground/phin directions, storage. |
+| `R04X-S02` | F1 — La Viet Coffee | https://laviet.coffee/en/san-pham/f1-en-2/ | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | Ground-for-phin coffee comparator. |
+| `R04X-S03` | Mr. Viet Robusta Ground Coffee — L's Place | https://lsplace.com.vn/products/mr-viet-cafe-robusta | 2026-11-25 | `RETAILER_PRODUCT_LISTING` | 250 g 100% Robusta ground comparator. |
+| `R04X-S04` | Ông Thọ Nhãn xanh biển — Vinamilk | https://www.vinamilk.com.vn/products/sua-dac-co-duong-ong-tho-chu-xanh?pack=380g+h%E1%BB%99p+thi%E1%BA%BFc | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | Exact identity, ingredients and nutrition. |
+| `R04X-S05` | Ông Thọ 380 g label publication — Vinamilk | https://www.vinamilk.com.vn/cong-bo-san-pham/wp-content/uploads/cbsp/pc-000042-tb-cts-ncpt-04-ncpt-22-final.pdf | 2026-11-25 | `OFFICIAL_PRODUCT_LABEL` | Variant-specific storage comparator; actual green label still controls. |
+| `R04X-S06` | Anchor Whipping Cream — Anchor Food Professionals | https://www.anchorfoodprofessionals.com/id/en/our-products/cream/anchor-whipping-cream.html | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | 1 L/item code, milk fat, UHT storage and after-opening handling. |
+| `R04X-S07` | Natural Whipping Cream — Emborg Vietnam | https://www.emborg.com/vn/product/natural-whipping-cream/ | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | 200 ml, 35.1% fat alternative. |
+| `R04X-S08` | Elle & Vire Vietnam catalogue — Beemart | https://ellevire.beemart.vn/ | 2026-11-25 | `DISTRIBUTOR_INFORMATION` | 1 L public-price alternative; handling evidence incomplete. |
+| `R04X-S09` | Co.op Select fine dried iodized sea salt 500 g — Co.op Online | https://cooponline.vn/muoi-bien-tinh-say-i-ot-coop-select-500g--s250100888 | 2026-11-25 | `RETAILER_PRODUCT_LISTING` | Identity, composition, package, storage and price. |
+| `R04X-S10` | Aquafina 1.5 L label publication | https://prod-cdn.pharmacity.io/e-com/attachments/product-notification/20250428112012-0-d8e3cecef96feba4b0249235f18d18b4.pdf | 2026-11-25 | `OFFICIAL_PRODUCT_LABEL` | Bottle identity, treatment, barcode and storage. |
+| `R04X-S11` | Food-product management annex — Vietnam Food Administration | https://thongtinattp.vfa.gov.vn/app/P0103 | 2026-11-25 | `TECHNICAL_REFERENCE` | Instant-use/food-processing ice category. |
+| `R04X-S12` | QCVN 10:2011/BYT | https://kiemnghiemkhanhhoa.gov.vn/wp-content/uploads/2019/10/QCVN-10-2011-BYT.pdf | 2026-11-25 | `TECHNICAL_REFERENCE` | National technical framework for edible ice. |
+| `R04X-S13` | QiFi aluminium phin | https://qifi.vn/en/products/phin-nhom-qifi | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | 20 g one-serving alternative. |
+| `R04X-S14` | 88 Coffee stainless phin | https://88coffeecompany.com/collections/frontpage/products/phin | 2026-11-25 | `RETAILER_PRODUCT_LISTING` | 20 g stainless alternative. |
+| `R04X-S15` | PCE-BT 2000 precision balance — EMIN Vietnam | https://emin.vn/en/pce-bt-2000-pce-bt-2000-precision-balance-2100g-0-01g-120303/pr.html | 2026-11-25 | `DISTRIBUTOR_INFORMATION` | Readability, repeatability, linearity, calibration and price comparator. |
+| `R04X-S16` | testo 104 — Testo Vietnam | https://www.testo.com/en-VN/testo-104/p/0563-0104 | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | Thermometer range and accuracy. |
+| `R04X-S17` | NDO-1 digital food thermometer — Nitori Vietnam | https://www.nitori.com.vn/products/digital-food-thermometer-ndo-1 | 2026-11-25 | `RETAILER_PRODUCT_LISTING` | Range, 0.1°C display and accuracy. |
+| `R04X-S18` | TZ-FMT04 food thermometer — APV | https://apvco.vn/uploads/files/ApLog/TZ-FMT04.pdf | 2026-11-25 | `DISTRIBUTOR_INFORMATION` | Range, resolution, accuracy and recalibration feature. |
+| `R04X-S19` | DURAN 100 ml Class A cylinder — Hoa Viet | https://shop.hoaviet.vn/en/duran-100ml-class-a-glass-measuring-cylinder-with-ukas-calibration-certificate | 2026-11-25 | `DISTRIBUTOR_INFORMATION` | ISO 4788, 0.5 ml tolerance, calibration-certificate claim. |
+| `R04X-S20` | Bear DDQ-B02P5 — Bear Vietnam | https://bearvietnam.vn/tu-van-may-danh-trung/may-danh-trung-cam-tay-loai-nao-tot.html | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | 125 W, five speeds and beaters. |
+| `R04X-S21` | Bear HM-5H01J29 — Bear Vietnam | https://bearvietnam.vn/san-pham/may-danh-trung-bear-hm-5h01j29/ | 2026-11-25 | `OFFICIAL_MANUFACTURER_SPEC` | Documented foam-tool alternative and public price. |
+| `R04X-S22` | Five Keys to Safer Food — WHO | https://www.who.int/publications/i/item/9789241594639/ | 2026-11-25 | `TECHNICAL_REFERENCE` | Cleaning, separation, safe temperature, water and raw-material controls. |
+| `R04X-S23` | Luminarc Salto Highball Glass 350 ml — Lotte Mart Vietnam | https://www.lottemart.vn/en-cto/product/luminarc-salto-highball-glass-350ml-8935295600647-p32303 | 2026-11-25 | `RETAILER_PRODUCT_LISTING` | Vessel candidate, nominal capacity, care claims and public price. |
+| `R04X-S24` | Libbey Venice Beverage Glass 350 ml — Thai Sa Hospitality | https://www.thaisa.vn/libbey | 2026-11-25 | `DISTRIBUTOR_INFORMATION` | Vessel alternative and public price. |
+
+### 8.5 Owner-review ballot and unresolved blockers
+
+Existing provisional selections are not reopened. For each research recommendation the Owner may mark `RETAIN_FOR_TRIAL_PREPARATION`, `REPLACE`, `DEFER`, or `REJECT`; blank means undecided.
+
+| Decision area | Evidence-backed recommendation | Owner disposition | Comment / replacement evidence |
+|---|---|---|---|
+| Coffee | Retain `I01/I02`; `I01` primary listing, `I02` corroborating retailer evidence. |  |  |
+| Condensed milk | Retain `I03`; verify actual green-label package/storage statement. |  |  |
+| Cream | Retain Anchor `I05/I06`; `I05` primary listing. |  |  |
+| Salt Product | Prefer `I10`; retain `I11` alternative; keep 1.0 g unchanged. |  |  |
+| Water | Retain `I12` for the bounded trial only. |  |  |
+| Ice | No online candidate meets the evidence threshold; require physical/documentary source identification. |  |  |
+| Phin | Retain `E01`; physically verify assembly/capacity. |  |  |
+| Scale | Retain `E04` for general measurements/timer, but require a separately defensible salt-measurement solution if checks cannot support 1.0 g. |  |  |
+| Thermometer | Review Testo 104 first; NDO-1 and TZ-FMT04 as alternatives. |  |  |
+| Volume measurement | Review a documented Class A/reference cylinder system; define suitable working tools for viscous 20/60 ml inputs. |  |  |
+| Foam tool | Retain `E07`; keep HM-5H01J29 as documented alternative. |  |  |
+| Vessel | Select only after physical identity and three usable-capacity observations. |  |  |
+
+The remaining blockers are physical package/lot evidence, actual local availability, ice source, equipment possession/condition, Promix accuracy and repeatability evidence, suitable salt measurement, actual vessel capacity, acquisition authority and trial-execution authority. Internet research cannot close those facts.
+
+All R04 Internet findings remain preparation evidence. They authorize no contact, purchase, trial, Recipe/BOM, cost, margin, Gate, FOA or Production action.
