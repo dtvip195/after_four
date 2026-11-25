@@ -5,52 +5,80 @@ RSpec.describe Identity::Application::UseCases::Authorize do
 
   let(:organization_id) { SecureRandom.uuid }
   let(:user_id) { SecureRandom.uuid }
+  let(:session_id) { SecureRandom.uuid }
   let(:actor) do
     Identity::Application::Contracts::AuthenticatedActor.new(
       user_id: user_id,
       organization_id: organization_id,
-      session_id: SecureRandom.uuid
+      session_id: session_id
     )
+  end
+  let(:context) do
+    Identity::Application::Contracts::TrustedAuthorizationContext
+      .__send__(:issue_from_verified_actor, actor)
   end
 
   it "allows only the authenticated user's own organization-scoped session read" do
     request = Identity::Application::Contracts::AuthorizationRequest.new(
-      action: described_class::SELF_SESSION_READ,
+      capability: Identity::Application::Contracts::CapabilityIdentifier::SESSION_READ_SELF,
       organization_id: organization_id,
       branch_id: nil,
-      resource_owner_user_id: user_id
+      resource_owner_user_id: user_id,
+      resource_session_id: session_id
     )
 
-    expect(authorize.call(actor: actor, request: request)).to be(true)
+    expect(authorize.call(context: context, request: request)).to be(true)
   end
 
-  it "denies cross-organization, cross-user, Branch-scoped, and unknown actions by default" do
+  it "denies cross-organization, cross-user, cross-session, Branch-scoped, and unknown capabilities" do
+    capability = Identity::Application::Contracts::CapabilityIdentifier::SESSION_READ_SELF
     requests = [
-      [ described_class::SELF_SESSION_READ, SecureRandom.uuid, nil, user_id ],
-      [ described_class::SELF_SESSION_READ, organization_id, nil, SecureRandom.uuid ],
-      [ described_class::SELF_SESSION_READ, organization_id, SecureRandom.uuid, user_id ],
-      [ "orders.read", organization_id, nil, user_id ]
-    ].map do |action, organization, branch, owner|
+      [ capability, SecureRandom.uuid, nil, user_id, session_id ],
+      [ capability, organization_id, nil, SecureRandom.uuid, session_id ],
+      [ capability, organization_id, nil, user_id, SecureRandom.uuid ],
+      [ capability, organization_id, SecureRandom.uuid, user_id, session_id ],
+      [ "orders.read", organization_id, nil, user_id, session_id ]
+    ].map do |requested_capability, organization, branch, owner, requested_session|
       Identity::Application::Contracts::AuthorizationRequest.new(
-        action: action,
+        capability: requested_capability,
         organization_id: organization,
         branch_id: branch,
-        resource_owner_user_id: owner
+        resource_owner_user_id: owner,
+        resource_session_id: requested_session
       )
     end
 
-    expect(requests).to all(satisfy { |request| !authorize.call(actor: actor, request: request) })
+    expect(requests).to all(satisfy { |request| !authorize.call(context: context, request: request) })
   end
 
-  it "rejects missing and client-shaped actors" do
+  it "rejects missing, client-shaped, and unissued contexts" do
     request = Identity::Application::Contracts::AuthorizationRequest.new(
-      action: described_class::SELF_SESSION_READ,
+      capability: Identity::Application::Contracts::CapabilityIdentifier::SESSION_READ_SELF,
       organization_id: organization_id,
       branch_id: nil,
-      resource_owner_user_id: user_id
+      resource_owner_user_id: user_id,
+      resource_session_id: session_id
     )
 
-    expect(authorize.call(actor: nil, request: request)).to be(false)
-    expect(authorize.call(actor: { user_id: user_id, role: "Owner" }, request: request)).to be(false)
+    plausible_context = Data.define(:user_id, :organization_id, :session_id).new(
+      user_id: user_id,
+      organization_id: organization_id,
+      session_id: session_id
+    )
+    unissued_context = Identity::Application::Contracts::TrustedAuthorizationContext.allocate
+
+    expect(authorize.call(context: nil, request: request)).to be(false)
+    expect(authorize.call(context: plausible_context, request: request)).to be(false)
+    expect(authorize.call(context: unissued_context, request: request)).to be(false)
+    expect(authorize.call(context: { user_id: user_id, role: "Owner" }, request: request)).to be(false)
+  end
+
+  it "resolves only the single registered capability identifier" do
+    capability_class = Identity::Application::Contracts::CapabilityIdentifier
+
+    expect(capability_class.resolve("identity.session.read_self"))
+      .to equal(capability_class::SESSION_READ_SELF)
+    expect(capability_class.resolve("orders.read")).to be_nil
+    expect { capability_class.new("orders.read") }.to raise_error(NoMethodError)
   end
 end

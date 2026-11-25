@@ -88,9 +88,17 @@ RSpec.describe "Identity sessions", type: :request do
     csrf_token = response.parsed_body.dig("session", "csrf_token")
     cookie = response.headers["Set-Cookie"].split(";", 2).first
 
-    get "/api/v1/auth/session", headers: { "Cookie" => cookie }
+    get "/api/v1/auth/session",
+      params: {
+        actor_id: SecureRandom.uuid,
+        organization_id: SecureRandom.uuid,
+        branch_id: SecureRandom.uuid,
+        role: "Owner"
+      },
+      headers: { "Cookie" => cookie }
     expect(response).to have_http_status(:ok)
     expect(response.parsed_body.dig("session", "user_id")).to eq(user.id)
+    expect(response.parsed_body.dig("session", "organization_id")).to eq(organization.id)
 
     delete "/api/v1/auth/session", headers: origin_headers.merge("Cookie" => cookie)
     expect(response).to have_http_status(:unprocessable_content)

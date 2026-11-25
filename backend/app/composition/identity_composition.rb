@@ -29,4 +29,8 @@ module IdentityComposition
   def authorization_use_case
     Identity::Application::UseCases::Authorize.new
   end
+
+  def read_own_session_use_case
+    Identity::Application::UseCases::ReadOwnSession.new
+  end
 end

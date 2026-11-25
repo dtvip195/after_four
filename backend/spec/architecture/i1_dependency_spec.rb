@@ -44,4 +44,21 @@ RSpec.describe "I1 layered dependency boundaries" do
     expect(identity_adapter).not_to match(/Organization::Infrastructure|BrandRecord|OrganizationRecord/)
     expect(organization_reader).not_to include("Identity::")
   end
+
+  it "keeps Pundit at the HTTP policy boundary" do
+    identity_domain_and_application = Dir[
+      backend_root.join("app/contexts/identity/{domain,application}/**/*.rb")
+    ]
+    policy_files = Dir[backend_root.join("app/policies/**/*.rb")]
+
+    expect(policy_files).not_to be_empty
+    identity_domain_and_application.each do |path|
+      expect(File.read(path)).not_to include("Pundit"), path
+    end
+    policy_files.each do |path|
+      source = File.read(path)
+
+      expect(source).not_to match(/::Infrastructure|ApplicationRecord|ActiveRecord/), path
+    end
+  end
 end

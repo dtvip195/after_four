@@ -3,10 +3,12 @@ module Api
     module Auth
       class SessionsController < BaseController
         include IdentitySessionAuthentication
+        include Pundit::Authorization
 
         before_action :require_same_origin!, only: %i[create destroy]
         before_action :authenticate_identity_session!, only: %i[show destroy]
         before_action :verify_identity_csrf!, only: :destroy
+        after_action :verify_authorized, only: :show, if: :current_authorization_context
 
         def create
           result = IdentityComposition.sign_in_use_case.call(
@@ -23,17 +25,22 @@ module Api
 
         def show
           request_record = Identity::Application::Contracts::AuthorizationRequest.new(
-            action: Identity::Application::UseCases::Authorize::SELF_SESSION_READ,
-            organization_id: current_actor.organization_id,
+            capability: Identity::Application::Contracts::CapabilityIdentifier::SESSION_READ_SELF,
+            organization_id: current_authorization_context.organization_id,
             branch_id: nil,
-            resource_owner_user_id: current_actor.user_id
+            resource_owner_user_id: current_authorization_context.user_id,
+            resource_session_id: current_authorization_context.session_id
           )
-          return head :forbidden unless IdentityComposition.authorization_use_case.call(
-            actor: current_actor,
+          authorize request_record, :show?, policy_class: Identity::SessionPolicy
+          details = IdentityComposition.read_own_session_use_case.call(
+            context: current_authorization_context,
             request: request_record
           )
+          return head :forbidden unless details
 
-          render json: session_payload(current_actor, nil)
+          render json: session_payload(details, nil)
+        rescue Pundit::NotAuthorizedError
+          head :forbidden
         end
 
         def destroy
@@ -45,6 +52,10 @@ module Api
         end
 
         private
+
+        def pundit_user
+          current_authorization_context
+        end
 
         def cookie_options
           {

@@ -64,7 +64,9 @@ module Identity
         end
 
         def verify_csrf(actor:, token:)
-          return false unless actor.is_a?(Application::Contracts::AuthenticatedActor)
+          trusted_actor = actor.is_a?(Application::Contracts::AuthenticatedActor) ||
+            Application::Contracts::TrustedAuthorizationContext.trusted?(actor)
+          return false unless trusted_actor
           return false if token.to_s.empty?
 
           session = Persistence::AuthenticationSessionRecord.find_by(id: actor.session_id, user_id: actor.user_id)
