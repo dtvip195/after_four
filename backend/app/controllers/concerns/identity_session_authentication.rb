@@ -2,24 +2,24 @@ module IdentitySessionAuthentication
   extend ActiveSupport::Concern
 
   included do
-    attr_reader :current_actor
+    attr_reader :current_authorization_context
   end
 
   private
 
   def authenticate_identity_session!
-    @current_actor = IdentityComposition.authenticate_session_use_case.call(
+    @current_authorization_context = IdentityComposition.authenticate_session_use_case.call(
       cookie_value: cookies[identity_session_cookie_name]
     )
-    return if current_actor
+    return if current_authorization_context
 
     render_authentication_failure
   end
 
   def verify_identity_csrf!
     token = request.headers["X-CSRF-Token"]
-    valid = current_actor && IdentityComposition.dependencies.session_store.verify_csrf(
-      actor: current_actor,
+    valid = current_authorization_context && IdentityComposition.dependencies.session_store.verify_csrf(
+      actor: current_authorization_context,
       token: token
     )
     return if valid
