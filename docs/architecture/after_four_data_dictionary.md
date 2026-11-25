@@ -186,7 +186,7 @@ Keys/indexes: index `(branch_id, product_variant_id, effective_from)`; non-overl
 Fields: `product_variant_id uuid R FK`; `branch_id uuid O FK`; `amount bigint R`; `currency_code char(3) R`; `effective_from timestamptz R`; `effective_to timestamptz O`; `created_by_user_id uuid R FK`; `approval_request_id uuid O FK`; immutable.  
 Keys/indexes: index `(product_variant_id, branch_id, effective_from)`; non-overlap per nullable Branch scope; check amount non-negative. Null Branch means chain default; an effective Branch row explicitly overrides it. Price versions are immutable. Zero/free pricing, Price composition, publication authority, and manual sold-price overrides remain unresolved, so `amount >= 0` is a structural proposal rather than an approved free-item policy.
 
-`OWNER_CONFIRMED`, `UNRESOLVED_RECONCILIATION` `CORE-OD-18` records 52 exact Commercial V1 costing inputs scoped to the first Branch/first Price Version with no chain default or Branch override. Those inputs are not published `product_prices`. Their relationship to the earlier `ODB-CAT-07` chain-default-plus-explicit-override policy must be explicitly reconciled by the Owner before Price publication, schema finalization, or implementation.
+`OWNER_CONFIRMED`, `SCOPE_RECONCILED` `CORE-OD-18` records 52 exact Commercial V1 costing inputs scoped directly to the First Branch/first Price Version with no chain default or Branch override. Those inputs are not published `product_prices`. The Owner's 2026-11-25 reconciliation preserves `ODB-CAT-07` as a future direction that requires a separate explicit Owner decision before application; it grants no Price-publication, schema-finalization, or implementation authority.
 
 ### `modifier_groups`, `modifiers`, `product_modifier_groups`
 
