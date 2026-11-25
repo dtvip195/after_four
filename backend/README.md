@@ -1,6 +1,6 @@
 # AFTER FOUR Backend
 
-API-only Rails modular-monolith backend for AFTER FOUR. It includes the Milestone 1 infrastructure, the Implementation Phase 1 internal Order/Payment safety command foundation, the A1 Organization reference foundation, and the empty Package B Catalog integrity foundation. Authentication, public business mutation endpoints, and frontend integration remain deferred.
+API-only Rails modular-monolith backend for AFTER FOUR. It includes the internal Ordering/Payment/Preparation DDD foundations, the Organization reference foundation, Catalog integrity foundations, and a bounded Devise-backed Identity authentication foundation. Public business mutation endpoints and frontend integration remain deferred.
 
 ## Runtime baseline
 
@@ -64,9 +64,12 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DATABASE=after_four_development
 POSTGRES_TEST_DATABASE=after_four_test
+AUTH_MAXIMUM_ATTEMPTS=5
+AUTH_UNLOCK_IN_SECONDS=900
+BROWSER_ORIGIN=http://localhost:5173
 ```
 
-Override them with environment variables. Production uses `DATABASE_URL`; never use the development password outside local development.
+Override them with environment variables. The authentication threshold values shown are local-development inputs, not approved production policy. Non-test Rails processes fail boot when they are absent. Production uses `DATABASE_URL`; never use the development password outside local development. Production also requires separate runtime and schema-owner credentials; the local Compose topology intentionally does not claim that separation.
 
 ## Prepare and load the database
 
@@ -78,7 +81,7 @@ docker compose run --rm backend bin/rails db:schema:dump
 docker compose run --rm backend bin/rails db:schema:load
 ```
 
-`config.active_record.schema_format = :sql`, so the reviewable dump is `db/structure.sql`. Application-owned tables cover the Phase 1 Order/Payment safety foundation, the A1 Organization references, and the empty Package B Category/Product/Variant integrity schema. Identity, refund, inventory, pricing, availability, menu data, and KDS tables remain excluded.
+`config.active_record.schema_format = :sql`, so the reviewable dump is `db/structure.sql`. Application-owned tables include the Ordering/Payment/Preparation foundations, Organization references, Catalog integrity schema, and the bounded Identity `users` and opaque `authentication_sessions` records. Identity assignment/MFA/invitation records, refund, inventory, pricing, availability, menu data, and KDS tables remain excluded.
 
 To reset only the development database, stop the backend and workers, verify `RAILS_ENV` is not `production`, then run:
 

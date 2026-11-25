@@ -18,11 +18,15 @@ class DisposableMigrationDatabase
     20261114203000
     20261115200000
     20261115210000
+    20261126090000
   ].freeze
   A1_MIGRATION_VERSIONS = ALL_MIGRATION_VERSIONS.first(9).freeze
 
   A1_MIGRATION_VERSION = "20261115200000"
   PACKAGE_B_MIGRATION_VERSION = "20261115210000"
+  NON_PACKAGE_B_MIGRATION_VERSIONS = (
+    ALL_MIGRATION_VERSIONS - [ PACKAGE_B_MIGRATION_VERSION ]
+  ).freeze
 
   EXPECTED_CATALOG_OBJECTS = {
     tables: %w[categories product_variants products],
@@ -405,7 +409,10 @@ class DisposableMigrationDatabase
         SELECT table_name, column_name, data_type, udt_name, is_nullable, COALESCE(column_default, '')
         FROM information_schema.columns
         WHERE table_schema = 'public'
-          AND table_name NOT IN ('schema_migrations', 'ar_internal_metadata', 'categories', 'products', 'product_variants')
+          AND table_name NOT IN (
+            'schema_migrations', 'ar_internal_metadata', 'categories', 'products', 'product_variants',
+            'users', 'authentication_sessions'
+          )
         ORDER BY table_name, ordinal_position
       SQL
       constraints: query_rows(<<~SQL),
@@ -413,14 +420,19 @@ class DisposableMigrationDatabase
         FROM pg_constraint
         WHERE connamespace = 'public'::regnamespace
           AND conrelid <> 0
-          AND conrelid::regclass::text NOT IN ('categories', 'products', 'product_variants')
+          AND conrelid::regclass::text NOT IN (
+            'categories', 'products', 'product_variants', 'users', 'authentication_sessions'
+          )
         ORDER BY conrelid::regclass::text, conname
       SQL
       indexes: query_rows(<<~SQL),
         SELECT tablename, indexname, indexdef
         FROM pg_indexes
         WHERE schemaname = 'public'
-          AND tablename NOT IN ('schema_migrations', 'ar_internal_metadata', 'categories', 'products', 'product_variants')
+          AND tablename NOT IN (
+            'schema_migrations', 'ar_internal_metadata', 'categories', 'products', 'product_variants',
+            'users', 'authentication_sessions'
+          )
         ORDER BY tablename, indexname
       SQL
       functions: query_rows(<<~SQL),
@@ -435,7 +447,9 @@ class DisposableMigrationDatabase
         SELECT tgrelid::regclass::text, tgname, pg_get_triggerdef(oid, true)
         FROM pg_trigger
         WHERE NOT tgisinternal
-          AND tgrelid::regclass::text NOT IN ('categories', 'products', 'product_variants')
+          AND tgrelid::regclass::text NOT IN (
+            'categories', 'products', 'product_variants', 'users', 'authentication_sessions'
+          )
         ORDER BY tgrelid::regclass::text, tgname
       SQL
     }

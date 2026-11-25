@@ -42,7 +42,9 @@ RSpec.describe "Package B migration lifecycle" do
 
       expect(database.catalog_absent?).to be(true)
       expect(database.reference_objects).to eq(reference_objects)
-      expect(database.migration_versions).to eq(DisposableMigrationDatabase::A1_MIGRATION_VERSIONS)
+      expect(database.migration_versions).to eq(
+        DisposableMigrationDatabase::NON_PACKAGE_B_MIGRATION_VERSIONS
+      )
 
       database.migrate_up!
 
