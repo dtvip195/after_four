@@ -141,8 +141,20 @@ module OrderingApplicationSpecSupport
       @events = []
     end
 
-    %i[created confirmed held expired].each do |event|
-      define_method("order_#{event}") { |**attributes| events << [ event, attributes ] }
+    def order_created(order:, actor_id:, now:)
+      events << [ :created, { order: order, actor_id: actor_id, now: now } ]
+    end
+
+    def order_confirmed(order:, actor_id:, now:)
+      events << [ :confirmed, { order: order, actor_id: actor_id, now: now } ]
+    end
+
+    def order_held(order:, actor_id:, reason:, now:)
+      events << [ :held, { order: order, actor_id: actor_id, reason: reason, now: now } ]
+    end
+
+    def order_expired(order:, now:)
+      events << [ :expired, { order: order, now: now } ]
     end
   end
 
@@ -154,9 +166,9 @@ module OrderingApplicationSpecSupport
       @calls = 0
     end
 
-    def call
+    def call(&block)
       @calls += 1
-      yield
+      block.call
     end
   end
 end

@@ -24,7 +24,9 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       end
     end
 
-    ASSOCIATION_LOAD_METHODS = %i[includes preload eager_load joins left_joins].freeze
+    ASSOCIATION_LOAD_METHODS = %i[
+      belongs_to has_one has_many includes preload eager_load joins left_joins
+    ].freeze
 
     attr_reader :constant_paths, :calls, :association_names
 
@@ -152,6 +154,29 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
       app/domains/orders/infrastructure/adapters/preparation_order_dispatch_gateway.rb
     ]
   }.freeze
+  INFRASTRUCTURE_CONTRACT_REFERENCES = {
+    "orders" => {
+      "payments" => {},
+      "preparation" => {
+        "app/domains/orders/infrastructure/adapters/preparation_order_dispatch_gateway.rb" =>
+          %w[Preparation::Application::Ports]
+      }
+    },
+    "payments" => {
+      "orders" => {
+        "app/domains/payments/infrastructure/adapters/ordering_payment_gateway.rb" =>
+          %w[Orders::Application::Ports]
+      },
+      "preparation" => {
+        "app/domains/payments/infrastructure/adapters/preparation_payment_settlement_gateway.rb" =>
+          %w[Preparation::Application::Ports]
+      }
+    },
+    "preparation" => {
+      "orders" => {},
+      "payments" => {}
+    }
+  }.freeze
   REMOVED_ORDERING_FACADES = %w[
     Orders::CreateDraft
     Orders::Confirm
@@ -209,6 +234,68 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     }
 
     expect(actual).to eq(ORDERING_INFRASTRUCTURE_CROSS_CONTEXT_FILES)
+  end
+
+  it "keeps every Infrastructure cross-context reference on an explicit Application contract" do
+    INFRASTRUCTURE_CONTRACT_REFERENCES.each do |source_context, target_contracts|
+      target_contracts.each do |target_context, expected_files|
+        actual_files = infrastructure_files(source_context).select do |path|
+          cross_context_infrastructure_dependency?(scan(path), target_context)
+        end
+        actual = actual_files.to_h do |path|
+          [ relative(path), cross_context_constant_paths(scan(path), target_context) ]
+        end
+
+        expect(actual.keys).to match_array(expected_files.keys), "#{source_context} -> #{target_context}"
+        actual.each do |path, references|
+          allowed_prefixes = expected_files.fetch(path)
+          expect(references).not_to be_empty, path
+          expect(references).to all(satisfy { |reference|
+            allowed_prefixes.any? do |prefix|
+              reference == prefix ||
+                reference.start_with?("#{prefix}::") ||
+                prefix.start_with?("#{reference}::")
+            end
+          }), "#{path}: #{references.inspect}"
+        end
+      end
+    end
+  end
+
+  it "detects prohibited namespaced persistence and association paths from every Infrastructure context" do
+    fixtures = {
+      [ "orders", "payments" ] => [
+        "Payments::Infrastructure::Persistence::PaymentRecord.lock.find(id)",
+        "belongs_to :payment"
+      ],
+      [ "orders", "preparation" ] => [
+        "Preparation::Infrastructure::Persistence::DispatchRecord.find(id)",
+        "has_one :preparation_dispatch"
+      ],
+      [ "payments", "orders" ] => [
+        "Orders::Infrastructure::Persistence::OrderRecord.lock.find(id)",
+        "belongs_to :order"
+      ],
+      [ "payments", "preparation" ] => [
+        "Preparation::Infrastructure::Persistence::DispatchRecord.find_by(order_id: id)",
+        "has_one :preparation_dispatch"
+      ],
+      [ "preparation", "orders" ] => [
+        "OrderStore = Orders::Infrastructure::Persistence::OrderRecord\nOrderStore.find(id)",
+        "belongs_to :order"
+      ],
+      [ "preparation", "payments" ] => [
+        "PaymentStore = ::Payments::Infrastructure::Persistence::PaymentRecord\nPaymentStore.where(order_id: id)",
+        "belongs_to :payment"
+      ]
+    }
+
+    fixtures.each do |(_source_context, target_context), sources|
+      sources.each do |source|
+        expect(cross_context_infrastructure_dependency?(DependencyScanner.new(source), target_context))
+          .to be(true), source
+      end
+    end
   end
 
   it "detects namespaced, aliased, chained, and association-based Infrastructure bypasses" do
@@ -508,6 +595,50 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
 
   def ordering_infrastructure_files
     Dir[Rails.root.join("app/domains/orders/infrastructure/**/*.rb")].sort
+  end
+
+  def infrastructure_files(context)
+    Dir[Rails.root.join("app/domains", context, "infrastructure/**/*.rb")].sort
+  end
+
+  def cross_context_infrastructure_dependency?(scanner, context)
+    scanner.references?(*cross_context_constant_names(context)) ||
+      cross_context_association_names(context).any? do |name|
+        scanner.references_association?(name)
+      end
+  end
+
+  def cross_context_constant_paths(scanner, context)
+    roots = cross_context_constant_names(context)
+    scanner.constant_paths.select do |path|
+      roots.any? { |root| path == root || path.start_with?("#{root}::") }
+    end.uniq.sort
+  end
+
+  def cross_context_constant_names(context)
+    case context
+    when "orders"
+      %w[Order Orders]
+    when "payments"
+      %w[Payment PaymentAttempt PaymentReviewCase Payments]
+    when "preparation"
+      %w[Preparation PreparationDispatch]
+    else
+      raise ArgumentError, "Unknown context: #{context}"
+    end
+  end
+
+  def cross_context_association_names(context)
+    case context
+    when "orders"
+      %i[order orders]
+    when "payments"
+      %i[payment payments payment_attempts payment_review_cases]
+    when "preparation"
+      %i[preparation_dispatch preparation_dispatches]
+    else
+      raise ArgumentError, "Unknown context: #{context}"
+    end
   end
 
   def ordering_infrastructure_cross_context_dependency?(scanner, context)
