@@ -220,6 +220,18 @@ Sources and limitations are documented in [Recipe Research §3.3](after_four_com
 
 For every run record coffee specification/dose, brew-water input, actual temperature and extraction time, measured coffee output, condensed milk, every foam Ingredient, salt mass, ice mass, vessel capacity, foam output/leftover, finished mass/volume, sensory result, and repeatability. R04 and R05 salt results must always be interpreted with their parent foam composition.
 
+#### 2.3.1 Pre-authorization physical-inspection handoff
+
+The consolidated Owner-executable inspection record is [Evidence Intake Workbook §7](../architecture/after_four_milestone_a_evidence_intake_workbook.md#7-r04r05-physical-evidence-routing). It is the authoritative pre-authorization inventory; this protocol remains the authoritative formulation and run-sheet destination.
+
+- R04 retains the provisional Trung Nguyên Sáng Tạo 1 (`R04M-I01/I02`), Ông Thọ green-label (`R04M-I03`), Anchor UHT whipping cream (`R04M-I05/I06`), 1.0 g salt preparation choice, water candidate and provisional equipment references exactly as recorded. None is physically observed, identity-verified, purchased or authorized merely because it appears here.
+- R05 retains only its independent source formulation in §2.2. No exact coffee, condensed milk, cream, fresh milk, salt, water, ice, equipment or vessel is selected. R04 candidates, checks and 1.0 g salt choice do not transfer to R05.
+- `EXPECTED`, `PHYSICALLY_OBSERVED`, `IDENTITY_VERIFIED` and `MEASUREMENT_READY` are separate item-level states. The trial remains `PHYSICAL_INVENTORY_INCOMPLETE` until every required item has attributable evidence and all discrepancies are resolved or explicitly accepted.
+- R04's proposed instrument targets remain experimental Owner-review targets, not approved calibration criteria. R05 has no approved precision/tolerance requirement for its approximately 0.5 g salt or several liquid inputs; record that internal specification gap rather than importing R04 targets.
+- Completion of physical inspection can support a later `OWNER_AUTHORIZATION_PENDING` decision only. Neither trial may become `AUTHORIZED_NOT_STARTED`, `TRIAL_IN_PROGRESS`, `TRIAL_COMPLETED_PENDING_ACCEPTANCE`, `ACCEPTED` or `REJECTED` without the applicable real action and evidence.
+
+The Owner inspection must capture actual package/source identity, label/specification, package size, lot/expiry, storage/condition, equipment identity/range/resolution, vessel capacity, verification evidence, attester, date and discrepancies. Photographs or documents are evidence references only and must not be claimed as inspected until actually supplied and reviewed.
+
 ### 2.4 R04 Ingredient evidence reconciliation
 
 All public prices remain `MARKET_REFERENCE_ONLY`. Listing presence is not Hoi An inventory, delivery, quotation, transaction or purchase evidence.

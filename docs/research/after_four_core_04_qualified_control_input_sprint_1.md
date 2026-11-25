@@ -8,6 +8,8 @@
 
 **Readiness:** `NOT_READY_FOR_FRESH_INDEPENDENT_GATE_A_REVIEW`
 
+> **PUBLIC-SOURCE CLOSURE PASS — 2026-11-25.** Current official Accounting Law, accounting-regime, tax/e-invoice and personal-data sources establish minimum attributable voucher content, authorization/signature evidence, non-destructive records, safe retrieval, statutory accounting-record retention classes and purpose-bounded access constraints. They do not appoint an AFTER FOUR capability holder, decide operation sharing/separation, authorize a linked-correction operation, select Refund eligibility/method/execution/accounting treatment, set reconciliation/report-release sufficiency or allocate cross-midnight facts. `WS-REFUND-01` separately confirms that an otherwise eligible request remains evidence-preserving, pending and unexecuted while the Owner is unreachable; it creates no emergency authority. The remaining dimensions stay `OWNER_DECISION_REQUIRED`; real First Branch control operation/effectiveness remains `ACTUAL_OPERATIONAL_EVIDENCE_REQUIRED`. The external-provider path is dormant under the current Owner direction.
+
 ## 1. Preserved confirmed policy
 
 | Policy | Classification | Preserved boundary |
@@ -31,7 +33,7 @@ Sources: [Owner Decision Baseline](../architecture/after_four_owner_decision_bas
 | Close | Confirmed `CORE-OD-14B` makes Close a separate action from acknowledgement and requires the applicable capability; it does not decide whether that capability is shared with another Cash operation. | Preconditions, accountability, conflict cases and separation risks. | Eligible holder and whether/how Close authority is separated from Open, Count or Handover. | `QUALIFIED_INPUT_REQUIRED`; `OWNER_DECISION_REQUIRED` |
 | Assignment/delegation | No person, title or role is inferred. | Candidate accountability model, scope, duration, evidence and conflict controls. | Whether delegation exists and its exact scope. | `PROPOSED_NOT_APPROVED` |
 | Revocation | Revocation must fail closed without rewriting prior evidence. | Effective-time, in-flight command and emergency evidence requirements. | Revocation authority and consequences. | `QUALIFIED_INPUT_REQUIRED`; `OWNER_DECISION_REQUIRED` |
-| Emergency handling | Emergency does not create default authority. | Owner-unavailable scenarios, business continuity needs, risks and audit requirements. | Whether any emergency path exists and its limits. | `PROPOSED_NOT_APPROVED` |
+| Emergency handling | Emergency does not create default authority. `WS-REFUND-01` confirms pending/no execution with Owner escalation and customer pending-status communication for an otherwise eligible Refund request while the Owner is unreachable. | Owner-unavailable scenarios, business continuity needs, risks and audit requirements for every other operation and any proposed future exception. | Whether any future emergency path exists and its limits; none is approved now. | `OWNER_CONFIRMED` only for the `WS-REFUND-01` fail-closed Refund disposition; otherwise `PROPOSED_NOT_APPROVED` |
 | Separation of duties | No capability-sharing or separation matrix is approved. Operation-specific separation is a candidate control only. | Cash/Accounting control analysis of incompatible responsibilities and review needs. | Decide which operations, if any, require distinct capabilities or actors. | `PROPOSED_NOT_APPROVED`; `QUALIFIED_INPUT_REQUIRED`; `OWNER_DECISION_REQUIRED` |
 
 `GATE_B_DEFERRED` — Capability representation, session enforcement, revocation races, authentication and persistence are not selected.
@@ -56,18 +58,18 @@ All rows are `QUALIFIED_INPUT_REQUIRED` plus `OWNER_DECISION_REQUIRED`. `GATE_B_
 | Investigation categories | Every nonzero discrepancy remains recorded, reasoned and Owner-notified. | `PROPOSED_NOT_APPROVED`: categories may guide investigation but may never create tolerance or exemption. | Cash/Accounting/Reporting evidence, then Owner category policy. |
 | Investigation evidence | No evidence minimum is currently selected. | `PROPOSED_NOT_APPROVED`: common minimum plus category-specific evidence. | Qualified control input and Owner approval. |
 | Escalation | Owner notification is mandatory; handover disagreement separately escalates to Owner. | `PROPOSED_NOT_APPROVED`: timing and intermediate review path without changing final policy. | Owner decision; no delegate is inferred. |
-| Disposition | No resolver authority or accepted discrepancy outcome is inferred. | `PROPOSED_NOT_APPROVED`: Owner-only or explicitly delegated, scope-bounded disposition after separation review. | Qualified Accounting/Cash control input, then Owner. |
+| Disposition | `OWNER_CONFIRMED` on 2026-11-25: only the Owner dispositions a Cash discrepancy. No accepted outcome is inferred. | Owner-only disposition is fixed; investigation evidence, handling while awaiting the Owner, consequences and linked-correction eligibility remain unresolved. | Qualified Accounting/Cash/Reporting control input; no delegate or automatic outcome. |
 | Linked correction | Correction never rewrites closed facts. | Use only an operation approved under `CORE-OD-13`; otherwise remain unresolved. | Dependency on `CORE-OD-13`. |
 | Unresolved hold | Unresolved case remains explicit and is withheld from authoritative reporting. | No alternative that silently treats it as zero/success is admissible. | Reporting consequences and release authority remain separate. |
 
-`OWNER_CONFIRMED` — no tolerance, reason plus Owner notification, and authoritative-report hold remain fixed. Investigation/disposition detail is `QUALIFIED_INPUT_REQUIRED` and `OWNER_DECISION_REQUIRED`.
+`OWNER_CONFIRMED` — no tolerance, reason plus Owner notification, Owner-only discrepancy disposition, and authoritative-report hold remain fixed. Investigation evidence, handling while awaiting the Owner, consequences and linked-correction eligibility remain `QUALIFIED_INPUT_REQUIRED` and `OWNER_DECISION_REQUIRED`.
 
 ## 5. Package D — reporting release and access
 
 | Reference | Input question | Required qualified evidence | Owner-controlled decision | Boundary |
 |---|---|---|---|---|
 | Reconciliation prerequisite | What exact authoritative evidence makes a Session and Operating Day reconciled? | Accounting/Reporting lineage, correction treatment and unresolved-case consequences. | Approve the reconciliation sufficiency policy. | Does not grant release. |
-| Report release | Who may release affected facts after authoritative reconciliation or an approved exception? | Accounting/Reporting control, separation, escalation and audit needs. | Approve release authority separately from discrepancy disposition. | No read/export/delivery authority follows. |
+| Official report issuance | What reconciliation, annotation, evidence, waiting-case and exception preconditions must hold before the Owner issues an official report? | Accounting/Reporting control, separation, escalation and audit needs. | `OWNER_CONFIRMED` on 2026-11-25: only the Owner issues official reports; remaining preconditions still require Owner policy after qualified input. | Discrepancy disposition does not itself issue a report; no read/export/delivery/recipient authority follows. |
 | `CORE-OD-16B` | Who may read each report, for which Branch and purpose? | Identity/Governance/Privacy analysis of least privilege, scope, sensitive fields and use purpose. | Approve reader capability matrix and Branch scope. | Generic role names confer nothing. |
 | `CORE-OD-16F` | What retention, disposal and legal-hold policy applies? | Qualified Legal/Privacy/Accounting-records analysis with authoritative sources, effective dates, data categories and limitations. | Approve policy choices left by qualified constraints. | No retention period is invented. |
 
