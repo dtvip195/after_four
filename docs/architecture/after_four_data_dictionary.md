@@ -25,7 +25,7 @@ Every recommendation in this document is `TECHNICAL_PROPOSAL` unless a row expli
 | Rate/ratio | `numeric(18,8)` | Supports price, payroll, and conversion rates with explicit rounding. |
 | Loyalty points | `bigint` | Signed ledger amounts without floating point. |
 | Instant | `timestamptz` | Store UTC instants; render in Branch IANA timezone. |
-| Operating Day | `date` or stable policy-derived identifier plus timezone/cutoff version | Daily cash, Expense limits, and reporting require one shared boundary. Exact cutoff/timezone remains `OPEN_DECISION`. |
+| Operating Day | `date` or stable policy-derived identifier plus timezone/cutoff version | Daily cash, Expense limits, and reporting require one shared boundary. The first Hoi An Branch uses `Asia/Ho_Chi_Minh` and the initial cutoff is `00:00` local time per Branch under `CORE-OD-11A/B`; exact physical representation and future configurable-cutoff mechanism remain unresolved. |
 | Local scheduled time | `time` plus date/timezone context, or resolved `timestamptz` | Never store an ambiguous local timestamp alone. |
 | Effective interval | `effective_from timestamptz`, `effective_to timestamptz O` | Half-open interval `[from, to)`; non-overlap where required. |
 | Status/type | `varchar(40)` + check constraint | Avoid PostgreSQL enum until state-machine review accepts vocabulary. |
