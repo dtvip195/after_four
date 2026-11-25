@@ -1,10 +1,10 @@
 # AFTER FOUR — DDD Foundation
 
-**Status:** Layered DDD is `OWNER_CONFIRMED`; Ordering/Payment/Preparation boundaries `OPP-ARCH-06`–`OPP-ARCH-12` are `OWNER_CONFIRMED_TECHNICAL_ARCHITECTURE`; all other context topology and detailed patterns retain their stated status
-**Date:** 2026-11-14; Layered DDD decision recorded 2026-11-15; Ordering/Payment/Preparation architecture recorded 2026-11-25
+**Status:** Layered DDD is `OWNER_CONFIRMED`; Ordering/Payment/Preparation boundaries `OPP-ARCH-06`–`OPP-ARCH-12` are `OWNER_CONFIRMED_TECHNICAL_ARCHITECTURE`; the Workforce/Identity/Organization ownership boundary is an `OWNER_CONFIRMED` architecture decision; all other context topology and detailed patterns retain their stated status
+**Date:** 2026-11-14; Layered DDD decision recorded 2026-11-15; Ordering/Payment/Preparation architecture recorded 2026-11-25; Workforce/Identity/Organization ownership recorded 2026-11-26
 **Scope:** Layered DDD, Bounded Context vocabulary, ownership, dependencies, transactions, events, idempotency, and recovery
 
-The Owner-confirmed project-wide Layered DDD decision is recorded as `ODB-ARCH-01` in the [Owner Decision Baseline](after_four_owner_decision_baseline.md#project-wide-architecture) and accepted in [ADR-0011](adr/0011-project-wide-layered-ddd.md). [ADR-0012](adr/0012-ordering-payment-preparation-ddd-boundaries.md) separately records the Owner-approved technical architecture `OPP-ARCH-06`–`OPP-ARCH-12` for Ordering, Payment, and Preparation. Bounded Context names, candidate aggregates and detailed coordination patterns outside that exact approval retain their stated proposal status unless another canonical decision approves them. This document does not require a Rails engine per context or authorize implementation.
+The Owner-confirmed project-wide Layered DDD decision is recorded as `ODB-ARCH-01` in the [Owner Decision Baseline](after_four_owner_decision_baseline.md#project-wide-architecture) and accepted in [ADR-0011](adr/0011-project-wide-layered-ddd.md). [ADR-0012](adr/0012-ordering-payment-preparation-ddd-boundaries.md) separately records the Owner-approved technical architecture `OPP-ARCH-06`–`OPP-ARCH-12` for Ordering, Payment, and Preparation. The Owner Decision Baseline also records the 2026-11-26 Workforce/Identity/Organization ownership decision without allocating a new `ODB-*` identifier. Bounded Context names, candidate aggregates and detailed coordination patterns outside those exact approvals retain their stated proposal status unless another canonical decision approves them. This document does not require a Rails engine per context or authorize implementation.
 
 ## Owner-confirmed Layered DDD baseline
 
@@ -34,6 +34,8 @@ The backend filesystem collects Bounded Contexts under `backend/app/contexts/`. 
 ### Packwerk dependency pilot
 
 Packwerk 3.3.1 enforces declared package-level dependency direction for the nine current context directories. Each context has a strict `package.yml`; the root package remains the Rails composition and shared technical shell rather than a business context. Six contexts explicitly depend on that root package only where current source uses `ApplicationRecord`, `DomainError`, `AuditEvent`, or `OutboxEvent`. Root controllers, jobs, composition roots, and those shared technical records remain outside the context packages. This pilot does not create a shared kernel, change Ruby namespaces, move source, or approve any new context boundary.
+
+The approved future Workforce dependency direction is conceptual until a separately authorized Workforce implementation exists: Workforce may consume Organization Application contracts; Identity may consume narrow Workforce Application read contracts for authoritative Employee Branch Assignment facts; Workforce does not depend on Identity for assignment ownership; and composition roots wire the contracts. No Workforce package or speculative Packwerk dependency exists. The current architecture guard prohibits Identity from bypassing that future Application boundary through Workforce Infrastructure or persistence records; package dependencies must be declared only when real authorized source exists.
 
 | Consumer package | Declared context dependencies |
 |---|---|
@@ -105,6 +107,8 @@ This context map is a scoped architectural analysis of the selected contexts and
 ```mermaid
 flowchart LR
   ORG[Organization / Branch] --> IAM[Identity / Authorization]
+  ORG --> WORK[Workforce / Shift]
+  WORK -->|effective Employee Branch Assignment facts| IAM
   ORG --> CAT[Catalog / Pricing]
   ORG --> ORD[Ordering]
   IAM -->|trusted actor and scope| ORD
@@ -116,7 +120,7 @@ flowchart LR
   ORD -->|locked dispatch eligibility| PREP[Preparation]
   PAY -->|verified settlement| PREP
   PAY -->|cash tender coordination| CASH
-  WORK[Workforce / Shift] -->|Employee and duty context| CASH
+  WORK -->|Employee and duty context| CASH
   WORK -->|Employee and duty context| PREP
   ORD --> RPT[Reporting]
   PAY --> RPT
@@ -220,13 +224,13 @@ The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_
 
 ### 3.7 Workforce/Shift
 
-- **Responsibility:** Employee history, shift planning, attendance, rotation, duties, and payroll inputs.
-- **Authoritative state:** Employee, Shift, Attendance, and effective employment records.
+- **Responsibility:** Employee identity and employment facts, Employee Branch Assignment, shift planning, attendance, rotation, duties, and payroll inputs.
+- **Authoritative state:** Employee, effective Employee Branch Assignment, Shift, Attendance, and effective employment records.
 - **Candidate roots:** Employee, Shift Plan, Payroll Period according to their independent lifecycles.
-- **Invariants:** User is not Employee; duties are not identity roles; actual Branch and corrections remain historical.
-- **Allowed dependencies:** Identity by optional User link; Organization/Branch; Reporting as downstream consumer.
-- **Forbidden dependencies:** deriving capabilities solely from a shift duty.
-- **Current state:** logical documentation only. Launch staffing and shift counts are planning assumptions, not schema limits.
+- **Invariants:** User is not Employee; Employee Branch Assignment is work eligibility and never grants authorization by itself; duties are not identity roles; actual Branch and corrections remain historical.
+- **Allowed dependencies:** Organization Application contracts for Organization/Branch ancestry; Reporting as downstream consumer. Any future optional User link is coordinated through composition and does not create a Workforce-to-Identity dependency.
+- **Forbidden dependencies:** owning Role Assignment or authorization resolution; deriving capabilities solely from an Employee Branch Assignment or shift duty; accessing Identity Infrastructure or Active Record records.
+- **Current state:** `OWNER_CONFIRMED` architecture boundary, documentation only. No Workforce package, persistence, schema, API, runtime integration, or authorization grant is approved or implemented. Launch staffing and shift counts are planning assumptions, not schema limits.
 
 ### 3.8 Reporting
 
@@ -241,12 +245,12 @@ The [Catalog/Pricing Discovery and Decision Closure](after_four_catalog_pricing_
 
 ### 3.9 Identity/Authorization
 
-- **Responsibility:** User, credentials, Sessions, Role/Branch Assignments, capabilities, and trusted request context.
-- **Authoritative state:** authenticated User and effective server-derived scope.
-- **Invariants:** ID-01 through ID-34; client role/Branch/device values are not authority; business contexts decide business approval rules within authorized capabilities.
-- **Allowed dependencies:** Organization/Branch and approved business capability catalog.
-- **Forbidden dependencies:** inventing refund, cash, Expense, or cancellation authority from a role title; treating actor UUID validation as authentication.
-- **Current state:** not implemented. ADR-0006 remains Proposed and Milestone 2B remains unauthorized.
+- **Responsibility:** User, credentials, Sessions, Role Assignment, capabilities, trusted request context, and authorization resolution. Identity consumes authoritative Employee Branch Assignment facts from a narrow Workforce Application read contract; it neither owns nor mutates those Workforce facts.
+- **Authoritative state:** authenticated User, effective Role Assignment, and the resulting server-derived authorization scope. Workforce remains authoritative for Employee and Employee Branch Assignment.
+- **Invariants:** ID-01 through ID-34; client role/Branch/device values are not authority; non-Owner Branch authorization requires the applicable capability plus effective Role Assignment and effective Employee Branch Assignment; missing, stale, unavailable, invalid, or mismatched Workforce evidence fails closed; business contexts decide business approval rules within authorized capabilities.
+- **Allowed dependencies:** Organization Application contracts, future narrow Workforce Application read contracts, and the approved business capability catalog.
+- **Forbidden dependencies:** owning or mutating Employee Branch Assignment; accessing Workforce Infrastructure or Active Record records; falling back to Role Assignment alone; inventing refund, cash, Expense, or cancellation authority from a role title; treating actor UUID validation as authentication.
+- **Current state:** the bounded authentication, Session, trusted-context, and self-session authorization slice is implemented. Role Assignment and Workforce integration are absent; ADR-0006 remains Proposed and broader Milestone 2B remains unauthorized.
 
 ## 4. Critical coordination boundaries
 

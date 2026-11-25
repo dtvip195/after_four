@@ -10,6 +10,8 @@
 
 This document closes design ambiguity by selecting concrete technical proposals or identifying an explicit approval gate. It does not convert a proposal into Owner policy, professional approval, a physical schema, an API contract, or authorization to code.
 
+The Owner-confirmed bounded-context boundary dated 2026-11-26 applies throughout this document: Identity owns User, authentication, Sessions, Role Assignment, trusted authorization context, and authorization resolution; Workforce owns Employee, employment facts, and Employee Branch Assignment; Organization owns Organization, Brand, and Branch. References below to coordinated identity/employee lifecycle work describe composition across narrow context-owned Application contracts, not Identity ownership of or direct persistence access to Workforce records.
+
 The following labels are normative in this document:
 
 - `OWNER_CONFIRMED`: exact policy in the [Identity Decision Register](after_four_identity_decision_register.md).
@@ -30,11 +32,11 @@ Security behavior belongs behind a small set of deep module interfaces. Controll
 
 | Module | External interface | Behavior hidden by the implementation | Test surface |
 |---|---|---|---|
-| Authorization | `decide(context:, action:, resource:) -> Decision` | Active lifecycle, assurance/step-up, fixed capability template, Role Assignment, Employee Branch Assignment, immutable resource scope, self-approval, delegation, default denial | Decision result and safe reason code across role/Branch/action matrix |
+| Authorization | `decide(context:, action:, resource:) -> Decision` | Active lifecycle, assurance/step-up, fixed capability template, Identity-owned Role Assignment, authoritative Employee Branch Assignment information obtained through a narrow Workforce Application read contract, immutable resource scope, self-approval, delegation, default denial | Decision result and safe reason code across role/Branch/action matrix |
 | Credentials | `verify(kind:, user:, presented_secret:) -> VerificationResult` and authorized enrollment/change commands | Normalization, algorithm/parameter version, pepper/key version, constant-time verification, rehash, failure recording, secret redaction | Success/failure/upgrade outcome; persisted digest metadata; no raw secret |
 | Sessions | `authenticate(raw_token:, request_context:) -> AuthContext`, `issue`, `rotate`, and `revoke` | Token parsing/verifier lookup, expiry, POS lock, assurance, current scope loading, last-seen policy, anomaly signals, cookie instructions | Issued/rejected context, rotation/revocation, exact time and concurrency outcomes |
 | Authentication Defense | `evaluate(attempt_context:) -> DefenseDecision` and `record(outcome:)` | Multi-key distributed counters, progressive delay, temporary lock, generic response contract, trusted source handling | Permit/delay/deny decision and counter behavior through a PostgreSQL adapter and deterministic test adapter |
-| Identity Lifecycle | `execute(command:, actor:, idempotency_key:) -> LifecycleResult` | Row locking, state guards, assignment/delegation/invitation/session/credential changes, audit atomicity, retry result | Observable aggregate state and audit outcome for each command/race |
+| Identity Lifecycle | `execute(command:, actor:, idempotency_key:) -> LifecycleResult` | Identity-owned state guards, Role Assignment/delegation/invitation/Session/credential changes, audit atomicity, retry result; any Employee or Employee Branch Assignment change remains a separate Workforce Application responsibility coordinated at the composition root | Observable Identity-owned aggregate state and audit outcome for each command/race |
 | Audit Append | `append(event:)` inside the caller transaction | Taxonomy validation, redaction, immutable serialization, row hash, request/actor/target attribution | Committed event or whole transaction rollback; direct mutation denied |
 | Audit Read/Export | `query(actor:, purpose:, scope:)` and separately approved export command | Reader authorization, self-investigation rule, minimization, hold/export evidence | Authorized minimized results and denied attempts; disabled until policy review |
 
@@ -99,7 +101,7 @@ This matrix is exhaustive for capabilities evidenced by the canonical Business D
 | `identity.invitation.create_staff` | `ENABLED` | `CONDITIONAL` active Invitation Delegation and assigned Branch | Deny | ID-08/ID-14; Branch Manager cannot invite Owner/Branch Manager or themself. |
 | `identity.delegation.manage` | `OWNER_ONLY` | Deny | Deny | Owner grants/revokes; no onward delegation or self-renewal. |
 | `identity.role_assignment.manage` | `OWNER_ONLY` | Deny | Deny | ID-09; every create/change/end requires Owner approval and step-up. |
-| `identity.branch_assignment.manage` | `OWNER_ONLY` | Deny | Deny | ID-09; distinct from Role Assignment. |
+| `workforce.employee_branch_assignment.manage` | `OWNER_ONLY` | Deny | Deny | Proposed capability label for the separately Workforce-owned operation under ID-09; it is distinct from Identity-owned Role Assignment and does not implement a Workforce command. |
 | `identity.account.suspend` | `OWNER_ONLY` | Deny | Deny | ID-15; Owner-unavailable procedure is separate and unresolved. |
 | `identity.account.reactivate` | `OWNER_ONLY` | Deny | Deny | Explicit Owner authorization, step-up, reason, audit. |
 | `identity.account.deactivate` | `OWNER_ONLY` | Deny | Deny | No automatic return; preserve history. |
@@ -123,8 +125,8 @@ For every Branch resource or command, the Authorization module:
 
 1. loads the active User and current Session from trusted server state;
 2. derives Organization from the User, never from the request;
-3. resolves effective Role Assignments at database/server time;
-4. resolves the linked Employee's effective Branch Assignments independently;
+3. resolves effective Identity-owned Role Assignments at database/server time;
+4. obtains authoritative effective Employee Branch Assignment information independently through the narrow Workforce Application read contract;
 5. derives allowed Branches as role scope intersected with Employee Branch scope, except the explicit Organization-scoped Owner rule;
 6. scopes the resource query before lookup and verifies persisted Organization/Branch ancestry;
 7. verifies the exact capability, duty/purpose/threshold/approval, step-up, self-target, and delegation guards;
@@ -381,34 +383,34 @@ If the authoritative limiter cannot read/update atomically:
 ### 8.2 Shared transaction rules
 
 - Every command accepts an idempotency key and request fingerprint; same key/same fingerprint returns original result, same key/different fingerprint conflicts.
-- Lock rows in stable order: Organization/target User, Delegation, Invitation, Role Assignments sorted by UUID, Branch Assignments sorted by UUID, Sessions sorted by UUID, then supporting credentials/factors. Use only locks required by the command.
+- Within Identity-owned persistence, lock rows in stable order: Organization reference/target User, Delegation, Invitation, Role Assignments sorted by UUID, Sessions sorted by UUID, then supporting credentials/factors. Use only locks required by the Identity command. Any Workforce-owned locking and cross-context coordination remain separate future design concerns; this proposal does not authorize Identity to lock Employee or Employee Branch Assignment records.
 - Evaluate server time once per transaction. Effective intervals use half-open `[from, to)` semantics.
 - Required Audit Event is inserted in the same database transaction. Notification/monitoring work is an outbox event committed with state and safe to retry.
 - No command trusts actor/Organization/Branch/role/approval from request payload. Direct persistence callbacks are not the security interface.
 
 ### 8.3 Invitation and delegation
 
-**Create invitation:** Owner, or active Branch Manager with active `invite_staff` Delegation, calls the lifecycle command. Lock Delegation; revalidate delegate User/MFA, Role Assignment, Employee Branch Assignment, allowed Branch, effective interval, target Staff role, and no self-invite. Candidate invitation expiry is `min(issued_at + 72 hours, delegation.expires_at)`; 72 hours is a review candidate. Store token digest only. Proposed Role/Branch details create no assignment. Commit invitation, audit, and notification outbox together.
+**Create invitation:** Owner, or active Branch Manager with active `invite_staff` Delegation, calls the lifecycle command. Lock Delegation; revalidate delegate User/MFA and Role Assignment, obtain authoritative effective Employee Branch Assignment information through the Workforce Application read contract, and validate allowed Branch, effective interval, target Staff role, and no self-invite. Candidate invitation expiry is `min(issued_at + 72 hours, delegation.expires_at)`; 72 hours is a review candidate. Store token digest only. Proposed Role/Branch details create no assignment. Commit the Identity-owned invitation, audit, and notification outbox together.
 
-**Accept invitation:** lock Invitation then Delegation/target identities. Verify single-use token, purpose, expiry/revocation, target proof, and current delegation/Branch validity. Record `accepted_at`, establish or link invited User/Employee and enrolled credential through the future approved schema, but keep access non-active until required Owner-approved Role and Branch Assignments exist. Acceptance cannot approve its own assignments.
+**Accept invitation:** lock Identity-owned Invitation, Delegation, and target User state. Verify single-use token, purpose, expiry/revocation, target proof, and current delegation/Branch validity. Record `accepted_at` and establish or link the invited User and enrolled credential only within a future approved Identity schema. Any Employee linkage or Workforce record creation requires a separately approved Workforce Application operation coordinated by the composition root. Access remains non-active until the required Owner-approved Role Assignment and authoritative Employee Branch Assignment exist. Acceptance cannot approve either assignment.
 
 **Expire/revoke:** expiry is derived at read/use time even before cleanup. Owner revocation locks Delegation and bulk-revokes every unused invitation created under it in the same transaction. Manager suspension/deactivation, lost qualifying assignment, or expiry makes delegation unusable immediately; a reconciliation job may materialize revocation later but cannot reopen acceptance.
 
 ### 8.4 Role Assignment and Employee Branch Assignment
 
-Assignments remain separate effective-dated records. Only an active Owner with fresh step-up may create/change/end either. A combined onboarding command may coordinate both, but creates two records and validates each invariant independently. Lock target User/Employee and affected intervals; prevent Organization mismatch, forbidden role/scope, overlap, retroactive history rewrite, self-approval through alternate actor, and Regional Manager activation. Commit approval evidence, assignment histories, Session rotation/revocation where privilege changes, audit, and outbox together.
+Assignments remain separate effective-dated records under different owners: Identity owns Role Assignment; Workforce owns Employee Branch Assignment. Only an active Owner with fresh step-up may authorize create/change/end operations for either under the confirmed policy. A composition-root onboarding workflow may in the future coordinate the two context-owned Application commands, but neither context may mutate the other's record or access its Infrastructure. Each context validates its own invariants and persists its own approval evidence, history, audit, and outbox; Identity separately rotates or revokes Sessions when an effective authorization change requires it. Cross-context failure and recovery semantics remain a future Gate design concern rather than an assumed shared transaction.
 
 Privilege reduction invalidates effective authorization immediately and revokes/rotates Sessions according to the reviewed risk matrix. Privilege increase never bypasses required MFA enrollment or step-up.
 
 ### 8.5 Suspension, reactivation, deactivation, and rehire
 
-**Suspend:** Owner step-up command locks User, changes access state, revokes all Sessions and active recovery/pre-auth ceremonies, makes Delegation unusable and revokes its unused invitations, and records audit. Whether Role/Branch Assignments remain effective but unusable is the proposed default and requires Owner/security review.
+**Suspend:** Owner step-up command locks User, changes access state, revokes all Sessions and active recovery/pre-auth ceremonies, makes Delegation unusable and revokes its unused invitations, and records audit. Whether Role Assignment and Employee Branch Assignment remain effective but unusable is the proposed default and requires Owner/security review; Identity does not mutate the Workforce-owned assignment.
 
-**Reactivate:** distinct Owner step-up command with reason. Revalidate employment, credentials/factors, assignments/effective dates, and risk remediation; never restore expired/revoked grants. Create audit and notification outbox. No direct state edit.
+**Reactivate:** distinct Owner step-up command with reason. Revalidate authoritative employment and Employee Branch Assignment information through the Workforce Application contract and revalidate Identity-owned credentials/factors, Role Assignment/effective dates, and risk remediation; never restore expired/revoked grants. Create the Identity audit and notification outbox. No direct Workforce state edit.
 
-**Deactivate:** Owner step-up command locks User/Employee, ends current/future Role and Branch Assignments at approved effective time, revokes Sessions, credentials/factors as policy requires, recovery challenges, Delegations and unused invitations, and preserves User/Employee/audit/business history. Access removal commits atomically; if any required local write fails, the transaction rolls back and the old User remains immediately suspended/fail-closed through a separately recorded emergency guard.
+**Deactivate:** a composition-root workflow coordinates separately authorized context-owned operations. Identity locks User, ends Identity-owned current/future Role Assignments at the approved effective time, revokes Sessions, credentials/factors as policy requires, recovery challenges, Delegations and unused invitations, and preserves User/audit history. Workforce alone may end Employee Branch Assignments and preserve Employee/employment history through its Application contract. Identity-local access removal remains atomic; cross-context atomicity or compensation is not selected here. Missing or failed Workforce confirmation keeps authorization fail-closed and cannot be treated as successful Workforce mutation.
 
-**Rehire:** explicit Owner command references preserved Employee/User history, performs identity conflict review, creates new effective assignments/credentials as required, and activates only after approved onboarding and MFA conditions. It never clears prior audit or mutates historical actor links.
+**Rehire:** an explicit Owner-authorized composition workflow references preserved Employee and User histories through their owning contexts, performs identity conflict review, requests new context-owned assignments/credentials as required, and activates only after approved onboarding and MFA conditions. It never clears prior audit or mutates historical actor links. Employee Code, rehire semantics, employment lifecycle, and User–Employee linkage remain unresolved and are not selected by this description.
 
 ### 8.6 Concurrency and partial-failure matrix
 

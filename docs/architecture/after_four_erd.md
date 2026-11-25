@@ -65,10 +65,10 @@ The requested entity list is expanded only where a canonical invariant needs an 
 
 | Scope | Entities directly carrying the scope | Derivable scope examples |
 |---|---|---|
-| Organization-owned | `organizations`; chain Users/Employees, roles, customers, suppliers, configuration when organization-scoped | Brand derives Organization; Branch derives Brand/Organization |
-| Brand-owned | `brands`, categories, products, variants, modifiers, recipes, promotions, brand configuration | Order catalog sources derive Brand, but Order retains Branch directly |
-| Branch-owned | Branch assignments, shifts, attendance, orders, preparation, delivery, cash, expenses, reservations, tables, assets, checklists/runs, feedback, devices/printers | Order Items derive Branch from Order; Cash Transactions from Cash Session |
-| Warehouse-owned | Inventory positions/lots, stock movements, stocktake, transfer endpoints, goods receipts | Warehouse has exactly one Organization and may have one Branch |
+| Organization-scoped | `organizations`; Identity-owned Users/roles; Workforce-owned Employees; customers, suppliers, and configuration when organization-scoped | Brand derives Organization; Branch derives Brand/Organization. Scope does not transfer bounded-context ownership. |
+| Brand-scoped | `brands`, categories, products, variants, modifiers, recipes, promotions, brand configuration | Order catalog sources derive Brand, but Order retains Branch directly |
+| Branch-scoped | Workforce-owned Branch Assignments; shifts, attendance, orders, preparation, delivery, cash, expenses, reservations, tables, assets, checklists/runs, feedback, devices/printers | Order Items derive Branch from Order; Cash Transactions from Cash Session |
+| Warehouse-scoped | Inventory positions/lots, stock movements, stocktake, transfer endpoints, goods receipts | Warehouse has exactly one Organization and may have one Branch |
 | Organization-/policy-shared | Customer phone admission namespace, scoped Customer Profile, loyalty account/ledger, Supplier identity, central configuration | Organization-wide phone admission grants no Organization-wide Profile visibility; access remains filtered by authorized Brand/Branch, capability, and purpose |
 
 ### 3.2 Direct scope-reference policy
@@ -104,6 +104,7 @@ erDiagram
 
 ### Key relationship decisions
 
+- `OWNER_CONFIRMED` architecture boundary: the diagram is conceptual across three ownership boundaries: Organization owns Organization, Brand, and Branch; Identity owns User, authentication records, Role Assignment, trusted authorization context, and authorization resolution; Workforce owns Employee and Employee Branch Assignment. Identity consumes effective Employee Branch Assignment facts only through a narrow Workforce Application read contract and never owns or mutates the depicted Workforce records. These ownership labels add no table, field, key, relationship, migration, or implementation authorization.
 - `OWNER_CONFIRMED` Initial deployment has one Organization and one Brand, while the schema permits multiple rows of each and has no permanent single-row constraint (`ODB-CAT-14`). The depicted Organization-to-Brand and Brand-to-Branch relationship shapes remain the current logical design; `ODB-CAT-14` does not approve a maximum Brands-per-Organization or additional Branch cardinality.
 - `WORKSHOP_AGREED` User and Employee are optional one-to-one: an Employee may not need system access; a User must not automatically become an Employee.
 - `WORKSHOP_AGREED` Branch Assignment records employment/work assignment. Role Assignment records authorization. Neither substitutes for the other.
@@ -111,7 +112,7 @@ erDiagram
 - `WORKSHOP_AGREED` A Branch Assignment has an effective interval and type (`primary`, `temporary`). Overlapping primary assignments are forbidden; temporary overlap rules are policy-driven.
 - `OWNER_CONFIRMED` Active roles are Owner, Branch Manager, and Staff; Regional Manager is reserved/inactive. `TECHNICAL_PROPOSAL` Owner uses Organization scope while Branch Manager/Staff use Branch scope. Any future Regional Manager activation should add an explicit region model rather than encode arrays in one row.
 - `TECHNICAL_PROPOSAL` Authentication Credential, Session, Account Invitation, and Credential Recovery Challenge are logical security records only; they are not approved tables or migrations. Raw passwords, PINs, session/invitation/recovery secrets, and MFA material are never persisted in recoverable form. See [Identity & Branch Authorization](after_four_identity_authorization.md).
-- `TECHNICAL_PROPOSAL` For non-Owner Branch operations, authorization requires the intersection of an effective Role Assignment and the linked Employee's effective Branch Assignment. A Shift or selected Branch does not create standing access.
+- `OWNER_CONFIRMED` For non-Owner Branch operations, authorization requires the applicable capability and the intersection of an effective Identity-owned Role Assignment and the linked Employee's effective Workforce-owned Employee Branch Assignment. A Shift, selected Branch, or either assignment alone does not create standing access. Missing, stale, unavailable, invalid, or mismatched Workforce evidence fails closed. The Owner Organization-wide scope remains unchanged.
 - `OWNER_CONFIRMED` Every Role Assignment and Employee Branch Assignment change requires Owner approval.
 - `OWNER_CONFIRMED` Authentication lock is a temporary automated control; suspension/reactivation and deactivation are Owner-controlled. Deactivation preserves Employee, audit, and business history and has no automatic return.
 - `TECHNICAL_PROPOSAL` Configuration has exactly one scope owner—Organization, Brand, or Branch—and immutable/effective versions.

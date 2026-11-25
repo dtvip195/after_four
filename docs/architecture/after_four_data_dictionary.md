@@ -67,22 +67,24 @@ Keys/indexes: `OWNER_CONFIRMED` username is unique and accounts are invitation-o
 
 MFA scope is `OWNER_CONFIRMED` for Owner and every Branch Manager; sensitive capabilities also require step-up. Factor records remain deferred until method and recovery pass security review. Region/Regional Manager records remain deferred while the role is inactive. See [Identity & Branch Authorization](after_four_identity_authorization.md).
 
-### `employees` — employment identity (`WORKSHOP_AGREED`)
+### `employees` — Workforce-owned employment identity (`WORKSHOP_AGREED` concept; ownership `OWNER_CONFIRMED` architecture)
 
 Fields: `organization_id uuid R FK`; `user_id uuid O FK`; `employee_code varchar(50) R`; `display_name varchar(200) R`; `employment_status varchar(40) R`; `hired_on date R`; `ended_on date O`; `contact_phone varchar(50) O`; `archived_at timestamptz O`; mutable common fields.  
 Keys/indexes: UQ `(organization_id, employee_code)`; UQ `user_id` when non-null; indexes `(organization_id, employment_status)`. Personal-data fields/retention: `LEGAL_VALIDATION`.
 
-### `branch_assignments` — effective Employee/Branch relationship (`WORKSHOP_AGREED`)
+The fields above remain logical recommendations, not approved physical schema. The ownership decision does not approve Employee Code policy, employment lifecycle or rehire representation, User–Employee linkage, personal-data fields, a table, migration, persistence record, or runtime operation.
+
+### `branch_assignments` — Workforce-owned effective Employee/Branch relationship (`WORKSHOP_AGREED` concept; ownership `OWNER_CONFIRMED` architecture)
 
 Fields: `employee_id uuid R FK`; `branch_id uuid R FK`; `assignment_type varchar(40) R` (`primary`, `temporary`); `effective_from timestamptz R`; `effective_to timestamptz O`; `assigned_by_user_id uuid R FK`; `reason text O`; immutable after supersession.  
 Keys/indexes: index `(employee_id, effective_from)` and `(branch_id, effective_from)`; exclusion/transaction rule prevents overlapping primary assignments. End by setting `effective_to` through an audited command. `OWNER_CONFIRMED` Every create/change/end requires Owner approval.
 
-### `roles` — small authorization templates (`WORKSHOP_AGREED`, mechanism `TECHNICAL_PROPOSAL`)
+### `roles` — Identity-owned small authorization templates (`WORKSHOP_AGREED`, mechanism `TECHNICAL_PROPOSAL`, ownership `OWNER_CONFIRMED` architecture)
 
 Fields: `organization_id uuid R FK`; `key varchar(50) R`; `name varchar(100) R`; `capabilities jsonb R default '[]'`; `status varchar(40) R default 'active'`; mutable common fields.  
 Keys/indexes: UQ `(organization_id, key)`. `OWNER_CONFIRMED` Active keys are Owner/Branch Manager/Staff; Regional Manager remains reserved and inactive.
 
-### `role_assignments` — effective User authorization scope (`WORKSHOP_AGREED`)
+### `role_assignments` — Identity-owned effective User authorization scope (`WORKSHOP_AGREED` concept; ownership `OWNER_CONFIRMED` architecture)
 
 Fields: `user_id uuid R FK`; `role_id uuid R FK`; `branch_id uuid O FK`; `effective_from timestamptz R`; `effective_to timestamptz O`; `granted_by_user_id uuid R FK`; `reason text O`; immutable interval history.  
 Keys/indexes: index `(user_id, effective_from)`; index `(branch_id, effective_from)`. Application validates Organization consistency and whether null Branch is allowed for that role. `OWNER_CONFIRMED` Every create/change/end requires Owner approval.

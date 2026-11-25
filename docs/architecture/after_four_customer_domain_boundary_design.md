@@ -161,7 +161,7 @@ The ownership below is a domain-responsibility proposal derived from Owner-appro
 | Question | Boundary |
 |---|---|
 | Customer owns | Customer Profile and business handling of Customer information. |
-| Identity owns | Employee/User authentication identity, credentials, Session, MFA, recovery, and trusted actor context. |
+| Identity owns | User authentication identity, credentials, Session, MFA, recovery, Role Assignment, trusted actor context, and authorization resolution. Workforce separately owns Employee identity, employment facts, and Employee Branch Assignment. |
 | May cross | A future trusted actor/requester reference and verification outcome required by an authorized Customer operation. |
 | Must not cross or be inferred | A Profile as login identity, phone as authentication proof, Customer ID as authority, or employee Identity records as Profile data. |
 | Unresolved | Whether Customers ever authenticate, requester-verification evidence, and the contract for Customer privacy requests. ADR-0006 remains Proposed. |
