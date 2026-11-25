@@ -289,23 +289,23 @@ Working directory: `backend/`.
 
 ```bash
 docker compose run --rm --no-deps backend bin/rubocop \
-  app/domains/identity/application/contracts/identity_brand_reference.rb \
-  app/domains/identity/application/contracts/identity_organization_reference.rb \
-  app/domains/identity/application/contracts/organization_scope_evidence.rb \
-  app/domains/identity/application/contracts/organization_scope_result.rb \
-  app/domains/identity/application/contracts/safe_failure_reference.rb \
-  app/domains/identity/application/errors/unexpected_failure.rb \
-  app/domains/identity/application/ports/organization_scope.rb \
-  app/domains/identity/infrastructure/adapters/organization_scope_adapter.rb \
-  app/domains/organization/application/contracts/brand_ancestry.rb \
-  app/domains/organization/application/contracts/brand_reference.rb \
-  app/domains/organization/application/contracts/organization_reference.rb \
-  app/domains/organization/application/contracts/resolve_brand_ancestry_result.rb \
-  app/domains/organization/application/contracts/safe_failure_reference.rb \
-  app/domains/organization/application/errors/unexpected_failure.rb \
-  app/domains/organization/application/ports/brand_ancestry_reader.rb \
-  app/domains/organization/application/queries/resolve_brand_ancestry.rb \
-  app/domains/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb \
+  app/contexts/identity/application/contracts/identity_brand_reference.rb \
+  app/contexts/identity/application/contracts/identity_organization_reference.rb \
+  app/contexts/identity/application/contracts/organization_scope_evidence.rb \
+  app/contexts/identity/application/contracts/organization_scope_result.rb \
+  app/contexts/identity/application/contracts/safe_failure_reference.rb \
+  app/contexts/identity/application/errors/unexpected_failure.rb \
+  app/contexts/identity/application/ports/organization_scope.rb \
+  app/contexts/identity/infrastructure/adapters/organization_scope_adapter.rb \
+  app/contexts/organization/application/contracts/brand_ancestry.rb \
+  app/contexts/organization/application/contracts/brand_reference.rb \
+  app/contexts/organization/application/contracts/organization_reference.rb \
+  app/contexts/organization/application/contracts/resolve_brand_ancestry_result.rb \
+  app/contexts/organization/application/contracts/safe_failure_reference.rb \
+  app/contexts/organization/application/errors/unexpected_failure.rb \
+  app/contexts/organization/application/ports/brand_ancestry_reader.rb \
+  app/contexts/organization/application/queries/resolve_brand_ancestry.rb \
+  app/contexts/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb \
   spec/architecture/i1_dependency_spec.rb \
   spec/domains/identity/infrastructure/adapters/organization_scope_adapter_spec.rb \
   spec/domains/organization/application/queries/resolve_brand_ancestry_spec.rb \

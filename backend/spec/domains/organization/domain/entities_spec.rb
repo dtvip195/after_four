@@ -1,7 +1,7 @@
 require "spec_helper"
-require_relative "../../../../app/domains/organization/domain/entities/organization"
-require_relative "../../../../app/domains/organization/domain/entities/brand"
-require_relative "../../../../app/domains/organization/domain/entities/branch"
+require_relative "../../../../app/contexts/organization/domain/entities/organization"
+require_relative "../../../../app/contexts/organization/domain/entities/brand"
+require_relative "../../../../app/contexts/organization/domain/entities/branch"
 
 RSpec.describe "Organization domain entities" do
   it "represents the established identity and relationship hierarchy without Rails" do

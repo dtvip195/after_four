@@ -41,7 +41,7 @@ Historical workshop, workflow, design, and roadmap documents are evidence of ear
 
 Keep feature-specific components, hooks, types, and logic inside their feature. Promote code to shared folders only after it has a genuine cross-feature consumer.
 
-Backend structure follows the accepted Rails modular-monolith ADRs and current Phase 1 implementation. Logical DDD context names do not authorize namespace/folder renames; the Sales/Billing versus Orders/Payments vocabulary amendment remains a proposal pending Owner approval.
+Backend structure follows the accepted Rails modular-monolith ADRs and current Phase 1 implementation. `backend/app/contexts/` is the filesystem collection of Bounded Contexts; its child directories remain top-level Ruby namespaces such as `Orders`, `Payments`, and `Preparation`, with no enclosing `Contexts` module. Inside each context, `domain/`, `application/`, and `infrastructure/` identify Layered DDD responsibilities. Logical DDD context names do not authorize Ruby namespace renames; the Sales/Billing versus Orders/Payments vocabulary amendment remains a proposal pending Owner approval.
 
 ## Project-wide Layered DDD
 

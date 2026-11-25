@@ -45,7 +45,7 @@ The review verified useful foundations but did not execute them. Phase 1 source 
 - [Catalog Core Technical Design](../architecture/after_four_catalog_core_technical_design.md), especially §§1–5 and explicit Package B exclusions.
 - [P1B Catalog Current-State Reconciliation](after_four_p1b_catalog_current_state_reconciliation.md), especially current-state and exit assessments.
 - [Order/Payment Phase 1 implementation record](../architecture/after_four_order_payment_implementation_phase1.md), especially §§2–7.
-- `backend/app/domains/orders/application/use_cases/create_draft.rb`, `backend/app/domains/orders/application/use_cases/confirm.rb` and `backend/app/domains/payments/confirm.rb`.
+- `backend/app/contexts/orders/application/use_cases/create_draft.rb`, `backend/app/contexts/orders/application/use_cases/confirm.rb` and `backend/app/contexts/payments/confirm.rb`.
 - [P2B Cash Domain Discovery](after_four_p2b_cash_domain_discovery.md), especially §§2–5.
 - [P1 Trusted Identity/Authorization Design](../architecture/after_four_p1_trusted_identity_authorization_design.md), especially §§5–8, 11–12 and 14–17.
 - [Identity and Authorization](../architecture/after_four_identity_authorization.md), especially §§1, 3–5 and 7.

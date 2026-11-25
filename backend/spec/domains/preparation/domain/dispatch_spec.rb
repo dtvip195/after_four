@@ -1,7 +1,7 @@
 require "spec_helper"
-require_relative "../../../../app/domains/preparation/domain/errors/rule_violation"
-require_relative "../../../../app/domains/preparation/domain/value_objects/dispatch_id"
-require_relative "../../../../app/domains/preparation/domain/aggregates/dispatch"
+require_relative "../../../../app/contexts/preparation/domain/errors/rule_violation"
+require_relative "../../../../app/contexts/preparation/domain/value_objects/dispatch_id"
+require_relative "../../../../app/contexts/preparation/domain/aggregates/dispatch"
 
 RSpec.describe Preparation::Domain::Aggregates::Dispatch do
   let(:now) { Time.utc(2026, 11, 26, 9, 0, 0) }

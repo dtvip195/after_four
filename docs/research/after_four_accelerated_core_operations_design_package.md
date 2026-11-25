@@ -34,10 +34,10 @@ Repository presence is not authority. No Gate, implementation, production, exter
 
 ### 2.1 Implemented foundations
 
-- `Orders::Application::UseCases::CreateDraft`, `Confirm`, `Hold` and `ExpirePending` implement an aggregate-total Order foundation (`backend/app/domains/orders/application/use_cases/`).
-- `Payments::ConfirmCash` and `Payments::ConfirmBankTransfer` call the exact-balance local confirmation command; mismatch is recorded/rejected and eligible settlement atomically creates one pending Preparation Dispatch (`backend/app/domains/payments/confirm.rb:34-101,126-234`).
+- `Orders::Application::UseCases::CreateDraft`, `Confirm`, `Hold` and `ExpirePending` implement an aggregate-total Order foundation (`backend/app/contexts/orders/application/use_cases/`).
+- `Payments::ConfirmCash` and `Payments::ConfirmBankTransfer` call the exact-balance local confirmation command; mismatch is recorded/rejected and eligible settlement atomically creates one pending Preparation Dispatch (`backend/app/contexts/payments/confirm.rb:34-101,126-234`).
 - Late success on Held/Expired Orders records financial truth plus a review case without automatic dispatch or reactivation (`backend/spec/services/payments/late_success_spec.rb`).
-- `Preparation::RequestDispatch` and `Preparation::RetryDispatch` create/requeue the durable pending handoff; no ticket worker or kitchen lifecycle exists (`backend/app/domains/preparation/`).
+- `Preparation::RequestDispatch` and `Preparation::RetryDispatch` create/requeue the durable pending handoff; no ticket worker or kitchen lifecycle exists (`backend/app/contexts/preparation/`).
 - Category/Product/Variant records and integrity mechanisms exist as the empty Catalog foundation; no Pricing, Availability or runtime Catalog operation follows ([P1B §3 and §11](after_four_p1b_catalog_current_state_reconciliation.md#3-current-state-reconciliation-matrix)).
 - Rails has no business routes; only health and API-not-found routes exist (`backend/config/routes.rb:1-9`). POS and delivery pages remain local demos (`frontend/src/features/pos/hooks/use-demo-order.ts`; `frontend/src/features/upstairs-delivery/hooks/use-demo-delivery-queue.ts`).
 
@@ -180,7 +180,7 @@ CORE-01 invariants are:
 
 The exact re-quote command shape, review token, lock order, database isolation and Price-publication race mechanism remain `TECHNICAL_PROPOSAL` pending Gate A review and Gate B authorization. The semantic requirement is stable: unrelated Draft edits never silently reprice, explicit revalidation exposes every changed commercial term, and confirmation cannot bypass the required review.
 
-The current `Orders::Application::UseCases::CreateDraft` accepts `total_amount` from its caller (`backend/app/domains/orders/application/use_cases/create_draft.rb:27-56`). `CORE-01` must replace that trust boundary for the public operational flow; it must not silently change the existing command before Gate B approval.
+The current `Orders::Application::UseCases::CreateDraft` accepts `total_amount` from its caller (`backend/app/contexts/orders/application/use_cases/create_draft.rb:27-56`). `CORE-01` must replace that trust boundary for the public operational flow; it must not silently change the existing command before Gate B approval.
 
 Ordering owns a stable confirmation attempt with these mutually exclusive logical outcomes:
 
@@ -242,7 +242,7 @@ Operator selects Product/Variant and Branch
 
 ### 3.6 Monetary sequence and precision
 
-Existing Phase 1 uses integer VND fields and exact equality (`backend/app/models/payment.rb:10-15`; `backend/app/domains/payments/confirm.rb:126-135`). The following is the narrow proposed skeleton, not an approved calculation policy:
+Existing Phase 1 uses integer VND fields and exact equality (`backend/app/models/payment.rb:10-15`; `backend/app/contexts/payments/confirm.rb:126-135`). The following is the narrow proposed skeleton, not an approved calculation policy:
 
 1. resolve authoritative unit Price for every line;
 2. multiply unit Price by positive integer quantity using checked integer arithmetic;
@@ -258,7 +258,7 @@ Tax treatment and rounding remain `OWNER_DEFERRED — OWNER_INPUT_REQUIRED`. Ser
 - The bounded first slice confirms only exact target amount and currency through the existing cash command.
 - The existing manual-bank command and evidence remain unchanged, but `CORE-OD-07` excludes manual bank from the initial scope. Reconsideration requires separately governed Branch-scoped capability and evidence prerequisites; an alert/speaker is not authoritative bank evidence ([API Contract §6.2](../architecture/after_four_api_contract.md#62-payment-commands)).
 - Reuse current Payment lock, attempt idempotency and mismatch evidence.
-- Successful eligible settlement, Payment aggregate update, pending Dispatch, Outbox Event and audit commit together (`backend/app/domains/payments/confirm.rb:40-98,177-234`).
+- Successful eligible settlement, Payment aggregate update, pending Dispatch, Outbox Event and audit commit together (`backend/app/contexts/payments/confirm.rb:40-98,177-234`).
 - Dispatch delivery and kitchen ticket creation are `CORE-02`, not `CORE-01`.
 - Held/Expired late success records a review case and never automatically dispatches.
 
@@ -301,7 +301,7 @@ This is a candidate manifest for later review, not Gate B authorization:
 | Payment/Dispatch integration | Adapt the confirmed authoritative total into the existing Phase 1 exact-cash boundary without changing financial truth. Under confirmed `CORE-OD-07`, manual-bank integration is excluded pending separate Branch-scoped capability/evidence prerequisites. | Exact-cash target, mismatch, replay, late-success, dispatch uniqueness and failure-injection evidence; separate manual-bank evidence only if later authorized. |
 | POS integration | Replace demo/client-authoritative totals only after the backend contract exists. | Type/lint/build plus focused interaction/error/re-quote tests under a separately approved manifest. |
 
-Candidate future source areas include `backend/app/domains/catalog/`, `backend/app/domains/orders/`, bounded Presentation adapters/routes, focused specs under `backend/spec/`, and the corresponding POS feature integration. Exact files, migrations and database objects must be enumerated in a later Gate B request; this package authorizes none of them.
+Candidate future source areas include `backend/app/contexts/catalog/`, `backend/app/contexts/orders/`, bounded Presentation adapters/routes, focused specs under `backend/spec/`, and the corresponding POS feature integration. Exact files, migrations and database objects must be enumerated in a later Gate B request; this package authorizes none of them.
 
 ## 4. CORE-02 — Preparation lifecycle bounded design
 

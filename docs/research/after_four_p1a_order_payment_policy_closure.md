@@ -32,7 +32,7 @@ This package does not authorize physical persistence, transaction/lock/isolation
 - [Business Domain Model §§8, 10, 14–17](../architecture/after_four_business_domain_model.md#8-sales-payment-preparation-printing-and-delivery);
 - [Phase 1 Implementation Record](../architecture/after_four_order_payment_implementation_phase1.md);
 - [Customer Owner Decisions](../architecture/after_four_customer_management_owner_decisions.md), especially `SDP-CUST-19`; and
-- inspected Phase 1 Order, Payment, Preparation command/model/spec file inventory under `backend/app/domains`, `backend/app/models`, and `backend/spec` without executing it.
+- inspected Phase 1 Order, Payment, Preparation command/model/spec file inventory under `backend/app/contexts`, `backend/app/models`, and `backend/spec` without executing it.
 
 ### 2.2 Classification
 

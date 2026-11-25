@@ -200,7 +200,7 @@ Suggested initial Modules:
 ```text
 backend/app/
   controllers/api/v1/
-  domains/
+  contexts/
     identity/
     organization/
     catalog/

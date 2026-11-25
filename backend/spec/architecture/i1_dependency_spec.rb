@@ -5,7 +5,7 @@ RSpec.describe "I1 layered dependency boundaries" do
 
   it "keeps Organization and Identity Application code framework-independent" do
     application_files = Dir[
-      backend_root.join("app/domains/{organization,identity}/application/**/*.rb")
+      backend_root.join("app/contexts/{organization,identity}/application/**/*.rb")
     ]
 
     expect(application_files).not_to be_empty
@@ -33,11 +33,11 @@ RSpec.describe "I1 layered dependency boundaries" do
 
   it "prevents cross-context persistence access" do
     identity_adapter = File.read(
-      backend_root.join("app/domains/identity/infrastructure/adapters/organization_scope_adapter.rb")
+      backend_root.join("app/contexts/identity/infrastructure/adapters/organization_scope_adapter.rb")
     )
     organization_reader = File.read(
       backend_root.join(
-        "app/domains/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb"
+        "app/contexts/organization/infrastructure/persistence/active_record_brand_ancestry_reader.rb"
       )
     )
 

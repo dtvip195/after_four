@@ -1,8 +1,8 @@
 require "spec_helper"
-require_relative "../../../../app/domains/catalog/domain/value_objects/catalog_code"
-require_relative "../../../../app/domains/catalog/domain/entities/category"
-require_relative "../../../../app/domains/catalog/domain/entities/variant"
-require_relative "../../../../app/domains/catalog/domain/aggregates/product"
+require_relative "../../../../app/contexts/catalog/domain/value_objects/catalog_code"
+require_relative "../../../../app/contexts/catalog/domain/entities/category"
+require_relative "../../../../app/contexts/catalog/domain/entities/variant"
+require_relative "../../../../app/contexts/catalog/domain/aggregates/product"
 
 RSpec.describe "Catalog domain" do
   describe Catalog::Domain::ValueObjects::CatalogCode do

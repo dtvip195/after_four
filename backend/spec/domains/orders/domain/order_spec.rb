@@ -1,11 +1,11 @@
 require "spec_helper"
-require_relative "../../../../app/domains/orders/domain/errors/rule_violation"
-require_relative "../../../../app/domains/orders/domain/value_objects/order_id"
-require_relative "../../../../app/domains/orders/domain/value_objects/order_number"
-require_relative "../../../../app/domains/orders/domain/value_objects/money"
-require_relative "../../../../app/domains/orders/domain/value_objects/service_channel"
-require_relative "../../../../app/domains/orders/domain/value_objects/payment_window"
-require_relative "../../../../app/domains/orders/domain/aggregates/order"
+require_relative "../../../../app/contexts/orders/domain/errors/rule_violation"
+require_relative "../../../../app/contexts/orders/domain/value_objects/order_id"
+require_relative "../../../../app/contexts/orders/domain/value_objects/order_number"
+require_relative "../../../../app/contexts/orders/domain/value_objects/money"
+require_relative "../../../../app/contexts/orders/domain/value_objects/service_channel"
+require_relative "../../../../app/contexts/orders/domain/value_objects/payment_window"
+require_relative "../../../../app/contexts/orders/domain/aggregates/order"
 
 RSpec.describe Orders::Domain::Aggregates::Order do
   subject(:order) { build_order }

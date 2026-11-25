@@ -29,6 +29,8 @@ The [Owner Decision Baseline](after_four_owner_decision_baseline.md) is authorit
 
 Each Bounded Context owns its behavior and data responsibilities according to the applicable approved policy and proposed boundaries in those sources. Cross-context work uses an explicitly approved integration contract when a real interaction requires one; it does not directly manipulate another context's Infrastructure records. This decision does not mandate Clean Architecture, generic repositories, speculative ports/mappers, empty layer classes, Rails engines or separate services.
 
+The backend filesystem collects Bounded Contexts under `backend/app/contexts/`. That collection directory is an autoload root, not a Ruby namespace: `backend/app/contexts/orders/...` still defines `Orders::...`, not `Contexts::Orders::...`. Within a context, the singular `domain/`, `application/`, and `infrastructure/` directories identify Layered DDD responsibilities. The plural `contexts/` directory therefore describes context organization without changing any established Ruby constant or business vocabulary.
+
 For example, Organization owns Organization/Brand/Branch behavior, Catalog owns Catalog behavior, Ordering owns Order behavior, and Payment owns Payment/settlement behavior within the selected analysis below. These examples neither enumerate every proposed context nor rename or approve a context.
 
 ### Forward adoption and maturity
@@ -49,17 +51,17 @@ For example, Organization owns Organization/Brand/Branch behavior, Catalog owns 
 
 Verified Domain paths:
 
-- `backend/app/domains/organization/domain/entities/organization.rb`
-- `backend/app/domains/organization/domain/entities/brand.rb`
-- `backend/app/domains/organization/domain/entities/branch.rb`
+- `backend/app/contexts/organization/domain/entities/organization.rb`
+- `backend/app/contexts/organization/domain/entities/brand.rb`
+- `backend/app/contexts/organization/domain/entities/branch.rb`
 
 These classes are framework-independent, do not inherit from Active Record, and represent only the approved A1 identity, names, parent identifiers, relationships and Branch timezone value. They do not claim lifecycle or other unimplemented behavior.
 
 Verified Infrastructure paths:
 
-- `backend/app/domains/organization/infrastructure/persistence/organization_record.rb`
-- `backend/app/domains/organization/infrastructure/persistence/brand_record.rb`
-- `backend/app/domains/organization/infrastructure/persistence/branch_record.rb`
+- `backend/app/contexts/organization/infrastructure/persistence/organization_record.rb`
+- `backend/app/contexts/organization/infrastructure/persistence/brand_record.rb`
+- `backend/app/contexts/organization/infrastructure/persistence/branch_record.rb`
 
 The records own table mapping, persistence associations, database-aligned validations, optimistic locking, restrictive dependent deletion and the implemented `to_domain` projection. A1 has no domain-to-persistence write mapping because no provisioning or administration use case is authorized. It has no Application or Presentation implementation because it exposes no authorized workflow or HTTP surface; empty classes would not improve conformance.
 

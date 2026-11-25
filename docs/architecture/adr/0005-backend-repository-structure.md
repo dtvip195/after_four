@@ -13,12 +13,12 @@ The repository already contains an independently buildable Vite application unde
 
 ## Decision
 
-Place the Rails application under `backend/`. Keep `frontend/`, `backend/`, and shared architecture documentation at the repository root. Within Rails, use conventional framework directories plus explicit domain namespaces:
+Place the Rails application under `backend/`. Keep `frontend/`, `backend/`, and shared architecture documentation at the repository root. Within Rails, use conventional framework directories plus an explicit Bounded Context collection. The `contexts/` directory is an autoload root; it does not add a `Contexts` Ruby namespace:
 
 ```text
 backend/app/
   controllers/api/v1/
-  domains/{identity,organization,catalog,sales,billing,preparation,platform}/
+  contexts/{identity,organization,catalog,sales,billing,preparation,platform}/
   models/
   policies/
   presenters/
