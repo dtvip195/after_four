@@ -602,6 +602,20 @@ CREATE TABLE public.categories (
 
 
 --
+-- Name: employees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.employees (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    organization_id uuid NOT NULL,
+    lock_version integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    updated_at timestamp(6) with time zone NOT NULL,
+    CONSTRAINT employees_lock_version_nonnegative CHECK ((lock_version >= 0))
+);
+
+
+--
 -- Name: orders; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1445,6 +1459,14 @@ ALTER TABLE ONLY public.categories
 
 
 --
+-- Name: employees employees_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.employees
+    ADD CONSTRAINT employees_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1712,6 +1734,13 @@ CREATE UNIQUE INDEX index_dispatch_attempts_on_dispatch_and_key ON public.prepar
 --
 
 CREATE UNIQUE INDEX index_dispatch_attempts_on_dispatch_and_number ON public.preparation_dispatch_attempts USING btree (preparation_dispatch_id, attempt_number);
+
+
+--
+-- Name: index_employees_on_organization_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_employees_on_organization_id ON public.employees USING btree (organization_id);
 
 
 --
@@ -2336,6 +2365,14 @@ ALTER TABLE ONLY public.preparation_dispatches
 
 
 --
+-- Name: employees fk_employees_organization; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.employees
+    ADD CONSTRAINT fk_employees_organization FOREIGN KEY (organization_id) REFERENCES public.organizations(id) ON DELETE RESTRICT;
+
+
+--
 -- Name: product_variants fk_product_variants_brand; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2534,6 +2571,7 @@ ALTER TABLE ONLY public.payment_review_cases
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261126120000'),
 ('20261126090000'),
 ('20261115210000'),
 ('20261115200000'),

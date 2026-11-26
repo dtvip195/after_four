@@ -9,7 +9,7 @@ RSpec.describe "Package B Catalog concurrency", :concurrency do
 
   after do
     ActiveRecord::Base.connection.execute(<<~SQL)
-      TRUNCATE TABLE authentication_sessions, users,
+      TRUNCATE TABLE authentication_sessions, users, employees,
         product_variants, products, categories, branches, brands, organizations
     SQL
   end
