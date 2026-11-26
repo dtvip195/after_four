@@ -19,6 +19,7 @@ class DisposableMigrationDatabase
     20261115200000
     20261115210000
     20261126090000
+    20261126120000
   ].freeze
   A1_MIGRATION_VERSIONS = ALL_MIGRATION_VERSIONS.first(9).freeze
 
@@ -411,7 +412,7 @@ class DisposableMigrationDatabase
         WHERE table_schema = 'public'
           AND table_name NOT IN (
             'schema_migrations', 'ar_internal_metadata', 'categories', 'products', 'product_variants',
-            'users', 'authentication_sessions'
+            'users', 'authentication_sessions', 'employees'
           )
         ORDER BY table_name, ordinal_position
       SQL
@@ -421,7 +422,8 @@ class DisposableMigrationDatabase
         WHERE connamespace = 'public'::regnamespace
           AND conrelid <> 0
           AND conrelid::regclass::text NOT IN (
-            'categories', 'products', 'product_variants', 'users', 'authentication_sessions'
+            'categories', 'products', 'product_variants', 'users', 'authentication_sessions',
+            'employees'
           )
         ORDER BY conrelid::regclass::text, conname
       SQL
@@ -431,7 +433,7 @@ class DisposableMigrationDatabase
         WHERE schemaname = 'public'
           AND tablename NOT IN (
             'schema_migrations', 'ar_internal_metadata', 'categories', 'products', 'product_variants',
-            'users', 'authentication_sessions'
+            'users', 'authentication_sessions', 'employees'
           )
         ORDER BY tablename, indexname
       SQL
@@ -448,7 +450,8 @@ class DisposableMigrationDatabase
         FROM pg_trigger
         WHERE NOT tgisinternal
           AND tgrelid::regclass::text NOT IN (
-            'categories', 'products', 'product_variants', 'users', 'authentication_sessions'
+            'categories', 'products', 'product_variants', 'users', 'authentication_sessions',
+            'employees'
           )
         ORDER BY tgrelid::regclass::text, tgname
       SQL

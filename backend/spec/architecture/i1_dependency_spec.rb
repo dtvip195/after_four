@@ -1,4 +1,5 @@
 require "rails_helper"
+require "yaml"
 
 RSpec.describe "I1 layered dependency boundaries" do
   let(:backend_root) { Rails.root }
@@ -57,6 +58,57 @@ RSpec.describe "I1 layered dependency boundaries" do
     end
     organization_files.each do |path|
       expect(File.read(path)).not_to match(/\b(?:Identity|Workforce)::/), path
+    end
+  end
+
+  it "keeps Workforce Domain and Application framework-independent" do
+    workforce_domain_and_application = Dir[
+      backend_root.join("app/contexts/workforce/{domain,application}/**/*.rb")
+    ]
+
+    expect(workforce_domain_and_application).not_to be_empty
+    workforce_domain_and_application.each do |path|
+      source = File.read(path)
+
+      expect(source).not_to match(/\b(?:ActiveRecord|ApplicationRecord|Devise|Pundit|Rails|PG::)/), path
+    end
+  end
+
+  it "keeps Workforce independent of Identity and Organization internals" do
+    workforce_files = Dir[backend_root.join("app/contexts/workforce/**/*.rb")]
+
+    workforce_files.each do |path|
+      source = File.read(path)
+
+      expect(source).not_to match(/\bIdentity::/), path
+      expect(source).not_to match(/\bOrganization::(?!Application(?:::|\b))/), path
+    end
+
+    employee_record = File.read(
+      backend_root.join("app/contexts/workforce/infrastructure/persistence/employee_record.rb")
+    )
+    expect(employee_record).not_to match(/\bbelongs_to\b|Organization::/)
+  end
+
+  it "keeps the schema-only Workforce package strict and root-only" do
+    package = YAML.safe_load_file(backend_root.join("app/contexts/workforce/package.yml"))
+
+    expect(package).to eq(
+      "enforce_dependencies" => "strict",
+      "dependencies" => [ "." ]
+    )
+  end
+
+  it "adds no Membership or production Employee write entry point" do
+    workforce_files = Dir[backend_root.join("app/contexts/workforce/**/*")].select { |path| File.file?(path) }
+    migration_files = Dir[backend_root.join("db/migrate/*.rb")]
+    composition_files = Dir[backend_root.join("app/composition/**/*.rb")]
+
+    (workforce_files + migration_files).each do |path|
+      expect(File.read(path)).not_to match(/\bMembership\b|create_table\s+:memberships/), path
+    end
+    composition_files.each do |path|
+      expect(File.read(path)).not_to match(/Workforce::.*(?:EmployeeRepository|EmployeeRecord)/), path
     end
   end
 
