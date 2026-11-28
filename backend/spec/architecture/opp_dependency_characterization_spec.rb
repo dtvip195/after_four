@@ -165,7 +165,9 @@ RSpec.describe "ADR-0012 Ordering, Payment, and Preparation dependency baseline"
     "payments" => {
       "orders" => {
         "app/contexts/payments/infrastructure/adapters/ordering_payment_gateway.rb" =>
-          %w[Orders::Application::Ports]
+          %w[Orders::Application::Ports],
+        "app/contexts/payments/infrastructure/adapters/orders_order_scope_resolver.rb" =>
+          %w[Orders::Application::Contracts]
       },
       "preparation" => {
         "app/contexts/payments/infrastructure/adapters/preparation_payment_settlement_gateway.rb" =>

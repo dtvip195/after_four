@@ -3,8 +3,9 @@ module Payments
     module Aggregates
       class Payment
         ConfirmationOutcome = Data.define(:attempt, :replayed, :amount_mismatch)
-        FUNDING_STATUSES = %w[unpaid partially_paid fully_paid partially_refunded fully_refunded].freeze
-        ATTEMPT_ACTIVITIES = %w[idle processing reconciliation_required].freeze
+        StatusSnapshot = ValueObjects::PaymentStatusSnapshot
+        FUNDING_STATUSES = StatusSnapshot::FUNDING_STATUSES
+        ATTEMPT_ACTIVITIES = StatusSnapshot::ATTEMPT_ACTIVITIES
         UUID_FORMAT = ValueObjects::PaymentId::UUID_FORMAT
 
         attr_reader :id, :order_id, :funding_status, :attempt_activity, :target,
@@ -27,21 +28,32 @@ module Payments
         )
           @id = id.is_a?(ValueObjects::PaymentId) ? id : ValueObjects::PaymentId.new(id)
           @order_id = canonical_uuid(order_id, "Order identity")
-          raise ArgumentError, "Payment funding status is invalid" unless FUNDING_STATUSES.include?(funding_status)
-          raise ArgumentError, "Payment attempt activity is invalid" unless ATTEMPT_ACTIVITIES.include?(attempt_activity)
-          raise ArgumentError, "Payment target must be Money" unless target.is_a?(ValueObjects::Money)
-
-          @funding_status = funding_status
-          @attempt_activity = attempt_activity
-          @target = target
-          @successful_amount = Integer(successful_amount)
-          @refunded_amount = Integer(refunded_amount)
+          StatusSnapshot.validate_classification!(
+            funding_status: funding_status,
+            attempt_activity: attempt_activity,
+            target: target
+          )
+          successful_amount = Integer(successful_amount)
+          refunded_amount = Integer(refunded_amount)
+          lock_version = Integer(lock_version)
           @fully_settled_at = fully_settled_at
-          @lock_version = Integer(lock_version)
           @attempts = attempts.dup
           @created_at = required_value(created_at, "Payment creation timestamp")
           @updated_at = required_value(updated_at, "Payment update timestamp")
-          validate_state!
+          snapshot = StatusSnapshot.new(
+            funding_status: funding_status,
+            attempt_activity: attempt_activity,
+            target: target,
+            successful_amount: successful_amount,
+            refunded_amount: refunded_amount,
+            lock_version: lock_version
+          )
+          @funding_status = snapshot.funding_status
+          @attempt_activity = snapshot.attempt_activity
+          @target = snapshot.target
+          @successful_amount = snapshot.successful_amount
+          @refunded_amount = snapshot.refunded_amount
+          @lock_version = snapshot.lock_version
         end
 
         def target_amount
@@ -145,18 +157,6 @@ module Payments
             "payment_result_unknown",
             "A payment attempt still requires resolution"
           )
-        end
-
-        def validate_state!
-          raise ArgumentError, "Payment amounts are invalid" if successful_amount.negative? || refunded_amount.negative?
-          raise ArgumentError, "Payment amounts exceed their allowed bounds" if successful_amount > target_amount || refunded_amount > successful_amount
-          raise ArgumentError, "Payment lock version must be nonnegative" if lock_version.negative?
-          if funding_status == "fully_paid" && successful_amount != target_amount
-            raise ArgumentError, "Fully paid Payment must equal its target"
-          end
-          return unless funding_status == "unpaid" && successful_amount != 0
-
-          raise ArgumentError, "Unpaid Payment cannot contain successful funding"
         end
 
         def canonical_uuid(value, label)

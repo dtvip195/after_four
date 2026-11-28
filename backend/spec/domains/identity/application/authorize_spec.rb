@@ -81,4 +81,21 @@ RSpec.describe Identity::Application::UseCases::Authorize do
     expect(capability_class.resolve("orders.read")).to be_nil
     expect { capability_class.new("orders.read") }.to raise_error(NoMethodError)
   end
+
+  it "rejects every POS capability object and duck-typed POS lookalike" do
+    pos_capabilities = Identity::Domain::ValueObjects::PosCapability.all
+    duck_typed_capability = Data.define(:value).new("pos.orders.read")
+
+    requests = (pos_capabilities + [ duck_typed_capability ]).map do |capability|
+      Identity::Application::Contracts::AuthorizationRequest.new(
+        capability: capability,
+        organization_id: organization_id,
+        branch_id: nil,
+        resource_owner_user_id: user_id,
+        resource_session_id: session_id
+      )
+    end
+
+    expect(requests).to all(satisfy { |request| !authorize.call(context: context, request: request) })
+  end
 end
