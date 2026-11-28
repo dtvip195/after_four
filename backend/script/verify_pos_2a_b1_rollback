@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+base_commit="c05b7ed8994e0fd4c39645db43ba6b0c85bdb165"
+backend_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repository_root="$(cd "$backend_root/.." && pwd)"
+postgres_bin="/opt/homebrew/opt/postgresql@18/bin"
+ruby_bin="/Users/tad/.rbenv/shims"
+verification_root="$(mktemp -d /private/tmp/after_four_pos_b1_ca16.XXXXXX)"
+copy_root="$verification_root/repository"
+state_root="$verification_root/state"
+container_name="af-pos-b1-ca16-$$-db"
+volume_name="af-pos-b1-ca16-$$-pgdata"
+
+b1_new_files=(
+  backend/app/contexts/organization/application/contracts/branch_reference.rb
+  backend/app/contexts/organization/application/contracts/branch_ancestry.rb
+  backend/app/contexts/organization/application/contracts/resolve_branch_ancestry_result.rb
+  backend/app/contexts/organization/application/ports/branch_ancestry_reader.rb
+  backend/app/contexts/organization/application/queries/resolve_branch_ancestry.rb
+  backend/app/contexts/organization/infrastructure/persistence/active_record_branch_ancestry_reader.rb
+  backend/app/contexts/identity/application/contracts/identity_branch_reference.rb
+  backend/app/contexts/identity/application/contracts/branch_scope_evidence.rb
+  backend/app/contexts/identity/application/contracts/branch_scope_result.rb
+  backend/app/contexts/identity/application/ports/branch_scope.rb
+  backend/app/contexts/identity/infrastructure/adapters/organization_branch_scope_adapter.rb
+  backend/app/contexts/identity/domain/value_objects/pos_capability.rb
+  backend/app/contexts/identity/domain/value_objects/role_code.rb
+  backend/app/contexts/identity/domain/entities/role_assignment.rb
+  backend/app/contexts/identity/domain/entities/user_employee_link.rb
+  backend/app/contexts/identity/domain/policies/pos_capability_policy.rb
+  backend/app/contexts/identity/application/contracts/business_authorization_request.rb
+  backend/app/contexts/identity/application/contracts/business_authorization.rb
+  backend/app/contexts/identity/application/contracts/business_authorization_result.rb
+  backend/app/contexts/identity/application/contracts/role_assignment_evidence.rb
+  backend/app/contexts/identity/application/contracts/user_employee_link_evidence.rb
+  backend/app/contexts/identity/application/contracts/employee_branch_scope_evidence.rb
+  backend/app/contexts/identity/application/contracts/session_mfa_assurance_evidence.rb
+  backend/app/contexts/identity/application/ports/role_assignment_reader.rb
+  backend/app/contexts/identity/application/ports/user_employee_link_reader.rb
+  backend/app/contexts/identity/application/ports/employee_branch_scope.rb
+  backend/app/contexts/identity/application/ports/session_mfa_assurance.rb
+  backend/app/contexts/identity/application/use_cases/authorize_business_operation.rb
+  backend/spec/domains/organization/application/queries/resolve_branch_ancestry_spec.rb
+  backend/spec/domains/organization/infrastructure/persistence/active_record_branch_ancestry_reader_spec.rb
+  backend/spec/domains/identity/domain/pos_capability_policy_spec.rb
+  backend/spec/domains/identity/domain/authorization_evidence_spec.rb
+  backend/spec/domains/identity/application/authorize_business_operation_spec.rb
+  backend/spec/domains/identity/infrastructure/adapters/organization_branch_scope_adapter_spec.rb
+  backend/spec/architecture/pos_authorization_dependency_spec.rb
+)
+modifiable_spec="backend/spec/domains/identity/application/authorize_spec.rb"
+
+cleanup() {
+  case "$container_name" in af-pos-b1-ca16-*-db) ;; *) return 1 ;; esac
+  case "$volume_name" in af-pos-b1-ca16-*-pgdata) ;; *) return 1 ;; esac
+  docker container inspect "$container_name" >/dev/null 2>&1 && docker container rm -f "$container_name" >/dev/null
+  docker volume inspect "$volume_name" >/dev/null 2>&1 && docker volume rm "$volume_name" >/dev/null
+  case "$verification_root" in /private/tmp/after_four_pos_b1_ca16.*) rm -rf "$verification_root" ;; *) return 1 ;; esac
+}
+trap cleanup EXIT
+
+test "${#b1_new_files[@]}" -eq 35
+test "$(git -C "$repository_root" rev-parse HEAD)" = "$base_commit"
+test -x "$postgres_bin/pg_dump"
+"$postgres_bin/pg_dump" --version | grep -Eq 'PostgreSQL\) 18\.'
+PATH="$ruby_bin:$postgres_bin:$PATH" ruby --version | grep -F 'ruby 3.4.13'
+
+mkdir -p "$copy_root" "$state_root"
+tar -C "$repository_root" \
+  --exclude=.git --exclude=backend/coverage --exclude=backend/log --exclude=backend/tmp \
+  -cf - . | tar -C "$copy_root" -xf -
+
+{
+  for file in "${b1_new_files[@]}"; do printf './%s\n' "$file"; done
+  printf './%s\n' "$modifiable_spec"
+} | LC_ALL=C sort > "$state_root/b1-controlled-paths.txt"
+
+find "$copy_root" -type f -print | sed "s#^$copy_root#.#" | LC_ALL=C sort |
+  grep -Fvx -f "$state_root/b1-controlled-paths.txt" > "$state_root/non-b1-paths-before.txt"
+while IFS= read -r file; do
+  digest="$(shasum -a 256 "$copy_root/${file#./}" | awk '{print $1}')"
+  printf '%s  %s\n' "$digest" "$file"
+done < "$state_root/non-b1-paths-before.txt" > "$state_root/non-b1-hashes-before.txt"
+
+for file in "${b1_new_files[@]}"; do
+  test -f "$copy_root/$file"
+  rm -f "$copy_root/$file"
+done
+git -C "$repository_root" show "$base_commit:$modifiable_spec" > "$copy_root/$modifiable_spec"
+
+find "$copy_root" -type f -print | sed "s#^$copy_root#.#" | LC_ALL=C sort |
+  grep -Fvx -f "$state_root/b1-controlled-paths.txt" > "$state_root/non-b1-paths-after.txt"
+while IFS= read -r file; do
+  digest="$(shasum -a 256 "$copy_root/${file#./}" | awk '{print $1}')"
+  printf '%s  %s\n' "$digest" "$file"
+done < "$state_root/non-b1-paths-after.txt" > "$state_root/non-b1-hashes-after.txt"
+diff -u "$state_root/non-b1-paths-before.txt" "$state_root/non-b1-paths-after.txt"
+diff -u "$state_root/non-b1-hashes-before.txt" "$state_root/non-b1-hashes-after.txt"
+
+for file in "${b1_new_files[@]}"; do test ! -e "$copy_root/$file"; done
+test "$(shasum -a 256 "$copy_root/backend/app/contexts/identity/application/contracts/capability_identifier.rb" | awk '{print $1}')" = \
+  "85e069e2d59bc95cc608bbbbe054e66f99f7d7705873f191a823aa13fbbbd343"
+test "$(shasum -a 256 "$copy_root/backend/app/contexts/identity/application/contracts/authorization_request.rb" | awk '{print $1}')" = \
+  "c8ca1dc891d9b11e6e501941111d3a48084f62fc1342cbf1b136af3902da86f8"
+test "$(shasum -a 256 "$copy_root/backend/app/contexts/identity/application/use_cases/authorize.rb" | awk '{print $1}')" = \
+  "e6477ff0c7383a60b468cd9f07ed02ac3a12c93458b5cc60e85beb6c49815e5a"
+test "$(shasum -a 256 "$copy_root/$modifiable_spec" | awk '{print $1}')" = \
+  "$(git -C "$repository_root" show "$base_commit:$modifiable_spec" | shasum -a 256 | awk '{print $1}')"
+
+docker volume create "$volume_name" >/dev/null
+docker run -d --name "$container_name" \
+  --mount "source=$volume_name,target=/var/lib/postgresql" \
+  --publish 127.0.0.1::5432 \
+  --env POSTGRES_HOST_AUTH_METHOD=trust \
+  --env POSTGRES_DB=after_four_test postgres:18.7 >/dev/null
+postgres_port="$(docker port "$container_name" 5432/tcp | awk -F: 'NR == 1 {print $NF}')"
+for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+  docker exec "$container_name" pg_isready -U postgres -d after_four_test >/dev/null 2>&1 && break
+  sleep 1
+done
+server_version="$(docker exec "$container_name" psql -U postgres -d after_four_test -Atqc 'SHOW server_version;')"
+case "$server_version" in 18.7*) ;; *) echo "Unexpected PostgreSQL server: $server_version" >&2; exit 1 ;; esac
+
+export PATH="$ruby_bin:$postgres_bin:$PATH"
+export POSTGRES_HOST=127.0.0.1
+export POSTGRES_PORT="$postgres_port"
+export POSTGRES_USER=postgres
+export POSTGRES_PASSWORD=unused-local-only
+export POSTGRES_TEST_DATABASE=after_four_test
+export RAILS_ENV=test
+
+cd "$copy_root/backend"
+bundle exec bin/rails db:prepare
+bundle exec rspec spec/domains/identity/application/authorize_spec.rb
+bundle exec rspec
+
+printf 'CA16_ROLLBACK_VERIFICATION=PASS\n'
+printf 'BASE_COMMIT=%s\n' "$base_commit"
+printf 'B1_NEW_FILES_REMOVED=%s\n' "${#b1_new_files[@]}"
+printf 'MODIFIABLE_SPEC_RESTORED=%s\n' "$modifiable_spec"
+printf 'NON_B1_PATHS_AND_HASHES_UNCHANGED=YES\n'
+printf 'POSTGRES_SERVER_VERSION=%s\n' "$server_version"
+printf 'DISPOSABLE_CONTAINER=%s\n' "$container_name"
+printf 'DISPOSABLE_VOLUME=%s\n' "$volume_name"
+printf 'LIMITATION=code_and_spec_rollback_only_no_production_or_database_rollback_claim\n'
